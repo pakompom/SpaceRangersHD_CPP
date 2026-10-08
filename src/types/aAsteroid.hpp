@@ -73,10 +73,10 @@ namespace aAsteroid {
 
     // Preserve native Extended constants. DCC32's decimal conversion rounds plain
     // 2e30 and 6e-9 one mantissa bit above the constants in this binary.
-    inline constexpr long double AsteroidCentralMass = 2.0E+30L - 137438953472.0L;
+    inline constexpr double AsteroidCentralMass = 2.0E+30 - 137438953472.0;
 
-    inline constexpr long double AsteroidWorldScale = 5.9999999999999999997E-9L;
+    inline constexpr double AsteroidWorldScale = 6.0E-9;
 
-    inline constexpr long double AsteroidInverseScaleSquared = 27777777777777777.78L;
+    inline constexpr double AsteroidInverseScaleSquared = 27777777777777776.0;
 
 } // namespace aAsteroid

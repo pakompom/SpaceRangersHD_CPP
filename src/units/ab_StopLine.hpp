@@ -68,11 +68,14 @@ namespace ab_StopLine {
 
     void ab_StopLine_BuildCollisionList();
 
-    std::uint8_t ab_StopLine_ReflectMovement(ab_Global::TSphericalBearingState Source, ab_Global::TSphericalBearingState Target, double& HeadingDelta, double& Speed, double& UnusedResult);
+    std::uint8_t ab_StopLine_ReflectMovement(ab_Global::TSphericalBearingState Source,
+        ab_Global::TSphericalBearingState Target, double& HeadingDelta, double& Speed, double& UnusedResult);
 
-    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, pas::Var<double> ForwardDistance, pas::Var<double> BackwardDistance);
+    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, pas::Var<double> ForwardDistance,
+        pas::Var<double> BackwardDistance);
 
-    std::uint8_t ab_StopLine_IsBlocked(double SourceLongitude, double SourcePolarAngle, double TargetLongitude, double TargetPolarAngle);
+    std::uint8_t ab_StopLine_IsBlocked(double SourceLongitude, double SourcePolarAngle, double TargetLongitude,
+        double TargetPolarAngle);
 
     void ab_StopLine_Load(EC_Buf::TBufEC* Buffer);
 

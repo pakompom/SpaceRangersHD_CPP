@@ -72,7 +72,8 @@ namespace fShip2 {
 
     void TfShip2_Destroy(TfShip2* Self);
 
-    inline void TfShip2_ProcessWindowMessage(fShip2::TfShip2* Self, std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam);
+    inline void TfShip2_ProcessWindowMessage(fShip2::TfShip2* Self, std::uint32_t Message, std::uint32_t WParam,
+        std::int32_t LParam);
 
 } // namespace fShip2
 

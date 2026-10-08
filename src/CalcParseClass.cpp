@@ -8,45 +8,45 @@
 #include "units/MathImports.hpp"
 #include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 
 namespace CalcParseClass {
     // Operators borrow operands; OutValue must be an existing, distinct object.
     // Power/add/subtract/multiply promote floats; integer results saturate at +/-2000000000.
     // Negative bases stay negative even for even exponents; integer results round.
-    void TCalcParse::ApplyPower(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyPower(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
         std::int32_t AbsValue{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
         if (Left->ValueKind == CPVarClass::cpvkFloat && Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left = MathImports::Sign(Left->AsExtended());
-                return cpp_left * ([&] {
-                    pas::Extended cpp_arg = std::fabs(Left->AsExtended());
-                    pas::Extended asExtended = Right->AsExtended();
-                    return Math::Power(cpp_arg, asExtended);
+                    double cpp_left = MathImports::Sign(Left->AsExtended());
+                    return static_cast<float>(cpp_left * ([&] {
+                            double cpp_arg = std::fabs(Left->AsExtended());
+                            double asExtended = Right->AsExtended();
+                            return Math::Power(cpp_arg, asExtended);
+                        }()));
                 }());
-            }());
         } else if (Left->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_2 = MathImports::Sign(Left->AsExtended());
-                return cpp_left_2 * ([&] {
-                    pas::Extended cpp_arg_2 = std::fabs(Left->AsExtended());
-                    std::int32_t asInteger = Right->AsInteger();
-                    return Math::IntPower(cpp_arg_2, asInteger);
+                    double cpp_left_2 = MathImports::Sign(Left->AsExtended());
+                    return static_cast<float>(cpp_left_2 * ([&] {
+                            double cpp_arg_2 = std::fabs(Left->AsExtended());
+                            std::int32_t asInteger = Right->AsInteger();
+                            return Math::IntPower(cpp_arg_2, asInteger);
+                        }()));
                 }());
-            }());
         } else if (Right->ValueKind == CPVarClass::cpvkFloat) {
             A = Left->AsInteger();
             AbsValue = pas::abs(A);
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_3 = Math::Power(AbsValue, Right->AsExtended());
-                return cpp_left_3 * MathImports::Sign(A);
-            }());
+                    double cpp_left_3 = Math::Power(AbsValue, Right->AsExtended());
+                    return static_cast<float>(cpp_left_3 * MathImports::Sign(A));
+                }());
         } else {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
             A = Left->AsInteger();
@@ -54,46 +54,47 @@ namespace CalcParseClass {
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (Math::Power(std::fabs(X), Y) > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+            if (Math::Power(std::fabs(X), Y) > pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = MathImports::Sign(A) * CPVarClass::QuestNumericLimit;
             } else {
-                std::int32_t cpp_left_4 = System::Round(Math::IntPower(AbsValue, B));
-                OutValue->IntValue = cpp_left_4 * MathImports::Sign(A);
+                OutValue->IntValue = static_cast<std::int32_t>(pas::real_round(Math::IntPower(AbsValue, B))) *
+                        MathImports::Sign(A);
             }
         }
     }
 
-    void TCalcParse::ApplyAdd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyAdd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
         if (Left->ValueKind == CPVarClass::cpvkFloat && Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left = Left->AsExtended();
-                return cpp_left + Right->AsExtended();
-            }());
+                    double cpp_left = Left->AsExtended();
+                    return static_cast<float>(cpp_left + Right->AsExtended());
+                }());
         } else if (Left->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_2 = Left->AsExtended();
-                return cpp_left_2 + Right->AsInteger();
-            }());
+                    double cpp_left_2 = Left->AsExtended();
+                    return static_cast<float>(cpp_left_2 + Right->AsInteger());
+                }());
         } else if (Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_3 = Left->AsInteger();
-                return cpp_left_3 + Right->AsExtended();
-            }());
+                    double cpp_left_3 = Left->AsInteger();
+                    return static_cast<float>(cpp_left_3 + Right->AsExtended());
+                }());
         } else {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
             A = Left->AsInteger();
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X + Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+            if (static_cast<float>(X + Y) > pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = CPVarClass::QuestNumericLimit;
-            } else if (X + Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+            } else if (static_cast<float>(X + Y) < pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A + B;
@@ -101,37 +102,38 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplySubtract(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplySubtract(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
         if (Left->ValueKind == CPVarClass::cpvkFloat && Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left = Left->AsExtended();
-                return cpp_left - Right->AsExtended();
-            }());
+                    double cpp_left = Left->AsExtended();
+                    return static_cast<float>(cpp_left - Right->AsExtended());
+                }());
         } else if (Left->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_2 = Left->AsExtended();
-                return cpp_left_2 - Right->AsInteger();
-            }());
+                    double cpp_left_2 = Left->AsExtended();
+                    return static_cast<float>(cpp_left_2 - Right->AsInteger());
+                }());
         } else if (Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_3 = Left->AsInteger();
-                return cpp_left_3 - Right->AsExtended();
-            }());
+                    double cpp_left_3 = Left->AsInteger();
+                    return static_cast<float>(cpp_left_3 - Right->AsExtended());
+                }());
         } else {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
             A = Left->AsInteger();
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X - Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+            if (static_cast<float>(X - Y) > pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = CPVarClass::QuestNumericLimit;
-            } else if (X - Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+            } else if (static_cast<float>(X - Y) < pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A - B;
@@ -139,37 +141,38 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyMultiply(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyMultiply(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
         if (Left->ValueKind == CPVarClass::cpvkFloat && Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left = Left->AsExtended();
-                return cpp_left * Right->AsExtended();
-            }());
+                    double cpp_left = Left->AsExtended();
+                    return static_cast<float>(cpp_left * Right->AsExtended());
+                }());
         } else if (Left->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_2 = Left->AsExtended();
-                return cpp_left_2 * Right->AsInteger();
-            }());
+                    double cpp_left_2 = Left->AsExtended();
+                    return static_cast<float>(cpp_left_2 * Right->AsInteger());
+                }());
         } else if (Right->ValueKind == CPVarClass::cpvkFloat) {
             OutValue->FloatValue = ([&] {
-                pas::Extended cpp_left_3 = Left->AsInteger();
-                return cpp_left_3 * Right->AsExtended();
-            }());
+                    double cpp_left_3 = Left->AsInteger();
+                    return static_cast<float>(cpp_left_3 * Right->AsExtended());
+                }());
         } else {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
             A = Left->AsInteger();
             B = Right->AsInteger();
             X = A;
             Y = B;
-            if (X * Y > pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit))) {
+            if (static_cast<float>(X * Y) > pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = CPVarClass::QuestNumericLimit;
-            } else if (X * Y < pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit))) {
+            } else if (static_cast<float>(X * Y) < pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit))) {
                 OutValue->IntValue = -CPVarClass::QuestNumericLimit;
             } else {
                 OutValue->IntValue = A * B;
@@ -178,21 +181,23 @@ namespace CalcParseClass {
     }
 
     // Returns float Left * (1 + Right * 0.01).
-    void TCalcParse::ApplyPercentChange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyPercentChange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkFloat;
         OutValue->FloatValue = ([&] {
-            pas::Extended cpp_left = Left->AsExtended();
-            return cpp_left * (1.0L + Right->AsExtended() * 0.01L);
-        }());
+                double cpp_left = Left->AsExtended();
+                return static_cast<float>(cpp_left * (static_cast<float>(1.0 + static_cast<float>(Right->AsExtended() * 0.01))));
+            }());
     }
 
     // Exact integer quotients stay integer. Zero divisor: +/-2000000000 for integers; float operands incorrectly leave integer zero.
-    void TCalcParse::ApplyDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         if (Left->ValueKind != CPVarClass::cpvkFloat && Right->ValueKind != CPVarClass::cpvkFloat) {
             A = Left->AsInteger();
@@ -210,7 +215,7 @@ namespace CalcParseClass {
             } else {
                 try {
                     OutValue->ValueKind = CPVarClass::cpvkFloat;
-                    OutValue->FloatValue = pas::real_divide(A, B);
+                    OutValue->FloatValue = static_cast<float>(static_cast<double>(A) / B);
                 } catch (...) {
                     auto cpp_exception = pas::caught_object();
                     if (pas::class_cast_if<pas::DivByZero*>(cpp_exception)) {
@@ -222,16 +227,16 @@ namespace CalcParseClass {
         } else {
             X = Left->AsExtended();
             Y = Right->AsExtended();
-            if (Y == 0.0L) {
-                if (X < 0.0L) {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
+            if (Y == 0.0) {
+                if (X < 0.0) {
+                    OutValue->FloatValue = pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
+                    OutValue->FloatValue = pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {
                     OutValue->ValueKind = CPVarClass::cpvkFloat;
-                    OutValue->FloatValue = pas::real_divide(X, Y);
+                    OutValue->FloatValue = static_cast<float>(X / Y);
                 } catch (...) {
                     auto cpp_exception_2 = pas::caught_object();
                     if (pas::class_cast_if<pas::DivByZero*>(cpp_exception_2)) {
@@ -244,11 +249,12 @@ namespace CalcParseClass {
     }
 
     // Truncates toward zero; zero-divisor behavior matches ApplyDivide.
-    void TCalcParse::ApplyIntDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyIntDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         std::int32_t A{};
         std::int32_t B{};
-        pas::Extended X{};
-        pas::Extended Y{};
+        double X{};
+        double Y{};
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         if (Left->ValueKind != CPVarClass::cpvkFloat && Right->ValueKind != CPVarClass::cpvkFloat) {
@@ -266,15 +272,15 @@ namespace CalcParseClass {
         } else {
             X = Left->AsExtended();
             Y = Right->AsExtended();
-            if (Y == 0.0L) {
-                if (X < 0.0L) {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
+            if (Y == 0.0) {
+                if (X < 0.0) {
+                    OutValue->FloatValue = pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
+                    OutValue->FloatValue = pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {
-                    OutValue->IntValue = System::Trunc(pas::real_divide(X, Y));
+                    OutValue->IntValue = pas::real_trunc(static_cast<float>(X / Y));
                 } catch (...) {
                     auto cpp_exception = pas::caught_object();
                     if (pas::class_cast_if<pas::DivByZero*>(cpp_exception)) {
@@ -287,9 +293,10 @@ namespace CalcParseClass {
     }
 
     // Float operands produce a float remainder after truncation. Zero-divisor behavior matches ApplyDivide.
-    void TCalcParse::ApplyModulo(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
-        pas::Extended X{};
-        pas::Extended Y{};
+    void TCalcParse::ApplyModulo(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
+        double X{};
+        double Y{};
         std::int32_t A{};
         std::int32_t B{};
         OutValue->Reset();
@@ -313,26 +320,26 @@ namespace CalcParseClass {
             }
         } else {
             X = Left->AsExtended();
-            Y = System::Trunc(Right->AsExtended());
-            if (Y == 0.0L) {
-                if (X < 0.0L) {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(-CPVarClass::QuestNumericLimit));
+            Y = pas::real_trunc(Right->AsExtended());
+            if (Y == 0.0) {
+                if (X < 0.0) {
+                    OutValue->FloatValue = pas::constant(static_cast<double>(-CPVarClass::QuestNumericLimit));
                 } else {
-                    OutValue->FloatValue = pas::constant(static_cast<long double>(CPVarClass::QuestNumericLimit));
+                    OutValue->FloatValue = pas::constant(static_cast<double>(CPVarClass::QuestNumericLimit));
                 }
             } else {
                 try {
-                    if (Y < 0.0L) {
-                        Y = Y * -1.0L;
+                    if (Y < 0.0) {
+                        Y = static_cast<float>(Y * -1.0);
                     }
-                    if (X < 0.0L) {
-                        X = X * -1.0L;
+                    if (X < 0.0) {
+                        X = static_cast<float>(X * -1.0);
                         Negative = true;
                     }
                     OutValue->ValueKind = CPVarClass::cpvkFloat;
-                    OutValue->FloatValue = System::Trunc(X - System::Trunc(pas::real_divide(X, Y)) * Y);
+                    OutValue->FloatValue = pas::real_trunc(static_cast<float>(X - static_cast<float>(pas::real_trunc(static_cast<float>(X / Y)) * Y)));
                     if (Negative) {
-                        OutValue->FloatValue = OutValue->FloatValue * -1.0L;
+                        OutValue->FloatValue = static_cast<float>(OutValue->FloatValue * -1.0);
                     }
                 } catch (...) {
                     auto cpp_exception = pas::caught_object();
@@ -346,19 +353,20 @@ namespace CalcParseClass {
     }
 
     // Uses operand extrema, rounds floats and swaps reversed bounds. Range operands must be nonempty.
-    void TCalcParse::ApplyRange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyRange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         std::int64_t Maximum = 0;
         std::int64_t Minimum = 0;
         if (Left->ValueKind == CPVarClass::cpvkFloat) {
-            Minimum = System::Round(Left->FloatValue);
+            Minimum = pas::real_round(Left->FloatValue);
         } else if (Left->ValueKind == CPVarClass::cpvkInteger) {
             Minimum = Left->IntValue;
         } else if (Left->ValueKind == CPVarClass::cpvkRange) {
             Minimum = Left->Range->GetMinimum();
         }
         if (Right->ValueKind == CPVarClass::cpvkFloat) {
-            Maximum = System::Round(Right->FloatValue);
+            Maximum = pas::real_round(Right->FloatValue);
         } else if (Right->ValueKind == CPVarClass::cpvkInteger) {
             Maximum = Right->IntValue;
         } else if (Right->ValueKind == CPVarClass::cpvkRange) {
@@ -369,18 +377,19 @@ namespace CalcParseClass {
     }
 
     // Two ranges sample Left once; scalar/range membership rounds the scalar.
-    void TCalcParse::ApplyMembership(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyMembership(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind != CPVarClass::cpvkRange) {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left == Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
                 OutValue->IntValue = 0;
             }
         } else if (Left->ValueKind == CPVarClass::cpvkRange && Right->ValueKind != CPVarClass::cpvkRange) {
-            pas::Extended asExtended = Right->AsExtended();
+            double asExtended = Right->AsExtended();
             CPDiapClass::TCPDiapazone* range = Left->Range;
             if (range->Contains(asExtended)) {
                 OutValue->IntValue = 1;
@@ -388,7 +397,7 @@ namespace CalcParseClass {
                 OutValue->IntValue = 0;
             }
         } else if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind == CPVarClass::cpvkRange) {
-            pas::Extended asExtended_2 = Left->AsExtended();
+            double asExtended_2 = Left->AsExtended();
             CPDiapClass::TCPDiapazone* range_2 = Right->Range;
             if (range_2->Contains(asExtended_2)) {
                 OutValue->IntValue = 1;
@@ -396,7 +405,7 @@ namespace CalcParseClass {
                 OutValue->IntValue = 0;
             }
         } else if (Left->ValueKind == CPVarClass::cpvkRange && Right->ValueKind == CPVarClass::cpvkRange) {
-            pas::Extended asInteger = Left->AsInteger();
+            double asInteger = Left->AsInteger();
             CPDiapClass::TCPDiapazone* range_3 = Right->Range;
             if (range_3->Contains(asInteger)) {
                 OutValue->IntValue = 1;
@@ -407,11 +416,12 @@ namespace CalcParseClass {
     }
 
     // Comparisons return integer 0 or 1 and sample each range operand once.
-    void TCalcParse::ApplyLessThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyLessThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left < Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -420,11 +430,12 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyGreaterThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyGreaterThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left > Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -433,11 +444,12 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyLessOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyLessOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left <= Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -446,11 +458,12 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyGreaterOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyGreaterOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left >= Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -459,11 +472,12 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left == Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -472,11 +486,12 @@ namespace CalcParseClass {
         }
     }
 
-    void TCalcParse::ApplyNotEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyNotEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         OutValue->ValueKind = CPVarClass::cpvkInteger;
         {
-            pas::Extended cpp_left = Left->AsExtended();
+            double cpp_left = Left->AsExtended();
             if (cpp_left != Right->AsExtended()) {
                 OutValue->IntValue = 1;
             } else {
@@ -486,11 +501,12 @@ namespace CalcParseClass {
     }
 
     // Range operands concatenate rather than intersect; duplicates remain.
-    void TCalcParse::ApplyAnd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyAnd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         OutValue->Reset();
         if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind > CPVarClass::cpvkRange) {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
-            if (Left->AsExtended() != 0.0L && Right->AsExtended() != 0.0L) {
+            if (Left->AsExtended() != 0.0 && Right->AsExtended() != 0.0) {
                 OutValue->IntValue = 1;
             } else {
                 OutValue->IntValue = 0;
@@ -516,10 +532,11 @@ namespace CalcParseClass {
     }
 
     // Range operands concatenate; duplicates remain.
-    void TCalcParse::ApplyOr(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue) {
+    void TCalcParse::ApplyOr(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+        CPVarClass::TCPVariant*& OutValue) {
         if (Left->ValueKind != CPVarClass::cpvkRange && Right->ValueKind > CPVarClass::cpvkRange) {
             OutValue->ValueKind = CPVarClass::cpvkInteger;
-            if (Left->AsExtended() != 0.0L || Right->AsExtended() != 0.0L) {
+            if (Left->AsExtended() != 0.0 || Right->AsExtended() != 0.0) {
                 OutValue->IntValue = 1;
             } else {
                 OutValue->IntValue = 0;
@@ -551,7 +568,9 @@ namespace CalcParseClass {
         pas::WideString Previous{};
         pas::WideString Current{};
         std::int32_t Index{};
-        Current = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(EC_Str::TrimWideString(Text))));
+        Current =
+            static_cast<pas::WideString>(
+                SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(EC_Str::TrimWideString(Text))));
         do {
             Previous = Current;
             Current = EC_Str::ReplaceAllWideString(Current, u"pct"_wref.get(), u"%"sv);
@@ -579,10 +598,15 @@ namespace CalcParseClass {
             Previous = Current;
             Index = EC_Str::FindTextOffsetW(Current, u" "_wref.get(), 0);
             while (Index > 0) {
-                if (EC_Str::FindTextOffsetW(u"%fg#$|&ecbh*+/-()><=[]{}"_wref.get(), static_cast<pas::WideString>(Current.read(Index)), 0) < 0 && EC_Str::FindTextOffsetW(u"%fg#$|&ecbh*+/-()><=[]{}"_wref.get(), static_cast<pas::WideString>(Current.read(Index + 2)), 0) < 0) {
+                if (EC_Str::FindTextOffsetW(u"%fg#$|&ecbh*+/-()><=[]{}"_wref.get(),
+                    static_cast<pas::WideString>(Current.read(Index)), 0) < 0 && EC_Str::FindTextOffsetW(
+                        u"%fg#$|&ecbh*+/-()><=[]{}"_wref.get(), static_cast<pas::WideString>(Current.read(Index + 2)),
+                        0) < 0) {
                     Index = EC_Str::FindTextOffsetW(Current, u" "_wref.get(), Index + 1);
                 } else {
-                    Current = pas::concat_wide_reverse({EC_Str::CopyWideStringUnchecked(Current, Index + 2, Current.length() - Index - 1), EC_Str::CopyWideStringUnchecked(Current, 1, Index)});
+                    Current = pas::concat_wide_reverse({
+                            EC_Str::CopyWideStringUnchecked(Current, Index + 2, Current.length() - Index - 1),
+                            EC_Str::CopyWideStringUnchecked(Current, 1, Index)});
                     Index = EC_Str::FindTextOffsetW(Current, u" "_wref.get(), Index);
                 }
             }
@@ -594,7 +618,7 @@ namespace CalcParseClass {
     pas::WideString TCalcParse::FormatTokens(pas::WideString& Text) {
         pas::WideString Previous{};
         pas::WideString Current{};
-        pas::WideString Inner{};
+        std::u16string Inner{};
         std::int32_t i{};
         Current = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)));
         Current = EC_Str::ReplaceAllWideString(Current, u"$"_wref.get(), u" to "sv);
@@ -616,10 +640,10 @@ namespace CalcParseClass {
         std::int32_t Count = Current.length();
         if (Count >= 2 && Current.read(1) == u'(' && Current.read(Count) == u')') {
             for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-                Inner = pas::concat_wide({Inner, Current.read(i)});
+                pas::append_wide_builder(Inner, Current.read(i));
             }
             if (TCalcParse::HasBalancedParenthesesInSlice(pas::view(Current), 2, Count - 1)) {
-                Previous = std::move(Inner);
+                Previous = pas::finish_wide_builder(Inner);
             }
         }
         return Previous;
@@ -695,14 +719,14 @@ namespace CalcParseClass {
     // Square brackets do not nest. An unmatched opening bracket silently discards the remaining suffix.
     pas::WideString TCalcParse::NormalizeFragments(const pas::WideString& Text) {
         pas::WideString Fragment{};
-        pas::WideString Output{};
+        std::u16string Output{};
         std::int32_t Index = 1;
         std::int32_t Count = Text.length();
         std::uint8_t Outside = true;
         while (Index <= Count) {
             if (Outside) {
                 if (Text.read(Index) == u'[') {
-                    Output = pas::concat_wide({Output, NormalizeScalarFragment(Fragment)});
+                    pas::append_wide_builder(Output, {NormalizeScalarFragment(Fragment)});
                     Fragment = u"["_w;
                     Outside = false;
                     ++Index;
@@ -711,14 +735,14 @@ namespace CalcParseClass {
                     Fragment = pas::concat_wide({Fragment, Text.read(Index)});
                     ++Index;
                     if (Index > Count) {
-                        Output = pas::concat_wide({Output, NormalizeScalarFragment(Fragment)});
+                        pas::append_wide_builder(Output, {NormalizeScalarFragment(Fragment)});
                     }
                     continue;
                 }
             }
             if (!Outside) {
                 if (Index > Count || Text.read(Index) == u']') {
-                    Output = pas::concat_wide({Output, NormalizeBracketFragment(pas::concat_wide({Fragment, u"]"}))});
+                    pas::append_wide_builder(Output, {NormalizeBracketFragment(pas::concat_wide({Fragment, u"]"}))});
                     Fragment = pas::WideString();
                     Outside = true;
                 } else {
@@ -727,7 +751,7 @@ namespace CalcParseClass {
                 ++Index;
             }
         }
-        return Output;
+        return pas::finish_wide_builder(Output);
     }
 
     // Silently discards unsupported characters, including decimal dots; call NormalizeTokens first.
@@ -913,7 +937,8 @@ namespace CalcParseClass {
                 char16_t cpp_case = Text.read(i);
                 if (cpp_case == u'[' || cpp_case == u']') {
                     continue;
-                } else if (cpp_case >= u'0' && cpp_case <= u'9' || cpp_case == u'-' || cpp_case == u'h' || cpp_case == u';') {
+                } else if (cpp_case >= u'0' && cpp_case <= u'9' || cpp_case == u'-' || cpp_case == u'h' || cpp_case ==
+                        u';') {
                 } else {
                     Result = u"[err]"_w;
                     InvalidRangeLiteral = true;
@@ -1035,7 +1060,8 @@ namespace CalcParseClass {
         if (!EvaluationError) {
             Count = Text.length();
             if (!Value->TryLoadFromText(Text)) {
-                if (Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(pas::view(Text), 2, Count - 1)) {
+                if (Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(
+                        pas::view(Text), 2, Count - 1)) {
                     Inner = pas::WideString();
                     for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
                         Inner = pas::concat_wide({Inner, Text.read(i)});
@@ -1183,7 +1209,8 @@ namespace CalcParseClass {
         Readable = Text;
         if (!HasError) {
             Count = Text.length();
-            if (Count >= 2 && Text.read(1) == u'(' && Text.read(Count) == u')' && TCalcParse::HasBalancedParenthesesInSlice(pas::view(Text), 2, Count - 1)) {
+            if (Count >= 2 && Text.read(1) == u'(' && Text.read(Count) == u')' &&
+                TCalcParse::HasBalancedParenthesesInSlice(pas::view(Text), 2, Count - 1)) {
                 Readable = pas::WideString();
                 for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
                     Readable = pas::concat_wide({Readable, Text.read(i)});
@@ -1221,7 +1248,8 @@ namespace CalcParseClass {
     }
 
     // One-based inclusive bounds, unchecked. Empty slices pass; square brackets are ignored.
-    std::uint8_t TCalcParse::HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex, std::int32_t LastIndex) {
+    std::uint8_t TCalcParse::HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex,
+        std::int32_t LastIndex) {
         std::int32_t i{};
         std::int32_t Depth = 0;
         std::uint8_t Balanced = true;
@@ -1254,16 +1282,17 @@ namespace CalcParseClass {
             Parameter = pas::list_at<ParameterClass::TParameter>(Parameters, i - 1);
             if (Parameter->Value < 0) {
                 Text = ([&] {
-                    const pas::WideString& cpp_arg = pas::concat_wide({u"(0", EC_Str::IntToWideString(Parameter->Value), u")"});
-                    const pas::WideString& cpp_arg_2 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
-                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_2, pas::view(cpp_arg));
-                }());
+                        const pas::WideString& cpp_arg = pas::concat_wide({u"(0",
+                            EC_Str::IntToWideString(Parameter->Value), u")"});
+                        const pas::WideString& cpp_arg_2 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
+                        return EC_Str::ReplaceAllWideString(Text, cpp_arg_2, pas::view(cpp_arg));
+                    }());
             } else {
                 Text = ([&] {
-                    const pas::WideString& intToWideString = EC_Str::IntToWideString(Parameter->Value);
-                    const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
-                    return EC_Str::ReplaceAllWideString(Text, cpp_arg_3, pas::view(intToWideString));
-                }());
+                        const pas::WideString& intToWideString = EC_Str::IntToWideString(Parameter->Value);
+                        const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[p", EC_Str::IntToWideString(i), u"]"});
+                        return EC_Str::ReplaceAllWideString(Text, cpp_arg_3, pas::view(intToWideString));
+                    }());
             }
         }
         return Text;
@@ -1271,24 +1300,26 @@ namespace CalcParseClass {
 
     // Empty text passes.
     std::uint8_t TCalcParse::HasBalancedParentheses(const std::u16string_view& Text) {
-        std::uint8_t Balanced = TCalcParse::HasBalancedParenthesesInSlice(Text, 1, static_cast<std::int32_t>(Text.length()));
+        std::uint8_t Balanced = TCalcParse::HasBalancedParenthesesInSlice(Text, 1,
+            static_cast<std::int32_t>(Text.length()));
         return Balanced;
     }
 
     // Nonzero limits: 0.0001..999999999. The lower clamp emits a dot-decimal literal that evaluation rejects. Drops trailing numbers; conversion errors set flags and leave the caller's result storage unchanged.
     pas::WideString TCalcParse::ClampNumericLiterals(pas::WideString Text) {
         pas::WideString Result{};
-        pas::Extended Value{};
-        pas::WideString Output{};
+        double Value{};
+        std::u16string Output{};
         pas::AnsiString Digits{};
         pas::AnsiString Replacement{};
         std::uint8_t SavedSeparator{};
         std::int32_t Index = 1;
         std::int32_t Count = Text.length();
-        Value = 0.0L;
+        Value = 0.0;
         while (Index <= Count) {
             if (Text.read(Index) >= u'0' && Text.read(Index) <= u'9' || Text.read(Index) == u',') {
-                Digits = static_cast<pas::AnsiString>(pas::concat_wide_reverse({Text.read(Index), static_cast<pas::WideString>(Digits)}));
+                Digits = static_cast<pas::AnsiString>(pas::concat_wide_reverse({Text.read(Index),
+                        static_cast<pas::WideString>(Digits)}));
             } else if (Digits != "") {
                 SavedSeparator = SysUtils::DecimalSeparator;
                 try {
@@ -1306,21 +1337,21 @@ namespace CalcParseClass {
                         throw;
                     }
                 }
-                if (Value > 999999999.0L) {
+                if (Value > 999999999.0) {
                     Replacement = "999999999"_a;
-                } else if (Value < 1.0E-4L && Value != 0.0L) {
+                } else if (Value < 1.0E-4 && Value != 0.0) {
                     Replacement = "0.0001"_a;
                 } else {
                     Replacement = Digits;
                 }
-                Output = pas::concat_wide({Output, static_cast<pas::WideString>(Replacement), Text.read(Index)});
+                pas::append_wide_builder(Output, {static_cast<pas::WideString>(Replacement), Text.read(Index)});
                 Digits = pas::AnsiString();
             } else {
-                Output = pas::concat_wide({Output, Text.read(Index)});
+                pas::append_wide_builder(Output, Text.read(Index));
             }
             ++Index;
         }
-        return Output;
+        return pas::finish_wide_builder(Output);
     }
 
 } // namespace CalcParseClass

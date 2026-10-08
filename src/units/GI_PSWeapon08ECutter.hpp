@@ -11,7 +11,8 @@ namespace GI_PSWeapon08ECutter {
 
     void LoadECutterPalettes();
 
-    void TPSWeapon08ECutter_Create(TPSWeapon08ECutter* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon08ECutter_Create(TPSWeapon08ECutter* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon08ECutter_Destroy(TPSWeapon08ECutter* Self);
 

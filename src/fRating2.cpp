@@ -27,9 +27,7 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -72,10 +70,6 @@ namespace fRating2 {
         return Result;
     }
 
-    void TfRating2_Create(TfRating2* Self) {
-        fPanelMain::TMessageLoopGIWithMainPanel_Create(Self);
-    }
-
     void TfRating2_Destroy(TfRating2* Self) {
         fPanelMain::TMessageLoopGIWithMainPanel_Destroy(Self);
     }
@@ -87,14 +81,18 @@ namespace fRating2 {
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* ButClose_Parent = MainPanel->FindByNameRecursive(u"ButClose"sv)->Parent;
-                ButClose_Parent->SetPosition(ClassesImports::Point(ButClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                ButClose_Parent->SetPosition(ClassesImports::Point(
+                    ButClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    ButClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         RewardWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"RewardWnd"sv));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfRating2::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<
+                &TfRating2::CloseClicked>(this);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfRating2::KeyDown>(this);
         GetByName(u"MainPanel"sv)->LeftButtonDownCallback = pas::bind_method<&TfRating2::BackgroundMouseDown>(this);
         GetByName(u"MainPanel"sv)->LeftButtonUpCallback = pas::bind_method<&TfRating2::BackgroundMouseUp>(this);
@@ -108,7 +106,8 @@ namespace fRating2 {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (aPlayer::GetPlayer() != nullptr) {
             aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnEnteringForm, nullptr, nullptr, 0);
         }
@@ -168,7 +167,8 @@ namespace fRating2 {
     }
 
     void TfRating2::KeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
+        if (!GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+            !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             if (Key == 'R') {
                 CloseClicked(nullptr);
             } else if (Key == WindowsSdk::VK_UP || Key == WindowsSdk::VK_LEFT) {
@@ -184,9 +184,11 @@ namespace fRating2 {
             } else if (Key == WindowsSdk::VK_END) {
                 SelectRow(Rows.length() - 1);
             } else if (Key == WindowsSdk::VK_PRIOR) {
-                TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position - TablePanel->VerticalScrollBar->LargeChange);
+                TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position -
+                    TablePanel->VerticalScrollBar->LargeChange);
             } else if (Key == WindowsSdk::VK_NEXT) {
-                TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position + TablePanel->VerticalScrollBar->LargeChange);
+                TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position +
+                    TablePanel->VerticalScrollBar->LargeChange);
             } else if (Key == WindowsSdk::VK_ESCAPE) {
                 RequestClose(1);
             } else if (Key == WindowsSdk::VK_F11) {
@@ -197,18 +199,22 @@ namespace fRating2 {
         }
     }
 
-    void TfRating2::BackgroundMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRating2::BackgroundMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (GlobalsV::ClickAutoCloseForm) {
             BackgroundClickStarted = false;
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) ^ 1)) {
+            if (!pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) &&
+                !GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point)) {
                 BackgroundClickStarted = true;
             }
         }
     }
 
-    void TfRating2::BackgroundMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRating2::BackgroundMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (GlobalsV::ClickAutoCloseForm) {
-            if (static_cast<std::uint8_t>(pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) ^ 1) && static_cast<std::uint8_t>(GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) ^ 1) && BackgroundClickStarted) {
+            if (!pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImagePanel"sv))->ContainsPoint(Point) &&
+                !GetByName(u"PM_PanelMsg"sv)->ContainsPoint(Point) && BackgroundClickStarted) {
                 CloseClicked(nullptr);
             }
         }
@@ -216,13 +222,16 @@ namespace fRating2 {
 
     void TfRating2::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         if (Delta == WindowsSdk::WHEEL_DELTA) {
-            TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position - TablePanel->VerticalScrollBar->SmallChange);
+            TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position -
+                TablePanel->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
-            TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position + TablePanel->VerticalScrollBar->SmallChange);
+            TablePanel->VerticalScrollBar->SetPosition_2(TablePanel->VerticalScrollBar->Position +
+                TablePanel->VerticalScrollBar->SmallChange);
         }
     }
 
-    void TfRating2::AwardsMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRating2::AwardsMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (GlobalsV::AwardDialogsEnabled) {
             RewardWindow->SetActive(false);
             Globals::AwardSubject = static_cast<pas::Object*>(aGalaxy::Galaxy->IdToShip(Sender->UserValue, true));
@@ -238,19 +247,22 @@ namespace fRating2 {
         }
     }
 
-    void TfRating2::AwardsMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRating2::AwardsMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         std::uint8_t AwardId{};
         std::int32_t Size = GR_Main::GiScalePixels(20);
         std::int32_t Step = Size / 2;
         aRanger::TRanger* Ranger = Rows[Sender->UserState].Ranger;
-        std::int32_t Index = std::max<std::int32_t>(0, pas::list_count(Ranger->AwardIds) - 8) + pas::idiv(Sender->ToLocalPoint(Point).X, Step);
+        std::int32_t Index = std::max<std::int32_t>(0, pas::list_count(Ranger->AwardIds) - 8) + pas::idiv(
+                Sender->ToLocalPoint(Point).X, Step);
         if (Sender->ToLocalPoint(Point).Y < Sender->ClientSize.Y - Size) {
             HideHint();
         } else {
             if (Index >= pas::list_count(Ranger->AwardIds)) {
                 Index = pas::list_count(Ranger->AwardIds) - 1;
             }
-            AwardId = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds, Index)));
+            AwardId = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds,
+                    Index)));
             ShowAwardHint(Ranger, AwardId);
         }
     }
@@ -274,43 +286,67 @@ namespace fRating2 {
             pas::WideString Names{};
             aRanger::TRanger* Ally{};
             if (Ranger->CountWingmen() == 1) {
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
-                    Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-                    if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
-                        Result = ([&] {
-                            pas::WideString name = Ally->GetName();
-                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                            pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PartnerBossOneText"_wref.get());
-                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Date>"_w, std::move(formatTurnDate));
-                        }());
+                {
+                    const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Rangers) - 1;
+                    if (0 <= cpp_last) {
+                        for (I = 0; I <= cpp_last; ++I) {
+                            Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                            if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
+                                Result = ([&] {
+                                        pas::WideString name = Ally->GetName();
+                                        pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(
+                                            aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                                        pas::WideString localizedColorText = aConst::LocalizedColorText(
+                                            u"FormRating.PartnerBossOneText"_wref.get());
+                                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                        return aMyFunction::FormatText2(std::move(localizedColorText),
+                                            std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Date>"_w,
+                                            std::move(formatTurnDate));
+                                    }());
+                            }
+                        }
                     }
                 }
                 return Result;
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range_2.next(I); ) {
-                Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-                if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
-                    if (Names != u"") {
-                        Names = pas::concat_wide({Names, u", ", ([&] {
-                            pas::WideString name_2 = Ally->GetName();
-                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate_2));
-                        }())});
-                    } else {
-                        Names = ([&] {
-                            pas::WideString name_3 = Ally->GetName();
-                            pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                            pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText2(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_3));
-                        }());
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(aGalaxy::Galaxy->Rangers) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                        if (aPlayer::GetPlayer() != Ally && Ally->PartnerShip == Ranger) {
+                            if (Names != u"") {
+                                Names = pas::concat_wide({Names, u", ",
+                                        ([&] {
+                                            pas::WideString name_2 = Ally->GetName();
+                                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(
+                                                aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                                            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                                                u"FormRating.AddInfoAboutPartner"_wref.get());
+                                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                            return aMyFunction::FormatText2(std::move(localizedColorText_2),
+                                                std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2),
+                                                u"<Date>"_w, std::move(formatTurnDate_2));
+                                        }())});
+                            } else {
+                                Names = ([&] {
+                                        pas::WideString name_3 = Ally->GetName();
+                                        pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(
+                                            aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                                        pas::WideString localizedColorText_3 = aConst::LocalizedColorText(
+                                            u"FormRating.AddInfoAboutPartner"_wref.get());
+                                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                        return aMyFunction::FormatText2(std::move(localizedColorText_3),
+                                            std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3),
+                                            u"<Date>"_w, std::move(formatTurnDate_3));
+                                    }());
+                            }
+                        }
                     }
                 }
             }
-            return aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRating.PartnerBossManyText"_wref.get()), pas::WideString(), u"<Names>"_w, Names);
+            return aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRating.PartnerBossManyText"_wref.get()),
+                pas::WideString(), u"<Names>"_w, Names);
         };
         RewardWindow->SetActive(true);
         if (aPlayer::GetPlayer() == Rows[Sender->UserValue].Ranger) {
@@ -318,56 +354,88 @@ namespace fRating2 {
                 GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName->SetText(([&] {
                     pas::WideString name = aPlayer::GetPlayer()->GetName();
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormRating.PlayerName"_wref.get());
                     pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                        u"<Name>"_w, std::move(name));
                 }()));
             }
             if (aPlayer::GetPlayer()->CountWingmen() > 0) {
                 Names = pas::WideString();
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
-                    Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-                    if (aPlayer::GetPlayer() != Ally && aPlayer::GetPlayer() == Ally->PartnerShip) {
-                        if (Names != u"") {
-                            Names = pas::concat_wide({Names, u", ", ([&] {
-                                pas::WideString name_2 = Ally->GetName();
-                                pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                                return aMyFunction::FormatText2(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2), u"<Date>"_w, std::move(formatTurnDate));
-                            }())});
-                        } else {
-                            Names = ([&] {
-                                pas::WideString name_3 = Ally->GetName();
-                                pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
-                                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPartner"_wref.get());
-                                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-                                return aMyFunction::FormatText2(std::move(localizedColorText_3), std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3), u"<Date>"_w, std::move(formatTurnDate_2));
-                            }());
+                {
+                    const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Rangers) - 1;
+                    if (0 <= cpp_last) {
+                        for (I = 0; I <= cpp_last; ++I) {
+                            Ally = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                            if (aPlayer::GetPlayer() != Ally && aPlayer::GetPlayer() == Ally->PartnerShip) {
+                                if (Names != u"") {
+                                    Names = pas::concat_wide({Names, u", ",
+                                            ([&] {
+                                                pas::WideString name_2 = Ally->GetName();
+                                                pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(
+                                                    aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                                                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                                                    u"FormRating.AddInfoAboutPartner"_wref.get());
+                                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                                return aMyFunction::FormatText2(std::move(localizedColorText_2),
+                                                    std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2),
+                                                    u"<Date>"_w, std::move(formatTurnDate));
+                                            }())});
+                                } else {
+                                    Names = ([&] {
+                                            pas::WideString name_3 = Ally->GetName();
+                                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(
+                                                aGalaxy::Galaxy->CurrentTurn + Ally->PartnershipDaysRemaining);
+                                            pas::WideString localizedColorText_3 = aConst::LocalizedColorText(
+                                                u"FormRating.AddInfoAboutPartner"_wref.get());
+                                            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                                            return aMyFunction::FormatText2(std::move(localizedColorText_3),
+                                                std::move(textHighlightColorTag_3), u"<Name>"_w, std::move(name_3),
+                                                u"<Date>"_w, std::move(formatTurnDate_2));
+                                        }());
+                                }
+                            }
                         }
                     }
                 }
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->PiratePartners) - 1); cpp_range_2.next(I); ) {
-                    Pirate = pas::list_at<aPirate::TPirate>(aPlayer::GetPlayer()->PiratePartners, I);
-                    if (Names != u"") {
-                        Names = pas::concat_wide({Names, u", ", ([&] {
-                            pas::WideString name_4 = Pirate->GetName();
-                            pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
-                            pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPirate"_wref.get());
-                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText2(std::move(localizedColorText_4), std::move(textHighlightColorTag_4), u"<Name>"_w, std::move(name_4), u"<Date>"_w, std::move(formatTurnDate_3));
-                        }())});
-                    } else {
-                        Names = ([&] {
-                            pas::WideString name_5 = Pirate->GetName();
-                            pas::WideString formatTurnDate_4 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
-                            pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormRating.AddInfoAboutPirate"_wref.get());
-                            pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText2(std::move(localizedColorText_5), std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(name_5), u"<Date>"_w, std::move(formatTurnDate_4));
-                        }());
+                {
+                    const std::int32_t cpp_last_2 = pas::list_count(aPlayer::GetPlayer()->PiratePartners) - 1;
+                    if (0 <= cpp_last_2) {
+                        for (I = 0; I <= cpp_last_2; ++I) {
+                            Pirate = pas::list_at<aPirate::TPirate>(aPlayer::GetPlayer()->PiratePartners, I);
+                            if (Names != u"") {
+                                Names = pas::concat_wide({Names, u", ",
+                                        ([&] {
+                                            pas::WideString name_4 = Pirate->GetName();
+                                            pas::WideString formatTurnDate_3 = aGalaxy::Galaxy->FormatTurnDate(
+                                                aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
+                                            pas::WideString localizedColorText_4 = aConst::LocalizedColorText(
+                                                u"FormRating.AddInfoAboutPirate"_wref.get());
+                                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                                            return aMyFunction::FormatText2(std::move(localizedColorText_4),
+                                                std::move(textHighlightColorTag_4), u"<Name>"_w, std::move(name_4),
+                                                u"<Date>"_w, std::move(formatTurnDate_3));
+                                        }())});
+                            } else {
+                                Names = ([&] {
+                                        pas::WideString name_5 = Pirate->GetName();
+                                        pas::WideString formatTurnDate_4 = aGalaxy::Galaxy->FormatTurnDate(
+                                            aGalaxy::Galaxy->CurrentTurn + Pirate->PartnershipDaysRemaining);
+                                        pas::WideString localizedColorText_5 = aConst::LocalizedColorText(
+                                            u"FormRating.AddInfoAboutPirate"_wref.get());
+                                        pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                                        return aMyFunction::FormatText2(std::move(localizedColorText_5),
+                                            std::move(textHighlightColorTag_5), u"<Name>"_w, std::move(name_5),
+                                            u"<Date>"_w, std::move(formatTurnDate_4));
+                                    }());
+                            }
+                        }
                     }
                 }
-                PartnerInfo = aMyFunction::FormatText1(aConst::LocalizedColorText(u"FormRating.PlayerPartnerOk"_wref.get()), pas::WideString(), u"<Names>"_w, Names);
+                PartnerInfo = aMyFunction::FormatText1(
+                        aConst::LocalizedColorText(u"FormRating.PlayerPartnerOk"_wref.get()), pas::WideString(),
+                        u"<Names>"_w, Names);
             } else {
                 PartnerInfo = aConst::LocalizedColorText(u"FormRating.PlayerPartnerNo"_wref.get());
             }
@@ -378,26 +446,33 @@ namespace fRating2 {
                 RewardText->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}),
+                    RewardImage->GraphBuf);
             }
         } else if (aShip::TShip_IsInPrison(Rows[Sender->UserValue].Ranger)) {
             {
                 GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_2->SetText(([&] {
                     pas::WideString name_6 = Rows[Sender->UserValue].Ranger->GetName();
-                    pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormRating.InPrisonName"_wref.get());
+                    pas::WideString localizedColorText_6 = aConst::LocalizedColorText(
+                        u"FormRating.InPrisonName"_wref.get());
                     pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_6), u"<Name>"_w, std::move(name_6));
+                    return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_6),
+                        u"<Name>"_w, std::move(name_6));
                 }()));
             }
             if (Rows[Sender->UserValue].Ranger->CurrentPlanet != nullptr) {
                 Text = ([&] {
-                    auto name_7 = pas::borrow(Rows[Sender->UserValue].Ranger->CurrentPlanet->Name);
-                    pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormRating.InPrisonText"_wref.get());
-                    pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(textHighlightColorTag_7), u"<Planet>"_w, name_7.get());
-                }());
+                        auto name_7 = pas::borrow(Rows[Sender->UserValue].Ranger->CurrentPlanet->Name);
+                        pas::WideString localizedColorText_7 = aConst::LocalizedColorText(
+                            u"FormRating.InPrisonText"_wref.get());
+                        pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(localizedColorText_7),
+                            std::move(textHighlightColorTag_7), u"<Planet>"_w, name_7.get());
+                    }());
             } else {
                 Text = pas::WideString();
             }
@@ -406,17 +481,22 @@ namespace fRating2 {
                 RewardText_2->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PrisonB"}), RewardImage_2->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PrisonB"}),
+                    RewardImage_2->GraphBuf);
             }
         } else if (Rows[Sender->UserValue].Ranger->PartnerShip != nullptr) {
             {
                 GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_3->SetText(([&] {
                     pas::WideString name_8 = Rows[Sender->UserValue].Ranger->GetName();
-                    pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
+                    pas::WideString localizedColorText_8 = aConst::LocalizedColorText(
+                        u"FormRating.PartnerName"_wref.get());
                     pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(textHighlightColorTag_8), u"<Name>"_w, std::move(name_8));
+                    return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(textHighlightColorTag_8),
+                        u"<Name>"_w, std::move(name_8));
                 }()));
             }
             Text = aConst::LocalizedColorText(u"FormRating.PartnerText"_wref.get());
@@ -427,11 +507,14 @@ namespace fRating2 {
             }
             {
                 auto textHighlightColorTag_10 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                pas::WideString formatTurnDate_5 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn + Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining);
-                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate_5), textHighlightColorTag_10.get());
+                pas::WideString formatTurnDate_5 = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn +
+                    Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining);
+                aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatTurnDate_5),
+                    textHighlightColorTag_10.get());
             }
             if (Rows[Sender->UserValue].Ranger->PartnershipDaysRemaining == 0) {
-                Text = pas::concat_wide({Text, u" ", aConst::LocalizedColorText(u"FormRating.PartnerTextDateEnd"_wref.get())});
+                Text = pas::concat_wide({Text, u" ",
+                        aConst::LocalizedColorText(u"FormRating.PartnerTextDateEnd"_wref.get())});
             }
             if (Rows[Sender->UserValue].Ranger->CountWingmen() > 0) {
                 Text = pas::concat_wide({Text, u"\r\n", FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger)});
@@ -441,17 +524,22 @@ namespace fRating2 {
                 RewardText_3->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_3->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}),
+                    RewardImage_3->GraphBuf);
             }
         } else if (Rows[Sender->UserValue].Ranger->CountWingmen() > 0) {
             {
                 GI_Label::TLabelGI* RewardName_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_4->SetText(([&] {
                     pas::WideString name_10 = Rows[Sender->UserValue].Ranger->GetName();
-                    pas::WideString localizedColorText_9 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
+                    pas::WideString localizedColorText_9 = aConst::LocalizedColorText(
+                        u"FormRating.PartnerName"_wref.get());
                     pas::WideString textHighlightColorTag_11 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_9), std::move(textHighlightColorTag_11), u"<Name>"_w, std::move(name_10));
+                    return aMyFunction::FormatText1(std::move(localizedColorText_9),
+                        std::move(textHighlightColorTag_11), u"<Name>"_w, std::move(name_10));
                 }()));
             }
             Text = FormatRangerWingmenHint(Rows[Sender->UserValue].Ranger);
@@ -460,12 +548,16 @@ namespace fRating2 {
                 RewardText_4->SetText(Text);
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_4->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage_4 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}),
+                    RewardImage_4->GraphBuf);
             }
         }
         {
-            GI_GraphBuf::TGraphBufGI* RewardImage_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
+            GI_GraphBuf::TGraphBufGI* RewardImage_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"RewardImage"sv));
             RewardImage_5->SourceHasPerPixelAlpha = true;
             RewardImage_5->SetImageKindX(GI_Main::ikxCenter);
             RewardImage_5->SetImageKindY(GI_Main::ikyCenter);
@@ -477,10 +569,13 @@ namespace fRating2 {
         }
         {
             GI_Label::TLabelGI* RewardName_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
-            RewardName_5->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_5->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_5->ClientSize.Y));
+            RewardName_5->SetSize(ClassesImports::Point(
+                RewardWindow->ClientSize.X - RewardName_5->LocalPosition.X - RewardWindow->WorkSubRect.Right,
+                RewardName_5->ClientSize.Y));
         }
         Cursor = GetCursorPoint();
-        RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
+        RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100,
+            std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
     }
 
     void TfRating2::ShowCareerHint(GI_MessageLoop::TObjectGI* Sender) {
@@ -499,40 +594,59 @@ namespace fRating2 {
                 GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName->SetText(([&] {
                     pas::WideString name = Ranger->GetName();
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormRating.PlayerName"_wref.get());
                     pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                        u"<Name>"_w, std::move(name));
                 }()));
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}),
+                    RewardImage->GraphBuf);
             }
         } else {
             {
                 GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                 RewardName_2->SetText(([&] {
                     pas::WideString name_2 = Ranger->GetName();
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                        u"FormRating.PartnerName"_wref.get());
                     pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2));
+                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2),
+                        u"<Name>"_w, std::move(name_2));
                 }()));
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_2->GraphBuf);
+                GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}),
+                    RewardImage_2->GraphBuf);
             }
         }
-        Text = pas::concat_wide({u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
-        for (auto cpp_range = pas::for_to<aGalaxyStruct::TRangerCareer>(aGalaxyStruct::rcTrader, aGalaxyStruct::rcWarrior); cpp_range.next(Career); ) {
-            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>", aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.", aConst::CareerTuning[Career].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=", FormatCareerHintColumn(3), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[Career]))), pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
+        Text = pas::concat_wide({u"<td=", FormatCareerHintColumn(1), u"><align=left>",
+                aConst::LocalizedColorText(u"FormRating.Rating.Title"_wref.get()), u"</align>", u"\r\n"});
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TRangerCareer>(aGalaxyStruct::rcTrader,
+            aGalaxyStruct::rcWarrior); cpp_range.next(Career); ) {
+            Text = pas::concat_wide({Text, u"<td=", FormatCareerHintColumn(1), u"><align=left>",
+                    aConst::LocalizedColorText(pas::concat_wide({u"FormRating.Rating.",
+                        aConst::CareerTuning[Career].Name})), u"<td=", FormatCareerHintColumn(2), u">:</align><td=",
+                    FormatCareerHintColumn(3), u"><align=right>",
+                    aMyFunction::WrapTextInColor(
+                        pas::view(pas::wide_int_to_str(static_cast<std::int32_t>(Ranger->CareerStatus[Career]))),
+                        pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
         }
         {
             GI_Label::TLabelGI* RewardText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardText"sv));
             RewardText->SetText(Text);
         }
         {
-            GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
+            GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"RewardImage"sv));
             RewardImage_3->SourceHasPerPixelAlpha = true;
             RewardImage_3->SetImageKindX(GI_Main::ikxCenter);
             RewardImage_3->SetImageKindY(GI_Main::ikyCenter);
@@ -548,10 +662,13 @@ namespace fRating2 {
         }
         {
             GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
-            RewardName_3->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_3->ClientSize.Y));
+            RewardName_3->SetSize(ClassesImports::Point(
+                RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right,
+                RewardName_3->ClientSize.Y));
         }
         Cursor = GetCursorPoint();
-        RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
+        RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100,
+            std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
     }
 
     void TfRating2::ShowAwardHint(aRanger::TRanger* Ranger, std::int32_t AwardId) {
@@ -563,20 +680,31 @@ namespace fRating2 {
             HoveredAwardId = AwardId;
             RewardWindow->SetActive(true);
             Cursor = GetCursorPoint();
-            RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
+            RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100,
+                std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
             if (AwardId < 10) {
-                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(AwardId)});
+                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0",
+                        pas::wide_int_to_str(AwardId)});
             } else {
-                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(AwardId)});
+                Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_",
+                        pas::wide_int_to_str(AwardId)});
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
+                GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
                 RewardImage->SourceHasPerPixelAlpha = true;
                 GI_GI::LoadGiByPathIntoGraphBuf(Path, RewardImage->GraphBuf);
-                if (static_cast<std::uint32_t>(RewardImage->GraphBuf->Width) >= static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)) {
-                    RewardImage->GraphBuf->RescaleRgba(RewardImage->ClientSize.X, System::Round(pas::real_divide(RewardImage->ClientSize.X, static_cast<std::uint32_t>(RewardImage->GraphBuf->Width)) * static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)), 5);
+                if (static_cast<std::uint32_t>(RewardImage->GraphBuf->Width) >=
+                    static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)) {
+                    RewardImage->GraphBuf->RescaleRgba(RewardImage->ClientSize.X,
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(RewardImage->ClientSize.X) /
+                            static_cast<std::uint32_t>(RewardImage->GraphBuf->Width)) *
+                            static_cast<std::uint32_t>(RewardImage->GraphBuf->Height))), 5);
                 } else {
-                    RewardImage->GraphBuf->RescaleRgba(System::Round(pas::real_divide(RewardImage->ClientSize.Y, static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)) * static_cast<std::uint32_t>(RewardImage->GraphBuf->Width)), RewardImage->ClientSize.Y, 5);
+                    RewardImage->GraphBuf->RescaleRgba(
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(RewardImage->ClientSize.Y) /
+                            static_cast<std::uint32_t>(RewardImage->GraphBuf->Height)) *
+                            static_cast<std::uint32_t>(RewardImage->GraphBuf->Width))), RewardImage->ClientSize.Y, 5);
                 }
                 RewardImage->SetImageKindX(GI_Main::ikxCenter);
                 RewardImage->SetImageKindY(GI_Main::ikyCenter);
@@ -596,7 +724,9 @@ namespace fRating2 {
             }
             {
                 GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
-                RewardName_2->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_2->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_2->ClientSize.Y));
+                RewardName_2->SetSize(ClassesImports::Point(
+                    RewardWindow->ClientSize.X - RewardName_2->LocalPosition.X - RewardWindow->WorkSubRect.Right,
+                    RewardName_2->ClientSize.Y));
             }
         }
     }
@@ -622,7 +752,8 @@ namespace fRating2 {
         return -1;
     }
 
-    void TfRating2::SortHeaderMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRating2::SortHeaderMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (SelectedIndex >= 0) {
             SelectedRangerId = Rows[SelectedIndex].Ranger->Id;
             SelectedIndex = -1;
@@ -702,98 +833,128 @@ namespace fRating2 {
         {
             GI_Image::TImageGI* SortImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"SortImage"sv));
             if (SortColumn == rrscName) {
-                SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left = GetByName(u"SortName"sv)->LocalPosition.X;
-                    return cpp_left + GetByName(u"SortName"sv)->ClientSize.X;
-                }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
+                SortImage->SetPosition(ClassesImports::Point(
+                    ([&] {
+                        std::int32_t cpp_left = GetByName(u"SortName"sv)->LocalPosition.X;
+                        return cpp_left + GetByName(u"SortName"sv)->ClientSize.X;
+                    }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscExperience) {
-                SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_2 = GetByName(u"SortScore"sv)->LocalPosition.X;
-                    return cpp_left_2 + GetByName(u"SortScore"sv)->ClientSize.X;
-                }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
+                SortImage->SetPosition(ClassesImports::Point(
+                    ([&] {
+                        std::int32_t cpp_left_2 = GetByName(u"SortScore"sv)->LocalPosition.X;
+                        return cpp_left_2 + GetByName(u"SortScore"sv)->ClientSize.X;
+                    }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscRace) {
-                SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_3 = GetByName(u"SortRace"sv)->LocalPosition.X;
-                    return cpp_left_3 + GetByName(u"SortRace"sv)->ClientSize.X;
-                }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
+                SortImage->SetPosition(ClassesImports::Point(
+                    ([&] {
+                        std::int32_t cpp_left_3 = GetByName(u"SortRace"sv)->LocalPosition.X;
+                        return cpp_left_3 + GetByName(u"SortRace"sv)->ClientSize.X;
+                    }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             } else if (SortColumn == rrscRank) {
-                SortImage->SetPosition(ClassesImports::Point(([&] {
-                    std::int32_t cpp_left_4 = GetByName(u"SortRank"sv)->LocalPosition.X;
-                    return cpp_left_4 + GetByName(u"SortRank"sv)->ClientSize.X;
-                }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
+                SortImage->SetPosition(ClassesImports::Point(
+                    ([&] {
+                        std::int32_t cpp_left_4 = GetByName(u"SortRank"sv)->LocalPosition.X;
+                        return cpp_left_4 + GetByName(u"SortRank"sv)->ClientSize.X;
+                    }()) - SortImage->ClientSize.X, SortImage->LocalPosition.Y));
             }
             if (SortAscending) {
-                SortImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"SortDown"}));
+                SortImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(),
+                    u"SortDown"}));
             } else {
-                SortImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"SortUp"}));
+                SortImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(),
+                    u"SortUp"}));
             }
         }
         pas::List* List = pas::make_object<pas::List>();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
-            A = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
-            if (!A->ExcludedFromRating) {
-                pas::list_add(List, reinterpret_cast<void*>(A));
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Rangers) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    A = pas::list_at<aRanger::TRanger>(aGalaxy::Galaxy->Rangers, I);
+                    if (!A->ExcludedFromRating) {
+                        pas::list_add(List, reinterpret_cast<void*>(A));
+                    }
+                }
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(List) - 2); cpp_range_2.next(I); ) {
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(I + 1, pas::list_count(List) - 1); cpp_range_3.next(J); ) {
-                A = pas::list_at<aRanger::TRanger>(List, I);
-                B = pas::list_at<aRanger::TRanger>(List, J);
-                if (SortColumn == rrscName) {
-                    if (SortAscending) {
-                        if (([&] {
-                            std::uint8_t* cpp_arg = (cpp_text_2 = static_cast<pas::AnsiString>(A->Name), cpp_text_2.pchar());
-                            std::uint8_t* cpp_arg_2 = (cpp_text = static_cast<pas::AnsiString>(B->Name), cpp_text.pchar());
-                            return WindowsSdk::CompareString(WindowsSdk::LOCALE_USER_DEFAULT, 0u, cpp_arg_2, -1, cpp_arg, -1);
-                        }()) - 2 < 0) {
-                            pas::list_exchange(List, I, J);
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(List) - 2;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    const std::int32_t cpp_first = I + 1;
+                    const std::int32_t cpp_last_3 = pas::list_count(List) - 1;
+                    if (cpp_first <= cpp_last_3) {
+                        for (J = cpp_first; J <= cpp_last_3; ++J) {
+                            A = pas::list_at<aRanger::TRanger>(List, I);
+                            B = pas::list_at<aRanger::TRanger>(List, J);
+                            if (SortColumn == rrscName) {
+                                if (SortAscending) {
+                                    if (([&] {
+                                        std::uint8_t* cpp_arg = (cpp_text_2 = static_cast<pas::AnsiString>(A->Name),
+                                            cpp_text_2.pchar());
+                                        std::uint8_t* cpp_arg_2 = (cpp_text = static_cast<pas::AnsiString>(B->Name),
+                                            cpp_text.pchar());
+                                        return WindowsSdk::CompareString(WindowsSdk::LOCALE_USER_DEFAULT, 0u, cpp_arg_2,
+                                            -1, cpp_arg, -1);
+                                    }()) - 2 < 0) {
+                                        pas::list_exchange(List, I, J);
+                                    }
+                                } else if (([&] {
+                                    std::uint8_t* cpp_arg_3 = (cpp_text_4 = static_cast<pas::AnsiString>(A->Name),
+                                        cpp_text_4.pchar());
+                                    std::uint8_t* cpp_arg_4 = (cpp_text_3 = static_cast<pas::AnsiString>(B->Name),
+                                        cpp_text_3.pchar());
+                                    return WindowsSdk::CompareString(WindowsSdk::LOCALE_USER_DEFAULT, 0u, cpp_arg_4, -1,
+                                        cpp_arg_3, -1);
+                                }()) - 2 > 0) {
+                                    pas::list_exchange(List, I, J);
+                                }
+                            } else if (SortColumn == rrscExperience) {
+                                if (SortAscending) {
+                                    if (B->TotalExperience < A->TotalExperience) {
+                                        pas::list_exchange(List, I, J);
+                                    }
+                                } else if (B->TotalExperience > A->TotalExperience) {
+                                    pas::list_exchange(List, I, J);
+                                }
+                            } else if (SortColumn == rrscRace) {
+                                if (SortAscending) {
+                                    if (B->PilotRace < A->PilotRace) {
+                                        pas::list_exchange(List, I, J);
+                                    }
+                                } else if (B->PilotRace > A->PilotRace) {
+                                    pas::list_exchange(List, I, J);
+                                }
+                            } else if (SortColumn == rrscRank) {
+                                if (SortAscending) {
+                                    if (B->Rank < A->Rank) {
+                                        pas::list_exchange(List, I, J);
+                                    }
+                                } else if (B->Rank > A->Rank) {
+                                    pas::list_exchange(List, I, J);
+                                }
+                            } else if (SortColumn == rrscCharacter) {
+                                if (SortAscending) {
+                                    if (([&] {
+                                        std::uint8_t* cpp_arg_5 = (cpp_text_6 =
+                                            static_cast<pas::AnsiString>(A->GetCharacterName()), cpp_text_6.pchar());
+                                        std::uint8_t* cpp_arg_6 = (cpp_text_5 =
+                                            static_cast<pas::AnsiString>(B->GetCharacterName()), cpp_text_5.pchar());
+                                        return SysUtilsImports::AnsiStrComp(cpp_arg_6, cpp_arg_5);
+                                    }()) < 0) {
+                                        pas::list_exchange(List, I, J);
+                                    }
+                                } else if (([&] {
+                                    std::uint8_t* cpp_arg_7 = (cpp_text_8 =
+                                        static_cast<pas::AnsiString>(A->GetCharacterName()), cpp_text_8.pchar());
+                                    std::uint8_t* cpp_arg_8 = (cpp_text_7 =
+                                        static_cast<pas::AnsiString>(B->GetCharacterName()), cpp_text_7.pchar());
+                                    return SysUtilsImports::AnsiStrComp(cpp_arg_8, cpp_arg_7);
+                                }()) > 0) {
+                                    pas::list_exchange(List, I, J);
+                                }
+                            }
                         }
-                    } else if (([&] {
-                        std::uint8_t* cpp_arg_3 = (cpp_text_4 = static_cast<pas::AnsiString>(A->Name), cpp_text_4.pchar());
-                        std::uint8_t* cpp_arg_4 = (cpp_text_3 = static_cast<pas::AnsiString>(B->Name), cpp_text_3.pchar());
-                        return WindowsSdk::CompareString(WindowsSdk::LOCALE_USER_DEFAULT, 0u, cpp_arg_4, -1, cpp_arg_3, -1);
-                    }()) - 2 > 0) {
-                        pas::list_exchange(List, I, J);
-                    }
-                } else if (SortColumn == rrscExperience) {
-                    if (SortAscending) {
-                        if (B->TotalExperience < A->TotalExperience) {
-                            pas::list_exchange(List, I, J);
-                        }
-                    } else if (B->TotalExperience > A->TotalExperience) {
-                        pas::list_exchange(List, I, J);
-                    }
-                } else if (SortColumn == rrscRace) {
-                    if (SortAscending) {
-                        if (B->PilotRace < A->PilotRace) {
-                            pas::list_exchange(List, I, J);
-                        }
-                    } else if (B->PilotRace > A->PilotRace) {
-                        pas::list_exchange(List, I, J);
-                    }
-                } else if (SortColumn == rrscRank) {
-                    if (SortAscending) {
-                        if (B->Rank < A->Rank) {
-                            pas::list_exchange(List, I, J);
-                        }
-                    } else if (B->Rank > A->Rank) {
-                        pas::list_exchange(List, I, J);
-                    }
-                } else if (SortColumn == rrscCharacter) {
-                    if (SortAscending) {
-                        if (([&] {
-                            std::uint8_t* cpp_arg_5 = (cpp_text_6 = static_cast<pas::AnsiString>(A->GetCharacterName()), cpp_text_6.pchar());
-                            std::uint8_t* cpp_arg_6 = (cpp_text_5 = static_cast<pas::AnsiString>(B->GetCharacterName()), cpp_text_5.pchar());
-                            return SysUtilsImports::AnsiStrComp(cpp_arg_6, cpp_arg_5);
-                        }()) < 0) {
-                            pas::list_exchange(List, I, J);
-                        }
-                    } else if (([&] {
-                        std::uint8_t* cpp_arg_7 = (cpp_text_8 = static_cast<pas::AnsiString>(A->GetCharacterName()), cpp_text_8.pchar());
-                        std::uint8_t* cpp_arg_8 = (cpp_text_7 = static_cast<pas::AnsiString>(B->GetCharacterName()), cpp_text_7.pchar());
-                        return SysUtilsImports::AnsiStrComp(cpp_arg_8, cpp_arg_7);
-                    }()) > 0) {
-                        pas::list_exchange(List, I, J);
                     }
                 }
             }
@@ -801,21 +962,26 @@ namespace fRating2 {
         Rows = nullptr;
         if (pas::list_count(List) > 0) {
             Rows.set_length(pas::list_count(List));
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(List) - 1); cpp_range_4.next(I); ) {
-                Rows[I].Ranger = pas::list_at<aRanger::TRanger>(List, I);
-                Rows[I].Top = 0;
-                Rows[I].Height = 0;
-                if (SelectedIndex < 0 && Rows[I].Ranger->Id == SelectedRangerId) {
-                    SelectedIndex = I;
+            {
+                const std::int32_t cpp_last_4 = pas::list_count(List) - 1;
+                if (0 <= cpp_last_4) {
+                    for (I = 0; I <= cpp_last_4; ++I) {
+                        Rows[I].Ranger = pas::list_at<aRanger::TRanger>(List, I);
+                        Rows[I].Top = 0;
+                        Rows[I].Height = 0;
+                        if (SelectedIndex < 0 && Rows[I].Ranger->Id == SelectedRangerId) {
+                            SelectedIndex = I;
+                        }
+                    }
                 }
             }
         }
         pas::free(List);
         std::int32_t Top = 0;
         {
-            const std::int32_t cpp_last = Rows.length() - 1;
-            if (0 <= cpp_last) {
-                for (I = 0; I <= cpp_last; ++I) {
+            const std::int32_t cpp_last_5 = Rows.length() - 1;
+            if (0 <= cpp_last_5) {
+                for (I = 0; I <= cpp_last_5; ++I) {
                     Rows[I].Top = Top;
                     CreateRow(I);
                     Top += Rows[I].Height;
@@ -922,9 +1088,13 @@ namespace fRating2 {
                 Buffer->MouseLeaveCallback = pas::bind_method<&TfRating2::HintMouseLeave>(this);
                 Buffer->LeftButtonDownCallback = pas::bind_method<&TfRating2::AwardsMouseDown>(this);
                 Buffer->UserValue = Ranger->Id;
-                Buffer->GraphBuf->AllocateRgbaTight(std::max<std::int32_t>(Buffer->ClientSize.X, Step * Count + Size - Step), Size);
+                Buffer->GraphBuf->AllocateRgbaTight(
+                    std::max<std::int32_t>(Buffer->ClientSize.X, Step * Count + Size - Step), Size);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Size - 1); cpp_range.next(I); ) {
-                    GR_GraphBuf::TGraphBufGR_FillRect32(Buffer->GraphBuf, ClassesImports::Rect(0, I, Buffer->GraphBuf->Width, I + 1), pas::shl(static_cast<std::int32_t>(System::Round(pas::real_divide(I, Size) * 2.4E+2L) + 10), 24) | pas::shl(250, 16) | pas::shl(250, 8) | 50);
+                    Buffer->GraphBuf->FillRect32(ClassesImports::Rect(0, I, Buffer->GraphBuf->Width, I + 1),
+                        pas::shl(
+                            static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(I) / Size) * 2.4E+2)) + 10),
+                            24) | pas::shl(250, 16) | pas::shl(250, 8) | 50);
                 }
                 Buffer->SourceHasPerPixelAlpha = true;
                 Buffer->UserState = Index;
@@ -932,21 +1102,29 @@ namespace fRating2 {
                 I = std::max<std::int32_t>(0, pas::list_count(Ranger->AwardIds) - Count);
                 J = 0;
                 while (I < pas::list_count(Ranger->AwardIds)) {
-                    Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds, I)));
+                    Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ranger->AwardIds,
+                            I)));
                     if (Award < 10) {
-                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0",
+                                pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
                     } else {
-                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
+                        Path = pas::concat_wide({u"Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_",
+                                pas::wide_int_to_str(static_cast<std::int32_t>(Award))});
                     }
                     GI_GI::LoadGiByPathIntoGraphBuf(Path, Icon);
                     if (static_cast<std::uint32_t>(Icon->Width) >= static_cast<std::uint32_t>(Icon->Height)) {
-                        Icon->RescaleRgba(Size, System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Width)) * static_cast<std::uint32_t>(Icon->Height)), 5);
+                        Icon->RescaleRgba(Size,
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Size) / static_cast<std::uint32_t>(Icon->Width)) *
+                                static_cast<std::uint32_t>(Icon->Height))), 5);
                     } else {
-                        Icon->RescaleRgba(System::Round(pas::real_divide(Size, static_cast<std::uint32_t>(Icon->Height)) * static_cast<std::uint32_t>(Icon->Width)), Size, 5);
+                        Icon->RescaleRgba(
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Size) / static_cast<std::uint32_t>(Icon->Height)) *
+                                static_cast<std::uint32_t>(Icon->Width))), Size, 5);
                     }
                     if (Icon->Height <= Size) {
                         if (Icon->Width + J * Step <= Buffer->GraphBuf->Width) {
-                            GR_GraphBuf::TGraphBufGR_BlendRect32(Buffer->GraphBuf, ClassesImports::Point(J * Step, 0), Icon, ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
+                            Buffer->GraphBuf->BlendRect32(ClassesImports::Point(J * Step, 0), Icon,
+                                ClassesImports::Rect(0, 0, Icon->Width, Icon->Height));
                         }
                     }
                     ++I;
@@ -963,7 +1141,8 @@ namespace fRating2 {
         if (SelectedIndex == Index) {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->UserState = Index;
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Open", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Open",
+                aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
             Image->SetSize(Image->GetContentSize());
             Image->SetPosition(ClassesImports::Point(0, 0));
             Image->SetDepth(11.0);
@@ -990,7 +1169,8 @@ namespace fRating2 {
             Caption->SetTextAlignX(GI_Main::taxCenter);
             Caption->SetTextAlignY(GI_Main::tayCenterEx);
             {
-                const pas::WideString& cpp_arg = pas::concat_wide({aConst::LocalizedText(u"FormRating.Kill"_wref.get()), u":"});
+                const pas::WideString& cpp_arg = pas::concat_wide({aConst::LocalizedText(u"FormRating.Kill"_wref.get()),
+                    u":"});
                 GI_Label::TLabelGI* caption_2 = Caption;
                 caption_2->SetText(cpp_arg);
             }
@@ -1076,7 +1256,8 @@ namespace fRating2 {
             Caption->SetTextAlignX(GI_Main::taxCenter);
             Caption->SetTextAlignY(GI_Main::tayCenterEx);
             Caption->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-            Caption->SetText(pas::wide_int_to_str(Ranger->TotalShipKillCount - Ranger->PirateKillCount - Ranger->DominatorKillCount));
+            Caption->SetText(pas::wide_int_to_str(Ranger->TotalShipKillCount - Ranger->PirateKillCount -
+                Ranger->DominatorKillCount));
             ExtraKills = 0;
             if (aPlayer::GetPlayer() == Ranger) {
                 {
@@ -1095,14 +1276,17 @@ namespace fRating2 {
             Caption->SetText(pas::wide_int_to_str(Ranger->TotalShipKillCount + ExtraKills));
             Caption->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             Caption = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
-            Caption->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(321), GR_Main::GiScalePixelsEx(126, 101)));
+            Caption->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(321),
+                GR_Main::GiScalePixelsEx(126, 101)));
             Caption->SetSize(ClassesImports::Point(GR_Main::GiScalePixels(300), GR_Main::GiScalePixels(22)));
             Caption->SetFontName(GlobalsV::NormalFontName);
             Caption->SetWordWrapEnabled(false);
             Caption->SetTextAlignX(GI_Main::taxCenter);
             Caption->SetTextAlignY(GI_Main::tayCenterEx);
             {
-                const pas::WideString& cpp_arg_2 = pas::concat_wide({aConst::LocalizedText(u"FormRating.LiberationSystem"_wref.get()), u": ", pas::wide_int_to_str(Ranger->LiberatedSystemCount)});
+                const pas::WideString& cpp_arg_2 = pas::concat_wide({
+                    aConst::LocalizedText(u"FormRating.LiberationSystem"_wref.get()), u": ",
+                    pas::wide_int_to_str(Ranger->LiberatedSystemCount)});
                 GI_Label::TLabelGI* caption_7 = Caption;
                 caption_7->SetText(cpp_arg_2);
             }
@@ -1149,13 +1333,16 @@ namespace fRating2 {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Bar"}));
             Image->SetSize(Image->GetContentSize());
             Image->SetDepth(9.0);
-            Ratio = pas::real_divide(Ranger->Strength, pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(aGalaxy::Galaxy->FindStrongestRanger()))->Strength);
-            if (Ratio < 0.0L) {
+            Ratio = static_cast<float>(static_cast<double>(Ranger->Strength) /
+                    pas::checked_cast<aRanger::TRanger*>(
+                        static_cast<pas::Object*>(aGalaxy::Galaxy->FindStrongestRanger()))->Strength);
+            if (Ratio < 0.0) {
                 Ratio = 0.0f;
-            } else if (Ratio > 1.0L) {
+            } else if (Ratio > 1.0) {
                 Ratio = 1.0f;
             }
-            Image->SetPosition(ClassesImports::Point(1 - System::Round((1.0L - Ratio) * (Image->ClientSize.X / 2)), 1));
+            Image->SetPosition(ClassesImports::Point(1 - pas::real_round(static_cast<float>((static_cast<float>(1.0 - Ratio)) * (Image->ClientSize.X / 2))),
+                1));
             BarPanel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, Panel);
             BarPanel->SetPosition(ClassesImports::Point(GR_Main::GiScalePixels(201), GR_Main::GiScalePixels(128)));
             if (GR_Main::GiResourceVariant() == 1) {
@@ -1172,13 +1359,16 @@ namespace fRating2 {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Bar"}));
             Image->SetSize(Image->GetContentSize());
             Image->SetDepth(9.0);
-            Ratio = pas::real_divide(Ranger->Wealth, pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(aGalaxy::Galaxy->FindWealthiestRanger()))->Wealth);
-            if (Ratio < 0.0L) {
+            Ratio = static_cast<float>(static_cast<double>(Ranger->Wealth) /
+                    pas::checked_cast<aRanger::TRanger*>(
+                        static_cast<pas::Object*>(aGalaxy::Galaxy->FindWealthiestRanger()))->Wealth);
+            if (Ratio < 0.0) {
                 Ratio = 0.0f;
-            } else if (Ratio > 1.0L) {
+            } else if (Ratio > 1.0) {
                 Ratio = 1.0f;
             }
-            Image->SetPosition(ClassesImports::Point(1 - System::Round((1.0L - Ratio) * (Image->ClientSize.X / 2)), 1));
+            Image->SetPosition(ClassesImports::Point(1 - pas::real_round(static_cast<float>((static_cast<float>(1.0 - Ratio)) * (Image->ClientSize.X / 2))),
+                1));
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->SetDepth(13.0);
             Image->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ranger), u"i"}));
@@ -1222,7 +1412,8 @@ namespace fRating2 {
         } else {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             Image->UserState = Index;
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal",
+                aConst::OwnerInfo[aConst::RaceToOwner(Ranger->PilotRace)].InternalName}));
             Image->SetSize(Image->GetContentSize());
             Image->SetPosition(ClassesImports::Point(0, 0));
             Image->SetDepth(11.0);
@@ -1231,7 +1422,8 @@ namespace fRating2 {
             Image->LeftButtonDownCallback = pas::bind_method<&TfRating2::RowMouseDown>(this);
             Panel->SetSize(Image->ClientSize);
         }
-        if (aPlayer::GetPlayer() == Ranger || aShip::TShip_IsInPrison(Ranger) || Ranger->PartnerShip != nullptr || Ranger->CountWingmen() > 0) {
+        if (aPlayer::GetPlayer() == Ranger || aShip::TShip_IsInPrison(Ranger) || Ranger->PartnerShip != nullptr ||
+            Ranger->CountWingmen() > 0) {
             Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             if (aPlayer::GetPlayer() == Ranger) {
                 Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Player"}));
@@ -1318,7 +1510,8 @@ namespace fRating2 {
         Caption->SetText(pas::wide_int_to_str(Ranger->TotalExperience));
         Caption->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         Rows[Index].Height = Panel->ClientSize.Y;
-        TablePanel->VerticalScrollBar->SetSmallChange(std::min<std::int32_t>(Rows[Index].Height, TablePanel->VerticalScrollBar->SmallChange));
+        TablePanel->VerticalScrollBar->SetSmallChange(std::min<std::int32_t>(Rows[Index].Height,
+            TablePanel->VerticalScrollBar->SmallChange));
         if (SelectedIndex == Index) {
             SelectedRowRect = ClassesImports::Rect(0, Rows[Index].Top, 1, Rows[Index].Top + Rows[Index].Height);
         }
@@ -1326,7 +1519,8 @@ namespace fRating2 {
 
     void TfRating2::RowMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         {
-            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Select", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
+            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Select",
+                aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
             GI_Image::TImageGI* cpp_arg_2 = pas::checked_cast<GI_Image::TImageGI*>(Sender);
             cpp_arg_2->SetImagePath(std::move(cpp_arg));
         }
@@ -1335,7 +1529,8 @@ namespace fRating2 {
 
     void TfRating2::RowMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         {
-            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal", aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
+            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"Normal",
+                aConst::OwnerInfo[aConst::RaceToOwner(Rows[Sender->UserState].Ranger->PilotRace)].InternalName});
             GI_Image::TImageGI* cpp_arg_2 = pas::checked_cast<GI_Image::TImageGI*>(Sender);
             cpp_arg_2->SetImagePath(std::move(cpp_arg));
         }
@@ -1354,7 +1549,8 @@ namespace fRating2 {
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcTrader]);
             {
-                GI_GraphButton::TGraphButtonGI* ButTrader = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTrader"sv));
+                GI_GraphButton::TGraphButtonGI* ButTrader = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButTrader"sv));
                 ButTrader->SetDisabled(false);
                 ButTrader->UserValue = Ship->Id;
                 ButTrader->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
@@ -1366,9 +1562,11 @@ namespace fRating2 {
                 BestTrader->SetActive(true);
             }
             {
-                GI_Image::TImageGI* TraderCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TraderCaptainI"sv));
+                GI_Image::TImageGI* TraderCaptainI = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(u"TraderCaptainI"sv));
                 TraderCaptainI->UserValue = Ship->Id;
-                TraderCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
+                TraderCaptainI->SetImagePath(pas::concat_wide({u"GI,",
+                    aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 TraderCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 TraderCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 TraderCaptainI->SetActive(true);
@@ -1376,10 +1574,12 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* TraderCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TraderCaptainA"sv));
                 TraderCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                TraderCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
+                TraderCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship),
+                    u"a"}));
                 TraderCaptainA->SequenceIndex = 0;
                 TraderCaptainA->UpdateAutoGeometry();
-                TraderCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, TraderCaptainA->SequenceFrameCount - 1));
+                TraderCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0,
+                    TraderCaptainA->SequenceFrameCount - 1));
                 TraderCaptainA->SetImageKindX(GI_Main::ikxCenter);
                 TraderCaptainA->SetImageKindY(GI_Main::ikyCenter);
                 TraderCaptainA->SetActive(true);
@@ -1396,7 +1596,8 @@ namespace fRating2 {
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcWarrior]);
             {
-                GI_GraphButton::TGraphButtonGI* ButWarior = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButWarior"sv));
+                GI_GraphButton::TGraphButtonGI* ButWarior = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButWarior"sv));
                 ButWarior->SetDisabled(false);
                 ButWarior->UserValue = Ship->Id;
                 ButWarior->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
@@ -1408,9 +1609,11 @@ namespace fRating2 {
                 BestWarrior->SetActive(true);
             }
             {
-                GI_Image::TImageGI* WarriorCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"WarriorCaptainI"sv));
+                GI_Image::TImageGI* WarriorCaptainI = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(u"WarriorCaptainI"sv));
                 WarriorCaptainI->UserValue = Ship->Id;
-                WarriorCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
+                WarriorCaptainI->SetImagePath(pas::concat_wide({u"GI,",
+                    aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 WarriorCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 WarriorCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 WarriorCaptainI->SetActive(true);
@@ -1418,10 +1621,12 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* WarriorCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"WarriorCaptainA"sv));
                 WarriorCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                WarriorCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
+                WarriorCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship),
+                    u"a"}));
                 WarriorCaptainA->SequenceIndex = 0;
                 WarriorCaptainA->UpdateAutoGeometry();
-                WarriorCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, WarriorCaptainA->SequenceFrameCount - 1));
+                WarriorCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0,
+                    WarriorCaptainA->SequenceFrameCount - 1));
                 WarriorCaptainA->SetImageKindX(GI_Main::ikxCenter);
                 WarriorCaptainA->SetImageKindY(GI_Main::ikyCenter);
                 WarriorCaptainA->SetActive(true);
@@ -1438,7 +1643,8 @@ namespace fRating2 {
         } else {
             Ship = reinterpret_cast<aShip::TShip*>(aGalaxy::Galaxy->EminentCareerShips[aGalaxyStruct::rcPirate]);
             {
-                GI_GraphButton::TGraphButtonGI* ButPirate = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPirate"sv));
+                GI_GraphButton::TGraphButtonGI* ButPirate = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButPirate"sv));
                 ButPirate->SetDisabled(false);
                 ButPirate->UserValue = Ship->Id;
                 ButPirate->UpCallback = pas::bind_method<&TfRating2::FeaturedRangerClicked>(this);
@@ -1450,9 +1656,11 @@ namespace fRating2 {
                 BestPirate->SetActive(true);
             }
             {
-                GI_Image::TImageGI* PirateCaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PirateCaptainI"sv));
+                GI_Image::TImageGI* PirateCaptainI = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(u"PirateCaptainI"sv));
                 PirateCaptainI->UserValue = Ship->Id;
-                PirateCaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
+                PirateCaptainI->SetImagePath(pas::concat_wide({u"GI,",
+                    aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"i"}));
                 PirateCaptainI->SetImageKindX(GI_Main::ikxCenter);
                 PirateCaptainI->SetImageKindY(GI_Main::ikyCenter);
                 PirateCaptainI->SetActive(true);
@@ -1460,10 +1668,12 @@ namespace fRating2 {
             {
                 GI_GAI::TgaiGI* PirateCaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"PirateCaptainA"sv));
                 PirateCaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                PirateCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship), u"a"}));
+                PirateCaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Ship),
+                    u"a"}));
                 PirateCaptainA->SequenceIndex = 0;
                 PirateCaptainA->UpdateAutoGeometry();
-                PirateCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0, PirateCaptainA->SequenceFrameCount - 1));
+                PirateCaptainA->SetSequenceFrame(aMyFunction::RandomIntRange(0,
+                    PirateCaptainA->SequenceFrameCount - 1));
                 PirateCaptainA->SetImageKindX(GI_Main::ikxCenter);
                 PirateCaptainA->SetImageKindY(GI_Main::ikyCenter);
                 PirateCaptainA->SetActive(true);
@@ -1480,20 +1690,28 @@ namespace fRating2 {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {
@@ -1535,35 +1753,60 @@ namespace fRating2 {
                     GI_Label::TLabelGI* RewardName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
                     RewardName->SetText(([&] {
                         pas::WideString name = Ranger->GetName();
-                        pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormRating.PlayerName"_wref.get());
+                        pas::WideString localizedColorText = aConst::LocalizedColorText(
+                            u"FormRating.PlayerName"_wref.get());
                         pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name));
+                        return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                            u"<Name>"_w, std::move(name));
                     }()));
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                    GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}), RewardImage->GraphBuf);
+                    GI_GraphBuf::TGraphBufGI* RewardImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                        GetByName(u"RewardImage"sv));
+                    GI_GI::LoadGiByPathIntoGraphBuf(
+                        pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"PlayerB"}),
+                        RewardImage->GraphBuf);
                 }
             } else {
                 {
-                    GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
+                    GI_Label::TLabelGI* RewardName_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"RewardName"sv));
                     RewardName_2->SetText(([&] {
                         pas::WideString name_2 = Ranger->GetName();
-                        pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormRating.PartnerName"_wref.get());
+                        pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                            u"FormRating.PartnerName"_wref.get());
                         pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2));
+                        return aMyFunction::FormatText1(std::move(localizedColorText_2),
+                            std::move(textHighlightColorTag_2), u"<Name>"_w, std::move(name_2));
                     }()));
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
-                    GI_GI::LoadGiByPathIntoGraphBuf(pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}), RewardImage_2->GraphBuf);
+                    GI_GraphBuf::TGraphBufGI* RewardImage_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                        GetByName(u"RewardImage"sv));
+                    GI_GI::LoadGiByPathIntoGraphBuf(
+                        pas::concat_wide({u"Bm.FormRating2.", GR_Main::GiResourceSuffix(), u"DutyB"}),
+                        RewardImage_2->GraphBuf);
                 }
             }
             if (aPlayer::GetPlayer() == Ranger) {
-                Text = pas::concat_wide({u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
-                for (auto cpp_range = pas::for_to<aConst::TDominatorDisplayIndex>(static_cast<aConst::TDominatorDisplayIndex>(0), static_cast<aConst::TDominatorDisplayIndex>(7)); cpp_range.next(DisplayIndex); ) {
+                Text = pas::concat_wide({u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>",
+                        aConst::LocalizedText(u"FormRating.Dominator"_wref.get()), u"</align>", u"\r\n"});
+                for (auto cpp_range = pas::for_to<aConst::TDominatorDisplayIndex>(
+                    static_cast<aConst::TDominatorDisplayIndex>(0),
+                    static_cast<aConst::TDominatorDisplayIndex>(7)); cpp_range.next(DisplayIndex); ) {
                     if (aConst::DominatorDisplayOrder[DisplayIndex] != aGalaxyStruct::ktBoss) {
-                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>", aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"ShipType.Dominator.Blazer.", SysUtils::IntToStr(aConst::DominatorDisplayOrder[DisplayIndex])}))), u"<td=", FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3), u"><align=left>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->DominatorKillsByType[aConst::DominatorDisplayOrder[DisplayIndex]])), pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
+                        Text = pas::concat_wide({Text, u"<td=", FormatDominatorKillsHintColumn(1), u"><align=left>",
+                                aConst::LocalizedColorText(pas::concat_wide({u"ShipType.Dominator.Blazer.",
+                                    pas::wide_int_to_str(
+                                    static_cast<std::int32_t>(aConst::DominatorDisplayOrder[DisplayIndex]))})), u"<td=",
+                                FormatDominatorKillsHintColumn(2), u">:</align><td=", FormatDominatorKillsHintColumn(3),
+                                u"><align=left>",
+                                aMyFunction::WrapTextInColor(
+                                    pas::view(
+                                    pas::wide_int_to_str(
+                                    aPlayer::GetPlayer()->DominatorKillsByType[
+                                    aConst::DominatorDisplayOrder[DisplayIndex]])),
+                                    pas::view(aMyFunction::TextHighlightColorTag)), u"</align>", u"\r\n"});
                     }
                 }
                 {
@@ -1572,7 +1815,8 @@ namespace fRating2 {
                 }
             }
             {
-                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"RewardImage"sv));
+                GI_GraphBuf::TGraphBufGI* RewardImage_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"RewardImage"sv));
                 RewardImage_3->SourceHasPerPixelAlpha = true;
                 RewardImage_3->SetImageKindX(GI_Main::ikxCenter);
                 RewardImage_3->SetImageKindY(GI_Main::ikyCenter);
@@ -1588,10 +1832,13 @@ namespace fRating2 {
             }
             {
                 GI_Label::TLabelGI* RewardName_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardName"sv));
-                RewardName_3->SetSize(ClassesImports::Point(RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right, RewardName_3->ClientSize.Y));
+                RewardName_3->SetSize(ClassesImports::Point(
+                    RewardWindow->ClientSize.X - RewardName_3->LocalPosition.X - RewardWindow->WorkSubRect.Right,
+                    RewardName_3->ClientSize.Y));
             }
             Cursor = GetCursorPoint();
-            RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100, std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
+            RewardWindow->SetPosition(ClassesImports::Point(Cursor.X + 100,
+                std::max<std::int32_t>(0, Cursor.Y - RewardWindow->ClientSize.Y - 20)));
         }
     }
 

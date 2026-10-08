@@ -15,7 +15,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Kafacitor beam: linked control points and interpolated lateral movement.
@@ -34,7 +33,8 @@ namespace GI_PSWeapon17Kafacitor {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         KafacitorPalettes.set_length(Count);
         KafacitorAnimationPaths.set_length(Count);
@@ -43,14 +43,19 @@ namespace GI_PSWeapon17Kafacitor {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 1); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         KafacitorPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
                 if (PaletteBlock->CountParams(u"GAI"_wref.get()) > 0) {
@@ -60,7 +65,8 @@ namespace GI_PSWeapon17Kafacitor {
         }
     }
 
-    void TPSWeapon17Kafacitor_Create(TPSWeapon17Kafacitor* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon17Kafacitor_Create(TPSWeapon17Kafacitor* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 10;
         Self->LengthScale = 1.0;
@@ -95,25 +101,30 @@ namespace GI_PSWeapon17Kafacitor {
     }
 
     void TPSWeapon17Kafacitor::UpdateProjectionBounds() {
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        if (Distance == 0.0L) {
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        if (Distance == 0.0) {
             Distance = 1.0f;
         }
-        float Cosine = pas::real_divide(-(TargetPoint.Y - LocalPosition.Y), Distance);
-        float Sine = pas::real_divide(TargetPoint.X - LocalPosition.X, Distance);
-        float A = static_cast<long double>(-HalfWidth - 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth + 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth - 12) * Cosine;
-        float D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        float Cosine = static_cast<float>(static_cast<double>(-(TargetPoint.Y - LocalPosition.Y)) / Distance);
+        float Sine = static_cast<float>(static_cast<double>(TargetPoint.X - LocalPosition.X) / Distance);
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon17Kafacitor::UpdateHitTestBounds() {
@@ -133,7 +144,8 @@ namespace GI_PSWeapon17Kafacitor {
     }
 
     PKafacitorParticle TPSWeapon17Kafacitor::AddParticle() {
-        PKafacitorParticle Particle = static_cast<PKafacitorParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TKafacitorParticle))));
+        PKafacitorParticle Particle = static_cast<PKafacitorParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TKafacitorParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -149,7 +161,8 @@ namespace GI_PSWeapon17Kafacitor {
     void TPSWeapon17Kafacitor::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -176,19 +189,21 @@ namespace GI_PSWeapon17Kafacitor {
         Invalidate();
         if (FirstParticle == nullptr && RemainingTicks >= 24) {
             I = 0;
-            Distance = System::Round(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)));
+            Distance = pas::real_round(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)));
             OriginalLength = Distance;
-            if (OriginalLength == 0.0L) {
+            if (OriginalLength == 0.0) {
                 OriginalLength = 1.0;
             }
-            HalfWidth = std::max<std::int64_t>(static_cast<std::int64_t>(HalfWidth), System::Round(0.07L * OriginalLength));
-            Spacing = pas::real_divide(Distance, 2.0E+1L);
+            HalfWidth = std::max<std::int64_t>(static_cast<std::int64_t>(HalfWidth),
+                    pas::real_round(static_cast<float>(0.07 * OriginalLength)));
+            Spacing = static_cast<float>(Distance / 2.0E+1);
             SegmentPosition = 0;
             SegmentLength = 0;
             LengthScale = 1.0;
             Direction = 1;
             for (Pass = 1; Pass <= 2; ++Pass) {
-                while (Direction == 1 && I <= 4.0L * Distance || Direction == -1 && I >= 0) {
+                while (Direction == 1 && I <= static_cast<float>(4.0 * Distance) || Direction == -1 && I >= 0) {
                     Particle = AddParticle();
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(0.0f, I / 4));
                     if (Direction == 1) {
@@ -198,10 +213,10 @@ namespace GI_PSWeapon17Kafacitor {
                     }
                     Particle->Alpha = 255;
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, 0.0f));
-                    if (I == 0 || static_cast<long double>(I) == Distance) {
+                    if (I == 0 || static_cast<double>(I) == Distance) {
                         Particle->State = 1;
                         SegmentPosition = 0;
-                    } else if (SegmentPosition < 4.0L * Spacing) {
+                    } else if (SegmentPosition < static_cast<float>(4.0 * Spacing)) {
                         Particle->State = 2;
                         ++SegmentPosition;
                     } else {
@@ -220,7 +235,8 @@ namespace GI_PSWeapon17Kafacitor {
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             NextControl = Particle;
@@ -239,23 +255,29 @@ namespace GI_PSWeapon17Kafacitor {
                         NextControl = NextControl->Next;
                         ++SegmentLength;
                     }
-                    if (std::fabs(static_cast<pas::Extended>(NextControl->Position.X)) > 0.1L * Distance && static_cast<long double>(NextControl->Position.X) * NextControl->Velocity.X > 0.0L) {
-                        NextControl->Velocity.X = NextControl->Velocity.X * -1.0L;
-                    } else if (static_cast<long double>(NextControl->Position.X) * NextControl->Velocity.X > 0.0L && ([&] {
-                        pas::Extended cpp_left = pas::random(101, &System::RandSeed);
-                        return cpp_left < (pas::real_divide(std::fabs(static_cast<pas::Extended>(NextControl->Position.X)), 0.05L * Distance) - 1.0L) * 1.0E+2L;
-                    }())) {
-                        NextControl->Velocity.X = NextControl->Velocity.X * -1.0L;
-                    } else if (pas::random(101, &System::RandSeed) < 15) {
-                        NextControl->Velocity.X = NextControl->Velocity.X * -1.0L;
+                    if (std::fabs(static_cast<double>(NextControl->Position.X)) > static_cast<float>(0x1.999999999999bp-4 * Distance) &&
+                        static_cast<float>(static_cast<double>(NextControl->Position.X) * NextControl->Velocity.X) > 0.0) {
+                        NextControl->Velocity.X = static_cast<float>(NextControl->Velocity.X * -1.0);
+                    } else {
+                        bool cpp_condition = static_cast<float>(static_cast<double>(NextControl->Position.X) * NextControl->Velocity.X) >
+                            0.0;
+                        if (cpp_condition) {
+                            double cpp_left = pas::random(101, &System::RandSeed);
+                            cpp_condition = cpp_left < static_cast<float>((static_cast<float>(static_cast<float>(std::fabs(static_cast<double>(NextControl->Position.X)) /
+                                        (static_cast<float>(0x1.999999999999bp-5 * Distance))) - 1.0)) * 1.0E+2);
+                        }
+                        if (cpp_condition) {
+                            NextControl->Velocity.X = static_cast<float>(NextControl->Velocity.X * -1.0);
+                        } else if (pas::random(101, &System::RandSeed) < 15) {
+                            NextControl->Velocity.X = static_cast<float>(NextControl->Velocity.X * -1.0);
+                        }
                     }
                 } else {
                     ++Offset;
                 }
-                {
-                    pas::Extended cpp_left_2 = (1.0L - pas::real_divide(Offset, SegmentLength)) * PreviousControl->Velocity.X + Current->Position.X;
-                    Current->Position.X = cpp_left_2 + pas::real_divide(static_cast<long double>(Offset) * NextControl->Velocity.X, SegmentLength);
-                }
+                Current->Position.X = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(1.0 - static_cast<float>(static_cast<double>(Offset) / SegmentLength))) *
+                        PreviousControl->Velocity.X) + Current->Position.X) + static_cast<float>(static_cast<float>(static_cast<double>(Offset) *
+                            NextControl->Velocity.X) / SegmentLength));
                 if (RemainingTicks < 24) {
                     if (Current->Alpha - 10 > 0) {
                         Current->Alpha -= 10;
@@ -282,20 +304,24 @@ namespace GI_PSWeapon17Kafacitor {
         PKafacitorParticle Particle = FirstParticle;
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
-                PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 Particle = Particle->Next;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
         } else {
             while (Particle != nullptr) {
-                PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                     GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                 }

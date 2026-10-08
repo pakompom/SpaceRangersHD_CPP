@@ -14,10 +14,6 @@
 // is the Pascal class-name string "TEFilmEnd", referenced by its VMT.
 // The former 12-byte IDA function there was metadata, not a tenth routine.
 namespace aEFilmEnd {
-    void TEFilmEnd_Create(TEFilmEnd* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TEFilmEnd_Destroy(TEFilmEnd* Self) {
         Self->Clear();
         EC_Struct::TObjectEx_Destroy(Self);
@@ -30,7 +26,8 @@ namespace aEFilmEnd {
     }
 
     PEFilmEndEntry TEFilmEnd::AppendEntry() {
-        PEFilmEndEntry Entry = static_cast<PEFilmEndEntry>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEFilmEndEntry))));
+        PEFilmEndEntry Entry = static_cast<PEFilmEndEntry>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEFilmEndEntry))));
         if (LastEntry != nullptr) {
             LastEntry->Next = Entry;
         }
@@ -91,7 +88,8 @@ namespace aEFilmEnd {
         FirstTrailing = FirstTrailing->Next;
         Obj = Film->FirstObject;
         while (Obj != nullptr) {
-            if (SE_GAIEffect::TGAIEffectSE* gAIEffectSE = pas::class_cast_if<SE_GAIEffect::TGAIEffectSE*>(Obj->SceneObject)) {
+            if (SE_GAIEffect::TGAIEffectSE* gAIEffectSE = pas::class_cast_if<SE_GAIEffect::TGAIEffectSE*>(
+                Obj->SceneObject)) {
                 if (gAIEffectSE->Animation != nullptr) {
                     gAIEffectSE->Animation->RestartPlayback();
                 }
@@ -102,8 +100,10 @@ namespace aEFilmEnd {
                 if (Weapon->TargetDestroyed) {
                     Command = FirstTrailing;
                     while (Command != nullptr) {
-                        if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr && Command->Obj->SceneObject == Weapon->TargetObject) {
-                            SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->RelatedObject1), Command->Obj->SceneObject);
+                        if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr &&
+                            Command->Obj->SceneObject == Weapon->TargetObject) {
+                            SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->RelatedObject1),
+                                Command->Obj->SceneObject);
                             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Command->Obj->SceneObject));
                             break;
                         }
@@ -114,9 +114,11 @@ namespace aEFilmEnd {
             } else if (pas::class_cast_if<SE_Hole::THoleSE*>(Obj->SceneObject) != nullptr) {
                 Command = FirstTrailing;
                 while (Command != nullptr) {
-                    if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr && Command->Obj->SceneObject == Obj->SceneObject) {
+                    if (Command->Kind == aEFilm::efcReleaseObject && Command->Obj != nullptr &&
+                        Command->Obj->SceneObject == Obj->SceneObject) {
                         Entry = AppendEntry();
-                        SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->SceneObject), Obj->SceneObject);
+                        SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Entry->SceneObject),
+                            Obj->SceneObject);
                         SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj->SceneObject));
                         break;
                     }
@@ -138,16 +140,26 @@ namespace aEFilmEnd {
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                     GR_Main::AppendLogLineThreadSafe("Error in Event.Step"_a);
                     if (Entry->SceneObject != nullptr) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({static_cast<pas::WideString>(pas::concat_ansi({"event ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->SceneObject))), " "})), Entry->SceneObject->GraphKey})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            static_cast<pas::WideString>(pas::concat_ansi({"event ",
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->SceneObject))),
+                                " "})), Entry->SceneObject->GraphKey})));
                     }
                     if (Entry->RelatedObject1 != nullptr) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({static_cast<pas::WideString>(pas::concat_ansi({"obj ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->RelatedObject1))), " "})), Entry->RelatedObject1->GraphKey})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            static_cast<pas::WideString>(pas::concat_ansi({"obj ",
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->RelatedObject1))),
+                                " "})), Entry->RelatedObject1->GraphKey})));
                     }
                     if (Entry->RelatedObject2 != nullptr) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({static_cast<pas::WideString>(pas::concat_ansi({"obj2 ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->RelatedObject2))), " "})), Entry->RelatedObject2->GraphKey})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            static_cast<pas::WideString>(pas::concat_ansi({"obj2 ",
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Entry->RelatedObject2))),
+                                " "})), Entry->RelatedObject2->GraphKey})));
                     }
                     pas::raise(pas::make_exception<pas::Exception>("Error in TEFilmEnd.Run"_a));
                 } else {

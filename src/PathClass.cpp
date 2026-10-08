@@ -1,9 +1,9 @@
 #include "layout/PathClass.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/ParameterClass.hpp"
 #include "types/SequenceClass.hpp"
 #include "types/TextFieldClass.hpp"
 #include "units/CalcParseClass.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/EventClass.hpp"
@@ -97,7 +97,8 @@ namespace PathClass {
             const std::int32_t cpp_first = GetParameterChangeCount();
             if (cpp_first >= 1) {
                 for (i = cpp_first; i >= 1; --i) {
-                    if (GetParameterChange(i)->ParameterIndex < 1 || GetParameterChange(i)->ParameterIndex > pas::list_count(Parameters)) {
+                    if (GetParameterChange(i)->ParameterIndex < 1 || GetParameterChange(i)->ParameterIndex >
+                            pas::list_count(Parameters)) {
                         pas::list_delete(ParameterChanges, i - 1);
                     } else if (GetParameterChange(i)->HasNoChange(Parameters)) {
                         if (GetParameterChange(i)->HasNoValueConstraint(Parameters)) {
@@ -120,7 +121,8 @@ namespace PathClass {
             Calc->Reset();
             Calc->Prepare(EC_Str::TrimWideString(ConditionExpression->Text), 0);
             // Native cleanup occurs only after a successfully prepared expression.
-            if (static_cast<std::uint8_t>(Calc->HasError ^ 1) && static_cast<std::uint8_t>(Calc->UsesDefaultParameter ^ 1)) {
+            if (static_cast<std::uint8_t>(Calc->HasError ^ 1) && static_cast<std::uint8_t>(Calc->UsesDefaultParameter ^
+                    1)) {
                 Calc->Evaluate(Parameters);
                 if (static_cast<std::uint8_t>(Calc->HasError ^ 1) && Calc->ResultValue == 0) {
                     pas::destroy(Calc);
@@ -156,19 +158,21 @@ namespace PathClass {
         ParameterClass::TParameter* Parameter{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
-        DisplayOrder = EC_Buf::TBufEC_GetInt32(Reader);
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
+        DisplayOrder = Reader->GetInt32();
+        std::int32_t Count = Reader->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
-            ParameterIndex = EC_Buf::TBufEC_GetInt32(Reader);
+            ParameterIndex = Reader->GetInt32();
             Change = FindParameterChange(ParameterIndex);
             if (Change == nullptr) {
-                Change = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                Change =
+                    pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                        ParameterDeltaClass::TParameterDelta_Create);
                 Change->ParameterIndex = ParameterIndex;
                 Parameter = pas::list_at<ParameterClass::TParameter>(Parameters, ParameterIndex - 1);
                 Change->MinValue = Parameter->MinValue;
@@ -177,12 +181,14 @@ namespace PathClass {
             }
             Change->LoadValueConstraintsFromReader(Reader);
         }
-        Count = EC_Buf::TBufEC_GetInt32(Reader);
+        Count = Reader->GetInt32();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Count); cpp_range_2.next(i); ) {
-            ParameterIndex = EC_Buf::TBufEC_GetInt32(Reader);
+            ParameterIndex = Reader->GetInt32();
             Change = FindParameterChange(ParameterIndex);
             if (Change == nullptr) {
-                Change = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                Change =
+                    pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                        ParameterDeltaClass::TParameterDelta_Create);
                 Change->ParameterIndex = ParameterIndex;
                 Parameter = pas::list_at<ParameterClass::TParameter>(Parameters, ParameterIndex - 1);
                 Change->MinValue = Parameter->MinValue;
@@ -205,17 +211,18 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
-        DisplayOrder = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
+        DisplayOrder = Reader->GetInt32();
         for (i = 1; i <= 96; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -234,17 +241,18 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
-        DisplayOrder = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
+        DisplayOrder = Reader->GetInt32();
         for (i = 1; i <= 48; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -263,17 +271,18 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
-        DisplayOrder = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
+        DisplayOrder = Reader->GetInt32();
         for (i = 1; i <= 24; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -292,16 +301,17 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
         for (i = 1; i <= 24; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -320,16 +330,17 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
         for (i = 1; i <= 12; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -347,16 +358,17 @@ namespace PathClass {
         std::int32_t i{};
         Reset();
         Priority = Reader->GetDouble();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
         for (i = 1; i <= 12; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -373,15 +385,16 @@ namespace PathClass {
     void TPath::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
         for (i = 1; i <= 12; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -398,15 +411,16 @@ namespace PathClass {
     void TPath::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
-        TraversalLimit = EC_Buf::TBufEC_GetInt32(Reader);
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
+        TraversalLimit = Reader->GetInt32();
         for (i = 1; i <= 9; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -423,14 +437,15 @@ namespace PathClass {
     void TPath::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
-        AlwaysShow = EC_Buf::TBufEC_GetBoolean(Reader);
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
+        AlwaysShow = Reader->GetBoolean();
         for (i = 1; i <= 9; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }
@@ -448,13 +463,14 @@ namespace PathClass {
     void TPath::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        FromLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        ToLocationId = EC_Buf::TBufEC_GetInt32(Reader);
-        IsAutomatic = EC_Buf::TBufEC_GetBoolean(Reader);
+        Id = Reader->GetInt32();
+        FromLocationId = Reader->GetInt32();
+        ToLocationId = Reader->GetInt32();
+        IsAutomatic = Reader->GetBoolean();
         for (i = 1; i <= 9; ++i) {
             {
-                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                ParameterDeltaClass::TParameterDelta* cpp_arg = pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                    ParameterDeltaClass::TParameterDelta_Create);
                 TPath* self = this;
                 self->AddParameterChange(cpp_arg);
             }

@@ -13,10 +13,12 @@ namespace GI_XviD {
 
     extern GI_XviD::TXvidFunction XvidDecore;
 
-    void TxvidGI_Create(TxvidGI* Self, GI_MessageLoop::TObjectGI* Owner);
+    inline void TxvidGI_Create(TxvidGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
     void TxvidGI_Destroy(TxvidGI* Self);
 
     void TxvidGI_LoadFromConfigPath(TxvidGI* Self, const pas::WideString& Path);
 
 } // namespace GI_XviD
+
+#include "inline/GI_XviD.hpp"

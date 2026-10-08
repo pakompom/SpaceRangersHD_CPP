@@ -54,7 +54,8 @@ namespace SE_Angel {
             Entry = FirstEntry;
             while (Entry != nullptr) {
                 if (Entry->Animation != nullptr) {
-                    Entry->Animation->SetPosition(EC_Struct::TruncatePointF(aMyFunction::RotateAndTranslatePoint(Entry->Position, APosition, MoveAngle)));
+                    Entry->Animation->SetPosition(EC_Struct::TruncatePointF(aMyFunction::RotateAndTranslatePoint(
+                        Entry->Position, APosition, MoveAngle)));
                 }
                 Entry = Entry->Next;
             }
@@ -62,14 +63,15 @@ namespace SE_Angel {
     }
 
     void TAngelSE::SetVelocityFromAngle(float Angle) {
-        Velocity.X = System::Sin(Angle) * Speed;
-        Velocity.Y = System::Cos(Angle) * Speed;
+        Velocity.X = static_cast<float>(System::Sin(Angle) * Speed);
+        Velocity.Y = static_cast<float>(System::Cos(Angle) * Speed);
         AdvanceSteps(0);
     }
 
     void TAngelSE::StartMotionTimer() {
         StopMotionTimer();
-        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval, pas::bind_method<&TAngelSE::AdvanceMotionTimer>(this), 0);
+        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval,
+                pas::bind_method<&TAngelSE::AdvanceMotionTimer>(this), 0);
     }
 
     void TAngelSE::StopMotionTimer() {
@@ -120,7 +122,8 @@ namespace SE_Angel {
         {
             float randomFloatRange = aMyFunction::RandomFloatRange(-GroupSize.X, GroupSize.X);
             float randomFloatRange_2 = aMyFunction::RandomFloatRange(-GroupSize.Y, GroupSize.Y);
-            pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position, EC_Struct::MakePointF(randomFloatRange, randomFloatRange_2));
+            pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position,
+                EC_Struct::MakePointF(randomFloatRange, randomFloatRange_2));
         }
         pas::store_unaligned<EC_Struct::TPointF>(&Entry->Velocity, EC_Struct::MakePointF(0.0f, 0.0f));
         pas::store_unaligned<EC_Struct::TPointF>(&Entry->Target, Entry->Position);
@@ -144,11 +147,9 @@ namespace SE_Angel {
         }
         Entry->Animation->SetOrigin(EC_Struct::HalfPoint(Entry->Animation->ClientSize));
         Entry->Animation->SetDepthByName(DepthExpression);
-        {
-            std::int32_t trunc = System::Trunc(static_cast<long double>(Entry->Position.Y) + Position.Y);
-            std::int32_t trunc_2 = System::Trunc(static_cast<long double>(Entry->Position.X) + Position.X);
-            Entry->Animation->SetPosition(ClassesImports::Point(trunc_2, trunc));
-        }
+        Entry->Animation->SetPosition(ClassesImports::Point(
+            pas::real_trunc(static_cast<float>(static_cast<double>(Entry->Position.X) + Position.X)),
+            pas::real_trunc(static_cast<float>(static_cast<double>(Entry->Position.Y) + Position.Y))));
         Entry->Animation->SetPositionModeW(true);
         Entry->Animation->SetSequenceFrame(0);
         Entry->Animation->RestartPlayback();
@@ -177,29 +178,32 @@ namespace SE_Angel {
 
     void TAngelSE::AdvanceEntry(PAngelEntry Entry) {
         EC_Struct::TPointF Movement{};
-        if (std::fabs(static_cast<long double>(Entry->Position.X) - Entry->Target.X) <= std::fabs(static_cast<pas::Extended>(Entry->Velocity.X)) + 0.2L && std::fabs(static_cast<long double>(Entry->Position.Y) - Entry->Target.Y) <= std::fabs(static_cast<pas::Extended>(Entry->Velocity.Y)) + 0.2L) {
+        if (std::fabs(static_cast<float>(static_cast<double>(Entry->Position.X) - Entry->Target.X)) <=
+            static_cast<float>(std::fabs(static_cast<double>(Entry->Velocity.X)) + 0.2) &&
+            std::fabs(static_cast<float>(static_cast<double>(Entry->Position.Y) - Entry->Target.Y)) <=
+                static_cast<float>(std::fabs(static_cast<double>(Entry->Velocity.Y)) + 0.2)) {
             {
                 float randomFloatRange = aMyFunction::RandomFloatRange(-GroupSize.X, GroupSize.X);
                 float randomFloatRange_2 = aMyFunction::RandomFloatRange(-GroupSize.Y, GroupSize.Y);
                 Movement = EC_Struct::MakePointF(randomFloatRange, randomFloatRange_2);
             }
             pas::store_unaligned<EC_Struct::TPointF>(&Entry->Target, Movement);
-            {
-                float cpp_arg = pas::real_divide(static_cast<long double>(-Entry->Position.X) + Entry->Target.X, 64.0L);
-                float cpp_arg_2 = pas::real_divide(static_cast<long double>(-Entry->Position.Y) + Entry->Target.Y, 64.0L);
-                pas::store_unaligned<EC_Struct::TPointF>(&Entry->Velocity, EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
-            }
+            pas::store_unaligned<EC_Struct::TPointF>(&Entry->Velocity,
+                EC_Struct::MakePointF(static_cast<float>((static_cast<float>(static_cast<double>(-Entry->Position.X) + Entry->Target.X)) / 64.0),
+                    static_cast<float>((static_cast<float>(static_cast<double>(-Entry->Position.Y) + Entry->Target.Y)) / 64.0)));
         } else {
-            pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position, EC_Struct::MakePointF(static_cast<long double>(Entry->Position.X) + Entry->Velocity.X, static_cast<long double>(Entry->Position.Y) + Entry->Velocity.Y));
+            pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position,
+                EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Entry->Position.X) + Entry->Velocity.X),
+                    static_cast<float>(static_cast<double>(Entry->Position.Y) + Entry->Velocity.Y)));
         }
         Movement = aMyFunction::RotateAndTranslatePoint(Entry->Velocity, Velocity, MoveAngle);
-        if (Entry->Velocity.Y < -0.5L) {
+        if (Entry->Velocity.Y < -0.5) {
             Entry->MovingUp = true;
         } else {
             Entry->MovingUp = false;
         }
-        if (std::fabs(static_cast<pas::Extended>(Movement.X)) < 0.1L) {
-            Entry->Angle = Math::ArcTan2(Movement.Y, 0.1L);
+        if (std::fabs(static_cast<double>(Movement.X)) < 0.1) {
+            Entry->Angle = Math::ArcTan2(Movement.Y, 0.1);
         } else {
             Entry->Angle = Math::ArcTan2(Movement.Y, Movement.X);
         }
@@ -215,15 +219,15 @@ namespace SE_Angel {
             }
         } else if (TurnTicks < 0) {
             ++TurnTicks;
-            MoveAngle = MoveAngle + 0.01L;
+            MoveAngle = static_cast<float>(MoveAngle + 0.01);
             if (MoveAngle > SystemImports::Pi) {
-                MoveAngle = MoveAngle - pas::constant(2.0L * SystemImports::Pi);
+                MoveAngle = static_cast<float>(MoveAngle - pas::constant(2.0 * SystemImports::Pi));
             }
         } else {
             --TurnTicks;
-            MoveAngle = MoveAngle - 0.01L;
+            MoveAngle = static_cast<float>(MoveAngle - 0.01);
             if (MoveAngle < pas::constant(-SystemImports::Pi)) {
-                MoveAngle = MoveAngle + pas::constant(2.0L * SystemImports::Pi);
+                MoveAngle = static_cast<float>(MoveAngle + pas::constant(2.0 * SystemImports::Pi));
             }
         }
         if (TargetDelay > 0) {
@@ -262,32 +266,34 @@ namespace SE_Angel {
     void TAngelSE::SeekTarget() {
         EC_Struct::TPointF Delta{};
         float Angle{};
-        Delta = EC_Struct::MakePointF(static_cast<long double>(Target.X) - Position.X, static_cast<long double>(Target.Y) - Position.Y);
-        if (std::fabs(static_cast<pas::Extended>(Delta.X)) < 0.2L) {
-            Angle = Math::ArcTan2(Delta.Y, 0.2L);
+        Delta = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Target.X) - Position.X),
+                static_cast<float>(static_cast<double>(Target.Y) - Position.Y));
+        if (std::fabs(static_cast<double>(Delta.X)) < 0.2) {
+            Angle = Math::ArcTan2(Delta.Y, 0.2);
         } else {
             Angle = Math::ArcTan2(Delta.Y, Delta.X);
         }
-        if (std::fabs(static_cast<long double>(Angle) - MoveAngle) < SystemImports::Pi) {
-            if (Angle - 0.01L > MoveAngle) {
-                MoveAngle = MoveAngle + 0.02L;
-            } else if (Angle + 0.01L < MoveAngle) {
-                MoveAngle = MoveAngle - 0.02L;
+        if (std::fabs(static_cast<float>(static_cast<double>(Angle) - MoveAngle)) < SystemImports::Pi) {
+            if (static_cast<float>(Angle - 0.01) > MoveAngle) {
+                MoveAngle = static_cast<float>(MoveAngle + 0.02);
+            } else if (static_cast<float>(Angle + 0.01) < MoveAngle) {
+                MoveAngle = static_cast<float>(MoveAngle - 0.02);
             }
         } else {
             if (MoveAngle < Angle) {
-                MoveAngle = MoveAngle - 0.02L;
+                MoveAngle = static_cast<float>(MoveAngle - 0.02);
             } else {
-                MoveAngle = MoveAngle + 0.02L;
+                MoveAngle = static_cast<float>(MoveAngle + 0.02);
             }
             if (MoveAngle > SystemImports::Pi) {
-                MoveAngle = MoveAngle - pas::constant(2.0L * SystemImports::Pi);
+                MoveAngle = static_cast<float>(MoveAngle - pas::constant(2.0 * SystemImports::Pi));
             }
             if (MoveAngle < pas::constant(-SystemImports::Pi)) {
-                MoveAngle = MoveAngle + pas::constant(2.0L * SystemImports::Pi);
+                MoveAngle = static_cast<float>(MoveAngle + pas::constant(2.0 * SystemImports::Pi));
             }
         }
-        if (std::fabs(static_cast<long double>(Position.X) - Target.X) < 64.0L && std::fabs(static_cast<long double>(Position.Y) - Target.Y) < 64.0L) {
+        if (std::fabs(static_cast<float>(static_cast<double>(Position.X) - Target.X)) < 64.0 && std::fabs(static_cast<float>(static_cast<double>(Position.Y) -
+                Target.Y)) < 64.0) {
             MoveState = 0;
             TargetDelay = 500 + pas::random(500, &System::RandSeed);
         } else if (pas::random(1000, &System::RandSeed) < 10) {
@@ -323,7 +329,8 @@ namespace SE_Angel {
                 Entry = Entry->Next;
             }
             ToggleFrameVariants();
-            Position = EC_Struct::MakePointF(static_cast<long double>(Position.X) + Velocity.X, static_cast<long double>(Position.Y) + Velocity.Y);
+            Position = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Position.X) + Velocity.X),
+                    static_cast<float>(static_cast<double>(Position.Y) + Velocity.Y));
             if (FirstEntry != nullptr) {
                 SetPosition(Position);
             }
@@ -369,7 +376,8 @@ namespace SE_Angel {
         }
         ImageCount = 0;
         while (Block->CountParams(pas::concat_wide({u"Image", EC_Str::IntToWideString(ImageCount)})) > 0) {
-            ImagePaths[ImageCount] = Block->GetParam(pas::view(pas::concat_wide({u"Image", EC_Str::IntToWideString(ImageCount)})));
+            ImagePaths[ImageCount] = Block->GetParam(pas::view(pas::concat_wide({u"Image",
+                    EC_Str::IntToWideString(ImageCount)})));
             ++ImageCount;
             if (ImageCount == 8) {
                 break;
@@ -383,7 +391,8 @@ namespace SE_Angel {
     }
 
     void TAngelSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
-        GI_RotateImage5::TRotateImage5GI* Control = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, Owner);
+        GI_RotateImage5::TRotateImage5GI* Control = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(
+            GI_RotateImage5::TRotateImage5GI_Create, Owner);
         GI_RotateImage5::TRotateImage5GI::QueueImagePath(PendingLoads, ImagePath);
         pas::free(Control);
     }

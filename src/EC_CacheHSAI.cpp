@@ -68,7 +68,8 @@ namespace EC_CacheHSAI {
         if (FrameIndex >= Header->FrameCount) {
             return nullptr;
         }
-        return EC_Mem::AddPointerOffset(BlobData, static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride);
+        return EC_Mem::AddPointerOffset(BlobData,
+            static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride);
     }
 
     // Returns nil for an invalid frame or absent palette.
@@ -78,7 +79,9 @@ namespace EC_CacheHSAI {
         } else if (Header->PaletteBytes == 0) {
             return nullptr;
         } else {
-            return static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AddPointerOffset(BlobData, static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride + Header->PitchBytes * Header->Height));
+            return static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AddPointerOffset(BlobData,
+                static_cast<std::int32_t>(sizeof(THSAIHeaderEC)) + FrameIndex * Header->FrameStride +
+                    Header->PitchBytes * Header->Height));
         }
     }
 
@@ -93,11 +96,13 @@ namespace EC_CacheHSAI {
         }
         Texture = (FrameSurfaceCache->GetSurface(FrameIndex, cpp_result), cpp_result);
         if (Texture == nullptr) {
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result_2), cpp_result_2);
             if (Texture != nullptr) {
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                 if (Locked.Bits != nullptr) {
-                    GR_Main::ExpandPaletteToBgra(Locked.Bits, Locked.Pitch, Width, Height, GetFrameIndexPlane(FrameIndex), Width, GetFramePalette(FrameIndex));
+                    GR_Main::ExpandPaletteToBgra(Locked.Bits, Locked.Pitch, Width, Height,
+                        GetFrameIndexPlane(FrameIndex), Width, GetFramePalette(FrameIndex));
                     Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                 }
             }

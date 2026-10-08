@@ -38,14 +38,23 @@ namespace ab_Ship {
         void DetachVisual();
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;
         TabShip* FindNearestEnemy(ab_Object::TabObject* Origin);
-        TabShip* FindNearestEnemyWithBearing(ab_Object::TabObject* Origin, ab_Global::TSphericalBearingDistance& Bearing);
+        TabShip* FindNearestEnemyWithBearing(ab_Object::TabObject* Origin,
+            ab_Global::TSphericalBearingDistance& Bearing);
         void AddEnemy(TabShip* Ship);
         void AddTrackedShip(TabShip* Ship);
         void ApplyDamage(std::int32_t Amount, ab_Object::TabObject* Source, std::uint8_t Disrupt) override;
-        void SetTurnInput(double Value);
-        void StartThrust();
-        void StopThrust();
-        void StartReverseThrust();
+        inline void SetTurnInput(double Value) {
+            TurnInput = Value;
+        }
+        inline void StartThrust() {
+            Thrust = 2.5;
+        }
+        inline void StopThrust() {
+            Thrust = 0.0;
+        }
+        inline void StartReverseThrust() {
+            Thrust = -1.8;
+        }
         void Brake();
         void FirePrimary();
         void FireSecondary();

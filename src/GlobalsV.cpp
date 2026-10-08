@@ -334,7 +334,8 @@ namespace GlobalsV {
     }
 
     std::uint8_t IsSpaceBackdropScreen(TGameScreenId ScreenId) {
-        return ScreenId == screenStarMap || ScreenId == screenGalaxy || ScreenId == screenFilm || ScreenId == screenTalk;
+        return ScreenId == screenStarMap || ScreenId == screenGalaxy || ScreenId == screenFilm || ScreenId ==
+                screenTalk;
     }
 
     std::uint8_t ScreenUsesCompositeLoadAssets(TGameScreenId ScreenId) {
@@ -363,7 +364,8 @@ namespace GlobalsV {
         if (ScreenId == screenSettings && GlobalsV::IsSpaceBackdropScreen(SettingsReturnScreenId)) {
             return true;
         }
-        if (ScreenId == screenSettings && SettingsReturnScreenId == screenGameMenu && GlobalsV::IsSpaceBackdropScreen(GameMenuReturnScreenId)) {
+        if (ScreenId == screenSettings && SettingsReturnScreenId == screenGameMenu &&
+            GlobalsV::IsSpaceBackdropScreen(GameMenuReturnScreenId)) {
             return true;
         }
         return Result;

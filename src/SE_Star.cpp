@@ -42,7 +42,8 @@ namespace SE_Star {
             Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
             Animation->SetImagePath(AnimationPath);
             {
-                const pas::WideString& cpp_arg = pas::concat_wide({u"[65,0-", EC_Str::IntToWideString(Animation->GetMainImageFrameCount() - 1), u"]"});
+                const pas::WideString& cpp_arg = pas::concat_wide({u"[65,0-",
+                    EC_Str::IntToWideString(Animation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* animation = Animation;
                 animation->LoadFrameSequenceFromText(cpp_arg);
             }
@@ -61,7 +62,9 @@ namespace SE_Star {
         MapImage = pas::construct_call<GI_GI::TgiGI>(GI_GI::TgiGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
         MapImage->SetPositionModeW(true);
         MapImage->SetDepthByName(DepthExpression);
-        MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+        MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+            static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+            static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
         MapImage->SetOrigin(MapImageOrigin);
         MapImage->SetImagePath(MapImagePath);
         {
@@ -100,7 +103,9 @@ namespace SE_Star {
             if (Animation != nullptr) {
                 Animation->SetPosition(EC_Struct::TruncatePointF(APosition));
             }
-            MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+            MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
         }
     }
 
@@ -133,7 +138,8 @@ namespace SE_Star {
     }
 
     void TStarSE::DrawMap() {
-        MapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+        MapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+            GR_Main::RenderScratchBuffer->Height));
     }
 
     void TStarSE::LoadTemplate(EC_BlockPar::TBlockParEC* Block) {

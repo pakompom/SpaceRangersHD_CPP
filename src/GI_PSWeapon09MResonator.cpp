@@ -16,7 +16,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
@@ -36,7 +35,8 @@ namespace GI_PSWeapon09MResonator {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         MResonatorPalettes.set_length(Count);
         MResonatorAnimationPaths.set_length(Count);
@@ -45,14 +45,19 @@ namespace GI_PSWeapon09MResonator {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 0); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         MResonatorPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
                 if (PaletteBlock->CountParams(u"GAI"_wref.get()) > 0) {
@@ -62,7 +67,8 @@ namespace GI_PSWeapon09MResonator {
         }
     }
 
-    void TPSWeapon09BranchGI_Create(TPSWeapon09BranchGI* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon09BranchGI_Create(TPSWeapon09BranchGI* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->RemainingTicks = 90;
         Self->Unknown130 = 0;
@@ -109,14 +115,16 @@ namespace GI_PSWeapon09MResonator {
 
     void TPSWeapon09BranchGI::GrowParticles() {
         ParticleCapacity += 100;
-        Particles = static_cast<PMResonatorParticle>(EC_Mem::ReAllocREC(Particles, ParticleCapacity * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+        Particles = static_cast<PMResonatorParticle>(EC_Mem::ReAllocREC(Particles,
+                ParticleCapacity * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
     }
 
     PMResonatorParticle TPSWeapon09BranchGI::AddParticle() {
         if (ParticleCount >= ParticleCapacity) {
             GrowParticles();
         }
-        PMResonatorParticle Result = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles, ParticleCount * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+        PMResonatorParticle Result = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles,
+            ParticleCount * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
         ++ParticleCount;
         return Result;
     }
@@ -132,8 +140,9 @@ namespace GI_PSWeapon09MResonator {
         float Speed{};
         float Angle{};
         if (RemainingTicks == 60) {
-            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y));
-            if (OriginalLength < 1.0L) {
+            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                        TargetPoint.Y));
+            if (OriginalLength < 1.0) {
                 OriginalLength = 1.0f;
             }
             for (I = 1; I <= 5; ++I) {
@@ -146,43 +155,43 @@ namespace GI_PSWeapon09MResonator {
                         Particle->Kind = 1;
                         switch (K) {
                             case 0: {
-                                Particle->Position.X = static_cast<long double>(J) + PX;
-                                Particle->Position.Y = static_cast<long double>(J) + PY;
+                                Particle->Position.X = static_cast<float>(static_cast<double>(J) + PX);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(J) + PY);
                                 break;
                             }
                             case 1: {
-                                Particle->Position.X = static_cast<long double>(J) + PX;
-                                Particle->Position.Y = static_cast<long double>(PY) - J;
+                                Particle->Position.X = static_cast<float>(static_cast<double>(J) + PX);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(PY) - J);
                                 break;
                             }
                             case 2: {
-                                Particle->Position.X = static_cast<long double>(PX) - J;
-                                Particle->Position.Y = static_cast<long double>(J) + PY;
+                                Particle->Position.X = static_cast<float>(static_cast<double>(PX) - J);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(J) + PY);
                                 break;
                             }
                             case 3: {
-                                Particle->Position.X = static_cast<long double>(PX) - J;
-                                Particle->Position.Y = static_cast<long double>(PY) - J;
+                                Particle->Position.X = static_cast<float>(static_cast<double>(PX) - J);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(PY) - J);
                                 break;
                             }
                             case 4: {
-                                Particle->Position.X = static_cast<long double>(J) + PX + 1.0L;
-                                Particle->Position.Y = static_cast<long double>(J) + PY;
+                                Particle->Position.X = static_cast<float>(static_cast<float>(static_cast<double>(J) + PX) + 1.0);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(J) + PY);
                                 break;
                             }
                             case 5: {
-                                Particle->Position.X = static_cast<long double>(J) + PX + 1.0L;
-                                Particle->Position.Y = static_cast<long double>(PY) - J;
+                                Particle->Position.X = static_cast<float>(static_cast<float>(static_cast<double>(J) + PX) + 1.0);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(PY) - J);
                                 break;
                             }
                             case 6: {
-                                Particle->Position.X = static_cast<long double>(PX) - J + 1.0L;
-                                Particle->Position.Y = static_cast<long double>(J) + PY;
+                                Particle->Position.X = static_cast<float>(static_cast<float>(static_cast<double>(PX) - J) + 1.0);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(J) + PY);
                                 break;
                             }
                             case 7: {
-                                Particle->Position.X = static_cast<long double>(PX) - J + 1.0L;
-                                Particle->Position.Y = static_cast<long double>(PY) - J;
+                                Particle->Position.X = static_cast<float>(static_cast<float>(static_cast<double>(PX) - J) + 1.0);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(PY) - J);
                                 break;
                             }
                         }
@@ -210,25 +219,25 @@ namespace GI_PSWeapon09MResonator {
                     --Particle->MovementDelay;
                     if (Particle->MovementDelay == 0) {
                         Particle->Kind = 2;
-                        Particle->Velocity.X = pas::real_divide(-Particle->Position.X, 5.0E+1L);
-                        Particle->Velocity.Y = pas::real_divide(OriginalLength - 24.0L, 3.0E+1L);
+                        Particle->Velocity.X = static_cast<float>(-Particle->Position.X / 5.0E+1);
+                        Particle->Velocity.Y = static_cast<float>((static_cast<float>(OriginalLength - 24.0)) / 3.0E+1);
                     }
                 } else if (Particle->Kind == 2) {
-                    Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                    Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
-                    if (OriginalLength - 12.0L < Particle->Position.Y) {
-                        Speed = pas::real_divide(aMyFunction::RandomIntRange(6, 24), 1.0E+1L);
-                        Angle = pas::real_divide(aMyFunction::RandomIntRange(0, 360), 1.8E+2L) * SystemImports::Pi;
-                        Particle->Velocity.X = System::Cos(Angle) * Speed;
-                        Particle->Velocity.Y = System::Sin(Angle) * Speed;
+                    Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                    Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
+                    if (static_cast<float>(OriginalLength - 12.0) < Particle->Position.Y) {
+                        Speed = static_cast<float>(aMyFunction::RandomIntRange(6, 24) / 1.0E+1);
+                        Angle = static_cast<float>(static_cast<float>(aMyFunction::RandomIntRange(0, 360) / 1.8E+2) * SystemImports::Pi);
+                        Particle->Velocity.X = static_cast<float>(System::Cos(Angle) * Speed);
+                        Particle->Velocity.Y = static_cast<float>(System::Sin(Angle) * Speed);
                         Particle->Kind = 3;
                         Particle->DelayTicks = 6;
                     }
                 } else if (Particle->Kind == 3) {
-                    Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                    Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
-                    Particle->Velocity.X = 0.99L * Particle->Velocity.X;
-                    Particle->Velocity.Y = 0.99L * Particle->Velocity.Y;
+                    Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                    Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
+                    Particle->Velocity.X = static_cast<float>(0x1.fae147ae147b0p-1 * Particle->Velocity.X);
+                    Particle->Velocity.Y = static_cast<float>(0x1.fae147ae147b0p-1 * Particle->Velocity.Y);
                     if (Particle->DelayTicks > 0) {
                         --Particle->DelayTicks;
                     } else if (Particle->Alpha > 11) {
@@ -236,7 +245,8 @@ namespace GI_PSWeapon09MResonator {
                     }
                 }
                 ++I;
-                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles, I * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles,
+                        I * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
                 --J;
             }
         }
@@ -247,12 +257,13 @@ namespace GI_PSWeapon09MResonator {
         std::int32_t X{};
         std::int32_t Y{};
         float PX{};
-        if (OriginalLength == 0.0L) {
+        if (OriginalLength == 0.0) {
             OriginalLength = 1.0f;
         }
-        float Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+        float Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                TargetPoint.Y)) / OriginalLength);
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -264,12 +275,15 @@ namespace GI_PSWeapon09MResonator {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
-                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
@@ -277,20 +291,24 @@ namespace GI_PSWeapon09MResonator {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }
                 }
-                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
                 --Count;
             }
         }
     }
 
-    void TPSWeapon09MResonator_Create(TPSWeapon09MResonator* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon09MResonator_Create(TPSWeapon09MResonator* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->RemainingTicks = 90;
         Self->Unknown130 = 0;
@@ -350,8 +368,9 @@ namespace GI_PSWeapon09MResonator {
         float Cosine{};
         float Scale{};
         if (RemainingTicks == 90) {
-            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y));
-            if (OriginalLength < 1.0L) {
+            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                        TargetPoint.Y));
+            if (OriginalLength < 1.0) {
                 OriginalLength = 1.0f;
             }
             if (Animation != nullptr) {
@@ -369,14 +388,15 @@ namespace GI_PSWeapon09MResonator {
             Animation->SetPosition(TargetPoint);
             Animation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(Animation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg = pas::concat_wide({u"[50,0-",
+                    pas::wide_int_to_str(Animation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* animation_2 = Animation;
                 animation_2->LoadFrameSequenceFromText(cpp_arg);
             }
             Animation->SetSequenceFrame(0);
             Animation->StopAutoPlayback();
-            AnimationVelocity = EC_Struct::MakePointF(0.0f, pas::real_divide(OriginalLength - 24.0L, 3.0E+1L));
-            AnimationPosition = EC_Struct::MakePointF(0.0f, 24.0L - AnimationVelocity.Y);
+            AnimationVelocity = EC_Struct::MakePointF(0.0f, static_cast<float>((static_cast<float>(OriginalLength - 24.0)) / 3.0E+1));
+            AnimationPosition = EC_Struct::MakePointF(0.0f, static_cast<float>(24.0 - AnimationVelocity.Y));
         }
         PMResonatorParticle Particle = Particles;
         std::int32_t Count = ParticleCount;
@@ -385,28 +405,30 @@ namespace GI_PSWeapon09MResonator {
             // Native dormant particle branch still evaluates Kind before advancing.
             static_cast<void>(Particle->Kind == 1);
             ++I;
-            Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles, I * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+            Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particles,
+                    I * static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
             --Count;
         }
         if (Animation != nullptr) {
             if (AnimationPosition.Y < OriginalLength) {
-                AnimationPosition.Y = static_cast<long double>(AnimationPosition.Y) + AnimationVelocity.Y;
-                AnimationPosition.X = static_cast<long double>(AnimationPosition.X) + AnimationVelocity.X;
-                Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+                AnimationPosition.Y = static_cast<float>(static_cast<double>(AnimationPosition.Y) + AnimationVelocity.Y);
+                AnimationPosition.X = static_cast<float>(static_cast<double>(AnimationPosition.X) + AnimationVelocity.X);
+                Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                            TargetPoint.Y)) / OriginalLength);
                 PY = -(TargetPoint.Y - LocalPosition.Y);
-                if (PY == 0.0L) {
+                if (PY == 0.0) {
                     PY = 1.0f;
                 }
                 Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
                 Sine = System::Sin(Angle);
                 Cosine = System::Cos(Angle);
                 PX = AnimationPosition.X;
-                PY = static_cast<long double>(AnimationPosition.Y) * Scale;
-                {
-                    std::int32_t cpp_arg_2 = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + LocalPosition.Y;
-                    std::int32_t cpp_arg_3 = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + LocalPosition.X;
-                    Animation->SetPosition(ClassesImports::Point(cpp_arg_3, cpp_arg_2));
-                }
+                PY = static_cast<float>(static_cast<double>(AnimationPosition.Y) * Scale);
+                Animation->SetPosition(ClassesImports::Point(
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                        LocalPosition.X,
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                        LocalPosition.Y));
             } else if (Animation->SequenceFrame == Animation->SequenceFrameCount - 1) {
                 pas::free(Animation);
                 Animation = nullptr;
@@ -428,12 +450,13 @@ namespace GI_PSWeapon09MResonator {
         std::int32_t X{};
         std::int32_t Y{};
         float PX{};
-        if (OriginalLength == 0.0L) {
+        if (OriginalLength == 0.0) {
             OriginalLength = 1.0f;
         }
-        float Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+        float Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                TargetPoint.Y)) / OriginalLength);
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -445,12 +468,15 @@ namespace GI_PSWeapon09MResonator {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
-                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
@@ -458,14 +484,17 @@ namespace GI_PSWeapon09MResonator {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }
                 }
-                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
+                Particle = static_cast<PMResonatorParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TMResonatorParticle))));
                 --Count;
             }
         }

@@ -29,7 +29,8 @@ namespace GI_RotateImageGAI {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
         Self->ImageCache = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->ImageCache);
-        Self->RotationCache = pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->RotationCache =
+            pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->RotationCache);
         Self->RotatedImage = pas::construct_call<GR_GraphBufPal::TGraphBufPalGR>(GR_GraphBufPal::TGraphBufPalGR_Create);
         Self->RenderedAngle = 0;
@@ -85,30 +86,35 @@ namespace GI_RotateImageGAI {
         ImageCache->SetCacheKey(Path);
         Data = EC_CacheGAI::AcquireCachedGai(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
             try {
-                RotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ImageSize.X), ",", SysUtils::IntToStr(ImageSize.Y), ",", SysUtils::IntToStr(Data->GetCanvasSize().X), ",", SysUtils::IntToStr(Data->GetCanvasSize().Y), ",", SysUtils::IntToStr(Pivot.X), ",", SysUtils::IntToStr(Pivot.Y)})));
+                try {
+                    RotationCache->SetCacheKey(pas::concat_wide({pas::wide_int_to_str(ImageSize.X), u",",
+                        pas::wide_int_to_str(ImageSize.Y), u",", pas::wide_int_to_str(Data->GetCanvasSize().X), u",",
+                        pas::wide_int_to_str(Data->GetCanvasSize().Y), u",", pas::wide_int_to_str(Pivot.X), u",",
+                        pas::wide_int_to_str(Pivot.Y)}));
+                } catch (...) {
+                    pas::raise(pas::make_exception<pas::Exception>("Error in TRotateImageGaiGI.SetImage"_a));
+                }
+                this->ImageSize = ImageSize;
+                Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
+                Radius = MathImports::Floor(static_cast<float>(static_cast<float>(System::Sqrt(Radius) * 2.0) + 2.0));
+                SetSize(ClassesImports::Point(pas::real_trunc(Radius), pas::real_trunc(Radius)));
+                SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
+                if (RotatedImage->Width != ClientSize.X || RotatedImage->Height != ClientSize.Y) {
+                    RotatedImage->AllocateBuffer(ClientSize.X, ClientSize.Y, 256, ClientSize.X);
+                }
+                ImageDirty = true;
             } catch (...) {
-                pas::raise(pas::make_exception<pas::Exception>("Error in TRotateImageGaiGI.SetImage"_a));
+                ImageCache->Release();
+                throw;
             }
-            this->ImageSize = ImageSize;
-            Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
-            Radius = MathImports::Floor(System::Sqrt(Radius) * 2.0L + 2.0L);
-            {
-                std::int32_t trunc = System::Trunc(Radius);
-                std::int32_t trunc_2 = System::Trunc(Radius);
-                SetSize(ClassesImports::Point(trunc_2, trunc));
-            }
-            SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
-            if (RotatedImage->Width != ClientSize.X || RotatedImage->Height != ClientSize.Y) {
-                RotatedImage->AllocateBuffer(ClientSize.X, ClientSize.Y, 256, ClientSize.X);
-            }
-            ImageDirty = true;
+            ImageCache->Release();
         }
         Invalidate();
     }
@@ -135,7 +141,8 @@ namespace GI_RotateImageGAI {
     }
 
     std::int32_t TRotateImageGaiGI::GetFrameSourceIndex(std::int32_t Index) {
-        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(FrameIndexTable, Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(FrameIndexTable,
+            Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
     void TRotateImageGaiGI_LoadFromConfigPath(TRotateImageGaiGI* Self, const pas::WideString& Path) {
@@ -153,7 +160,8 @@ namespace GI_RotateImageGAI {
     }
 
     void TRotateImageGaiGI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
-        if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0 && Block->CountParams(u"Sme"_wref.get()) > 0) {
+        if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0 &&
+            Block->CountParams(u"Sme"_wref.get()) > 0) {
             Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Sme"sv)));
             Types::TPoint pointGI_2 = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
             pas::WideString param = Block->GetParam(u"Image"sv);
@@ -175,17 +183,24 @@ namespace GI_RotateImageGAI {
             if (ImageCache != nullptr && ImageCache->CacheKey != u"") {
                 Data = EC_CacheGAI::AcquireCachedGai(ImageCache);
                 {
-                    pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                    try {
+                        if (AnimationIndex < 0 || Data->GetSequenceCount() <= AnimationIndex) {
+                            pas::raise(pas::make_exception<pas::Exception>("TgaiGI.AfterLoad. Anim not found."_a));
+                        }
+                        FrameCount = Data->GetSequenceFrameCount(AnimationIndex);
+                        FrameIndexTable = static_cast<System::PInteger>(EC_Mem::ReAllocFromHeapREC(GI_GAI::GaiFrameHeap,
+                                FrameIndexTable, FrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                        FrameDelayTable = static_cast<System::PInteger>(EC_Mem::ReAllocFromHeapREC(GI_GAI::GaiFrameHeap,
+                                FrameDelayTable, FrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                        Data->FillSequenceFrameIndexTable(AnimationIndex, FrameIndexTable,
+                            static_cast<std::int32_t>(sizeof(std::int32_t)));
+                        Data->FillSequenceFrameDelayTable(AnimationIndex, FrameDelayTable,
+                            static_cast<std::int32_t>(sizeof(std::int32_t)));
+                    } catch (...) {
                         ImageCache->Release();
-                    };
-                    if (AnimationIndex < 0 || Data->GetSequenceCount() <= AnimationIndex) {
-                        pas::raise(pas::make_exception<pas::Exception>("TgaiGI.AfterLoad. Anim not found."_a));
+                        throw;
                     }
-                    FrameCount = Data->GetSequenceFrameCount(AnimationIndex);
-                    FrameIndexTable = static_cast<System::PInteger>(EC_Mem::ReAllocFromHeapREC(GI_GAI::GaiFrameHeap, FrameIndexTable, FrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
-                    FrameDelayTable = static_cast<System::PInteger>(EC_Mem::ReAllocFromHeapREC(GI_GAI::GaiFrameHeap, FrameDelayTable, FrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
-                    Data->FillSequenceFrameIndexTable(AnimationIndex, FrameIndexTable, static_cast<std::int32_t>(sizeof(std::int32_t)));
-                    Data->FillSequenceFrameDelayTable(AnimationIndex, FrameDelayTable, static_cast<std::int32_t>(sizeof(std::int32_t)));
+                    ImageCache->Release();
                 }
             }
         }
@@ -208,11 +223,13 @@ namespace GI_RotateImageGAI {
         float CenterX{};
         float CenterY{};
         Types::TRect OldClip{};
-        if (HitTestBounds.Left + ClientSize.X < 0 || HitTestBounds.Left - ClientSize.X / 2 > GR_Main::GameScreenWidth || HitTestBounds.Top + ClientSize.Y < 0 || HitTestBounds.Top - ClientSize.Y / 2 > GR_Main::GameScreenHeight) {
+        if (HitTestBounds.Left + ClientSize.X < 0 || HitTestBounds.Left - ClientSize.X / 2 > GR_Main::GameScreenWidth ||
+            HitTestBounds.Top + ClientSize.Y < 0 || HitTestBounds.Top - ClientSize.Y / 2 > GR_Main::GameScreenHeight) {
             return;
         }
         if (GlobalsV::HardwareRenderingEnabled) {
-            if (RenderedAngle != Angle || ImageDirty == true || FrameIndex != RenderedFrameIndex || FrameTexture == nullptr) {
+            if (RenderedAngle != Angle || ImageDirty == true || FrameIndex != RenderedFrameIndex || FrameTexture ==
+                    nullptr) {
                 ImageDirty = false;
                 RenderedAngle = Angle;
                 RenderedFrameIndex = FrameIndex;
@@ -221,7 +238,8 @@ namespace GI_RotateImageGAI {
                     std::exception_ptr cpp_error{};
                     try {
                         Data = EC_CacheGAI::AcquireCachedGai(ImageCache);
-                        FrameTexture = (Data->GetOrCreateFrameSurface(GetFrameSourceIndex(RenderedFrameIndex), cpp_result), cpp_result);
+                        FrameTexture = (Data->GetOrCreateFrameSurface(GetFrameSourceIndex(RenderedFrameIndex),
+                                cpp_result), cpp_result);
                     } catch (...) {
                         cpp_error = std::current_exception();
                     }
@@ -253,27 +271,36 @@ namespace GI_RotateImageGAI {
             Vertices[2].V = 1.0f;
             Vertices[3].U = 0.0f;
             Vertices[3].V = 1.0f;
-            LeftX = pas::real_divide(-ImageSize.X, 2.0L);
-            TopY = pas::real_divide(-ImageSize.Y, 2.0L);
-            RightX = pas::real_divide(ImageSize.X, 2.0L);
-            BottomY = pas::real_divide(ImageSize.Y, 2.0L);
-            CenterX = pas::real_divide(ClientSize.X, 2.0L);
-            CenterY = pas::real_divide(ClientSize.Y, 2.0L);
-            Degrees = pas::real_divide(Angle, 256.0L) * 3.6E+2L;
-            C = System::Cos(pas::constant(aMyFunction::GamePi / 1.8E+2L) * Degrees);
-            S = System::Sin(pas::constant(aMyFunction::GamePi / 1.8E+2L) * Degrees);
-            Vertices[0].X = static_cast<long double>(LeftX) * C - static_cast<long double>(TopY) * S + CenterX + HitTestBounds.Left;
-            Vertices[0].Y = static_cast<long double>(LeftX) * S + static_cast<long double>(TopY) * C + CenterY + HitTestBounds.Top;
-            Vertices[1].X = static_cast<long double>(RightX) * C - static_cast<long double>(TopY) * S + CenterX + HitTestBounds.Left;
-            Vertices[1].Y = static_cast<long double>(RightX) * S + static_cast<long double>(TopY) * C + CenterY + HitTestBounds.Top;
-            Vertices[2].X = static_cast<long double>(RightX) * C - static_cast<long double>(BottomY) * S + CenterX + HitTestBounds.Left;
-            Vertices[2].Y = static_cast<long double>(RightX) * S + static_cast<long double>(BottomY) * C + CenterY + HitTestBounds.Top;
-            Vertices[3].X = static_cast<long double>(LeftX) * C - static_cast<long double>(BottomY) * S + CenterX + HitTestBounds.Left;
-            Vertices[3].Y = static_cast<long double>(LeftX) * S + static_cast<long double>(BottomY) * C + CenterY + HitTestBounds.Top;
+            LeftX = static_cast<float>(-ImageSize.X / 2.0);
+            TopY = static_cast<float>(-ImageSize.Y / 2.0);
+            RightX = static_cast<float>(ImageSize.X / 2.0);
+            BottomY = static_cast<float>(ImageSize.Y / 2.0);
+            CenterX = static_cast<float>(ClientSize.X / 2.0);
+            CenterY = static_cast<float>(ClientSize.Y / 2.0);
+            Degrees = static_cast<float>(static_cast<float>(Angle / 256.0) * 3.6E+2);
+            C = System::Cos(static_cast<float>(pas::constant(aMyFunction::GamePi / 1.8E+2) * Degrees));
+            S = System::Sin(static_cast<float>(pas::constant(aMyFunction::GamePi / 1.8E+2) * Degrees));
+            Vertices[0].X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(LeftX) * C) - static_cast<float>(static_cast<double>(TopY) * S)) + CenterX) +
+                    HitTestBounds.Left);
+            Vertices[0].Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(LeftX) * S) + static_cast<float>(static_cast<double>(TopY) * C)) + CenterY) +
+                    HitTestBounds.Top);
+            Vertices[1].X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(RightX) * C) - static_cast<float>(static_cast<double>(TopY) * S)) + CenterX) +
+                    HitTestBounds.Left);
+            Vertices[1].Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(RightX) * S) + static_cast<float>(static_cast<double>(TopY) * C)) + CenterY) +
+                    HitTestBounds.Top);
+            Vertices[2].X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(RightX) * C) - static_cast<float>(static_cast<double>(BottomY) * S)) + CenterX) +
+                    HitTestBounds.Left);
+            Vertices[2].Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(RightX) * S) + static_cast<float>(static_cast<double>(BottomY) * C)) + CenterY) +
+                    HitTestBounds.Top);
+            Vertices[3].X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(LeftX) * C) - static_cast<float>(static_cast<double>(BottomY) * S)) + CenterX) +
+                    HitTestBounds.Left);
+            Vertices[3].Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(LeftX) * S) + static_cast<float>(static_cast<double>(BottomY) * C)) + CenterY) +
+                    HitTestBounds.Top);
             Direct3D9::IDirect3DDevice9_GetScissorRect(GR_Main::Direct3DDevice, OldClip);
             Direct3D9::IDirect3DDevice9_SetScissorRect(GR_Main::Direct3DDevice, &ClipRect);
             Direct3D9::IDirect3DDevice9_SetTexture(GR_Main::Direct3DDevice, 0u, FrameTexture);
-            Direct3D9::IDirect3DDevice9_DrawPrimitiveUP(GR_Main::Direct3DDevice, Direct3D9::D3DPT_TRIANGLEFAN, 2u, &Vertices, static_cast<std::int32_t>(sizeof(GR_DX::TScreenVertexGR)));
+            Direct3D9::IDirect3DDevice9_DrawPrimitiveUP(GR_Main::Direct3DDevice, Direct3D9::D3DPT_TRIANGLEFAN, 2u,
+                &Vertices, static_cast<std::int32_t>(sizeof(GR_DX::TScreenVertexGR)));
             Direct3D9::IDirect3DDevice9_SetTexture(GR_Main::Direct3DDevice, 0u, nullptr);
             Direct3D9::IDirect3DDevice9_SetScissorRect(GR_Main::Direct3DDevice, &OldClip);
         } else {
@@ -293,16 +320,24 @@ namespace GI_RotateImageGAI {
                         if (FrameGi->GetFormat() != 4) {
                             GR_Main::RaiseWideMessage(u"rotate GAI 1"_wref.get());
                         }
-                        if (FrameGi->GetContentSize().X != Data->GetCanvasSize().X || FrameGi->GetContentSize().Y != Data->GetCanvasSize().Y) {
+                        if (FrameGi->GetContentSize().X != Data->GetCanvasSize().X || FrameGi->GetContentSize().Y !=
+                                Data->GetCanvasSize().Y) {
                             GR_Main::RaiseWideMessage(u"rotate GAI 2"_wref.get());
                         }
                         IndexPlane = FrameGi->GetPlane(0);
                         PalettePlane = FrameGi->GetPlane(1);
-                        RotatedImage->SetPalette(reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(FrameGi->Data) + PalettePlane->DataOffset), static_cast<std::uint32_t>(PalettePlane->DataSize) >> 2);
-                        GR_Main::Ex_OKGR_RotateBuf_Draw_BYTE(RotatedImage->Pixels, RotatedImage->PitchBytes, static_cast<std::uint8_t*>(FrameGi->Data) + IndexPlane->DataOffset, FrameGi->GetContentSize().X, OriginPoint.X, OriginPoint.Y, Angle, Rotation->Buffer);
+                        RotatedImage->SetPalette(
+                            reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(
+                                static_cast<std::uint8_t*>(FrameGi->Data), PalettePlane->DataOffset)),
+                            static_cast<std::uint32_t>(PalettePlane->DataSize) >> 2);
+                        GR_Main::Ex_OKGR_RotateBuf_Draw_BYTE(RotatedImage->Pixels, RotatedImage->PitchBytes,
+                            pas::pointer_add(static_cast<std::uint8_t*>(FrameGi->Data), IndexPlane->DataOffset),
+                            FrameGi->GetContentSize().X, OriginPoint.X, OriginPoint.Y, Angle, Rotation->Buffer);
                         // Native software alpha adjustment uses Pixels with a four-byte stride.
                         if (Alpha != 255) {
-                            GR_Main::Ex_OKGR_Light_BYTE(EC_Mem::AddPointerOffset(RotatedImage->Pixels, 3), 4, RotatedImage->PitchBytes - RotatedImage->Width * 4, RotatedImage->Width, RotatedImage->Height, Alpha);
+                            GR_Main::Ex_OKGR_Light_BYTE(EC_Mem::AddPointerOffset(RotatedImage->Pixels, 3), 4,
+                                RotatedImage->PitchBytes - RotatedImage->Width * 4, RotatedImage->Width,
+                                RotatedImage->Height, Alpha);
                         }
                     } catch (...) {
                         cpp_error_2 = std::current_exception();

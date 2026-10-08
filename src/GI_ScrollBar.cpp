@@ -11,7 +11,6 @@
 #include "units/GI_ScrollBar.hpp"
 #include "units/GR_Main.hpp"
 #include "units/SysUtils.hpp"
-#include "units/System.hpp"
 
 namespace GI_ScrollBar {
     void TScrollBarGI_Create(TScrollBarGI* Self, GI_MessageLoop::TObjectGI* Owner) {
@@ -409,20 +408,23 @@ namespace GI_ScrollBar {
         if (Active) {
             if (Orientation == 1) {
                 Y = ClientSize.Y / 2;
-                if (UpImages[0]->ClientSize.X + DownImages[0]->ClientSize.X + ThumbTopImages[0]->ClientSize.X + ThumbBottomImages[0]->ClientSize.X >= ClientSize.X) {
+                if (UpImages[0]->ClientSize.X + DownImages[0]->ClientSize.X + ThumbTopImages[0]->ClientSize.X +
+                    ThumbBottomImages[0]->ClientSize.X >= ClientSize.X) {
                     X = 0;
                     SetUpPosition(ClassesImports::Point(X, Y - UpImages[0]->ClientSize.Y / 2));
                     X += UpImages[0]->ClientSize.X;
                     SetThumbTopPosition(ClassesImports::Point(X, Y - ThumbTopImages[0]->ClientSize.Y / 2));
                     SetBeforeThumbBarPosition(ClassesImports::Point(X, Y - BeforeThumbBarImages[0]->ClientSize.Y / 2));
-                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X, BeforeThumbBarImages[0]->ClientSize.Y));
+                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X,
+                        BeforeThumbBarImages[0]->ClientSize.Y));
                     X += ThumbTopImages[0]->ClientSize.X;
                     ThumbCenterImages[0]->SetActive(false);
                     ThumbCenterImages[1]->SetActive(false);
                     ThumbCenterImages[2]->SetActive(false);
                     SetThumbBottomPosition(ClassesImports::Point(X, Y - ThumbBottomImages[0]->ClientSize.Y / 2));
                     SetAfterThumbBarPosition(ClassesImports::Point(X, Y - AfterThumbBarImages[0]->ClientSize.Y / 2));
-                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X, AfterThumbBarImages[0]->ClientSize.Y));
+                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X,
+                        AfterThumbBarImages[0]->ClientSize.Y));
                     X += ThumbBottomImages[0]->ClientSize.X;
                     SetDownPosition(ClassesImports::Point(X, Y - DownImages[0]->ClientSize.Y / 2));
                 } else {
@@ -430,7 +432,8 @@ namespace GI_ScrollBar {
                     if (Maximum - Minimum + 1 == 0) {
                         ThumbLength = TrackLength;
                     } else {
-                        ThumbLength = System::Trunc(pas::real_divide(PageSize, Maximum - Minimum + 1) * TrackLength);
+                        ThumbLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PageSize) / (Maximum - Minimum + 1)) *
+                                TrackLength));
                         if (ThumbLength > TrackLength) {
                             ThumbLength = TrackLength;
                         }
@@ -445,18 +448,21 @@ namespace GI_ScrollBar {
                             if (Maximum - Minimum + 1 == 0) {
                                 BeforeLength = 0;
                             } else {
-                                BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum + 1) * TrackLength);
+                                BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                            Minimum + 1)) * TrackLength));
                             }
                         } else if (Maximum - Minimum == 0) {
                             BeforeLength = 0;
                         } else {
-                            BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum) * (TrackLength - MinimumThumbLength));
+                            BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                        Minimum)) * (TrackLength - MinimumThumbLength)));
                         }
                     } else {
                         if (Maximum - Minimum + 1 == 0) {
                             BeforeLength = 0;
                         } else {
-                            BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum + 1) * TrackLength);
+                            BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                        Minimum + 1)) * TrackLength));
                         }
                         if (BeforeLength + ThumbLength > TrackLength) {
                             BeforeLength = TrackLength - ThumbLength;
@@ -469,37 +475,54 @@ namespace GI_ScrollBar {
                         ThumbCenterImages[2]->SetActive(false);
                         SetThumbCenterSize(ClassesImports::Point(0, ThumbCenterImages[0]->ClientSize.Y));
                     } else {
-                        ThumbCenterImages[0]->SetActive(!(PressedRegion == 0 && HoveredRegion == 5 || PressedRegion == 5));
+                        ThumbCenterImages[0]->SetActive(!(PressedRegion == 0 && HoveredRegion == 5 || PressedRegion ==
+                                5));
                         ThumbCenterImages[1]->SetActive(PressedRegion == 0 && HoveredRegion == 5);
                         ThumbCenterImages[2]->SetActive(PressedRegion == 5);
-                        SetThumbCenterPosition(ClassesImports::Point(UpImages[0]->ClientSize.X + ThumbTopImages[0]->ClientSize.X + BeforeLength, Y - ThumbCenterImages[0]->ClientSize.Y / 2));
-                        SetThumbCenterSize(ClassesImports::Point(ThumbLength - (ThumbTopImages[0]->ClientSize.X + ThumbBottomImages[0]->ClientSize.X), ThumbCenterImages[0]->ClientSize.Y));
+                        SetThumbCenterPosition(ClassesImports::Point(
+                            UpImages[0]->ClientSize.X + ThumbTopImages[0]->ClientSize.X + BeforeLength,
+                            Y - ThumbCenterImages[0]->ClientSize.Y / 2));
+                        SetThumbCenterSize(ClassesImports::Point(
+                            ThumbLength - (ThumbTopImages[0]->ClientSize.X + ThumbBottomImages[0]->ClientSize.X),
+                            ThumbCenterImages[0]->ClientSize.Y));
                     }
                     SetUpPosition(ClassesImports::Point(0, Y - UpImages[0]->ClientSize.Y / 2));
-                    SetDownPosition(ClassesImports::Point(ClientSize.X - DownImages[0]->ClientSize.X, Y - DownImages[0]->ClientSize.Y / 2));
-                    SetThumbTopPosition(ClassesImports::Point(UpImages[0]->ClientSize.X + BeforeLength, Y - ThumbTopImages[0]->ClientSize.Y / 2));
-                    SetThumbBottomPosition(ClassesImports::Point(BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.X + UpImages[0]->ClientSize.X, Y - ThumbBottomImages[0]->ClientSize.Y / 2));
-                    SetBeforeThumbBarPosition(ClassesImports::Point(UpImages[0]->ClientSize.X, Y - BeforeThumbBarImages[0]->ClientSize.Y / 2));
-                    SetBeforeThumbBarSize(ClassesImports::Point(ThumbTopImages[0]->ClientSize.X + BeforeLength, BeforeThumbBarImages[0]->ClientSize.Y));
-                    SetAfterThumbBarPosition(ClassesImports::Point(BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.X + DownImages[0]->ClientSize.X, Y - AfterThumbBarImages[0]->ClientSize.Y / 2));
-                    SetAfterThumbBarSize(ClassesImports::Point(ThumbBottomImages[0]->ClientSize.X + AfterLength, AfterThumbBarImages[0]->ClientSize.Y));
+                    SetDownPosition(ClassesImports::Point(ClientSize.X - DownImages[0]->ClientSize.X,
+                        Y - DownImages[0]->ClientSize.Y / 2));
+                    SetThumbTopPosition(ClassesImports::Point(UpImages[0]->ClientSize.X + BeforeLength,
+                        Y - ThumbTopImages[0]->ClientSize.Y / 2));
+                    SetThumbBottomPosition(ClassesImports::Point(
+                        BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.X + UpImages[0]->ClientSize.X,
+                        Y - ThumbBottomImages[0]->ClientSize.Y / 2));
+                    SetBeforeThumbBarPosition(ClassesImports::Point(UpImages[0]->ClientSize.X,
+                        Y - BeforeThumbBarImages[0]->ClientSize.Y / 2));
+                    SetBeforeThumbBarSize(ClassesImports::Point(ThumbTopImages[0]->ClientSize.X + BeforeLength,
+                        BeforeThumbBarImages[0]->ClientSize.Y));
+                    SetAfterThumbBarPosition(ClassesImports::Point(
+                        BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.X + DownImages[0]->ClientSize.X,
+                        Y - AfterThumbBarImages[0]->ClientSize.Y / 2));
+                    SetAfterThumbBarSize(ClassesImports::Point(ThumbBottomImages[0]->ClientSize.X + AfterLength,
+                        AfterThumbBarImages[0]->ClientSize.Y));
                 }
             } else {
                 X = ClientSize.X / 2;
-                if (UpImages[0]->ClientSize.Y + DownImages[0]->ClientSize.Y + ThumbTopImages[0]->ClientSize.Y + ThumbBottomImages[0]->ClientSize.Y >= ClientSize.Y) {
+                if (UpImages[0]->ClientSize.Y + DownImages[0]->ClientSize.Y + ThumbTopImages[0]->ClientSize.Y +
+                    ThumbBottomImages[0]->ClientSize.Y >= ClientSize.Y) {
                     Y = 0;
                     SetUpPosition(ClassesImports::Point(X - UpImages[0]->ClientSize.X / 2, Y));
                     Y += UpImages[0]->ClientSize.Y;
                     SetThumbTopPosition(ClassesImports::Point(X - ThumbTopImages[0]->ClientSize.X / 2, Y));
                     SetBeforeThumbBarPosition(ClassesImports::Point(X - BeforeThumbBarImages[0]->ClientSize.X / 2, Y));
-                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X, BeforeThumbBarImages[0]->ClientSize.Y));
+                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X,
+                        BeforeThumbBarImages[0]->ClientSize.Y));
                     Y += ThumbTopImages[0]->ClientSize.Y;
                     ThumbCenterImages[0]->SetActive(false);
                     ThumbCenterImages[1]->SetActive(false);
                     ThumbCenterImages[2]->SetActive(false);
                     SetThumbBottomPosition(ClassesImports::Point(X - ThumbBottomImages[0]->ClientSize.X / 2, Y));
                     SetAfterThumbBarPosition(ClassesImports::Point(X - AfterThumbBarImages[0]->ClientSize.X / 2, Y));
-                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X, AfterThumbBarImages[0]->ClientSize.Y));
+                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X,
+                        AfterThumbBarImages[0]->ClientSize.Y));
                     Y += ThumbBottomImages[0]->ClientSize.Y;
                     SetDownPosition(ClassesImports::Point(X - DownImages[0]->ClientSize.X / 2, Y));
                 } else {
@@ -507,7 +530,8 @@ namespace GI_ScrollBar {
                     if (Maximum - Minimum + 1 == 0) {
                         ThumbLength = TrackLength;
                     } else {
-                        ThumbLength = System::Trunc(pas::real_divide(PageSize, Maximum - Minimum + 1) * TrackLength);
+                        ThumbLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PageSize) / (Maximum - Minimum + 1)) *
+                                TrackLength));
                         if (ThumbLength > TrackLength) {
                             ThumbLength = TrackLength;
                         }
@@ -522,18 +546,21 @@ namespace GI_ScrollBar {
                             if (Maximum - Minimum + 1 == 0) {
                                 BeforeLength = 0;
                             } else {
-                                BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum + 1) * TrackLength);
+                                BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                            Minimum + 1)) * TrackLength));
                             }
                         } else if (Maximum - Minimum == 0) {
                             BeforeLength = 0;
                         } else {
-                            BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum) * (TrackLength - MinimumThumbLength));
+                            BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                        Minimum)) * (TrackLength - MinimumThumbLength)));
                         }
                     } else {
                         if (Maximum - Minimum + 1 == 0) {
                             BeforeLength = 0;
                         } else {
-                            BeforeLength = System::Trunc(pas::real_divide(Position - Minimum, Maximum - Minimum + 1) * TrackLength);
+                            BeforeLength = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                                        Minimum + 1)) * TrackLength));
                         }
                         if (BeforeLength + ThumbLength > TrackLength) {
                             BeforeLength = TrackLength - ThumbLength;
@@ -546,20 +573,30 @@ namespace GI_ScrollBar {
                         ThumbCenterImages[2]->SetActive(false);
                         SetThumbCenterSize(ClassesImports::Point(ThumbCenterImages[0]->ClientSize.X, 0));
                     } else {
-                        ThumbCenterImages[0]->SetActive(!(PressedRegion == 0 && HoveredRegion == 5 || PressedRegion == 5));
+                        ThumbCenterImages[0]->SetActive(!(PressedRegion == 0 && HoveredRegion == 5 || PressedRegion ==
+                                5));
                         ThumbCenterImages[1]->SetActive(PressedRegion == 0 && HoveredRegion == 5);
                         ThumbCenterImages[2]->SetActive(PressedRegion == 5);
-                        SetThumbCenterPosition(ClassesImports::Point(X - ThumbCenterImages[0]->ClientSize.X / 2, UpImages[0]->ClientSize.Y + ThumbTopImages[0]->ClientSize.Y + BeforeLength));
-                        SetThumbCenterSize(ClassesImports::Point(ThumbCenterImages[0]->ClientSize.X, ThumbLength - (ThumbTopImages[0]->ClientSize.Y + ThumbBottomImages[0]->ClientSize.Y)));
+                        SetThumbCenterPosition(ClassesImports::Point(X - ThumbCenterImages[0]->ClientSize.X / 2,
+                            UpImages[0]->ClientSize.Y + ThumbTopImages[0]->ClientSize.Y + BeforeLength));
+                        SetThumbCenterSize(ClassesImports::Point(ThumbCenterImages[0]->ClientSize.X,
+                            ThumbLength - (ThumbTopImages[0]->ClientSize.Y + ThumbBottomImages[0]->ClientSize.Y)));
                     }
                     SetUpPosition(ClassesImports::Point(X - UpImages[0]->ClientSize.X / 2, 0));
-                    SetDownPosition(ClassesImports::Point(X - DownImages[0]->ClientSize.X / 2, ClientSize.Y - DownImages[0]->ClientSize.Y));
-                    SetThumbTopPosition(ClassesImports::Point(X - ThumbTopImages[0]->ClientSize.X / 2, UpImages[0]->ClientSize.Y + BeforeLength));
-                    SetThumbBottomPosition(ClassesImports::Point(X - ThumbBottomImages[0]->ClientSize.X / 2, BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.Y + UpImages[0]->ClientSize.Y));
-                    SetBeforeThumbBarPosition(ClassesImports::Point(X - BeforeThumbBarImages[0]->ClientSize.X / 2, UpImages[0]->ClientSize.Y));
-                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X, ThumbTopImages[0]->ClientSize.Y + BeforeLength));
-                    SetAfterThumbBarPosition(ClassesImports::Point(X - AfterThumbBarImages[0]->ClientSize.X / 2, BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.Y + DownImages[0]->ClientSize.Y));
-                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X, ThumbBottomImages[0]->ClientSize.Y + AfterLength));
+                    SetDownPosition(ClassesImports::Point(X - DownImages[0]->ClientSize.X / 2,
+                        ClientSize.Y - DownImages[0]->ClientSize.Y));
+                    SetThumbTopPosition(ClassesImports::Point(X - ThumbTopImages[0]->ClientSize.X / 2,
+                        UpImages[0]->ClientSize.Y + BeforeLength));
+                    SetThumbBottomPosition(ClassesImports::Point(X - ThumbBottomImages[0]->ClientSize.X / 2,
+                        BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.Y + UpImages[0]->ClientSize.Y));
+                    SetBeforeThumbBarPosition(ClassesImports::Point(X - BeforeThumbBarImages[0]->ClientSize.X / 2,
+                        UpImages[0]->ClientSize.Y));
+                    SetBeforeThumbBarSize(ClassesImports::Point(BeforeThumbBarImages[0]->ClientSize.X,
+                        ThumbTopImages[0]->ClientSize.Y + BeforeLength));
+                    SetAfterThumbBarPosition(ClassesImports::Point(X - AfterThumbBarImages[0]->ClientSize.X / 2,
+                        BeforeLength + ThumbLength - ThumbBottomImages[0]->ClientSize.Y + DownImages[0]->ClientSize.Y));
+                    SetAfterThumbBarSize(ClassesImports::Point(AfterThumbBarImages[0]->ClientSize.X,
+                        ThumbBottomImages[0]->ClientSize.Y + AfterLength));
                 }
             }
             UpImages[0]->SetActive(!(PressedRegion == 0 && HoveredRegion == 1 || PressedRegion == 1));
@@ -599,16 +636,28 @@ namespace GI_ScrollBar {
                 if (Maximum - Minimum == 0) {
                     SetPosition_2(Minimum);
                 } else if (CalculationMode == 0) {
-                    SetPosition_2(static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X - ThumbCenterImages[0]->ClientSize.X - ThumbTopImages[0]->ClientSize.X - ThumbBottomImages[0]->ClientSize.X) * (Point.X - HitTestBounds.Left - UpImages[0]->ClientSize.X))) + DragStartPosition);
+                    SetPosition_2(static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                        (ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X -
+                            ThumbCenterImages[0]->ClientSize.X - ThumbTopImages[0]->ClientSize.X -
+                            ThumbBottomImages[0]->ClientSize.X)) * (Point.X - HitTestBounds.Left -
+                            UpImages[0]->ClientSize.X)))) + DragStartPosition);
                 } else {
-                    SetPosition_2(static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X) * (Point.X - HitTestBounds.Left - UpImages[0]->ClientSize.X))) + DragStartPosition);
+                    SetPosition_2(static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                        (ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X)) * (Point.X -
+                            HitTestBounds.Left - UpImages[0]->ClientSize.X)))) + DragStartPosition);
                 }
             } else if (Maximum - Minimum == 0) {
                 SetPosition_2(Minimum);
             } else if (CalculationMode == 0) {
-                SetPosition_2(static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y - ThumbCenterImages[0]->ClientSize.Y - ThumbTopImages[0]->ClientSize.Y - ThumbBottomImages[0]->ClientSize.Y) * (Point.Y - HitTestBounds.Top - UpImages[0]->ClientSize.Y))) + DragStartPosition);
+                SetPosition_2(static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                    (ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y -
+                        ThumbCenterImages[0]->ClientSize.Y - ThumbTopImages[0]->ClientSize.Y -
+                        ThumbBottomImages[0]->ClientSize.Y)) * (Point.Y - HitTestBounds.Top -
+                        UpImages[0]->ClientSize.Y)))) + DragStartPosition);
             } else {
-                SetPosition_2(static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y) * (Point.Y - HitTestBounds.Top - UpImages[0]->ClientSize.Y))) + DragStartPosition);
+                SetPosition_2(static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                    (ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y)) * (Point.Y -
+                        HitTestBounds.Top - UpImages[0]->ClientSize.Y)))) + DragStartPosition);
             }
         }
         HoveredRegion = GetHitRegion(ToLocalPoint(Point));
@@ -656,14 +705,28 @@ namespace GI_ScrollBar {
                 DragStartPosition = Minimum;
             } else if (Orientation == 1) {
                 if (CalculationMode == 0) {
-                    DragStartPosition = Position - static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X - ThumbCenterImages[0]->ClientSize.X - ThumbTopImages[0]->ClientSize.X - ThumbBottomImages[0]->ClientSize.X) * (Point.X - HitTestBounds.Left - UpImages[0]->ClientSize.X)));
+                    DragStartPosition = Position -
+                            static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                                (ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X -
+                                ThumbCenterImages[0]->ClientSize.X - ThumbTopImages[0]->ClientSize.X -
+                                ThumbBottomImages[0]->ClientSize.X)) * (Point.X - HitTestBounds.Left -
+                                UpImages[0]->ClientSize.X))));
                 } else {
-                    DragStartPosition = Position - static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X) * (Point.X - HitTestBounds.Left - UpImages[0]->ClientSize.X)));
+                    DragStartPosition = Position -
+                            static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum - Minimum) /
+                                (ClientSize.X - UpImages[0]->ClientSize.X - DownImages[0]->ClientSize.X)) * (Point.X -
+                                HitTestBounds.Left - UpImages[0]->ClientSize.X))));
                 }
             } else if (CalculationMode == 0) {
-                DragStartPosition = Position - static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y - ThumbCenterImages[0]->ClientSize.Y - ThumbTopImages[0]->ClientSize.Y - ThumbBottomImages[0]->ClientSize.Y) * (Point.Y - HitTestBounds.Top - UpImages[0]->ClientSize.Y)));
+                DragStartPosition = Position - static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum -
+                            Minimum) / (ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y -
+                            ThumbCenterImages[0]->ClientSize.Y - ThumbTopImages[0]->ClientSize.Y -
+                            ThumbBottomImages[0]->ClientSize.Y)) * (Point.Y - HitTestBounds.Top -
+                            UpImages[0]->ClientSize.Y))));
             } else {
-                DragStartPosition = Position - static_cast<std::int32_t>(System::Trunc(pas::real_divide(Maximum - Minimum, ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y) * (Point.Y - HitTestBounds.Top - UpImages[0]->ClientSize.Y)));
+                DragStartPosition = Position - static_cast<std::int32_t>(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Maximum -
+                            Minimum) / (ClientSize.Y - UpImages[0]->ClientSize.Y - DownImages[0]->ClientSize.Y)) *
+                            (Point.Y - HitTestBounds.Top - UpImages[0]->ClientSize.Y))));
             }
         }
         UpdateLayout();
@@ -688,7 +751,8 @@ namespace GI_ScrollBar {
 
     void TScrollBarGI::StartAutoRepeat(std::int32_t DelayMs, std::int32_t RepeatMs) {
         StopAutoRepeat();
-        RepeatTimer = MessageLoop->ScheduleCallbackTimer(DelayMs, RepeatMs, pas::bind_method<&TScrollBarGI::AutoRepeat>(this), 0);
+        RepeatTimer = MessageLoop->ScheduleCallbackTimer(DelayMs, RepeatMs,
+                pas::bind_method<&TScrollBarGI::AutoRepeat>(this), 0);
     }
 
     void TScrollBarGI::StopAutoRepeat() {

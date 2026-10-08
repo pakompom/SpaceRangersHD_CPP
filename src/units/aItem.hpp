@@ -30,13 +30,16 @@ namespace aItem {
     // Applies the ordered item-type insertions for save versions before 164, 78, 131, 78 and 127; arithmetic wraps in a byte.
     aConst::TItemType MigrateSavedItemType(std::uint8_t ItemType);
 
-    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, aGalaxyStruct::THullType HullType, aGalaxyStruct::TOwnerId Owner, void* Ship);
+    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, aGalaxyStruct::THullType HullType,
+        aGalaxyStruct::TOwnerId Owner, void* Ship);
 
-    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType);
+    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner,
+        aGalaxyStruct::THullType HullType);
 
     std::int32_t CalculateGeneratedFuelCapacity(std::uint32_t Weight, std::int32_t Level);
 
-    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
+    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
     std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
@@ -44,11 +47,14 @@ namespace aItem {
 
     std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
     double GetGeneratedDefenseDamageFactor(std::uint8_t Level);
 
@@ -70,7 +76,8 @@ namespace aItem {
     // Returns nil outside item types 10..41.
     TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, aGalaxyStruct::TOwnerId Owner);
 
-    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
     // Constructs the instance without calling its Init routine.
     TItem* CreateItemByType(aConst::TItemType ItemType);
@@ -78,9 +85,11 @@ namespace aItem {
     TItem* CreateDefaultItemByType(aConst::TItemType ItemType);
 
     // Clamps Level to 1..8; custom weapons require CreateGeneratedWeapon.
-    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
+    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
-    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner);
+    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner);
 
     // Module indices are zero-based; compatibility checks also accept special bonuses.
     std::uint8_t CanInstallMicroModule(std::int32_t ModuleIndex, TEquipment* Item);
@@ -156,7 +165,7 @@ namespace aItem {
 
     pas::WideString TRepairRobot_GetInfoText(TRepairRobot* Self, pas::WideString ColorTag, void* Ship);
 
-    void TCargoHook_Create(TCargoHook* Self);
+    inline void TCargoHook_Create(TCargoHook* Self);
 
     void TCargoHook_LoadFromBlock(TCargoHook* Self, EC_BlockPar::TBlockParEC* Block);
 
@@ -228,3 +237,5 @@ namespace aItem {
     pas::WideString TArtefactCustom_GetInfoText(TArtefactCustom* Self, pas::WideString ColorTag, void* Ship);
 
 } // namespace aItem
+
+#include "inline/aItem.hpp"

@@ -12,7 +12,8 @@ namespace GI_PSWeapon06Phaser {
     // Loads SE.Weapon.5.Palettes; native visual numbering differs from the class name.
     void LoadPhaserPalettes();
 
-    void TPSWeapon06Phaser_Create(TPSWeapon06Phaser* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon06Phaser_Create(TPSWeapon06Phaser* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon06Phaser_Destroy(TPSWeapon06Phaser* Self);
 

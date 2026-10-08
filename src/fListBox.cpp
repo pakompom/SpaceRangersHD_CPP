@@ -20,7 +20,8 @@
 namespace fListBox {
     // Native TfListBox VMT confirms the inferred unit ownership.
     // Borrows a list of PWideString choices; copies the selection back and clears the dialog's borrowed list before freeing it.
-    std::uint32_t ShowListDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t& SelectedIndex, pas::WideString Caption, pas::List* Items, std::int32_t OffsetX, std::int32_t OffsetY) {
+    std::uint32_t ShowListDialog(GI_MessageLoop::TMessageLoopGI* Parent, std::int32_t& SelectedIndex,
+        pas::WideString Caption, pas::List* Items, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
         Parent->RootUiObject->OnModalSuspend();
@@ -75,14 +76,16 @@ namespace fListBox {
         WindowsSdk::TRect Insets{};
         SelectedIndex = -1;
         SelectedControl = nullptr;
-        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create, ContentPanel);
+        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create,
+            ContentPanel);
         Window->SetDepth(1.0);
         Window->SetConfigPath(pas::concat_wide({u"Style.Window.", GR_Main::GiResourceSuffix(), u"MessageBox"}));
         Window->SetSize(ClassesImports::Point(GR_Main::GiScalePixels(250), GR_Main::GiScalePixels(400)));
         Window->UpdateAutoGeometry();
         Insets = Window->WorkSubRect;
         Size = Window->ClientSize;
-        AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+        AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create,
+                ContentPanel);
         {
             GI_GraphButton::TGraphButtonGI* cpp_with = AcceptButton;
             cpp_with->EnterSound = u"Sound.ButtonEnter"_w;
@@ -90,32 +93,43 @@ namespace fListBox {
             cpp_with->ClickSound = u"Sound.ButtonClick"_w;
             cpp_with->UpOnlyDown = true;
             cpp_with->SetDepth(0.0);
-            cpp_with->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkN"}));
-            cpp_with->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkA"}));
-            cpp_with->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkD"}));
+            cpp_with->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkN"}));
+            cpp_with->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkA"}));
+            cpp_with->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkD"}));
             cpp_with->SetSize(AcceptButton->GetMaxStateImageSize());
-            cpp_with->SetPosition(ClassesImports::Point(Size.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5), Size.Y - Insets.Bottom - AcceptButton->ClientSize.Y));
+            cpp_with->SetPosition(ClassesImports::Point(
+                Size.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5),
+                Size.Y - Insets.Bottom - AcceptButton->ClientSize.Y));
             cpp_with->HitKind = GI_GraphButton::gbhRect;
             cpp_with->UpdateStateImagePlacement();
             cpp_with->UpdateStateVisuals();
             cpp_with->UpCallback = pas::bind_method<&TfListBox::AcceptClicked>(this);
         }
-        GI_GraphButton::TGraphButtonGI* CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+        GI_GraphButton::TGraphButtonGI* CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+            GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
         CancelButton->EnterSound = u"Sound.ButtonEnter"_w;
         CancelButton->LeaveSound = u"Sound.ButtonLeave"_w;
         CancelButton->ClickSound = u"Sound.ButtonClick"_w;
         CancelButton->UpOnlyDown = true;
         CancelButton->SetDepth(0.0);
-        CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelN"}));
-        CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelA"}));
-        CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelD"}));
+        CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelN"}));
+        CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelA"}));
+        CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelD"}));
         CancelButton->SetSize(CancelButton->GetMaxStateImageSize());
-        CancelButton->SetPosition(ClassesImports::Point(Size.X / 2 + GR_Main::GiScalePixels(5), Size.Y - Insets.Bottom - CancelButton->ClientSize.Y));
+        CancelButton->SetPosition(ClassesImports::Point(Size.X / 2 + GR_Main::GiScalePixels(5),
+            Size.Y - Insets.Bottom - CancelButton->ClientSize.Y));
         CancelButton->HitKind = GI_GraphButton::gbhRect;
         CancelButton->UpdateStateImagePlacement();
         CancelButton->UpdateStateVisuals();
         CancelButton->UpCallback = pas::bind_method<&TfListBox::CancelClicked>(this);
-        GI_Label::TLabelGI* CaptionLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, ContentPanel);
+        GI_Label::TLabelGI* CaptionLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+            ContentPanel);
         Window->SetDepth(2.0);
         CaptionLabel->SetText(Caption);
         CaptionLabel->SetSize(ClassesImports::Point(Size.X, GR_Main::GiScalePixels(21)));
@@ -124,22 +138,29 @@ namespace fListBox {
         CaptionLabel->SetTextAlignY(GI_Main::tayCenter);
         CaptionLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         CaptionLabel->SetFontName(GlobalsV::NormalBoldFontName);
-        ScrollPanel = pas::construct_call<GI_PanelScrollBar::TPanelScrollBarGI>(GI_PanelScrollBar::TPanelScrollBarGI_Create, Window);
+        ScrollPanel = pas::construct_call<GI_PanelScrollBar::TPanelScrollBarGI>(
+                GI_PanelScrollBar::TPanelScrollBarGI_Create, Window);
         {
             GI_PanelScrollBar::TPanelScrollBarGI* cpp_with_2 = ScrollPanel;
             cpp_with_2->SetDepth(9.0);
             cpp_with_2->SetUnlimitedWorldEnabled(false);
             cpp_with_2->SetScrollbarsOutside(true);
-            cpp_with_2->SetVerticalScrollBarConfigPath(pas::concat_wide({u"Style.ScrollBar.", GR_Main::GiResourceSuffix(), u"PQS2"}));
+            cpp_with_2->SetVerticalScrollBarConfigPath(pas::concat_wide({u"Style.ScrollBar.",
+                GR_Main::GiResourceSuffix(), u"PQS2"}));
             cpp_with_2->SetHorizontalScrollbarEnabled(false);
             cpp_with_2->SetVerticalScrollbarEnabled(true);
-            cpp_with_2->SetPosition(ClassesImports::Point(Insets.Left + GR_Main::GiScalePixels(10), CaptionLabel->LocalPosition.Y + CaptionLabel->ClientSize.Y + GR_Main::GiScalePixels(10)));
-            cpp_with_2->SetSize(ClassesImports::Point(Size.X - Insets.Right - cpp_with_2->LocalPosition.X - cpp_with_2->VerticalScrollBar->ClientSize.X - GR_Main::GiScalePixels(10), AcceptButton->LocalPosition.Y - cpp_with_2->LocalPosition.Y - GR_Main::GiScalePixels(15)));
+            cpp_with_2->SetPosition(ClassesImports::Point(Insets.Left + GR_Main::GiScalePixels(10),
+                CaptionLabel->LocalPosition.Y + CaptionLabel->ClientSize.Y + GR_Main::GiScalePixels(10)));
+            cpp_with_2->SetSize(ClassesImports::Point(
+                Size.X - Insets.Right - cpp_with_2->LocalPosition.X - cpp_with_2->VerticalScrollBar->ClientSize.X -
+                    GR_Main::GiScalePixels(10),
+                AcceptButton->LocalPosition.Y - cpp_with_2->LocalPosition.Y - GR_Main::GiScalePixels(15)));
             cpp_with_2->ScrollAxis = GI_Panel::psaVertical;
         }
         {
             GI_Frame::TFrameGI* cpp_with_3 = pas::construct_call<GI_Frame::TFrameGI>(GI_Frame::TFrameGI_Create, Window);
-            cpp_with_3->SetPosition(ClassesImports::Point(ScrollPanel->LocalPosition.X - 1, ScrollPanel->LocalPosition.Y - 1));
+            cpp_with_3->SetPosition(ClassesImports::Point(ScrollPanel->LocalPosition.X - 1,
+                ScrollPanel->LocalPosition.Y - 1));
             cpp_with_3->SetSize(ClassesImports::Point(ScrollPanel->ClientSize.X - 1, ScrollPanel->ClientSize.Y + 2));
             cpp_with_3->SetDepth(8.0);
             cpp_with_3->SetKind(GI_Frame::fkRect);
@@ -217,24 +238,20 @@ namespace fListBox {
         }
     }
 
-    void TfListBox::ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfListBox::ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (SelectedControl != nullptr) {
-            {
-                std::uint32_t packRgbBytes = GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 200);
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(SelectedControl);
-                cpp_arg->SetTextColor(packRgbBytes);
-            }
+            pas::checked_cast<GI_Label::TLabelGI*>(
+                SelectedControl)->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 200));
             SelectedControl = nullptr;
         }
         SelectedControl = Sender;
-        {
-            std::uint32_t packRgbBytes_2 = GR_Main::CurrentPixelFormat->PackRgbBytes(150, 150, 0);
-            GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(SelectedControl);
-            cpp_arg_2->SetTextColor(packRgbBytes_2);
-        }
+        pas::checked_cast<GI_Label::TLabelGI*>(SelectedControl)->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(
+            150, 150, 0));
     }
 
-    void TfListBox::ChoiceDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfListBox::ChoiceDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         AcceptClicked(nullptr);
     }
 

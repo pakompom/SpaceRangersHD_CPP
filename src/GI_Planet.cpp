@@ -23,32 +23,46 @@
 namespace GI_Planet {
     void TPlanetGI_Create(TPlanetGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
-        Self->TemplateCache = pas::construct_call<EC_CachePlanetTempl::TCPlanetTemplControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->TemplateCache =
+            pas::construct_call<EC_CachePlanetTempl::TCPlanetTemplControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->TemplateCache);
-        Self->SurfaceImageCache = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->SurfaceImageCache =
+            pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->SurfaceImageCache);
-        Self->SurfacePaletteCache = pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->SurfacePaletteCache =
+            pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->SurfacePaletteCache);
-        Self->Cloud1ImageCache = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud1ImageCache =
+            pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud1ImageCache);
-        Self->Cloud1PaletteCache = pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud1PaletteCache =
+            pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud1PaletteCache);
-        Self->Cloud2ImageCache = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud2ImageCache =
+            pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud2ImageCache);
-        Self->Cloud2PaletteCache = pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud2PaletteCache =
+            pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud2PaletteCache);
-        Self->Cloud3ImageCache = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud3ImageCache =
+            pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud3ImageCache);
-        Self->Cloud3PaletteCache = pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->Cloud3PaletteCache =
+            pas::construct_call<EC_CacheLightPal::TCLightPalControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->Cloud3PaletteCache);
-        Self->LightRotationCache = pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->LightRotationCache =
+            pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->LightRotationCache);
-        Self->AtmosphereRotationCache = pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->AtmosphereRotationCache =
+            pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->AtmosphereRotationCache);
-        Self->AtmosphereBuffer = pas::construct_call<GR_GraphBufPal::TGraphBufPalGR>(GR_GraphBufPal::TGraphBufPalGR_Create);
-        Self->AtmosphereImageCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->AtmosphereBuffer =
+            pas::construct_call<GR_GraphBufPal::TGraphBufPalGR>(GR_GraphBufPal::TGraphBufPalGR_Create);
+        Self->AtmosphereImageCache =
+            pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->AtmosphereImageCache);
-        Self->AtmosphereMaskCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->AtmosphereMaskCache =
+            pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->AtmosphereMaskCache);
         Self->RenderedMapOffsets[0] = 0x00ffffff;
         Self->RenderedMapOffsets[1] = Self->RenderedMapOffsets[0];
@@ -108,7 +122,8 @@ namespace GI_Planet {
     }
 
     // Image width must be a power of two from 16 through 2048; height must not exceed half the width. The light map must cover that height on both axes.
-    void TPlanetGI::SetImage(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath) {
+    void TPlanetGI::SetImage(const pas::WideString& MaskPath, const pas::WideString& ImagePath,
+        const pas::WideString& LightMapPath) {
         EC_CachePalBitmap::TCPalBitmapEC* Image{};
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
         EC_CachePalBitmap::TCPalBitmapEC* LightImage{};
@@ -125,55 +140,101 @@ namespace GI_Planet {
         SurfacePaletteCache->SetCacheKey(ImagePath);
         Image = EC_CachePalBitmap::AcquireOrCreatePalBitmap(SurfaceImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                SurfaceImageCache->Release();
-            };
-            MapWidth = Image->Bitmap->Width;
-            MapHeight = Image->Bitmap->Height;
-            if (static_cast<std::uint32_t>(Image->Bitmap->Width) >> 1 < static_cast<std::uint32_t>(Image->Bitmap->Height)) {
-                pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create template planet. (LenX div 2)<LenY"_a));
-            }
-            if (Image->Bitmap->Width != 16 && Image->Bitmap->Width != 32 && Image->Bitmap->Width != 64 && Image->Bitmap->Width != 128 && Image->Bitmap->Width != 256 && Image->Bitmap->Width != 512 && Image->Bitmap->Width != 1024 && Image->Bitmap->Width != 2048) {
-                pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create template planet. LenX<>16 or 32 or 64 or 128 or 256 or 512 or 1024 or 2048"_a));
-            }
-            MapWidthMask = Image->Bitmap->Width - 1;
-            SetSize(ClassesImports::Point(Image->Bitmap->Height + 1, Image->Bitmap->Height + 1));
-            TemplateCache->SetCacheKey(pas::concat_wide({MaskPath, u"?", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Width))), u",", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Height)))}));
-            LightControl = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
-            EC_Cache::TCacheEC::ResetControl(LightControl);
-            LightControl->SetCacheKey(LightMapPath);
-            LightImage = EC_CachePalBitmap::AcquireOrCreatePalBitmap(LightControl);
-            {
-                try {
-                    if (static_cast<std::uint32_t>(Image->Bitmap->Height) > static_cast<std::uint32_t>(LightImage->Bitmap->Width) || static_cast<std::uint32_t>(Image->Bitmap->Height) > static_cast<std::uint32_t>(LightImage->Bitmap->Height)) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error: Size light map < planet."_a));
-                    }
-                    SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
-                    if (SourceLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
-                    }
-                    RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
-                    if (RotatedLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
-                    }
-                    GR_Main::Ex_OKGR_LightBuf_Init(SourceLightBuffer, 0);
-                    GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
+            try {
+                MapWidth = Image->Bitmap->Width;
+                MapHeight = Image->Bitmap->Height;
+                if (static_cast<std::uint32_t>(Image->Bitmap->Width) >> 1 <
+                    static_cast<std::uint32_t>(Image->Bitmap->Height)) {
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(
+                            "TPlanetGI.SetImage. Error create template planet. (LenX div 2)<LenY"_a));
+                }
+                if (Image->Bitmap->Width != 16 && Image->Bitmap->Width != 32 && Image->Bitmap->Width != 64 &&
+                    Image->Bitmap->Width != 128 && Image->Bitmap->Width != 256 && Image->Bitmap->Width != 512 &&
+                    Image->Bitmap->Width != 1024 && Image->Bitmap->Width != 2048) {
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(
+                            "TPlanetGI.SetImage. Error create template planet. LenX<>16 or 32 or 64 or 128 or 256 or 512 or 1024 or 2048"_a));
+                }
+                MapWidthMask = Image->Bitmap->Width - 1;
+                SetSize(ClassesImports::Point(Image->Bitmap->Height + 1, Image->Bitmap->Height + 1));
+                TemplateCache->SetCacheKey(pas::concat_wide({MaskPath, u"?",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Width))),
+                    u",",
+                    pas::wide_int64_to_str(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Height)))}));
+                LightControl =
+                    pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+                EC_Cache::TCacheEC::ResetControl(LightControl);
+                LightControl->SetCacheKey(LightMapPath);
+                LightImage = EC_CachePalBitmap::AcquireOrCreatePalBitmap(LightControl);
+                {
                     try {
-                        LightRotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Width, 1))), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Height, 1)))})));
+                        if (static_cast<std::uint32_t>(Image->Bitmap->Height) >
+                            static_cast<std::uint32_t>(LightImage->Bitmap->Width) ||
+                            static_cast<std::uint32_t>(Image->Bitmap->Height) >
+                                static_cast<std::uint32_t>(LightImage->Bitmap->Height)) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(
+                                    "TPlanetGI.SetImage. Error: Size light map < planet."_a));
+                        }
+                        SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                                LightImage->Bitmap->Height);
+                        GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                            pas::shr(LightImage->Bitmap->Height, 1));
+                        if (SourceLightBuffer == nullptr) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(
+                                    "TPlanetGI.SetImage. Error create light buffer."_a));
+                        }
+                        RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                                LightImage->Bitmap->Height);
+                        GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                            pas::shr(LightImage->Bitmap->Height, 1));
+                        if (RotatedLightBuffer == nullptr) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(
+                                    "TPlanetGI.SetImage. Error create light buffer."_a));
+                        }
+                        GR_Main::Ex_OKGR_LightBuf_Init(SourceLightBuffer, 0);
+                        GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
+                        try {
+                            LightRotationCache->SetCacheKey(pas::concat_wide({
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                                u",",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                    LightImage->Bitmap->Width, 1)))), u",",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                    LightImage->Bitmap->Height, 1))))}));
+                        } catch (...) {
+                            pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetGI.SetImage"_a));
+                        }
+                        GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels,
+                            LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes,
+                            LightImage->Bitmap->Palette);
                     } catch (...) {
-                        pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetGI.SetImage"_a));
+                        LightControl->Release();
+                        pas::free(LightControl);
+                        throw;
                     }
-                    GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels, LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes, LightImage->Bitmap->Palette);
-                } catch (...) {
                     LightControl->Release();
                     pas::free(LightControl);
-                    throw;
                 }
-                LightControl->Release();
-                pas::free(LightControl);
+            } catch (...) {
+                SurfaceImageCache->Release();
+                throw;
             }
+            SurfaceImageCache->Release();
         }
         LightAngle = 1;
         SetLightAngle(0);
@@ -185,12 +246,15 @@ namespace GI_Planet {
         Cloud1PaletteCache->SetCacheKey(Path);
         EC_CachePalBitmap::TCPalBitmapEC* Image = EC_CachePalBitmap::AcquireOrCreatePalBitmap(Cloud1ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
+                    pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                }
+            } catch (...) {
                 Cloud1ImageCache->Release();
-            };
-            if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
-                pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                throw;
             }
+            Cloud1ImageCache->Release();
         }
     }
 
@@ -200,12 +264,15 @@ namespace GI_Planet {
         Cloud2PaletteCache->SetCacheKey(Path);
         EC_CachePalBitmap::TCPalBitmapEC* Image = EC_CachePalBitmap::AcquireOrCreatePalBitmap(Cloud2ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
+                    pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                }
+            } catch (...) {
                 Cloud2ImageCache->Release();
-            };
-            if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
-                pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                throw;
             }
+            Cloud2ImageCache->Release();
         }
     }
 
@@ -215,17 +282,21 @@ namespace GI_Planet {
         Cloud3PaletteCache->SetCacheKey(Path);
         EC_CachePalBitmap::TCPalBitmapEC* Image = EC_CachePalBitmap::AcquireOrCreatePalBitmap(Cloud3ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
+                    pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                }
+            } catch (...) {
                 Cloud3ImageCache->Release();
-            };
-            if (MapWidth != Image->Bitmap->Width || MapHeight != Image->Bitmap->Height) {
-                pas::raise(pas::make_exception<pas::Exception>("Cloud size incorrect"_a));
+                throw;
             }
+            Cloud3ImageCache->Release();
         }
     }
 
     // Uses a diameter of 2*Radius+1. Applies the surface-map dimension checks but omits the light-map size check.
-    void TPlanetGI::SetImageWithRadius(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath, std::int32_t Radius) {
+    void TPlanetGI::SetImageWithRadius(const pas::WideString& MaskPath, const pas::WideString& ImagePath,
+        const pas::WideString& LightMapPath, std::int32_t Radius) {
         EC_CachePalBitmap::TCPalBitmapEC* Image{};
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
         EC_CachePalBitmap::TCPalBitmapEC* LightImage{};
@@ -242,59 +313,101 @@ namespace GI_Planet {
         SurfacePaletteCache->SetCacheKey(ImagePath);
         Image = EC_CachePalBitmap::AcquireOrCreatePalBitmap(SurfaceImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                SurfaceImageCache->Release();
-            };
-            MapWidth = Image->Bitmap->Width;
-            MapHeight = Image->Bitmap->Height;
-            if (static_cast<std::uint32_t>(Image->Bitmap->Width) >> 1 < static_cast<std::uint32_t>(Image->Bitmap->Height)) {
-                pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create template planet. (LenX div 2)<LenY"_a));
-            }
-            if (Image->Bitmap->Width != 16 && Image->Bitmap->Width != 32 && Image->Bitmap->Width != 64 && Image->Bitmap->Width != 128 && Image->Bitmap->Width != 256 && Image->Bitmap->Width != 512 && Image->Bitmap->Width != 1024 && Image->Bitmap->Width != 2048) {
-                pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create template planet. LenX<>16 or 32 or 64 or 128 or 256 or 512 or 1024 or 2048"_a));
-            }
-            MapWidthMask = Image->Bitmap->Width - 1;
-            SetSize(ClassesImports::Point(Radius * 2 + 1, Radius * 2 + 1));
-            TemplateCache->SetCacheKey(pas::concat_wide({MaskPath, u"?", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Width))), u",", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Height)))}));
-            LightControl = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
-            EC_Cache::TCacheEC::ResetControl(LightControl);
-            LightControl->SetCacheKey(LightMapPath);
-            LightImage = EC_CachePalBitmap::AcquireOrCreatePalBitmap(LightControl);
-            {
-                try {
-                    SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
-                    if (SourceLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
-                    }
-                    RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
-                    if (RotatedLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
-                    }
-                    GR_Main::Ex_OKGR_LightBuf_Init(SourceLightBuffer, 0);
-                    GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
+            try {
+                MapWidth = Image->Bitmap->Width;
+                MapHeight = Image->Bitmap->Height;
+                if (static_cast<std::uint32_t>(Image->Bitmap->Width) >> 1 <
+                    static_cast<std::uint32_t>(Image->Bitmap->Height)) {
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(
+                            "TPlanetGI.SetImage. Error create template planet. (LenX div 2)<LenY"_a));
+                }
+                if (Image->Bitmap->Width != 16 && Image->Bitmap->Width != 32 && Image->Bitmap->Width != 64 &&
+                    Image->Bitmap->Width != 128 && Image->Bitmap->Width != 256 && Image->Bitmap->Width != 512 &&
+                    Image->Bitmap->Width != 1024 && Image->Bitmap->Width != 2048) {
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(
+                            "TPlanetGI.SetImage. Error create template planet. LenX<>16 or 32 or 64 or 128 or 256 or 512 or 1024 or 2048"_a));
+                }
+                MapWidthMask = Image->Bitmap->Width - 1;
+                SetSize(ClassesImports::Point(Radius * 2 + 1, Radius * 2 + 1));
+                TemplateCache->SetCacheKey(pas::concat_wide({MaskPath, u"?",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Width))),
+                    u",",
+                    pas::wide_int64_to_str(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Height)))}));
+                LightControl =
+                    pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+                EC_Cache::TCacheEC::ResetControl(LightControl);
+                LightControl->SetCacheKey(LightMapPath);
+                LightImage = EC_CachePalBitmap::AcquireOrCreatePalBitmap(LightControl);
+                {
                     try {
-                        LightRotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Width, 1))), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Height, 1)))})));
+                        SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                                LightImage->Bitmap->Height);
+                        GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                            pas::shr(LightImage->Bitmap->Height, 1));
+                        if (SourceLightBuffer == nullptr) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(
+                                    "TPlanetGI.SetImage. Error create light buffer."_a));
+                        }
+                        RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                                LightImage->Bitmap->Height);
+                        GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                            pas::shr(LightImage->Bitmap->Height, 1));
+                        if (RotatedLightBuffer == nullptr) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(
+                                    "TPlanetGI.SetImage. Error create light buffer."_a));
+                        }
+                        GR_Main::Ex_OKGR_LightBuf_Init(SourceLightBuffer, 0);
+                        GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
+                        try {
+                            LightRotationCache->SetCacheKey(pas::concat_wide({
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))),
+                                u",",
+                                pas::wide_int64_to_str(
+                                    static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                                u",",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                    LightImage->Bitmap->Width, 1)))), u",",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                    LightImage->Bitmap->Height, 1))))}));
+                        } catch (...) {
+                            pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetGI.SetImageEx"_a));
+                        }
+                        GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels,
+                            LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes,
+                            LightImage->Bitmap->Palette);
                     } catch (...) {
-                        pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetGI.SetImageEx"_a));
+                        LightControl->Release();
+                        pas::free(LightControl);
+                        throw;
                     }
-                    GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels, LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes, LightImage->Bitmap->Palette);
-                } catch (...) {
                     LightControl->Release();
                     pas::free(LightControl);
-                    throw;
                 }
-                LightControl->Release();
-                pas::free(LightControl);
+            } catch (...) {
+                SurfaceImageCache->Release();
+                throw;
             }
+            SurfaceImageCache->Release();
         }
         LightAngle = 1;
         SetLightAngle(0);
     }
 
     // Uses a diameter of 2*Radius. Reuses an existing surface image and light buffers; ImagePath is used only when the surface cache key is empty.
-    void TPlanetGI::SetImageFromTemplate(const pas::WideString& TemplateKey, const pas::WideString& ImagePath, std::int32_t Radius) {
+    void TPlanetGI::SetImageFromTemplate(const pas::WideString& TemplateKey, const pas::WideString& ImagePath,
+        std::int32_t Radius) {
         EC_CachePalBitmap::TCPalBitmapControlEC* LightControl{};
         EC_CachePalBitmap::TCPalBitmapEC* LightImage{};
         Invalidate();
@@ -306,30 +419,53 @@ namespace GI_Planet {
         SetSize(ClassesImports::Point(Radius * 2, Radius * 2));
         if (SourceLightBuffer == nullptr) {
             MapWidthMask = GlobalsV::SatelliteTemplateParameter1 - 1;
-            LightControl = pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+            LightControl =
+                pas::construct_call<EC_CachePalBitmap::TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(LightControl);
             LightControl->SetCacheKey(GlobalsV::SatelliteLightMapPath);
             LightImage = EC_CachePalBitmap::AcquireOrCreatePalBitmap(LightControl);
             {
                 try {
-                    SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
+                    SourceLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                            LightImage->Bitmap->Height);
+                    GR_Main::Ex_OKGR_LightBuf_SetSme(SourceLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                        pas::shr(LightImage->Bitmap->Height, 1));
                     if (SourceLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
+                        pas::raise(
+                            pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
                     }
-                    RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width, LightImage->Bitmap->Height);
-                    GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1), pas::shr(LightImage->Bitmap->Height, 1));
+                    RotatedLightBuffer = GR_Main::Ex_OKGR_LightBuf_Create(LightImage->Bitmap->Width,
+                            LightImage->Bitmap->Height);
+                    GR_Main::Ex_OKGR_LightBuf_SetSme(RotatedLightBuffer, pas::shr(LightImage->Bitmap->Width, 1),
+                        pas::shr(LightImage->Bitmap->Height, 1));
                     if (RotatedLightBuffer == nullptr) {
-                        pas::raise(pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
+                        pas::raise(
+                            pas::make_exception<pas::Exception>("TPlanetGI.SetImage. Error create light buffer."_a));
                     }
                     GR_Main::Ex_OKGR_LightBuf_Init(SourceLightBuffer, 0);
                     GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
                     try {
-                        LightRotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(LightImage->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Width, 1))), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(LightImage->Bitmap->Height, 1)))})));
+                        LightRotationCache->SetCacheKey(pas::concat_wide({
+                            pas::wide_int64_to_str(
+                                static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))), u",",
+                            pas::wide_int64_to_str(
+                                static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                            u",",
+                            pas::wide_int64_to_str(
+                                static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Width))), u",",
+                            pas::wide_int64_to_str(
+                                static_cast<std::int64_t>(static_cast<std::uint32_t>(LightImage->Bitmap->Height))),
+                            u",",
+                            pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                LightImage->Bitmap->Width, 1)))), u",",
+                            pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                                LightImage->Bitmap->Height, 1))))}));
                     } catch (...) {
                         pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetGI.SetImageSputnik"_a));
                     }
-                    GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels, LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes, LightImage->Bitmap->Palette);
+                    GR_Main::Ex_OKGR_LightBuf_LoadFromPalBuf(SourceLightBuffer, LightImage->Bitmap->Pixels,
+                        LightImage->Bitmap->Width, LightImage->Bitmap->Height, LightImage->Bitmap->PitchBytes,
+                        LightImage->Bitmap->Palette);
                 } catch (...) {
                     LightControl->Release();
                     pas::free(LightControl);
@@ -356,7 +492,19 @@ namespace GI_Planet {
             try {
                 Image = EC_CacheBitmap::AcquireOrCreateBitmap(AtmosphereImageCache);
                 Mask = EC_CacheBitmap::AcquireOrCreateBitmap(AtmosphereMaskCache);
-                AtmosphereRotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(Mask->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Mask->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Mask->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Mask->Bitmap->Height)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(Mask->Bitmap->Width, 1))), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(pas::shr(Mask->Bitmap->Height, 1)))})));
+                AtmosphereRotationCache->SetCacheKey(pas::concat_wide({
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Mask->Bitmap->Width))),
+                    u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Mask->Bitmap->Height))),
+                    u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Mask->Bitmap->Width))),
+                    u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Mask->Bitmap->Height))),
+                    u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                        Mask->Bitmap->Width, 1)))), u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::shr(
+                        Mask->Bitmap->Height, 1))))}));
                 SetSize(ClassesImports::Point(Image->Bitmap->Width, Image->Bitmap->Height));
                 AtmosphereDirty = true;
                 AtmospherePaletteDirty = true;
@@ -384,11 +532,12 @@ namespace GI_Planet {
             Color->G = AtmosphereColor >> 8 & 0x000000ff & 0x000000f8;
             Color->B = AtmosphereColor >> 16 & 0x000000ff & 0x000000f8;
             Color->A = Index & 0x000000f8;
-            Color = reinterpret_cast<GR_GraphBuf::PColorRGBA>(reinterpret_cast<std::uint8_t*>(Color) + static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)));
+            Color = reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Color),
+                    static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
         }
     }
 
-    void TPlanetGI_RebuildAtmosphereImage(TPlanetGI* Self) {
+    void TPlanetGI::RebuildAtmosphereImage() {
         void* ImagePixels{};
         void* MaskPixels{};
         void* DestPixels{};
@@ -405,57 +554,63 @@ namespace GI_Planet {
         {
             std::exception_ptr cpp_error{};
             try {
-                Image = EC_CacheBitmap::AcquireOrCreateBitmap(Self->AtmosphereImageCache);
-                Mask = EC_CacheBitmap::AcquireOrCreateBitmap(Self->AtmosphereMaskCache);
-                Rotation = EC_CacheRotateBuf::AcquireOrCreateRotateBuf(Self->AtmosphereRotationCache);
+                Image = EC_CacheBitmap::AcquireOrCreateBitmap(AtmosphereImageCache);
+                Mask = EC_CacheBitmap::AcquireOrCreateBitmap(AtmosphereMaskCache);
+                Rotation = EC_CacheRotateBuf::AcquireOrCreateRotateBuf(AtmosphereRotationCache);
                 RotatedMask = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-                if (Self->AtmosphereBuffer->Width != Image->Bitmap->Width || Self->AtmosphereBuffer->Height != Image->Bitmap->Height) {
-                    Self->AtmosphereBuffer->AllocateTight(Image->Bitmap->Width, Image->Bitmap->Height, 256);
-                    Self->AtmospherePaletteDirty = true;
+                if (AtmosphereBuffer->Width != Image->Bitmap->Width || AtmosphereBuffer->Height !=
+                        Image->Bitmap->Height) {
+                    AtmosphereBuffer->AllocateTight(Image->Bitmap->Width, Image->Bitmap->Height, 256);
+                    AtmospherePaletteDirty = true;
                 }
-                if (Self->AtmospherePaletteDirty) {
-                    Self->AtmospherePaletteDirty = false;
-                    Self->BuildAtmospherePalette();
+                if (AtmospherePaletteDirty) {
+                    AtmospherePaletteDirty = false;
+                    BuildAtmospherePalette();
                 }
-                RotatedMask->AllocateGrayscale(Mask->Bitmap->Width + pas::shr(Mask->Bitmap->Width, 1), Mask->Bitmap->Height + pas::shr(Mask->Bitmap->Height, 1));
+                RotatedMask->AllocateGrayscale(Mask->Bitmap->Width + pas::shr(Mask->Bitmap->Width, 1),
+                    Mask->Bitmap->Height + pas::shr(Mask->Bitmap->Height, 1));
                 RotatedMask->ClearPixels();
                 {
                     std::int32_t pitchBytes = Mask->Bitmap->PitchBytes;
                     std::int32_t cpp_arg = pas::shr(RotatedMask->Width, 1);
                     std::int32_t cpp_arg_2 = pas::shr(RotatedMask->Height, 1);
-                    std::uint8_t lightAngle = Self->LightAngle;
+                    std::uint8_t lightAngle = LightAngle;
                     void* buffer = Rotation->Buffer;
                     void* pixels = Mask->Bitmap->GetPixels();
                     void* pixels_2 = RotatedMask->GetPixels();
                     std::int32_t pitchBytes_2 = RotatedMask->PitchBytes;
-                    GR_Main::Ex_OKGR_RotateBuf_Draw_BYTE(pixels_2, pitchBytes_2, pixels, pitchBytes, cpp_arg, cpp_arg_2, lightAngle, buffer);
+                    GR_Main::Ex_OKGR_RotateBuf_Draw_BYTE(pixels_2, pitchBytes_2, pixels, pitchBytes, cpp_arg, cpp_arg_2,
+                        lightAngle, buffer);
                 }
                 Width = Image->Bitmap->Width;
                 Height = Image->Bitmap->Height;
                 ImagePixels = Image->Bitmap->GetPixels();
                 {
                     std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(RotatedMask->GetPixels());
-                    std::uint8_t* cpp_left = cpp_left_2 + (pas::shr(RotatedMask->Width, 1) - pas::shr(Width, 1));
-                    MaskPixels = cpp_left + (pas::shr(RotatedMask->Height, 1) - pas::shr(Height, 1)) * RotatedMask->PitchBytes;
+                    std::uint8_t* cpp_left = pas::pointer_add(cpp_left_2,
+                        pas::shr(RotatedMask->Width, 1) - pas::shr(Width, 1));
+                    MaskPixels = pas::pointer_add(cpp_left,
+                            (pas::shr(RotatedMask->Height, 1) - pas::shr(Height, 1)) * RotatedMask->PitchBytes);
                 }
-                DestPixels = Self->AtmosphereBuffer->Pixels;
+                DestPixels = AtmosphereBuffer->Pixels;
                 ImageSkip = Image->Bitmap->PitchBytes - Width;
                 MaskSkip = RotatedMask->PitchBytes - Width;
-                DestSkip = Self->AtmosphereBuffer->PitchBytes - Width;
+                DestSkip = AtmosphereBuffer->PitchBytes - Width;
                 MulTable = GR_Main::Ex_OKGF_MulTable256x256();
                 // This register-based pixel loop is handwritten assembly in the native routine.
-                BitmapPorts::MaskPixels8(ImagePixels, MaskPixels, DestPixels, Width, Height, ImageSkip, MaskSkip, DestSkip, MulTable);
+                BitmapPorts::MaskPixels8(ImagePixels, MaskPixels, DestPixels, Width, Height, ImageSkip, MaskSkip,
+                    DestSkip, MulTable);
             } catch (...) {
                 cpp_error = std::current_exception();
             }
             if (Image != nullptr) {
-                Self->AtmosphereImageCache->Release();
+                AtmosphereImageCache->Release();
             }
             if (Mask != nullptr) {
-                Self->AtmosphereMaskCache->Release();
+                AtmosphereMaskCache->Release();
             }
             if (Rotation != nullptr) {
-                Self->AtmosphereRotationCache->Release();
+                AtmosphereRotationCache->Release();
             }
             if (RotatedMask != nullptr) {
                 pas::free(RotatedMask);
@@ -502,10 +657,14 @@ namespace GI_Planet {
             GR_Main::Ex_OKGR_LightBuf_Init(RotatedLightBuffer, 0);
             Rotation = EC_CacheRotateBuf::AcquireOrCreateRotateBuf(LightRotationCache);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                try {
+                    GR_Main::Ex_OKGR_LightBuf_Rotate(RotatedLightBuffer, SourceLightBuffer, Rotation->Buffer,
+                        LightAngle);
+                } catch (...) {
                     LightRotationCache->Release();
-                };
-                GR_Main::Ex_OKGR_LightBuf_Rotate(RotatedLightBuffer, SourceLightBuffer, Rotation->Buffer, LightAngle);
+                    throw;
+                }
+                LightRotationCache->Release();
             }
             AtmosphereDirty = true;
             Invalidate();
@@ -516,7 +675,8 @@ namespace GI_Planet {
         EC_BlockPar::TBlockParEC* Block{};
         GI_MessageLoop::TObjectGI_LoadFromConfigPath(Self, Path);
         Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
-        if (Block->CountParams(u"Mask"_wref.get()) > 0 || Block->CountParams(u"Image"_wref.get()) > 0 || Block->CountParams(u"ImageLight"_wref.get()) > 0) {
+        if (Block->CountParams(u"Mask"_wref.get()) > 0 || Block->CountParams(u"Image"_wref.get()) > 0 ||
+            Block->CountParams(u"ImageLight"_wref.get()) > 0) {
             const pas::WideString& param = Block->GetParam(u"ImageLight"sv);
             const pas::WideString& param_2 = Block->GetParam(u"Image"sv);
             const pas::WideString& param_3 = Block->GetParam(u"Mask"sv);
@@ -595,7 +755,8 @@ namespace GI_Planet {
                     if (TextureCache == nullptr) {
                         TextureCache = GR_DX::CreateTextureCache();
                     }
-                    if (HitTestBounds.Right - HitTestBounds.Left != TextureSize.X || HitTestBounds.Bottom - HitTestBounds.Top != TextureSize.Y) {
+                    if (HitTestBounds.Right - HitTestBounds.Left != TextureSize.X || HitTestBounds.Bottom -
+                            HitTestBounds.Top != TextureSize.Y) {
                         RenderedMapOffsets[0] = 0x00ffffff;
                         RenderedMapOffsets[1] = RenderedMapOffsets[0];
                         RenderedMapOffsets[2] = RenderedMapOffsets[0];
@@ -604,40 +765,55 @@ namespace GI_Planet {
                             TextureCache->SetSurface(nullptr, Index);
                         }
                     }
-                    TextureSize = ClassesImports::Point(HitTestBounds.Right - HitTestBounds.Left, HitTestBounds.Bottom - HitTestBounds.Top);
+                    TextureSize = ClassesImports::Point(HitTestBounds.Right - HitTestBounds.Left,
+                            HitTestBounds.Bottom - HitTestBounds.Top);
                     Texture = (TextureCache->GetSurface(0, cpp_result), cpp_result);
                     if (SurfaceMapOffset != RenderedMapOffsets[0] || Texture == nullptr) {
                         RenderedMapOffsets[0] = SurfaceMapOffset;
                         if (Texture == nullptr) {
-                            Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
+                            Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8,
+                                    Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
                         }
                         Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                         if (Locked.Bits != nullptr) {
                             if (Image->Bitmap->BytesPerPixel == 2) {
-                                GR_Main::Ex_OKGR_Planet3_DrawAndLight_32(Locked.Bits, Locked.Pitch, Template->TemplateData, Image->Bitmap->Pixels, Image->Bitmap->PitchBytes, MapWidthMask, SurfaceMapOffset, RotatedLightBuffer, Palette->PaletteData, TextureSize.X / 2, TextureSize.Y / 2);
+                                GR_Main::Ex_OKGR_Planet3_DrawAndLight_32(Locked.Bits, Locked.Pitch,
+                                    Template->TemplateData, Image->Bitmap->Pixels, Image->Bitmap->PitchBytes,
+                                    MapWidthMask, SurfaceMapOffset, RotatedLightBuffer, Palette->PaletteData,
+                                    TextureSize.X / 2, TextureSize.Y / 2);
                             } else {
-                                GR_Main::Ex_OKGR_Planet2_DrawAndLight_32(Locked.Bits, Locked.Pitch, Template->TemplateData, Image->Bitmap->Pixels, Image->Bitmap->PitchBytes, MapWidthMask, SurfaceMapOffset, RotatedLightBuffer, Palette->PaletteData, TextureSize.X / 2, TextureSize.Y / 2);
+                                GR_Main::Ex_OKGR_Planet2_DrawAndLight_32(Locked.Bits, Locked.Pitch,
+                                    Template->TemplateData, Image->Bitmap->Pixels, Image->Bitmap->PitchBytes,
+                                    MapWidthMask, SurfaceMapOffset, RotatedLightBuffer, Palette->PaletteData,
+                                    TextureSize.X / 2, TextureSize.Y / 2);
                             }
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 0);
                         }
                     }
-                    GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                    GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect,
+                        false, false);
                     if (HasCloud1) {
                         Texture = (TextureCache->GetSurface(1, cpp_result_3), cpp_result_3);
                         if (Cloud1MapOffset != RenderedMapOffsets[1]) {
                             RenderedMapOffsets[1] = Cloud1MapOffset;
                             if (Texture == nullptr) {
-                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_4), cpp_result_4);
+                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y,
+                                        Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_4),
+                                        cpp_result_4);
                             }
                             Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                             if (Locked.Bits != nullptr) {
-                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch, Template->TemplateData, Cloud1->Bitmap->Pixels, Cloud1->Bitmap->PitchBytes, MapWidthMask, Cloud1MapOffset, RotatedLightBuffer, CloudPalette1->PaletteData, TextureSize.X / 2, TextureSize.Y / 2);
+                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch,
+                                    Template->TemplateData, Cloud1->Bitmap->Pixels, Cloud1->Bitmap->PitchBytes,
+                                    MapWidthMask, Cloud1MapOffset, RotatedLightBuffer, CloudPalette1->PaletteData,
+                                    TextureSize.X / 2, TextureSize.Y / 2);
                             }
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 1);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite,
+                            &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 1);
                     }
@@ -646,16 +822,22 @@ namespace GI_Planet {
                         if (Cloud2MapOffset != RenderedMapOffsets[2]) {
                             RenderedMapOffsets[2] = Cloud2MapOffset;
                             if (Texture == nullptr) {
-                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_6), cpp_result_6);
+                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y,
+                                        Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_6),
+                                        cpp_result_6);
                             }
                             Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                             if (Locked.Bits != nullptr) {
-                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch, Template->TemplateData, Cloud2->Bitmap->Pixels, Cloud2->Bitmap->PitchBytes, MapWidthMask, Cloud2MapOffset, RotatedLightBuffer, CloudPalette2->PaletteData, TextureSize.X / 2, TextureSize.Y / 2);
+                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch,
+                                    Template->TemplateData, Cloud2->Bitmap->Pixels, Cloud2->Bitmap->PitchBytes,
+                                    MapWidthMask, Cloud2MapOffset, RotatedLightBuffer, CloudPalette2->PaletteData,
+                                    TextureSize.X / 2, TextureSize.Y / 2);
                             }
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 2);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite,
+                            &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 2);
                     }
@@ -664,36 +846,47 @@ namespace GI_Planet {
                         if (Cloud3MapOffset != RenderedMapOffsets[3]) {
                             RenderedMapOffsets[3] = Cloud3MapOffset;
                             if (Texture == nullptr) {
-                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_8), cpp_result_8);
+                                Texture = (GR_DX::GR_CreateTexture(TextureSize.X, TextureSize.Y,
+                                        Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_8),
+                                        cpp_result_8);
                             }
                             Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                             if (Locked.Bits != nullptr) {
-                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch, Template->TemplateData, Cloud3->Bitmap->Pixels, Cloud3->Bitmap->PitchBytes, MapWidthMask, Cloud3MapOffset, RotatedLightBuffer, CloudPalette3->PaletteData, TextureSize.X / 2, TextureSize.Y / 2);
+                                GR_Main::Ex_OKGR_Planet4_DrawAndLight_32(Locked.Bits, Locked.Pitch,
+                                    Template->TemplateData, Cloud3->Bitmap->Pixels, Cloud3->Bitmap->PitchBytes,
+                                    MapWidthMask, Cloud3MapOffset, RotatedLightBuffer, CloudPalette3->PaletteData,
+                                    TextureSize.X / 2, TextureSize.Y / 2);
                             }
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 3);
                         }
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite,
+                            &ClipRect, false, false);
                     } else {
                         TextureCache->SetSurface(nullptr, 3);
                     }
-                    if (static_cast<std::uint8_t>(AtmosphereImageCache->HasEmptyCacheKey() ^ 1) && AtmosphereDirty && AtmosphereColor != 0) {
+                    if (!AtmosphereImageCache->HasEmptyCacheKey() && AtmosphereDirty && AtmosphereColor != 0) {
                         AtmosphereDirty = false;
-                        GI_Planet::TPlanetGI_RebuildAtmosphereImage(this);
-                        AtmosphereTextureSize = ClassesImports::Point(AtmosphereBuffer->Width, AtmosphereBuffer->Height);
-                        Texture = (GR_DX::GR_CreateTexture(AtmosphereTextureSize.X, AtmosphereTextureSize.Y, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_9), cpp_result_9);
+                        RebuildAtmosphereImage();
+                        AtmosphereTextureSize = ClassesImports::Point(AtmosphereBuffer->Width,
+                                AtmosphereBuffer->Height);
+                        Texture = (GR_DX::GR_CreateTexture(AtmosphereTextureSize.X, AtmosphereTextureSize.Y,
+                                Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_9), cpp_result_9);
                         if (Texture != nullptr) {
                             Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                             if (Locked.Bits != nullptr) {
-                                GR_Main::ExpandPaletteToBgra(Locked.Bits, Locked.Pitch, AtmosphereTextureSize.X, AtmosphereTextureSize.Y, AtmosphereBuffer->Pixels, AtmosphereBuffer->PitchBytes, AtmosphereBuffer->Palette);
+                                GR_Main::ExpandPaletteToBgra(Locked.Bits, Locked.Pitch, AtmosphereTextureSize.X,
+                                    AtmosphereTextureSize.Y, AtmosphereBuffer->Pixels, AtmosphereBuffer->PitchBytes,
+                                    AtmosphereBuffer->Palette);
                             }
                             Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
                             TextureCache->SetSurface(Texture, 4);
                         }
                     }
                     Texture = (TextureCache->GetSurface(4, cpp_result_10), cpp_result_10);
-                    if (static_cast<std::uint8_t>(AtmosphereImageCache->HasEmptyCacheKey() ^ 1) && Texture != nullptr && AtmosphereColor != 0) {
-                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                    if (!AtmosphereImageCache->HasEmptyCacheKey() && Texture != nullptr && AtmosphereColor != 0) {
+                        GR_DX::DrawTexture(Texture, HitTestBounds.Left, HitTestBounds.Top, 255, GR_DX::RgbWhite,
+                            &ClipRect, false, false);
                     }
                 } else {
                     if (Image->Bitmap->BytesPerPixel == 2) {
@@ -709,7 +902,9 @@ namespace GI_Planet {
                         void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                         void* templateData = Template->TemplateData;
                         std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Planet3_DrawAndLightClip_16(pixels_2, pitchBytes_2, templateData, pixels, pitchBytes, mapWidthMask, surfaceMapOffset, rotatedLightBuffer, paletteData, cpp_arg, cpp_arg_2, clipRect);
+                        GR_Main::Ex_OKGR_Planet3_DrawAndLightClip_16(pixels_2, pitchBytes_2, templateData, pixels,
+                            pitchBytes, mapWidthMask, surfaceMapOffset, rotatedLightBuffer, paletteData, cpp_arg,
+                            cpp_arg_2, clipRect);
                     } else {
                         void* pixels_3 = Image->Bitmap->Pixels;
                         std::int32_t pitchBytes_3 = Image->Bitmap->PitchBytes;
@@ -723,7 +918,9 @@ namespace GI_Planet {
                         void* pixels_4 = GR_Main::ScreenRenderBuffer->GetPixels();
                         void* templateData_2 = Template->TemplateData;
                         std::int32_t pitchBytes_4 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Planet2_DrawAndLightClip_16(pixels_4, pitchBytes_4, templateData_2, pixels_3, pitchBytes_3, mapWidthMask_2, surfaceMapOffset_2, rotatedLightBuffer_2, paletteData_2, cpp_arg_3, cpp_arg_4, clipRect_2);
+                        GR_Main::Ex_OKGR_Planet2_DrawAndLightClip_16(pixels_4, pitchBytes_4, templateData_2, pixels_3,
+                            pitchBytes_3, mapWidthMask_2, surfaceMapOffset_2, rotatedLightBuffer_2, paletteData_2,
+                            cpp_arg_3, cpp_arg_4, clipRect_2);
                     }
                     if (HasCloud1) {
                         void* pixels_5 = Cloud1->Bitmap->Pixels;
@@ -738,7 +935,9 @@ namespace GI_Planet {
                         void* pixels_6 = GR_Main::ScreenRenderBuffer->GetPixels();
                         void* templateData_3 = Template->TemplateData;
                         std::int32_t pitchBytes_6 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_6, pitchBytes_6, templateData_3, pixels_5, pitchBytes_5, mapWidthMask_3, cloud1MapOffset, rotatedLightBuffer_3, paletteData_3, cpp_arg_5, cpp_arg_6, clipRect_3);
+                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_6, pitchBytes_6, templateData_3, pixels_5,
+                            pitchBytes_5, mapWidthMask_3, cloud1MapOffset, rotatedLightBuffer_3, paletteData_3,
+                            cpp_arg_5, cpp_arg_6, clipRect_3);
                     }
                     if (HasCloud2) {
                         void* pixels_7 = Cloud2->Bitmap->Pixels;
@@ -753,7 +952,9 @@ namespace GI_Planet {
                         void* pixels_8 = GR_Main::ScreenRenderBuffer->GetPixels();
                         void* templateData_4 = Template->TemplateData;
                         std::int32_t pitchBytes_8 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_8, pitchBytes_8, templateData_4, pixels_7, pitchBytes_7, mapWidthMask_4, cloud2MapOffset, rotatedLightBuffer_4, paletteData_4, cpp_arg_7, cpp_arg_8, clipRect_4);
+                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_8, pitchBytes_8, templateData_4, pixels_7,
+                            pitchBytes_7, mapWidthMask_4, cloud2MapOffset, rotatedLightBuffer_4, paletteData_4,
+                            cpp_arg_7, cpp_arg_8, clipRect_4);
                     }
                     if (HasCloud3) {
                         void* pixels_9 = Cloud3->Bitmap->Pixels;
@@ -768,20 +969,26 @@ namespace GI_Planet {
                         void* pixels_10 = GR_Main::ScreenRenderBuffer->GetPixels();
                         void* templateData_5 = Template->TemplateData;
                         std::int32_t pitchBytes_10 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_10, pitchBytes_10, templateData_5, pixels_9, pitchBytes_9, mapWidthMask_5, cloud3MapOffset, rotatedLightBuffer_5, paletteData_5, cpp_arg_9, cpp_arg_10, clipRect_5);
+                        GR_Main::Ex_OKGR_Planet4_DrawAndLightClip_16(pixels_10, pitchBytes_10, templateData_5, pixels_9,
+                            pitchBytes_9, mapWidthMask_5, cloud3MapOffset, rotatedLightBuffer_5, paletteData_5,
+                            cpp_arg_9, cpp_arg_10, clipRect_5);
                     }
-                    if (static_cast<std::uint8_t>(AtmosphereImageCache->HasEmptyCacheKey() ^ 1) && AtmosphereDirty && AtmosphereColor != 0) {
+                    if (!AtmosphereImageCache->HasEmptyCacheKey() && AtmosphereDirty && AtmosphereColor != 0) {
                         AtmosphereDirty = false;
-                        GI_Planet::TPlanetGI_RebuildAtmosphereImage(this);
+                        RebuildAtmosphereImage();
                     }
-                    if (static_cast<std::uint8_t>(AtmosphereImageCache->HasEmptyCacheKey() ^ 1) && AtmosphereBuffer->Pixels != nullptr && AtmosphereColor != 0) {
-                        std::int32_t cpp_arg_11 = HitTestBounds.Top + (HitTestBounds.Bottom - HitTestBounds.Top) / 2 - pas::shr(AtmosphereBuffer->Height, 1);
+                    if (!AtmosphereImageCache->HasEmptyCacheKey() && AtmosphereBuffer->Pixels != nullptr &&
+                        AtmosphereColor != 0) {
+                        std::int32_t cpp_arg_11 = HitTestBounds.Top + (HitTestBounds.Bottom - HitTestBounds.Top) / 2 -
+                            pas::shr(AtmosphereBuffer->Height, 1);
                         GR_GraphBufPal::TGraphBufPalGR* atmosphereBuffer = AtmosphereBuffer;
                         WindowsSdk::TRect clipRect_6 = ClipRect;
-                        std::int32_t cpp_arg_12 = HitTestBounds.Left + (HitTestBounds.Right - HitTestBounds.Left) / 2 - pas::shr(AtmosphereBuffer->Width, 1);
+                        std::int32_t cpp_arg_12 = HitTestBounds.Left + (HitTestBounds.Right - HitTestBounds.Left) / 2 -
+                            pas::shr(AtmosphereBuffer->Width, 1);
                         void* pixels_11 = GR_Main::ScreenRenderBuffer->GetPixels();
                         std::int32_t pitchBytes_11 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::BlendPaletteBuffer16Clipped(pixels_11, pitchBytes_11, cpp_arg_12, cpp_arg_11, atmosphereBuffer, clipRect_6);
+                        GR_Main::BlendPaletteBuffer16Clipped(pixels_11, pitchBytes_11, cpp_arg_12, cpp_arg_11,
+                            atmosphereBuffer, clipRect_6);
                     }
                 }
             } catch (...) {
@@ -839,7 +1046,8 @@ namespace GI_Planet {
                     void* pixels_2 = Buffer->GetPixels();
                     void* templateData = Template->TemplateData;
                     std::int32_t pitchBytes_2 = Buffer->PitchBytes;
-                    GR_Main::Ex_OKGR_Planet3_DrawAndLight_32(pixels_2, pitchBytes_2, templateData, pixels, pitchBytes, mapWidthMask, surfaceMapOffset, rotatedLightBuffer, paletteData, cpp_arg, cpp_arg_2);
+                    GR_Main::Ex_OKGR_Planet3_DrawAndLight_32(pixels_2, pitchBytes_2, templateData, pixels, pitchBytes,
+                        mapWidthMask, surfaceMapOffset, rotatedLightBuffer, paletteData, cpp_arg, cpp_arg_2);
                 } else {
                     void* pixels_3 = Image->Bitmap->Pixels;
                     std::int32_t pitchBytes_3 = Image->Bitmap->PitchBytes;
@@ -852,7 +1060,9 @@ namespace GI_Planet {
                     void* pixels_4 = Buffer->GetPixels();
                     void* templateData_2 = Template->TemplateData;
                     std::int32_t pitchBytes_4 = Buffer->PitchBytes;
-                    GR_Main::Ex_OKGR_Planet2_DrawAndLight_32(pixels_4, pitchBytes_4, templateData_2, pixels_3, pitchBytes_3, mapWidthMask_2, surfaceMapOffset_2, rotatedLightBuffer_2, paletteData_2, cpp_arg_3, cpp_arg_4);
+                    GR_Main::Ex_OKGR_Planet2_DrawAndLight_32(pixels_4, pitchBytes_4, templateData_2, pixels_3,
+                        pitchBytes_3, mapWidthMask_2, surfaceMapOffset_2, rotatedLightBuffer_2, paletteData_2,
+                        cpp_arg_3, cpp_arg_4);
                 }
             } catch (...) {
                 cpp_error = std::current_exception();

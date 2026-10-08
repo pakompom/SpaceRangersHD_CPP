@@ -6,8 +6,10 @@ namespace GR_Rect {
 
     void TRectGR_Destroy(TRectGR* Self);
 
-    void TArrayRectGR_Create(TArrayRectGR* Self);
+    inline void TArrayRectGR_Create(TArrayRectGR* Self);
 
     void TArrayRectGR_Destroy(TArrayRectGR* Self);
 
 } // namespace GR_Rect
+
+#include "inline/GR_Rect.hpp"

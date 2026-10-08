@@ -23,7 +23,6 @@
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/Robot.hpp"
-#include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
@@ -58,45 +57,57 @@ namespace fLoadRobot {
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"sv);
         if (GR_Main::ExtraScreenHeight < 0) {
-            Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
+            Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
         } else {
-            Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+            Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfLoadRobot::KeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfLoadRobot::CloseClick>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<&TfLoadRobot::StartClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<
+                &TfLoadRobot::CloseClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<
+                &TfLoadRobot::CloseClick>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<
+                &TfLoadRobot::StartClick>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfLoadRobot::CategoryClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif1"sv));
+            GI_GraphButton::TGraphButtonGI* Dif1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Dif1"sv));
             Dif1->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif1->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv));
+            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Dif2"sv));
             Dif2->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif2->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Dif3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif3"sv));
+            GI_GraphButton::TGraphButtonGI* Dif3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Dif3"sv));
             Dif3->UpCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
             Dif3->DownCallback = pas::bind_method<&TfLoadRobot::DifficultyClick>(this);
         }
@@ -124,17 +135,20 @@ namespace fLoadRobot {
             {
                 auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
-                aMyFunction::ReplaceTextToken(StartText, u"<Star>"_w, std::move(localizedText), textHighlightColorTag.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Star>"_w, std::move(localizedText),
+                    textHighlightColorTag.get());
             }
             {
                 auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
-                aMyFunction::ReplaceTextToken(StartText, u"<Planet>"_w, std::move(localizedText_2), textHighlightColorTag_2.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Planet>"_w, std::move(localizedText_2),
+                    textHighlightColorTag_2.get());
             }
             {
                 auto textHighlightColorTag_3 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
-                aMyFunction::ReplaceTextToken(StartText, u"<Player>"_w, std::move(localizedText_3), textHighlightColorTag_3.get());
+                aMyFunction::ReplaceTextToken(StartText, u"<Player>"_w, std::move(localizedText_3),
+                    textHighlightColorTag_3.get());
             }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(StartText);
             StartText = pas::concat_wide({pas::wide_int_to_str(Difficulty), StartText});
@@ -143,33 +157,39 @@ namespace fLoadRobot {
             {
                 auto textHighlightColorTag_4 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_4 = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
-                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, std::move(localizedText_4), textHighlightColorTag_4.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, std::move(localizedText_4),
+                    textHighlightColorTag_4.get());
             }
             {
                 auto textHighlightColorTag_5 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_5 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
-                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, std::move(localizedText_5), textHighlightColorTag_5.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, std::move(localizedText_5),
+                    textHighlightColorTag_5.get());
             }
             {
                 auto textHighlightColorTag_6 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_6 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
-                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, std::move(localizedText_6), textHighlightColorTag_6.get());
+                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, std::move(localizedText_6),
+                    textHighlightColorTag_6.get());
             }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(WinText);
             {
                 auto textHighlightColorTag_7 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_7 = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
-                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, std::move(localizedText_7), textHighlightColorTag_7.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, std::move(localizedText_7),
+                    textHighlightColorTag_7.get());
             }
             {
                 auto textHighlightColorTag_8 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_8 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
-                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, std::move(localizedText_8), textHighlightColorTag_8.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, std::move(localizedText_8),
+                    textHighlightColorTag_8.get());
             }
             {
                 auto textHighlightColorTag_9 = pas::borrow(aMyFunction::TextHighlightColorTag);
                 pas::WideString localizedText_9 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
-                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, std::move(localizedText_9), textHighlightColorTag_9.get());
+                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, std::move(localizedText_9),
+                    textHighlightColorTag_9.get());
             }
             aConst::ExpandLocalizedTextMarkupAndPrefixLines(LossText);
             TerronName = aConst::LocalizedText(u"FormLoadRobot.PPlace"_wref.get());
@@ -183,9 +203,11 @@ namespace fLoadRobot {
                     if (BattleResult == 3) {
                         LoadCompletionData();
                         if (Difficulty == 1) {
-                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
+                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id,
+                                -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
                         } else {
-                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 1);
+                            RecordCompletion(Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id,
+                                -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 1);
                         }
                         SaveCompletionData();
                     }
@@ -199,20 +221,24 @@ namespace fLoadRobot {
                 if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
                     GR_Main::CaptureScreenBackground(true, 0);
                 }
-                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
             } else {
                 BattleResult = 0;
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup0"sv));
                 ButGroup0->SetDown(Category == 0);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup1"sv));
                 ButGroup1->SetDown(Category == 1);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup2"sv));
                 ButGroup2->SetDown(Category == 2);
             }
             RebuildEntries();
@@ -248,11 +274,14 @@ namespace fLoadRobot {
         if (CheatKeys) {
             if (EC_Str::FindTextOffsetW(KeyHistory, u"WIN"_wref.get(), 0) >= 0) {
                 KeyHistory = pas::WideString();
-                if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0) {
+                if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >=
+                        0) {
                     LoadCompletionData();
-                    while (Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
+                    while (Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <=
+                            Globals::RobotMapDefinitions.length() - 1) {
                         MapId = Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].Id;
-                        if (MapId >= 0 && MapId < (CompletionData.length() - 1 + 1) / 2 && CompletionData[MapId * 2 + 1] != 0) {
+                        if (MapId >= 0 && MapId < (CompletionData.length() - 1 + 1) / 2 && CompletionData[MapId * 2 +
+                                1] != 0) {
                             break;
                         }
                         RecordCompletion(MapId, 0, 1);
@@ -268,14 +297,18 @@ namespace fLoadRobot {
         } else if (Key == 'R') {
             CloseClick(Sender);
         } else if (Key == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
-                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
+                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position -
+                    PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (Key == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
-                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
+                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position +
+                    PanelSlot_2->VerticalScrollBar->LargeChange);
             }
         } else if (Key == WindowsSdk::VK_HOME) {
             if (Entries.length() - 1 + 1 > 0 && Entries[0].Access <= UnlockedAccess) {
@@ -332,12 +365,14 @@ namespace fLoadRobot {
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
-                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
+                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position -
+                    Panel->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
-                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->SmallChange);
+                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position +
+                    Panel->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         }
@@ -365,13 +400,15 @@ namespace fLoadRobot {
         pas::WideString Path{};
         std::uint32_t FindHandle{};
         WindowsSdk::TWin32FindDataW FindData{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         LoadCompletionData();
         std::int32_t Y = 0;
         Entries = nullptr;
         if (Category == 0 || Category == 1) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, Globals::RobotMapDefinitions.length() - 1); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                Globals::RobotMapDefinitions.length() - 1); cpp_range.next(I); ) {
                 if (Globals::RobotMapDefinitions[I].Group == Category) {
                     EntryIndex = InsertEntry(Globals::RobotMapDefinitions[I].Access);
                     Entries[EntryIndex].Name = Globals::RobotMapDefinitions[I].Name;
@@ -382,7 +419,8 @@ namespace fLoadRobot {
                 }
             }
         } else {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Globals::RobotMapDefinitions.length() - 1); cpp_range_2.next(I); ) {
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                Globals::RobotMapDefinitions.length() - 1); cpp_range_2.next(I); ) {
                 if (Globals::RobotMapDefinitions[I].Group == Category) {
                     EntryIndex = InsertEntry(0);
                     Entries[EntryIndex].Name = Globals::RobotMapDefinitions[I].Name;
@@ -396,22 +434,28 @@ namespace fLoadRobot {
             if (GR_Main::InstallConfig->CountParams(u"RobotPath"_wref.get()) > 0) {
                 Path = GR_Main::InstallConfig->GetParam(u"RobotPath"sv);
             }
-            FindHandle = WindowsSdk::FindFirstFileW((cpp_text = pas::concat_wide({Path, u"Matrix\\Map\\*.cmap"}), cpp_text.pchar()), FindData);
+            FindHandle = WindowsSdk::FindFirstFileW(
+                    (cpp_text = pas::concat_wide({Path, u"Matrix\\Map\\*.cmap"}), cpp_text.pchar()), FindData);
             if (FindHandle != WindowsImports::INVALID_HANDLE_VALUE) {
                 do {
                     if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) == 0) {
-                        Path = EC_Str::TrimWideString(EC_Str::LowerCaseWideString(pas::array_text<pas::WideString>(FindData.cFileName.elements, 260)));
+                        Path = EC_Str::TrimWideString(EC_Str::LowerCaseWideString(pas::array_text<pas::WideString>(
+                                FindData.cFileName.elements, 260)));
                         I = 0;
                         while (I <= Globals::RobotMapDefinitions.length() - 1) {
-                            if (Path == EC_Str::TrimWideString(EC_Str::LowerCaseWideString(Globals::RobotMapDefinitions[I].Map))) {
+                            if (Path ==
+                                EC_Str::TrimWideString(
+                                    EC_Str::LowerCaseWideString(Globals::RobotMapDefinitions[I].Map))) {
                                 break;
                             }
                             ++I;
                         }
                         if (I > Globals::RobotMapDefinitions.length() - 1) {
                             EntryIndex = InsertEntry(0);
-                            Entries[EntryIndex].Name = EC_Str::ExtractFileNameNoExtW(pas::array_text<pas::WideString>(FindData.cFileName.elements, 260));
-                            Entries[EntryIndex].FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
+                            Entries[EntryIndex].Name = EC_Str::ExtractFileNameNoExtW(pas::array_text<pas::WideString>(
+                                    FindData.cFileName.elements, 260));
+                            Entries[EntryIndex].FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements,
+                                    260);
                             Entries[EntryIndex].MapIndex = -1;
                             Entries[EntryIndex].Side = 0;
                             Entries[EntryIndex].Length = -1;
@@ -475,12 +519,15 @@ namespace fLoadRobot {
             cpp_with->SetDepth(1.0E+1);
             if (Entries[Index].Access <= UnlockedAccess) {
                 if (!Entries[Index].AlternateBackground) {
-                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotNormal"}));
+                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                        u"SlotNormal"}));
                 } else {
-                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotNormal2"}));
+                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                        u"SlotNormal2"}));
                 }
             } else {
-                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotDisabled"}));
+                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"SlotDisabled"}));
             }
             cpp_with->SetSize(cpp_with->GetContentSize());
             Panel->SetSize(cpp_with->ClientSize);
@@ -491,12 +538,15 @@ namespace fLoadRobot {
             GI_Image::TImageGI* cpp_with_2 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             cpp_with_2->SetDepth(9.0);
             if (Entries[Index].Access <= UnlockedAccess) {
-                cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconKeller"}));
+                cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconKeller"}));
             } else {
-                cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconKellerD"}));
+                cpp_with_2->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconKellerD"}));
             }
             cpp_with_2->SetSize(cpp_with_2->GetContentSize());
-            cpp_with_2->SetPosition(ClassesImports::Point(RightEdge - cpp_with_2->ClientSize.X, Panel->ClientSize.Y / 2 - cpp_with_2->ClientSize.Y / 2));
+            cpp_with_2->SetPosition(ClassesImports::Point(RightEdge - cpp_with_2->ClientSize.X,
+                Panel->ClientSize.Y / 2 - cpp_with_2->ClientSize.Y / 2));
             cpp_with_2->SetActive(true);
             RightEdge = RightEdge - cpp_with_2->ClientSize.X - 1;
         }
@@ -504,12 +554,15 @@ namespace fLoadRobot {
             GI_Image::TImageGI* cpp_with_3 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             cpp_with_3->SetDepth(9.0);
             if (Entries[Index].Access <= UnlockedAccess) {
-                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconTerron"}));
+                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconTerron"}));
             } else {
-                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconTerronD"}));
+                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconTerronD"}));
             }
             cpp_with_3->SetSize(cpp_with_3->GetContentSize());
-            cpp_with_3->SetPosition(ClassesImports::Point(RightEdge - cpp_with_3->ClientSize.X, Panel->ClientSize.Y / 2 - cpp_with_3->ClientSize.Y / 2));
+            cpp_with_3->SetPosition(ClassesImports::Point(RightEdge - cpp_with_3->ClientSize.X,
+                Panel->ClientSize.Y / 2 - cpp_with_3->ClientSize.Y / 2));
             cpp_with_3->SetActive(true);
             RightEdge = RightEdge - cpp_with_3->ClientSize.X - 1;
         }
@@ -517,12 +570,15 @@ namespace fLoadRobot {
             GI_Image::TImageGI* cpp_with_4 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
             cpp_with_4->SetDepth(9.0);
             if (Entries[Index].Access <= UnlockedAccess) {
-                cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconBlazer"}));
+                cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconBlazer"}));
             } else {
-                cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"IconBlazerD"}));
+                cpp_with_4->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                    u"IconBlazerD"}));
             }
             cpp_with_4->SetSize(cpp_with_4->GetContentSize());
-            cpp_with_4->SetPosition(ClassesImports::Point(RightEdge - cpp_with_4->ClientSize.X, Panel->ClientSize.Y / 2 - cpp_with_4->ClientSize.Y / 2));
+            cpp_with_4->SetPosition(ClassesImports::Point(RightEdge - cpp_with_4->ClientSize.X,
+                Panel->ClientSize.Y / 2 - cpp_with_4->ClientSize.Y / 2));
             cpp_with_4->SetActive(true);
             RightEdge = RightEdge - cpp_with_4->ClientSize.X - 1;
         }
@@ -532,16 +588,21 @@ namespace fLoadRobot {
             if (MapId >= 0 && MapId < (CompletionData.length() - 1 + 1) / 2) {
                 MapIndex = CompletionData[MapId * 2 + 1];
                 if (MapIndex != 0) {
-                    GI_Image::TImageGI* cpp_with_5 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
+                    GI_Image::TImageGI* cpp_with_5 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                        Panel);
                     cpp_with_5->SetPosition(ClassesImports::Point(0, 0));
                     cpp_with_5->SetDepth(9.0);
                     if (MapIndex == 1) {
-                        cpp_with_5->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_06"}));
+                        cpp_with_5->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                            u"_06"}));
                     } else {
-                        cpp_with_5->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_13"}));
+                        cpp_with_5->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                            u"_13"}));
                     }
                     cpp_with_5->SetSize(cpp_with_5->GetContentSize());
-                    cpp_with_5->SetPosition(ClassesImports::Point(Panel->ClientSize.X - cpp_with_5->ClientSize.X - GR_Main::GiScalePixels(10), Panel->ClientSize.Y / 2 - cpp_with_5->ClientSize.Y / 2));
+                    cpp_with_5->SetPosition(ClassesImports::Point(
+                        Panel->ClientSize.X - cpp_with_5->ClientSize.X - GR_Main::GiScalePixels(10),
+                        Panel->ClientSize.Y / 2 - cpp_with_5->ClientSize.Y / 2));
                     cpp_with_5->SetActive(true);
                 }
             }
@@ -550,10 +611,12 @@ namespace fLoadRobot {
             GI_Label::TLabelGI* cpp_with_6 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
             if (GR_Main::GiResourceVariant() == 1) {
                 cpp_with_6->SetPosition(ClassesImports::Point(11, 0));
-                cpp_with_6->SetSize(ClassesImports::Point(RightEdge - cpp_with_6->LocalPosition.X, Panel->ClientSize.Y));
+                cpp_with_6->SetSize(ClassesImports::Point(RightEdge - cpp_with_6->LocalPosition.X,
+                    Panel->ClientSize.Y));
             } else {
                 cpp_with_6->SetPosition(ClassesImports::Point(14, 0));
-                cpp_with_6->SetSize(ClassesImports::Point(RightEdge - cpp_with_6->LocalPosition.X, Panel->ClientSize.Y));
+                cpp_with_6->SetSize(ClassesImports::Point(RightEdge - cpp_with_6->LocalPosition.X,
+                    Panel->ClientSize.Y));
             }
             cpp_with_6->SetDepth(7.0);
             cpp_with_6->SetFontName(GlobalsV::NormalFontName);
@@ -583,7 +646,8 @@ namespace fLoadRobot {
             do {
                 if (MapIndex >= 0 && MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                     MapId = Globals::RobotMapDefinitions[MapIndex].Id;
-                    if (MapId >= 0 && MapId < (CompletionData.length() - 1 + 1) / 2 && CompletionData[MapId * 2 + 1] != 0) {
+                    if (MapId >= 0 && MapId < (CompletionData.length() - 1 + 1) / 2 && CompletionData[MapId * 2 + 1] !=
+                            0) {
                         RightEdge = CompletionData[MapId * 2];
                         Hours = RightEdge / 3600;
                         Minutes = (RightEdge - Hours * 3600) / 60;
@@ -601,10 +665,12 @@ namespace fLoadRobot {
                         }
                         TimeText = pas::concat_wide({TimeText, pas::wide_int_to_str(Seconds)});
                         TimeText = ([&] {
-                            const pas::WideString& localizedText = aConst::LocalizedText(u"FormLoadRobot.Time"_wref.get());
-                            const pas::WideString& timeText = TimeText;
-                            return EC_Str::ReplaceAllWideString(localizedText, u"<Val>"_wref.get(), pas::view(timeText));
-                        }());
+                                const pas::WideString& localizedText = aConst::LocalizedText(
+                                    u"FormLoadRobot.Time"_wref.get());
+                                const pas::WideString& timeText = TimeText;
+                                return EC_Str::ReplaceAllWideString(localizedText, u"<Val>"_wref.get(),
+                                    pas::view(timeText));
+                            }());
                         cpp_with_7->SetText(TimeText);
                         break;
                     }
@@ -612,7 +678,8 @@ namespace fLoadRobot {
                 if (Entries[Index].Length < 0) {
                     cpp_with_7->SetText(u""_wref.get());
                 } else {
-                    cpp_with_7->SetText(aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"FormLoadRobot.Length", SysUtils::IntToStr(Entries[Index].Length)}))));
+                    cpp_with_7->SetText(aConst::LocalizedText(pas::concat_wide({u"FormLoadRobot.Length",
+                        pas::wide_int_to_str(Entries[Index].Length)})));
                 }
             } while (!true);
             if (Entries[Index].Access <= UnlockedAccess) {
@@ -657,13 +724,17 @@ namespace fLoadRobot {
             return;
         }
         if (SelectedIndex == Index) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotActive"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                u"SlotActive"}));
         } else if (HoveredIndex == Index) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotOnMouse"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                u"SlotOnMouse"}));
         } else if (!Entries[Index].AlternateBackground) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotNormal"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                u"SlotNormal"}));
         } else {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(), u"SlotNormal2"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadRobot.", GR_Main::GiResourceSuffix(),
+                u"SlotNormal2"}));
         }
     }
 
@@ -693,7 +764,8 @@ namespace fLoadRobot {
         UpdateEntryImage(HoveredIndex);
     }
 
-    void TfLoadRobot::EntryMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfLoadRobot::EntryMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (BattleResult != 0) {
             return;
         }
@@ -701,7 +773,8 @@ namespace fLoadRobot {
         SelectEntry(Sender->UserValue);
     }
 
-    void TfLoadRobot::EntryDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfLoadRobot::EntryDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         StartClick(nullptr);
     }
 
@@ -713,7 +786,8 @@ namespace fLoadRobot {
         if (Category == NewCategory) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSlot"sv));
         Panel->ScrollRectIntoView(ClassesImports::Rect(0, 0, 1, 1));
         Category = NewCategory;
         SelectedIndex = -1;
@@ -753,7 +827,8 @@ namespace fLoadRobot {
         std::uint8_t Success{};
         EC_Buf::TBufEC* Buffer{};
         {
-            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv));
+            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButStart"sv));
             ButStart->SetDisabled(SelectedIndex < 0 || SelectedIndex > Entries.length() - 1);
         }
         {
@@ -761,10 +836,12 @@ namespace fLoadRobot {
             ImageMap->SetActive(false);
             if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1) {
                 if (EC_Str::CountDelimitedPartsW(pas::view(Entries[SelectedIndex].FileName), u"\\/"sv) == 1) {
-                    Text = pas::concat_wide({u"Matrix\\Map\\", EC_Str::ExtractFileNameNoExtW(Entries[SelectedIndex].FileName), u".jpg"});
+                    Text = pas::concat_wide({u"Matrix\\Map\\",
+                            EC_Str::ExtractFileNameNoExtW(Entries[SelectedIndex].FileName), u".jpg"});
                 } else {
                     MapName = Entries[SelectedIndex].FileName;
-                    Extension = EC_Str::ExtractDelimitedPartW(pas::view(MapName), EC_Str::CountDelimitedPartsW(pas::view(MapName), u"."sv) - 1, u"."sv);
+                    Extension = EC_Str::ExtractDelimitedPartW(pas::view(MapName),
+                            EC_Str::CountDelimitedPartsW(pas::view(MapName), u"."sv) - 1, u"."sv);
                     Text = EC_Str::ReplaceAllWideString(Entries[SelectedIndex].FileName, Extension, u"jpg"sv);
                 }
                 F = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -777,7 +854,8 @@ namespace fLoadRobot {
                     ImageMap->SetActive(true);
                     ImageMap->GraphBuf->LoadImageRgb(Buffer);
                     ImageMap->SourceHasPerPixelAlpha = false;
-                    if (ImageMap->ClientSize.X != ImageMap->GraphBuf->Width || ImageMap->ClientSize.Y != ImageMap->GraphBuf->Height) {
+                    if (ImageMap->ClientSize.X != ImageMap->GraphBuf->Width || ImageMap->ClientSize.Y !=
+                            ImageMap->GraphBuf->Height) {
                         ImageMap->GraphBuf->RescaleRgb(ImageMap->ClientSize.X, ImageMap->ClientSize.Y);
                     }
                     ImageMap->GraphBuf->ConvertRgbTo565();
@@ -790,39 +868,49 @@ namespace fLoadRobot {
         {
             GI_Label::TLabelGI* with_MessageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"MessageText"sv));
             with_MessageText->SetActive(false);
-            if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
+            if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 &&
+                Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                 with_MessageText->SetActive(true);
                 Text = Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].GovTextStart;
                 {
                     auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText = aConst::LocalizedText(u"FormLoadRobot.PStar"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, std::move(localizedText), brightBlueColorTag.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, std::move(localizedText),
+                        brightBlueColorTag.get());
                 }
                 {
                     auto brightBlueColorTag_2 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadRobot.PPlanet"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, std::move(localizedText_2), brightBlueColorTag_2.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, std::move(localizedText_2),
+                        brightBlueColorTag_2.get());
                 }
                 {
                     auto brightBlueColorTag_3 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadRobot.PPlayer"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, std::move(localizedText_3), brightBlueColorTag_3.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, std::move(localizedText_3),
+                        brightBlueColorTag_3.get());
                 }
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(1000), aMyFunction::BrightBlueColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(1000),
+                    aMyFunction::BrightBlueColorTag);
                 with_MessageText->SetText(Text);
                 Text = Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].FromAuthor;
                 if (Text != u"") {
-                    with_MessageText->SetText(pas::concat_wide({with_MessageText->GetText(), u"\r\n", u" ", u"\r\n", Text}));
+                    with_MessageText->SetText(pas::concat_wide({with_MessageText->GetText(), u"\r\n", u" ", u"\r\n",
+                        Text}));
                 }
             }
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"MessageWindow"sv));
             MessageWindow->SetScrollOffset(ClassesImports::Point(0, 0));
             MessageWindow->UpdateScrollRanges();
-            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
+            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active &&
+                pas::checked_cast<GI_Label::TLabelGI*>(
+                    MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(
+                    MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = MessageWindow->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -831,9 +919,11 @@ namespace fLoadRobot {
         }
         Success = false;
         {
-            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Dif2"sv));
+            GI_GraphButton::TGraphButtonGI* Dif2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Dif2"sv));
             Dif2->SetDisabled(false);
-            if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 && Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
+            if (SelectedIndex >= 0 && SelectedIndex <= Entries.length() - 1 && Entries[SelectedIndex].MapIndex >= 0 &&
+                Entries[SelectedIndex].MapIndex <= Globals::RobotMapDefinitions.length() - 1) {
                 if (Globals::RobotMapDefinitions[Entries[SelectedIndex].MapIndex].ReinforcementsDisabled) {
                     if (Dif2->Down) {
                         Dif2->SetDown(false);
@@ -861,14 +951,14 @@ namespace fLoadRobot {
                 Buffer->LoadFromWideFilePath(FileName.pchar());
                 {
                     std::uint32_t cpp_left = Buffer->ComputeCrc32Range(4, Buffer->DataSize);
-                    if (cpp_left != EC_Buf::TBufEC_GetUInt32(Buffer)) {
+                    if (cpp_left != Buffer->GetUInt32()) {
                         SysUtilsImports::Abort();
                     }
                 }
-                Count = EC_Buf::TBufEC_GetInt32(Buffer);
+                Count = Buffer->GetInt32();
                 CompletionData.set_length(Count);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                    CompletionData[I] = EC_Buf::TBufEC_GetInt32(Buffer);
+                    CompletionData[I] = Buffer->GetInt32();
                 }
                 pas::free(Buffer);
             } catch (...) {
@@ -891,9 +981,11 @@ namespace fLoadRobot {
                 }
             }
         }
-        pas::store_unaligned<std::uint32_t>(static_cast<System::PCardinal>(Buffer->Data), Buffer->ComputeCrc32Range(4, Buffer->DataSize));
+        pas::store_unaligned<std::uint32_t>(static_cast<System::PCardinal>(Buffer->Data),
+            Buffer->ComputeCrc32Range(4, Buffer->DataSize));
         EC_File::TFileEC* F = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
-        FileName = static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"robotcomplate.dat"}));
+        FileName = static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+                u"robotcomplate.dat"}));
         F->SetFileName(static_cast<pas::WideString>(FileName));
         F->CreateNew();
         F->WriteBuffer(Buffer->Data, Buffer->DataSize);
@@ -1011,7 +1103,7 @@ namespace fLoadRobot {
                 }
             }
         }
-        return static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Counts.X), "/", SysUtils::IntToStr(Total)}));
+        return pas::concat_wide({pas::wide_int_to_str(Counts.X), u"/", pas::wide_int_to_str(Total)});
     }
 
     void TfLoadRobot::SelectMusic() {

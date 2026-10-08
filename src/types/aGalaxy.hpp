@@ -211,7 +211,8 @@ namespace aGalaxy {
         void GenerateGalaxyLayout(aGalaxyStruct::TOwnerId PlayerRace);
         // Requires constellation ID 20 and generated compatible outlines. Merges its visible outline into a neighbor and retains backups for RestoreHiddenForm.
         void HideSpecialConstellation();
-        std::int32_t CountVisibleConstellationsWithBoundaryPoints(EC_Struct::TPointF FirstPoint, EC_Struct::TPointF SecondPoint);
+        std::int32_t CountVisibleConstellationsWithBoundaryPoints(EC_Struct::TPointF FirstPoint,
+            EC_Struct::TPointF SecondPoint);
         std::int32_t CountEligibleRangers();
         void RefreshRangerWealthStats();
         void RefreshRangerStrengthStats();
@@ -259,13 +260,18 @@ namespace aGalaxy {
         std::int32_t ScaleIntByTechLevel(std::int32_t AtLevelTwo, std::int32_t AtLevelSeven);
         float InterpolateSingleByTechLevel(float AtLevelTwo, float AtLevelSeven);
         // Borrowed template. Uses the closest eligible technology when the interval has no match; falls back to the first built-in template when no availability matches.
-        aConst::PWeaponInfo SelectWeaponInfo(std::uint32_t Seed, aGalaxyStruct::TWeaponAvailabilityMask AvailabilityMask, std::uint8_t MaximumTechLevel, std::uint8_t MinimumTechLevel);
+        aConst::PWeaponInfo SelectWeaponInfo(std::uint32_t Seed,
+            aGalaxyStruct::TWeaponAvailabilityMask AvailabilityMask, std::uint8_t MaximumTechLevel,
+            std::uint8_t MinimumTechLevel);
         // Zero-based index; Context may be a planet or ship, or nil. Relaxes the priority interval after repeated misses. No termination guarantee when every template fails the context filter.
-        static std::int32_t SelectMicroModule(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority, std::uint32_t Seed, pas::Object* Context);
+        static std::int32_t SelectMicroModule(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority,
+            std::uint32_t Seed, pas::Object* Context);
         // Zero-based index. The final attempt-limit fallback can return an incompatible module; callers must check CanInstallMicroModule. Context rejection can bypass the attempt-limit check.
-        static std::int32_t SelectMicroModuleForEquipment(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority, std::uint32_t Seed, pas::Object* Context, void* Item);
+        static std::int32_t SelectMicroModuleForEquipment(std::uint8_t MinimumPriority, std::uint8_t MaximumPriority,
+            std::uint32_t Seed, pas::Object* Context, void* Item);
         // Zero-based series index or -1; advances Self.RandomState.
-        std::int32_t SelectHullSeries(aGalaxyStruct::TOwnerId OwnerId, aGalaxyStruct::THullType HullType, std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
+        std::int32_t SelectHullSeries(aGalaxyStruct::TOwnerId OwnerId, aGalaxyStruct::THullType HullType,
+            std::uint8_t MinimumRarity, std::uint8_t MaximumRarity);
         // Invalid series values return false.
         std::uint8_t IsDominatorSeriesUnresolved(aGalaxyStruct::TDominatorSeries Series);
         // True if any selected series is unresolved; false for an empty set.
@@ -339,7 +345,8 @@ namespace aGalaxy {
         // Returns 0..9; tier boundaries are 6, 14, 22, and subsequent increments of eight.
         TDifficultyTier GetDifficultyTierIndex();
         // A negative Level selects the effective difficulty; values above 24 extrapolate.
-        float InterpolateDifficulty(std::int32_t Level, float AtZero, float AtEight, float AtSixteen, float AtTwentyFour);
+        float InterpolateDifficulty(std::int32_t Level, float AtZero, float AtEight, float AtSixteen,
+            float AtTwentyFour);
         // A negative Level selects the effective difficulty.
         float ScaleDifficultyExponentially(std::int32_t Level, float BaseValue, float FactorPerEightLevels);
         float GetDominatorBossHullScale();
@@ -564,7 +571,8 @@ namespace aGalaxy {
         // Returns the sum of the new goods' Cost, not their quantity. Nonpositive Quantity creates no drops and returns zero.
         std::int32_t DropMinerals(std::int32_t Quantity, EC_Struct::TPointF Position, std::uint32_t Seed);
         // Requires a player. Achievement progress is independent of eligibility for a planet's reward or complaint.
-        void ProcessPlayerAsteroidKill(std::int32_t MineralValue, EC_Struct::TPointF Position, std::uint32_t AsteroidId);
+        void ProcessPlayerAsteroidKill(std::int32_t MineralValue, EC_Struct::TPointF Position,
+            std::uint32_t AsteroidId);
         // Clears weapon, missile and queued attack references; accepts any target class. Nil is a no-op.
         void ClearTargetReferences(pas::Object* Target);
         // Clears attack, landing and combat-event references without removing or freeing Ship. Nil is a no-op.
@@ -580,7 +588,8 @@ namespace aGalaxy {
         void AvoidShipPathCollisions();
         // Normal-space ships only; uses MovementStepCount.
         void RebuildShipMovementPaths();
-        void OpenSpaceScene(GI_Panel::TPanelGI* MapPanel, GI_MessageLoop::TObjectGI* Minimap, GI_MessageLoop::TMessageLoopGI* Screen);
+        void OpenSpaceScene(GI_Panel::TPanelGI* MapPanel, GI_MessageLoop::TObjectGI* Minimap,
+            GI_MessageLoop::TMessageLoopGI* Screen);
         void RefreshSpaceObjectPositions();
         void QueueSpaceImageLoads(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner);
         void QueueHyperspaceShipImageLoads(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner);
@@ -591,7 +600,8 @@ namespace aGalaxy {
         void RefreshDominatorSeries();
         void RefreshDerivedStats();
         // Applies campaign-ending and liberation-contribution rules; not a raw ship-presence query.
-        void GetControlPresence(std::uint8_t& PlayerPartyPresent, std::uint8_t& CoalitionPresent, std::uint8_t& DominatorsPresent, std::uint8_t& PiratesPresent, std::uint8_t& CustomPresent);
+        void GetControlPresence(std::uint8_t& PlayerPartyPresent, std::uint8_t& CoalitionPresent,
+            std::uint8_t& DominatorsPresent, std::uint8_t& PiratesPresent, std::uint8_t& CustomPresent);
         // Can transfer planet ownership and emit capture news. Pirate ending 3 prevents new Pirate Clan captures.
         void UpdateControlFaction();
         // Reevaluates ownership after clearing a custom faction, resets liberation contributions and can clear NPC prison terms. No-op without a player.
@@ -615,18 +625,23 @@ namespace aGalaxy {
         // Uses cached population counts.
         std::int32_t CountShipsByTypeMask(aGalaxyStruct::TShipTypeMask ShipTypeMask);
         // Excludes bosses, scripted-standing ships and Dominators with a positive ActiveProgramAppliedTurn. Strength is an Extended output.
-        std::int32_t CountDominatorForces(aGalaxyStruct::TDominatorSeries Series, std::uint8_t ExcludeAbsoluteOrders, std::uint8_t OtherSeries, pas::Extended& Strength);
+        std::int32_t CountDominatorForces(aGalaxyStruct::TDominatorSeries Series, std::uint8_t ExcludeAbsoluteOrders,
+            std::uint8_t OtherSeries, double& Strength);
         // Counts normal-space types 1..5; excludes bosses and scripted standing.
         std::int32_t CountStandardDominatorsOfLocalSeries();
         // Requires pirate ownership. IncludeIndependent also includes the pirate player.
-        std::int32_t CountPirateForces(std::uint8_t ExcludeAbsoluteOrders, pas::Extended& Strength, std::uint8_t IncludeClanVariants, std::uint8_t IncludeIndependent);
-        std::int32_t CountCustomFactionForces(std::uint8_t ExcludeAbsoluteOrders, pas::WideString& Faction, pas::Extended& Strength);
+        std::int32_t CountPirateForces(std::uint8_t ExcludeAbsoluteOrders, double& Strength,
+            std::uint8_t IncludeClanVariants, std::uint8_t IncludeIndependent);
+        std::int32_t CountCustomFactionForces(std::uint8_t ExcludeAbsoluteOrders, pas::WideString& Faction,
+            double& Strength);
         // Faction is empty when counted ships do not share one nonempty faction tag.
-        std::int32_t CountOtherCustomFactionForces(std::uint8_t ExcludeAbsoluteOrders, pas::WideString& Faction, pas::Extended& Strength);
+        std::int32_t CountOtherCustomFactionForces(std::uint8_t ExcludeAbsoluteOrders, pas::WideString& Faction,
+            double& Strength);
         // Includes the pirate player; excludes scripted standing.
         std::int32_t CountPirateShips(std::uint8_t IncludeOutsideStarSpace);
         // Includes local garrison ships absent from Ships, avoiding duplicate list entries.
-        std::int32_t CountForcesByOwnerGroups(pas::Extended& Strength, std::uint8_t IncludeCoalition, std::uint8_t IncludeDominators, std::uint8_t IncludePirates, std::uint8_t IncludeCustom);
+        std::int32_t CountForcesByOwnerGroups(double& Strength, std::uint8_t IncludeCoalition,
+            std::uint8_t IncludeDominators, std::uint8_t IncludePirates, std::uint8_t IncludeCustom);
         // Includes docked and hyperspace entries in Ships; excludes ExcludedFromRating. Byte count can wrap.
         std::uint8_t CountRatedRangersByCareerMask(aGalaxyStruct::TRangerCareerSet CareerMask);
         // Unlike CountRatedRangersByCareerMask, includes ExcludedFromRating entries.
@@ -726,8 +741,8 @@ namespace aGalaxy {
         // Temporary camera path; node Heading stores the step index.
         aPath::TSPath* PlayerFilmPath;
         std::int32_t MovementStepCount;
-        pas::Extended MovementStepScale;
-        std::uint8_t cpp_padding_6[2];
+        double MovementStepScale;
+        std::uint8_t cpp_padding_6[4];
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)
@@ -927,7 +942,9 @@ namespace aGalaxy {
         // Captures the original value before applying the override.
         void Initialize(pas::WideString FormName, pas::WideString ControlPath, std::uint8_t State);
         void SetState(std::uint8_t State);
-        std::uint8_t GetState();
+        inline std::uint8_t GetState() {
+            return State;
+        }
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         // Loads both values and immediately reapplies the override.
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer);
@@ -997,7 +1014,8 @@ namespace aGalaxy {
         PAS_CLASS_META(TInterfacePosOverride, EC_Struct::TObjectEx, "TInterfacePosOverride", 48)
         void p_destroy() override;
         // Captures the original value before applying the override.
-        void Initialize(pas::WideString FormName, pas::WideString ControlPath, std::int32_t DeltaX, std::int32_t DeltaY, std::int32_t DeltaDepth);
+        void Initialize(pas::WideString FormName, pas::WideString ControlPath, std::int32_t DeltaX, std::int32_t DeltaY,
+            std::int32_t DeltaDepth);
         // Offsets are relative to the captured original position and depth, not the current control values.
         void SetPosition(std::int32_t DeltaX, std::int32_t DeltaY, std::int32_t DeltaDepth);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);

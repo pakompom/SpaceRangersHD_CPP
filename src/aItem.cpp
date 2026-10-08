@@ -40,9 +40,11 @@
 
 namespace aItem {
     // Native managed-string defaults.
-    pas::Array<pas::WideString, 1, 8> EquipmentLevelLetters = pas::Array<pas::WideString, 1, 8>{{u"A"_w, u"B"_w, u"C"_w, u"D"_w, u"E"_w, u"F"_w, u"G"_w, u"H"_w}};
+    pas::Array<pas::WideString, 1, 8> EquipmentLevelLetters = pas::Array<pas::WideString, 1, 8>{{u"A"_w, u"B"_w, u"C"_w,
+        u"D"_w, u"E"_w, u"F"_w, u"G"_w, u"H"_w}};
 
-    pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2> TreasureMapColumnPositions = pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2>{{pas::Array<std::int32_t, 0, 3>{{20, 40, 280, 380}}, pas::Array<std::int32_t, 0, 3>{{20, 40, 380, 490}}}};
+    pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2> TreasureMapColumnPositions = pas::Array<pas::Array<std::int32_t, 0, 3>, 1, 2>{{
+        pas::Array<std::int32_t, 0, 3>{{20, 40, 280, 380}}, pas::Array<std::int32_t, 0, 3>{{20, 40, 380, 490}}}};
 
     pas::Array<std::int32_t, 1, 2> TreasureMapRuleLengths = pas::Array<std::int32_t, 1, 2>{{76, 98}};
 
@@ -50,10 +52,13 @@ namespace aItem {
     TEquipmentWithActCode* CreateRandomLootItem(TItemLootPool Pool, aGalaxyStruct::TOwnerId Owner, std::uint32_t Seed) {
         TEquipmentWithActCode* Result{};
         std::int32_t Count = aConst::ArtefactLootPools[Pool].length();
-        std::int32_t Index = Count + aConst::CustomArtefactLootPools[Pool].length() + aConst::UselessItemLootPools[Pool].length();
+        std::int32_t Index = Count + aConst::CustomArtefactLootPools[Pool].length() +
+            aConst::UselessItemLootPools[Pool].length();
         Index = aMyFunction::SeededRandomIntRange(0, Index - 1, Seed);
         if (Index < aConst::ArtefactLootPools[Pool].length()) {
-            return pas::checked_cast<TEquipmentWithActCode*>(static_cast<pas::Object*>(aItem::CreateConfiguredArtefactByItemType(aConst::ArtefactLootPools[Pool][Index], Owner)));
+            return pas::checked_cast<TEquipmentWithActCode*>(
+                static_cast<pas::Object*>(aItem::CreateConfiguredArtefactByItemType(
+                    aConst::ArtefactLootPools[Pool][Index], Owner)));
         }
         Index -= Count;
         if (Index < aConst::CustomArtefactLootPools[Pool].length()) {
@@ -67,7 +72,8 @@ namespace aItem {
         } else {
             Index -= aConst::CustomArtefactLootPools[Pool].length();
             Result = pas::construct_call<TUselessItem>(TUselessItem_Create);
-            reinterpret_cast<TUselessItem*>(Result)->Init(aConst::UselessItemLootPools[Pool][Index], aGalaxyStruct::dsBlazer, 0u, true);
+            reinterpret_cast<TUselessItem*>(Result)->Init(aConst::UselessItemLootPools[Pool][Index],
+                aGalaxyStruct::dsBlazer, 0u, true);
             Result->OwnerId = Owner;
         }
         return Result;
@@ -77,10 +83,11 @@ namespace aItem {
     std::int32_t ReadSavedMicroModuleIndex(EC_Buf::TBufEC* Buffer) {
         std::int32_t I{};
         std::uint32_t NameHash{};
-        std::int32_t Result = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t Result = Buffer->GetInt32();
         if (Result > 0) {
-            NameHash = EC_Buf::TBufEC_GetUInt32(Buffer);
-            if (aConst::MicroModuleTemplates.length() - 1 + 1 < Result || aConst::MicroModuleTemplates[Result - 1].ConfigNameHash != NameHash) {
+            NameHash = Buffer->GetUInt32();
+            if (aConst::MicroModuleTemplates.length() - 1 + 1 < Result || aConst::MicroModuleTemplates[Result -
+                    1].ConfigNameHash != NameHash) {
                 Result = 0;
                 {
                     const std::int32_t cpp_last = aConst::MicroModuleTemplates.length() - 1;
@@ -118,7 +125,8 @@ namespace aItem {
         return static_cast<aConst::TItemType>(ItemType);
     }
 
-    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, aGalaxyStruct::THullType HullType, aGalaxyStruct::TOwnerId Owner, void* Ship) {
+    std::int32_t GetBaseHullSlotCount(aConst::TShipSlotKind Kind, aGalaxyStruct::THullType HullType,
+        aGalaxyStruct::TOwnerId Owner, void* Ship) {
         std::int32_t Result = 0;
         switch (HullType) {
             case aGalaxyStruct::htRanger: return aConst::RangerHullSlots[Owner][Kind];
@@ -129,15 +137,19 @@ namespace aItem {
             case aGalaxyStruct::htDiplomat: return aConst::DiplomatHullSlots[Owner][Kind];
             case aGalaxyStruct::htTranclucator: return aConst::TranclucatorHullSlots[Kind];
             case aGalaxyStruct::htKling: {
-                if (Ship == nullptr || !(pas::class_cast_if<aKling::TKling*>(static_cast<pas::Object*>(Ship)) != nullptr)) {
+                if (Ship == nullptr || !(pas::class_cast_if<aKling::TKling*>(static_cast<pas::Object*>(Ship)) !=
+                        nullptr)) {
                     return aConst::DominatorHullSlots[aGalaxyStruct::ktBoss][Kind];
                 }
-                return aConst::DominatorHullSlots[pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Ship))->KlingType][Kind];
+                return aConst::DominatorHullSlots[
+                    pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Ship))->KlingType][Kind];
             }
             case aGalaxyStruct::htStation: {
                 if (Ship == nullptr) {
                     return aConst::StationHullSlots[aGalaxyStruct::rstRangerCenter][Kind];
-                } else if (!pas::in_range(static_cast<aShip::TShip*>(Ship)->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
+                } else if (!pas::in_range(static_cast<aShip::TShip*>(Ship)->TypeId,
+                    static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter),
+                    static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                     return aConst::StationHullSlots[aGalaxyStruct::rstRangerCenter][Kind];
                 } else {
                     return aConst::StationHullSlots[static_cast<aShip::TShip*>(Ship)->TypeId][Kind];
@@ -149,97 +161,126 @@ namespace aItem {
         }
     }
 
-    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType) {
+    std::int32_t CalculateGeneratedHullCost(std::uint32_t Capacity, std::uint32_t Level, aGalaxyStruct::TOwnerId Owner,
+        aGalaxyStruct::THullType HullType) {
         aConst::TShipSlotKind Kind{};
         double Factor = 1.0;
-        if (pas::in_range(HullType, static_cast<std::int32_t>(aGalaxyStruct::htRanger), static_cast<std::int32_t>(aGalaxyStruct::htDiplomat))) {
-            for (auto cpp_range = pas::for_to<aConst::TShipSlotKind>(aConst::sskRadar, aConst::sskAfterburner); cpp_range.next(Kind); ) {
+        if (pas::in_range(HullType, static_cast<std::int32_t>(aGalaxyStruct::htRanger),
+            static_cast<std::int32_t>(aGalaxyStruct::htDiplomat))) {
+            for (auto cpp_range = pas::for_to<aConst::TShipSlotKind>(aConst::sskRadar,
+                aConst::sskAfterburner); cpp_range.next(Kind); ) {
                 switch (Kind) {
                     case aConst::sskRadar: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.7L * Factor;
+                            Factor = static_cast<float>(0.7 * Factor);
                         }
                         break;
                     }
                     case aConst::sskScanner: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.9L * Factor;
+                            Factor = static_cast<float>(0.9 * Factor);
                         }
                         break;
                     }
                     case aConst::sskRepairRobot: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.7L * Factor;
+                            Factor = static_cast<float>(0.7 * Factor);
                         }
                         break;
                     }
                     case aConst::sskCargoHook: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.6L * Factor;
+                            Factor = static_cast<float>(0.6 * Factor);
                         }
                         break;
                     }
                     case aConst::sskDefGenerator: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.7L * Factor;
+                            Factor = static_cast<float>(0.7 * Factor);
                         }
                         break;
                     }
                     case aConst::sskWeapon: {
-                        Factor = static_cast<long double>(aMyFunction::RemapClamped(aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr), 2.0, 5.0, 0.5, 1.0)) * Factor;
+                        Factor = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+                                aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr), 2.0, 5.0, 0.5, 1.0)) *
+                                Factor);
                         break;
                     }
                     case aConst::sskArtefact: {
-                        Factor = static_cast<long double>(aMyFunction::RemapClamped(aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr), 0.0, 4.0, 0.7, 1.0)) * Factor;
+                        Factor = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+                                aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr), 0.0, 4.0, 0.7, 1.0)) *
+                                Factor);
                         break;
                     }
                     case aConst::sskAfterburner: {
                         if (aItem::GetBaseHullSlotCount(Kind, HullType, Owner, nullptr) == 0) {
-                            Factor = 0.85L * Factor;
+                            Factor = static_cast<float>(0.85 * Factor);
                         }
                         break;
                     }
                 }
             }
-            if (Factor < 0.2L) {
+            if (Factor < 0.2) {
                 Factor = 0.2;
             }
         } else if (HullType == aGalaxyStruct::htFlagship) {
             Factor = 0.05;
         }
-        return aMyFunction::RoundAndTruncateToTens(aMyFunction::RemapClamped(Level, 1.0, 8.0, 1.0, 8.0) * 2.0E+3L * Factor * (std::max<std::int64_t>(static_cast<std::int64_t>(Capacity), static_cast<std::int64_t>(250)) * 0.01L - 0.006L) * (std::max<std::int64_t>(static_cast<std::int64_t>(Capacity), static_cast<std::int64_t>(1000)) * 0.002L - 0.001L) * (std::max<std::int64_t>(static_cast<std::int64_t>(Capacity), static_cast<std::int64_t>(2000)) * 5.0E-4L));
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(aMyFunction::RemapClamped(Level, 1.0, 8.0, 1.0, 8.0) * 2.0E+3) *
+            Factor) * (static_cast<float>(static_cast<float>(std::max<std::int64_t>(static_cast<std::int64_t>(Capacity), static_cast<std::int64_t>(250)) *
+                0.01) - 0.006))) * (static_cast<float>(static_cast<float>(std::max<std::int64_t>(static_cast<std::int64_t>(Capacity),
+                static_cast<std::int64_t>(1000)) * 0.002) - 0.001))) * (static_cast<float>(std::max<std::int64_t>(
+                static_cast<std::int64_t>(Capacity), static_cast<std::int64_t>(2000)) * 5.0E-4))));
     }
 
     std::int32_t CalculateGeneratedFuelCapacity(std::uint32_t Weight, std::int32_t Level) {
-        return System::Round(pas::real_divide(Weight, aConst::FuelTanksBaseSize) * 2.0E+1L + aConst::FuelCapacityByLevel[Level]);
+        return pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Weight) / aConst::FuelTanksBaseSize) * 2.0E+1) +
+            aConst::FuelCapacityByLevel[Level]));
     }
 
-    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(pas::real_divide(Weight, aConst::FuelTanksBaseSize) * static_cast<std::uint32_t>(Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+    std::int32_t CalculateGeneratedFuelTanksCost(std::uint32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Weight) / aConst::FuelTanksBaseSize) *
+            static_cast<std::uint32_t>(Level * Level)) * 5.0E+2) * aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
     std::int32_t CalculateGeneratedEngineCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::EngineBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::EngineBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) * 5.0E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
     std::int32_t CalculateGeneratedRadarCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::RadarBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::RadarBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) * 5.0E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
     std::int32_t CalculateGeneratedScanerCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::ScannerBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::ScannerBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) * 5.0E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
-    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::RepairRobotBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+    std::int32_t CalculateGeneratedRepairRobotCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::RepairRobotBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) * 5.0E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
-    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::CargoHookBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+    std::int32_t CalculateGeneratedCargoHookCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::CargoHookBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) * 5.0E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
-    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(aConst::DefGeneratorBaseSize, Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level) * 5.0E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+    std::int32_t CalculateGeneratedDefGeneratorCost(std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(aConst::DefGeneratorBaseSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * (Level * Level)) *
+            5.0E+2) * aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
     double GetGeneratedDefenseDamageFactor(std::uint8_t Level) {
@@ -247,11 +288,11 @@ namespace aItem {
     }
 
     aGalaxyStruct::TPercent DefenseDamageFactorToPercent(double Factor) {
-        return System::Round((1.0L - Factor) * 1.0E+2L);
+        return pas::real_round(static_cast<float>((static_cast<float>(1.0 - Factor)) * 1.0E+2));
     }
 
     double DefensePercentToDamageFactor(std::int32_t Percent) {
-        return 1.0L - Percent * 0.01L;
+        return static_cast<float>(1.0 - static_cast<float>(Percent * 0x1.47ae147ae147ap-7));
     }
 
     // ModuleIndex is zero-based. Expands all bonus tokens in the configured description.
@@ -262,12 +303,16 @@ namespace aItem {
         pas::WideString Text{};
         aConst::TEquipmentBonusKind Kind{};
         std::int32_t Index = ModuleIndex + 1;
-        Result = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[ModuleIndex].ConfigName, u".Text"}));
-        for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(Kind); ) {
-            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::bonExtraAkrinEff), static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty))) {
+        Result = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.",
+                aConst::MicroModuleTemplates[ModuleIndex].ConfigName, u".Text"}));
+        for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull,
+            aConst::bonNull); cpp_range.next(Kind); ) {
+            if (pas::in_range(Kind, static_cast<std::int32_t>(aConst::bonExtraAkrinEff),
+                static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty))) {
                 Value = aConst::MicroModuleTemplates[Index - 1].StatBonuses[Kind];
                 if (Value == 0) {
-                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), u"--"_w, ColorTag);
+                    aMyFunction::ReplaceTextToken(Result,
+                        pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), u"--"_w, ColorTag);
                 } else {
                     if (Value > 0) {
                         Text = u"+"_w;
@@ -278,16 +323,18 @@ namespace aItem {
                     Fraction = Value % 100;
                     Value = Value / 100;
                     if (Fraction != 0) {
-                        Text = pas::concat_wide({Text, pas::wide_int_to_str(Value), u".", pas::wide_int_to_str(Fraction)});
+                        Text = pas::concat_wide({Text, pas::wide_int_to_str(Value), u".",
+                                pas::wide_int_to_str(Fraction)});
                     } else {
                         Text = pas::concat_wide({Text, pas::wide_int_to_str(Value)});
                     }
-                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), Text, ColorTag);
+                    aMyFunction::ReplaceTextToken(Result,
+                        pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), Text, ColorTag);
                 }
             } else {
                 Value = aConst::MicroModuleTemplates[Index - 1].StatBonuses[Kind];
                 if (Value > 0) {
-                    pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
+                    pas::WideString cpp_arg = pas::concat_wide({u"+", pas::wide_int_to_str(Value)});
                     pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_2), std::move(cpp_arg), ColorTag);
                 } else if (Value < 0) {
@@ -295,7 +342,8 @@ namespace aItem {
                     pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_3), std::move(intToStr), ColorTag);
                 } else {
-                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), u"--"_w, ColorTag);
+                    aMyFunction::ReplaceTextToken(Result,
+                        pas::concat_wide({u"<", aConst::EquipmentBonusNames[Kind], u">"}), u"--"_w, ColorTag);
                 }
             }
         }
@@ -335,16 +383,20 @@ namespace aItem {
 
     pas::WideString GetMicroModuleBitmapResourceName(std::int32_t ModuleIndex) {
         if (ModuleIndex >= 0 && aConst::MicroModuleTemplates[ModuleIndex].KindGraph != u"") {
-            return pas::concat_wide({u"Bm.Micromoduls.", GR_Main::GiResourceSuffix(), u"MM", aConst::MicroModuleTemplates[ModuleIndex].KindGraph, u"_"});
+            return pas::concat_wide({u"Bm.Micromoduls.", GR_Main::GiResourceSuffix(), u"MM",
+                aConst::MicroModuleTemplates[ModuleIndex].KindGraph, u"_"});
         }
-        return pas::concat_wide({u"Bm.Micromoduls.", GR_Main::GiResourceSuffix(), u"MM", pas::wide_int_to_str(static_cast<std::int32_t>(aItem::GetMicroModulePriorityColorTier(ModuleIndex))), u"_"});
+        return pas::concat_wide({u"Bm.Micromoduls.", GR_Main::GiResourceSuffix(), u"MM",
+            pas::wide_int_to_str(static_cast<std::int32_t>(aItem::GetMicroModulePriorityColorTier(ModuleIndex))),
+            u"_"});
     }
 
     // Returns nil outside item types 10..41.
     TArtefact* CreateConfiguredArtefactByItemType(aConst::TItemType ItemType, aGalaxyStruct::TOwnerId Owner) {
         TArtefact* Item{};
         TArtefact* Result = nullptr;
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull),
+            static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
             Item = reinterpret_cast<TArtefact*>(aItem::CreateItemByType(ItemType));
             if (ItemType == aConst::t_ArtefactTransmitter) {
                 reinterpret_cast<TArtefactTransmitter*>(Item)->InitTransmitter(Owner);
@@ -358,9 +410,12 @@ namespace aItem {
         return Result;
     }
 
-    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
-        float LevelCost = static_cast<long double>(aMyFunction::RemapClamped(Level, 1.0, 8.0, 1.0, 4.0)) * Info->CostFactor;
-        return aMyFunction::RoundAndTruncateToTens(static_cast<long double>(aMyFunction::RemapClamped(pas::real_divide(Info->AverageSize, Weight), 0.5, 2.0, 1.0, 2.0)) * LevelCost * 2.5E+2L * aConst::OwnerInfo[Owner].FuelPriceFactor);
+    std::int32_t CalculateGeneratedWeaponCost(aConst::PWeaponInfo Info, std::uint32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
+        float LevelCost = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(Level, 1.0, 8.0, 1.0, 4.0)) * Info->CostFactor);
+        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+            static_cast<float>(static_cast<double>(Info->AverageSize) / Weight), 0.5, 2.0, 1.0, 2.0)) * LevelCost) * 2.5E+2) *
+            aConst::OwnerInfo[Owner].FuelPriceFactor));
     }
 
     // Constructs the instance without calling its Init routine.
@@ -388,11 +443,14 @@ namespace aItem {
             case aConst::t_Artefact2: return pas::construct_call<TArtefactCustom>(TArtefact_Create);
             case aConst::t_CustomWeapon: return pas::construct_call<TCustomWeapon>(TEquipment_Create);
             default: {
-                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
+                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                    static_cast<std::int32_t>(aConst::t_Lirecron))) {
                     return pas::construct_call<TWeapon>(TEquipment_Create);
-                } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+                } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food),
+                    static_cast<std::int32_t>(aConst::t_Narcotics))) {
                     return pas::construct_call<TGoods>(TItem_Create);
-                } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+                } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull),
+                    static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
                     return pas::construct_call<TArtefact>(TArtefact_Create);
                 } else {
                     pas::make_exception<pas::Exception>("Error CreateItemByType"_a);
@@ -405,15 +463,18 @@ namespace aItem {
     TItem* CreateDefaultItemByType(aConst::TItemType ItemType) {
         TItem* Result{};
         TItem* Item{};
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull),
+            static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
             return aItem::CreateConfiguredArtefactByItemType(ItemType, aGalaxyStruct::oiUninhabited);
         } else if (ItemType == aConst::t_Hull) {
             Item = aItem::CreateItemByType(ItemType);
-            reinterpret_cast<THull*>(Item)->Init(250, 1, aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace), aGalaxyStruct::htRanger, -1, false);
+            reinterpret_cast<THull*>(Item)->Init(250, 1, aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace),
+                aGalaxyStruct::htRanger, -1, false);
             return Item;
         } else if (ItemType == aConst::t_CustomWeapon) {
             return nullptr;
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             return aItem::CreateGeneratedEquipment(ItemType, 20, 1, aGalaxyStruct::oiUninhabited);
         } else {
             Item = aItem::CreateItemByType(ItemType);
@@ -422,7 +483,9 @@ namespace aItem {
                 switch (ItemType) {
                     case aConst::t_Protoplasm: reinterpret_cast<TProtoplasm*>(Item)->Init_2(10, 0); return Result;
                     case aConst::t_UselessItem: {
-                        reinterpret_cast<TUselessItem*>(Item)->Init(EC_Str::DecodeTextW(u"EdxYahmrpelwefAjsktleoruoeiddc"_w), aGalaxyStruct::dsBlazer, 0u, false);
+                        reinterpret_cast<TUselessItem*>(Item)->Init(
+                            EC_Str::DecodeTextW(u"EdxYahmrpelwefAjsktleoruoeiddc"_wref.get()), aGalaxyStruct::dsBlazer,
+                            0u, false);
                         return Result;
                     }
                     case aConst::t_MicroModule: reinterpret_cast<TMicroModule*>(Item)->Init(1); return Result;
@@ -432,14 +495,16 @@ namespace aItem {
                     }
                     case aConst::t_Satellite: {
                         {
-                            std::uint32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(1, 10000, aGalaxy::Galaxy->RandomState);
+                            std::uint32_t nextRandomIntRange = aMyFunction::NextRandomIntRange(1, 10000,
+                                aGalaxy::Galaxy->RandomState);
                             aGalaxyStruct::TOwnerId ownerId = aPlayer::GetPlayer()->OwnerId;
                             reinterpret_cast<TSatellite*>(Item)->InitGenerated(1, ownerId, nextRandomIntRange);
                         }
                         return Result;
                     }
                     default: {
-                        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+                        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food),
+                            static_cast<std::int32_t>(aConst::t_Narcotics))) {
                             reinterpret_cast<TGoods*>(Item)->Init(ItemType, 10);
                             return Result;
                         }
@@ -453,19 +518,22 @@ namespace aItem {
     }
 
     // Clamps Level to 1..8; custom weapons require CreateGeneratedWeapon.
-    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
+    TEquipment* CreateGeneratedEquipment(aConst::TItemType ItemType, std::int32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
         TItem* Item{};
         std::uint8_t ActualLevel{};
         std::int32_t MinimumLevel = std::max<std::int32_t>(1, Level);
         TEquipment* Result = nullptr;
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Hull),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             Item = aItem::CreateItemByType(ItemType);
             Result = reinterpret_cast<TEquipment*>(Item);
             if (Item != nullptr) {
                 ActualLevel = std::max<std::int32_t>(0, std::min<std::int32_t>(MinimumLevel, 8));
                 switch (ItemType) {
                     case aConst::t_Hull: {
-                        reinterpret_cast<THull*>(Item)->Init(Weight, ActualLevel, Owner, aGalaxyStruct::htRanger, -1, false);
+                        reinterpret_cast<THull*>(Item)->Init(Weight, ActualLevel, Owner, aGalaxyStruct::htRanger, -1,
+                            false);
                         return Result;
                     }
                     case aConst::t_FuelTanks: {
@@ -498,8 +566,10 @@ namespace aItem {
                     }
                     default: {
                         if (ItemType == aConst::t_CustomWeapon) {
-                            pas::raise(pas::make_exception<pas::Exception>("Error CreateEq - cant create custom weapons"_a));
-                        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                            pas::raise(
+                                pas::make_exception<pas::Exception>("Error CreateEq - cant create custom weapons"_a));
+                        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                             reinterpret_cast<TWeapon*>(Item)->Init(ItemType, Weight, ActualLevel, Owner);
                             return Result;
                         } else {
@@ -513,9 +583,11 @@ namespace aItem {
         return Result;
     }
 
-    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level, aGalaxyStruct::TOwnerId Owner) {
+    TWeapon* CreateGeneratedWeapon(aConst::PWeaponInfo Info, std::int32_t Weight, std::int32_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
         TWeapon* Result = reinterpret_cast<TWeapon*>(aItem::CreateItemByType(Info->ItemType));
-        if (pas::in_range(Info->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
+        if (pas::in_range(Info->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_Lirecron))) {
             Result->Init(Info->ItemType, Weight, Level, Owner);
         } else {
             reinterpret_cast<TCustomWeapon*>(Result)->InitCustom(Info, false, Weight, Level, Owner);
@@ -529,13 +601,16 @@ namespace aItem {
         if (Item->MicroModuleIndex != 0) {
             return Result;
         }
-        if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].BlocksMicroModuleSlot) {
+        if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                1].BlocksMicroModuleSlot) {
             return Result;
         }
-        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinEff] != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinEff] != 0 &&
+            Item->SpecialModuleIndex == 0) {
             return Result;
         }
-        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 &&
+            Item->SpecialModuleIndex == 0) {
             return Result;
         }
         if (aConst::MicroModuleTemplates[ModuleIndex].SpecialOnly) {
@@ -552,19 +627,25 @@ namespace aItem {
 
     std::uint8_t IsBonusCompatibleWithEquipment(std::int32_t ModuleIndex, TEquipment* Item) {
         std::uint8_t Result = false;
-        if (!pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes, static_cast<std::uint8_t>(Item->ItemType))) {
+        if (!pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes,
+            static_cast<std::uint8_t>(Item->ItemType))) {
             return Result;
         }
         if (Item->CustomFaction != u"") {
-            if (pas::pos(pas::concat_wide({u"<", Item->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
+            if (pas::pos(pas::concat_wide({u"<", Item->CustomFaction, u">"}),
+                aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
                 return true;
             }
-            if (Item->OwnerId == aGalaxyStruct::oiUninhabited || Item->OwnerId == aGalaxyStruct::oiDominator && aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask != pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})) {
+            if (Item->OwnerId == aGalaxyStruct::oiUninhabited || Item->OwnerId == aGalaxyStruct::oiDominator &&
+                    aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask !=
+                        pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                        {aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})) {
                 return Result;
             }
         }
         Result = pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Item->OwnerId);
-        if (Item->OwnerId == aGalaxyStruct::oiDominator && static_cast<std::uint8_t>(pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Item->DominatorSeries) ^ 1)) {
+        if (Item->OwnerId == aGalaxyStruct::oiDominator && !pas::contains(
+                aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Item->DominatorSeries)) {
             return false;
         }
         return Result;
@@ -576,14 +657,21 @@ namespace aItem {
             return Result;
         }
         if (Hull->CustomFaction != u"") {
-            if (pas::pos(pas::concat_wide({u"<", Hull->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
+            if (pas::pos(pas::concat_wide({u"<", Hull->CustomFaction, u">"}),
+                aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0) {
                 return true;
             }
-            if (Hull->OwnerId == aGalaxyStruct::oiUninhabited || Hull->OwnerId == aGalaxyStruct::oiDominator && aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask != pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})) {
+            if (Hull->OwnerId == aGalaxyStruct::oiUninhabited || Hull->OwnerId == aGalaxyStruct::oiDominator &&
+                    aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask !=
+                        pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                        {aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})) {
                 return Result;
             }
         }
-        if ((pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Hull->OwnerId) || Hull->PirateBuilt && pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, aGalaxyStruct::oiPirate)) && (Hull->OwnerId != aGalaxyStruct::oiDominator || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Hull->DominatorSeries))) {
+        if ((pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Hull->OwnerId) ||
+            Hull->PirateBuilt && pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask,
+                    aGalaxyStruct::oiPirate)) && (Hull->OwnerId != aGalaxyStruct::oiDominator || pas::contains(
+                    aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Hull->DominatorSeries))) {
             return true;
         }
         return Result;
@@ -593,9 +681,20 @@ namespace aItem {
         pas::WideString AllowedTypes{};
         aConst::PWeaponInfo Info{};
         std::uint8_t Result = false;
-        if (Weapon->CustomFaction != u"" && pas::pos(pas::concat_wide({u"<", Weapon->CustomFaction, u">"}), aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0 || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Weapon->OwnerId) && (Weapon->OwnerId != aGalaxyStruct::oiDominator || pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Weapon->DominatorSeries)) && (Weapon->CustomFaction == u"" || Weapon->OwnerId != aGalaxyStruct::oiUninhabited && (Weapon->OwnerId != aGalaxyStruct::oiDominator || aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask == pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})))) {
-            if (pas::in_range(Weapon->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_Lirecron))) {
-                if (pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes, static_cast<std::uint8_t>(Weapon->ItemType))) {
+        if (Weapon->CustomFaction != u"" && pas::pos(pas::concat_wide({u"<", Weapon->CustomFaction, u">"}),
+                aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomHullFactions) > 0 || pas::contains(
+                aConst::MicroModuleTemplates[ModuleIndex].AllowedHullOwnerMask, Weapon->OwnerId) && (Weapon->OwnerId !=
+                    aGalaxyStruct::oiDominator || pas::contains(
+                    aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask, Weapon->DominatorSeries)) &&
+                (Weapon->CustomFaction == u"" || Weapon->OwnerId != aGalaxyStruct::oiUninhabited && (Weapon->OwnerId !=
+                    aGalaxyStruct::oiDominator ||
+                    aConst::MicroModuleTemplates[ModuleIndex].AllowedDominatorSeriesMask ==
+                    pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                    {aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}})))) {
+            if (pas::in_range(Weapon->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                static_cast<std::int32_t>(aConst::t_Lirecron))) {
+                if (pas::contains(aConst::MicroModuleTemplates[ModuleIndex].AllowedItemTypes,
+                    static_cast<std::uint8_t>(Weapon->ItemType))) {
                     return true;
                 }
                 return Result;
@@ -604,11 +703,14 @@ namespace aItem {
                 AllowedTypes = aConst::MicroModuleTemplates[ModuleIndex].AllowedCustomWeaponTypes;
                 if (AllowedTypes == u"Any") {
                     return true;
-                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkMissile) && pas::pos(u"<WMissile>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkMissile) && pas::pos(u"<WMissile>",
+                        AllowedTypes) > 0) {
                     return true;
-                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkSplinter) && pas::pos(u"<WSplinter>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkSplinter) && pas::pos(u"<WSplinter>",
+                        AllowedTypes) > 0) {
                     return true;
-                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkEnergy) && pas::pos(u"<WEnergy>", AllowedTypes) > 0) {
+                } else if (pas::contains(Info->DamageFlags, aGalaxyStruct::dkEnergy) && pas::pos(u"<WEnergy>",
+                        AllowedTypes) > 0) {
                     return true;
                 } else if (pas::pos(pas::concat_wide({u"<", Info->ConfigName, u">"}), AllowedTypes) > 0) {
                     return true;
@@ -630,11 +732,15 @@ namespace aItem {
         }
         std::uint8_t Result = true;
         Item->MicroModuleIndex = ModuleIndex + 1;
-        Item->Weight = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Weight, 1.0E+2L) * aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].SizePercent));
-        Item->Cost = std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue), System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost, 1.0E+2L) * aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent)));
+        Item->Weight = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<float>(Item->Weight / 1.0E+2) * aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].SizePercent)));
+        Item->Cost = std::min<std::int64_t>(static_cast<std::int64_t>(aGalaxyStruct::MaxMonetaryValue),
+                pas::real_round(pas::real_max<double>(1.0,
+                    static_cast<float>(static_cast<float>(Item->Cost / 1.0E+2) * aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent))));
         switch (Item->ItemType) {
             case aConst::t_Hull: {
-                pas::checked_cast<THull*>(Item)->Armor += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
+                pas::checked_cast<THull*>(Item)->Armor += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHull];
                 {
                     std::int32_t min_2 = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
                     static_cast<THull*>(Item)->HullPoints = min_2;
@@ -642,56 +748,80 @@ namespace aItem {
                 }
             }
             case aConst::t_FuelTanks: {
-                pas::checked_cast<TFuelTanks*>(Item)->Capacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
+                pas::checked_cast<TFuelTanks*>(Item)->Capacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonFuel];
                 return Result;
             }
             case aConst::t_Engine: {
-                pas::checked_cast<TEngine*>(Item)->Speed += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
-                static_cast<TEngine*>(Item)->JumpRange += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
+                pas::checked_cast<TEngine*>(Item)->Speed += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonSpeed];
+                static_cast<TEngine*>(Item)->JumpRange += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonJump];
                 return Result;
             }
             case aConst::t_Radar: {
-                pas::checked_cast<TRadar*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
+                pas::checked_cast<TRadar*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonRadar];
                 return Result;
             }
             case aConst::t_Scaner: {
-                pas::checked_cast<TScaner*>(Item)->ScanPower += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
+                pas::checked_cast<TScaner*>(Item)->ScanPower += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonScan];
                 return Result;
             }
             case aConst::t_RepairRobot: {
-                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
+                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints +=
+                    aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
                 return Result;
             }
             case aConst::t_CargoHook: {
-                pas::checked_cast<TCargoHook*>(Item)->PickupPower += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
-                static_cast<TCargoHook*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
+                pas::checked_cast<TCargoHook*>(Item)->PickupPower +=
+                    aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
+                static_cast<TCargoHook*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHookRadius];
                 {
                     auto& cpp_target = static_cast<TCargoHook*>(Item)->MinPullSpeed;
-                    cpp_target = static_cast<long double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) + aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMinSpeed];
+                    cpp_target = static_cast<float>(static_cast<double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) +
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                                1].StatBonuses[aConst::bonHookMinSpeed]);
                 }
                 {
                     auto& cpp_target_2 = static_cast<TCargoHook*>(Item)->MaxPullSpeed;
-                    cpp_target_2 = static_cast<long double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) + aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMaxSpeed];
+                    cpp_target_2 = static_cast<float>(static_cast<double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) +
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                                1].StatBonuses[aConst::bonHookMaxSpeed]);
                 }
                 return Result;
             }
             case aConst::t_DefGenerator: {
                 if (aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
                     auto& cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor;
-                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor - (1.0L - aItem::DefensePercentToDamageFactor(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]));
+                    cpp_target_3 = static_cast<float>(pas::checked_cast<TDefGenerator*>(Item)->DamageFactor - (static_cast<float>(1.0 -
+                                aItem::DefensePercentToDamageFactor(
+                                aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]))));
                 }
                 return Result;
             }
             default: {
-                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                    BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-                    pas::checked_cast<TWeapon*>(Item)->MaxDamage += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
-                    static_cast<TWeapon*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
-                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                        static_cast<TWeapon*>(Item)->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                    static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                    BonusKind =
+                        aConst::WeaponDamageClasses[
+                            aConst::ClassifyWeaponDamageFlags(
+                                reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
+                    pas::checked_cast<TWeapon*>(Item)->MaxDamage +=
+                        aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
+                    static_cast<TWeapon*>(Item)->Range += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                            1].StatBonuses[aConst::bonWRadius];
+                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType,
+                        static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+                        static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                        static_cast<TWeapon*>(Item)->AmmoCapacity +=
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                     }
                 } else {
-                    pas::make_exception<pas::Exception>("\314\350\352\360\356\354\356\344\363\353\374 \342 \356\341\356\360\363\344\356\342\340\355\350\345 \365\356\362\345\353\350 \342\361\362\340\342\350\362\374, \342 \352\356\362\356\360\356\345 \342\361\362\340\342\350\362\374 \354\350\352\360\356\354\356\344\363\353\374 \355\345\353\374\347\377!"_a);
+                    pas::make_exception<pas::Exception>(
+                        "\314\350\352\360\356\354\356\344\363\353\374 \342 \356\341\356\360\363\344\356\342\340\355\350\345 \365\356\362\345\353\350 \342\361\362\340\342\350\362\374, \342 \352\356\362\356\360\356\345 \342\361\362\340\342\350\362\374 \354\350\352\360\356\354\356\344\363\353\374 \355\345\353\374\347\377!"_a);
                 }
                 return Result;
             }
@@ -705,8 +835,11 @@ namespace aItem {
             return;
         }
         Item->SpecialModuleIndex = ModuleIndex + 1;
-        Item->Weight = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Weight, 1.0E+2L) * aConst::MicroModuleTemplates[ModuleIndex].SizePercent));
-        Item->Cost = std::min<std::int32_t>(aGalaxyStruct::MaxMonetaryValue, aMyFunction::RoundAndTruncateToTens(pas::real_max<pas::Extended>(1.0E+1L, pas::real_divide(Item->Cost, 1.0E+2L) * aConst::MicroModuleTemplates[ModuleIndex].CostPercent)));
+        Item->Weight = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<float>(Item->Weight / 1.0E+2) * aConst::MicroModuleTemplates[ModuleIndex].SizePercent)));
+        Item->Cost = std::min<std::int32_t>(aGalaxyStruct::MaxMonetaryValue,
+                aMyFunction::RoundAndTruncateToTens(pas::real_max<double>(1.0E+1,
+                    static_cast<float>(static_cast<float>(Item->Cost / 1.0E+2) * aConst::MicroModuleTemplates[ModuleIndex].CostPercent))));
         if (Item->ItemType == aConst::t_Hull) {
             pas::checked_cast<THull*>(Item)->HullType = aGalaxyStruct::htSpecial;
             static_cast<THull*>(Item)->HullPoints = Item->Weight;
@@ -714,12 +847,21 @@ namespace aItem {
                 Item->Cost = aGalaxyStruct::MaxMonetaryValue;
             }
         }
-        if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-            BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-            pas::checked_cast<TWeapon*>(Item)->MaxDamage += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[BonusKind];
-            static_cast<TWeapon*>(Item)->Range += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonWRadius];
-            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                static_cast<TWeapon*>(Item)->AmmoCapacity += aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonAmmo];
+        if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            BonusKind =
+                aConst::WeaponDamageClasses[
+                    aConst::ClassifyWeaponDamageFlags(
+                        reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
+            pas::checked_cast<TWeapon*>(Item)->MaxDamage +=
+                aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[BonusKind];
+            static_cast<TWeapon*>(Item)->Range +=
+                aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonWRadius];
+            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType,
+                static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+                static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                static_cast<TWeapon*>(Item)->AmmoCapacity +=
+                    aConst::MicroModuleTemplates[ModuleIndex].StatBonuses[aConst::bonAmmo];
             }
         }
         if (aConst::MicroModuleTemplates[ModuleIndex].CustomFaction != u"") {
@@ -732,11 +874,16 @@ namespace aItem {
         if (Item == nullptr || Item->MicroModuleIndex == 0) {
             return;
         }
-        Item->Weight = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Weight, aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].SizePercent) * 1.0E+2L));
-        Item->Cost = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost, aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent) * 1.0E+2L));
+        Item->Weight = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<float>(static_cast<double>(Item->Weight) / aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                    1].SizePercent) * 1.0E+2)));
+        Item->Cost = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<float>(static_cast<double>(Item->Cost) / aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].CostPercent) *
+                    1.0E+2)));
         switch (Item->ItemType) {
             case aConst::t_Hull: {
-                pas::checked_cast<THull*>(Item)->Armor -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
+                pas::checked_cast<THull*>(Item)->Armor -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHull];
                 {
                     std::int32_t min = std::min<std::int32_t>(Item->Weight, static_cast<THull*>(Item)->HullPoints);
                     static_cast<THull*>(Item)->HullPoints = min;
@@ -744,53 +891,76 @@ namespace aItem {
                 break;
             }
             case aConst::t_FuelTanks: {
-                pas::checked_cast<TFuelTanks*>(Item)->Capacity -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
+                pas::checked_cast<TFuelTanks*>(Item)->Capacity -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonFuel];
                 break;
             }
             case aConst::t_Engine: {
-                pas::checked_cast<TEngine*>(Item)->Speed -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
-                static_cast<TEngine*>(Item)->JumpRange -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
+                pas::checked_cast<TEngine*>(Item)->Speed -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonSpeed];
+                static_cast<TEngine*>(Item)->JumpRange -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonJump];
                 break;
             }
             case aConst::t_Radar: {
-                pas::checked_cast<TRadar*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
+                pas::checked_cast<TRadar*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonRadar];
                 break;
             }
             case aConst::t_Scaner: {
-                pas::checked_cast<TScaner*>(Item)->ScanPower -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
+                pas::checked_cast<TScaner*>(Item)->ScanPower -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonScan];
                 break;
             }
             case aConst::t_RepairRobot: {
-                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
+                pas::checked_cast<TRepairRobot*>(Item)->RepairPoints -=
+                    aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
                 break;
             }
             case aConst::t_CargoHook: {
-                pas::checked_cast<TCargoHook*>(Item)->PickupPower -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
-                static_cast<TCargoHook*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
+                pas::checked_cast<TCargoHook*>(Item)->PickupPower -=
+                    aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
+                static_cast<TCargoHook*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHookRadius];
                 {
                     auto& cpp_target = static_cast<TCargoHook*>(Item)->MinPullSpeed;
-                    cpp_target = static_cast<long double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) - aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMinSpeed];
+                    cpp_target = static_cast<float>(static_cast<double>(static_cast<TCargoHook*>(Item)->MinPullSpeed) -
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                                1].StatBonuses[aConst::bonHookMinSpeed]);
                 }
                 {
                     auto& cpp_target_2 = static_cast<TCargoHook*>(Item)->MaxPullSpeed;
-                    cpp_target_2 = static_cast<long double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) - aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonHookMaxSpeed];
+                    cpp_target_2 = static_cast<float>(static_cast<double>(static_cast<TCargoHook*>(Item)->MaxPullSpeed) -
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                                1].StatBonuses[aConst::bonHookMaxSpeed]);
                 }
                 break;
             }
             case aConst::t_DefGenerator: {
                 if (aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
                     auto& cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor;
-                    cpp_target_3 = pas::checked_cast<TDefGenerator*>(Item)->DamageFactor + (1.0L - aItem::DefensePercentToDamageFactor(aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]));
+                    cpp_target_3 = static_cast<float>(pas::checked_cast<TDefGenerator*>(Item)->DamageFactor + (static_cast<float>(1.0 -
+                                aItem::DefensePercentToDamageFactor(
+                                aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonDef]))));
                 }
                 break;
             }
             default: {
-                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-                    BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-                    pas::checked_cast<TWeapon*>(Item)->MaxDamage -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
-                    static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonWRadius];
-                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                        static_cast<TWeapon*>(Item)->AmmoCapacity -= aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+                if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                    static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                    BonusKind =
+                        aConst::WeaponDamageClasses[
+                            aConst::ClassifyWeaponDamageFlags(
+                                reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
+                    pas::checked_cast<TWeapon*>(Item)->MaxDamage -=
+                        aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[BonusKind];
+                    static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                            1].StatBonuses[aConst::bonWRadius];
+                    if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType,
+                        static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+                        static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                        static_cast<TWeapon*>(Item)->AmmoCapacity -=
+                            aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
                     }
                 }
                 break;
@@ -804,8 +974,12 @@ namespace aItem {
         if (Item == nullptr || Item->SpecialModuleIndex == 0) {
             return;
         }
-        Item->Weight = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Weight * 100, aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].SizePercent)));
-        Item->Cost = System::Round(pas::real_max<pas::Extended>(1.0L, pas::real_divide(Item->Cost * 100, aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].CostPercent)));
+        Item->Weight = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<double>(Item->Weight * 100) / aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                    1].SizePercent)));
+        Item->Cost = pas::real_round(pas::real_max<double>(1.0,
+                static_cast<float>(static_cast<double>(Item->Cost * 100) / aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                    1].CostPercent)));
         if (Item->ItemType == aConst::t_Hull) {
             {
                 std::int32_t min = std::min<std::int32_t>(Item->Weight, pas::checked_cast<THull*>(Item)->HullPoints);
@@ -815,15 +989,25 @@ namespace aItem {
                 Item->Cost = aGalaxyStruct::MaxMonetaryValue;
             }
         }
-        if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
-            BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
-            pas::checked_cast<TWeapon*>(Item)->MaxDamage -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[BonusKind];
-            static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonWRadius];
-            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-                static_cast<TWeapon*>(Item)->AmmoCapacity -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+        if (pas::in_range(Item->ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+            BonusKind =
+                aConst::WeaponDamageClasses[
+                    aConst::ClassifyWeaponDamageFlags(
+                        reinterpret_cast<TWeapon*>(Item)->GetWeaponInfo()->DamageFlags)].BonusKind;
+            pas::checked_cast<TWeapon*>(Item)->MaxDamage -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                    1].StatBonuses[BonusKind];
+            static_cast<TWeapon*>(Item)->Range -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                    1].StatBonuses[aConst::bonWRadius];
+            if (pas::in_range(static_cast<TWeapon*>(Item)->GetWeaponInfo()->ShotType,
+                static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+                static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+                static_cast<TWeapon*>(Item)->AmmoCapacity -= aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                        1].StatBonuses[aConst::bonAmmo];
             }
         }
-        if (Item->CustomFaction != u"" && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].CustomFaction == Item->CustomFaction) {
+        if (Item->CustomFaction != u"" && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].CustomFaction ==
+                Item->CustomFaction) {
             Item->CustomFaction = pas::WideString();
         }
         Item->SpecialModuleIndex = 0;
@@ -838,7 +1022,8 @@ namespace aItem {
         if (aShip::TShip_CalculateCargoHookPower(Owner, Owner->GetCargoHook()) < Item->Weight) {
             return Result;
         }
-        if (TUselessItem* uselessItem = pas::class_cast_if<TUselessItem*>(Item); uselessItem != nullptr && uselessItem->ConfigBlockName == u"ExampleAsteroid") {
+        if (TUselessItem* uselessItem = pas::class_cast_if<TUselessItem*>(Item); uselessItem != nullptr &&
+            uselessItem->ConfigBlockName == u"ExampleAsteroid") {
             return Result;
         }
         if (aPlayer::GetPlayer() != Owner) {
@@ -859,7 +1044,8 @@ namespace aItem {
     // Goods use their market display name; nodes use the generic node name; other types return empty.
     pas::WideString GetStackableItemTypeName(aConst::TItemType ItemType) {
         pas::WideString Result{};
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food), static_cast<std::int32_t>(aConst::t_Narcotics))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Food),
+            static_cast<std::int32_t>(aConst::t_Narcotics))) {
             return aConst::GoodsMarket[ItemType].DisplayName;
         } else if (ItemType == aConst::t_Protoplasm) {
             return aConst::LocalizedText(u"Items.Nod.Name"_wref.get());
@@ -871,7 +1057,8 @@ namespace aItem {
     // Custom countables use their configured name; all other types use GetStackableItemTypeName. Ignores per-instance name overrides.
     pas::WideString GetStackableItemName(TItem* Item) {
         if (Item->ItemType == aConst::t_UselessCountableItem) {
-            return aConst::LocalizedText(pas::concat_wide({u"Items.CustomCountables.", pas::checked_cast<TCountableItem*>(Item)->ConfigBlockName, u".Name"}));
+            return aConst::LocalizedText(pas::concat_wide({u"Items.CustomCountables.",
+                pas::checked_cast<TCountableItem*>(Item)->ConfigBlockName, u".Name"}));
         }
         return aItem::GetStackableItemTypeName(Item->ItemType);
     }
@@ -886,8 +1073,10 @@ namespace aItem {
     }
 
     void TItem_Destroy(TItem* Self) {
-        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr && Self->ScriptItem != nullptr) {
-            reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemDestroy, nullptr, nullptr, nullptr, 0);
+        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) &&
+            aPlayer::GetPlayer() != nullptr && Self->ScriptItem != nullptr) {
+            reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemDestroy,
+                nullptr, nullptr, nullptr, 0);
         }
         Self->Id = 0;
         if (Self->ScriptItem != nullptr) {
@@ -920,63 +1109,72 @@ namespace aItem {
 
     // Object-reference fields in descendants hold saved IDs until ResolveLoadedReferences; updates Galaxy.NextItemId.
     void TItem::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
-        Id = EC_Buf::TBufEC_GetUInt32(Buffer);
+        Id = Buffer->GetUInt32();
         if (Galaxy->NextItemId <= static_cast<std::uint32_t>(Id)) {
             Galaxy->NextItemId = Id + 1;
         }
-        ItemType = aItem::MigrateSavedItemType(EC_Buf::TBufEC_GetByte(Buffer));
-        Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-        Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
-        Weight = EC_Buf::TBufEC_GetInt32(Buffer);
-        OwnerId = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
-        Cost = EC_Buf::TBufEC_GetUInt32(Buffer);
-        DestroyFlag = EC_Buf::TBufEC_GetInt32(Buffer);
-        if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+        ItemType = aItem::MigrateSavedItemType(Buffer->GetByte());
+        Position.X = Buffer->GetSingle();
+        Position.Y = Buffer->GetSingle();
+        Weight = Buffer->GetInt32();
+        OwnerId = static_cast<aGalaxyStruct::TOwnerId>(Buffer->GetByte());
+        Cost = Buffer->GetUInt32();
+        DestroyFlag = Buffer->GetInt32();
+        if (Buffer->GetBoolean()) {
             NameOverride = Buffer->ReadWideString();
         }
-        NoDropFlag = EC_Buf::TBufEC_GetByte(Buffer);
+        NoDropFlag = Buffer->GetByte();
     }
 
     void TItem::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         {
             const pas::WideString& displayName = GetDisplayName();
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"IQNaaWmee"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"IQNaaWmee"_wref.get());
             Block->AddParam(decodeTextW, displayName);
         }
-        Block->AddParam(EC_Str::DecodeTextW(u"InToyAple"_w), aConst::ItemTypeNames[ItemType]);
-        Block->AddParam(EC_Str::DecodeTextW(u"OpwRn3ewr"_w), aConst::OwnerInfo[OwnerId].InternalName);
+        Block->AddParam(EC_Str::DecodeTextW(u"InToyAple"_wref.get()), aConst::ItemTypeNames[ItemType]);
+        Block->AddParam(EC_Str::DecodeTextW(u"OpwRn3ewr"_wref.get()), aConst::OwnerInfo[OwnerId].InternalName);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(Weight);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"SaiRzoe"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"SaiRzoe"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Cost);
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"CfoTsat"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"CfoTsat"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(NoDropFlag));
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"NeonDarlokpl"_w);
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"NeonDarlokpl"_wref.get());
             Block->AddParam(decodeTextW_4, intToStr_3);
         }
         if (ScriptItem != nullptr) {
-            Block->AddParam(EC_Str::DecodeTextW(u"IsSacaraiOpit"_w), reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->Script->ScriptFileName);
+            Block->AddParam(EC_Str::DecodeTextW(u"IsSacaraiOpit"_wref.get()),
+                reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->Script->ScriptFileName);
         }
     }
 
     void TItem_LoadFromBlock(TItem* Self, EC_BlockPar::TBlockParEC* Block) {
         std::int32_t I{};
         pas::WideString Text{};
-        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OpwRn3ewr"_w)));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"OpwRn3ewr"_wref.get())));
         for (I = 0; I <= 7; ++I) {
             if (Text == aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(I)].InternalName) {
                 Self->OwnerId = static_cast<aGalaxyStruct::TOwnerId>(I);
             }
         }
-        Self->Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SaiRzoe"_w)))));
-        Self->Cost = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CfoTsat"_w)))));
-        Text = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"NeonDarlokpl"_w))))));
+        Self->Weight =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SaiRzoe"_wref.get())))));
+        Self->Cost =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CfoTsat"_wref.get())))));
+        Text =
+            static_cast<pas::WideString>(
+                SysUtilsImports::LowerCase(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"NeonDarlokpl"_wref.get()))))));
         if (Text == u"false") {
             Self->NoDropFlag = 0;
         } else if (Text == u"true") {
@@ -991,8 +1189,10 @@ namespace aItem {
             std::int32_t cpp_right = pas::checked_cast<TCountableItem*>(Self)->GetUnitSize();
             pas::checked_cast<TCountableItem*>(Self)->StackCount = pas::idiv(Self->Weight, cpp_right);
         }
-        if (Self->ItemType == aConst::t_ArtefactTranclucator && pas::checked_cast<TArtefactTranclucator*>(Self)->Ship != nullptr) {
-            static_cast<aTranclucator::TTranclucator*>(static_cast<TArtefactTranclucator*>(Self)->Ship)->ArtefactSize = Self->Weight;
+        if (Self->ItemType == aConst::t_ArtefactTranclucator && pas::checked_cast<TArtefactTranclucator*>(Self)->Ship !=
+                nullptr) {
+            static_cast<aTranclucator::TTranclucator*>(static_cast<TArtefactTranclucator*>(Self)->Ship)->ArtefactSize =
+                Self->Weight;
         }
     }
 
@@ -1007,9 +1207,11 @@ namespace aItem {
     // Applies the trading-skill percentage to Cost minus repair cost; equipment has a minimum value of 1. Goods use Cost directly.
     std::int32_t TItem::CalculateResaleValue(std::uint8_t TradingSkill) {
         if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this)) {
-            return std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round((Cost - aItem::TEquipment_CalculateRepairCost(equipment)) * 0.01L * aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading]));
+            return std::max<std::int64_t>(static_cast<std::int64_t>(1),
+                pas::real_round(static_cast<float>(static_cast<float>((Cost - aItem::TEquipment_CalculateRepairCost(equipment)) * 0x1.47ae147ae147ap-7) *
+                    aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading])));
         }
-        return System::Round(Cost * 0.01L * aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading]);
+        return pas::real_round(static_cast<float>(static_cast<float>(Cost * 0x1.47ae147ae147ap-7) * aConst::PilotSkillEffects[TradingSkill][aGalaxyStruct::psTrading]));
     }
 
     // Equipment deducts repair cost, with a minimum result of 1; goods return Cost unchanged.
@@ -1022,9 +1224,11 @@ namespace aItem {
 
     // Groups weapon types under Weapon and built-in artefacts under Artefact; otherwise returns the item-type configuration name.
     pas::WideString TItem::GetCategoryConfigName() {
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             return u"Weapon"_w;
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull), static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_ArtefactHull),
+            static_cast<std::int32_t>(aConst::t_ArtFastRacks))) {
             return u"Artefact"_w;
         } else {
             return aConst::ItemTypeNames[ItemType];
@@ -1043,60 +1247,82 @@ namespace aItem {
     SE_Space::TObjectSE* TItem::GetGraphObject() {
         // Captures the item at ParentFrame-4; caller removes ParentFrame.
         auto CreateContainer = [&](pas::WideString GraphKey) -> void {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"sv, pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"sv,
+                pas::concat_wide({u"Item.", GraphKey}), ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> graphObject = pas::Var<SE_Space::TObjectSE*>(&this->GraphObject);
             SE_Space::RetainSpaceObject(graphObject, createSpaceObjectByName);
         };
         if (GraphObject == nullptr) {
             if (TMicroModule* microModule = pas::class_cast_if<TMicroModule*>(this)) {
                 if (aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph != u"" && ([&] {
-                    const pas::WideString& cpp_arg = pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph});
-                    EC_BlockPar::TBlockParEC* block = GR_Main::GameDataConfig->GetBlock(u"SE"sv)->GetBlock(u"Item"sv);
-                    return block->FindBlock(pas::view(cpp_arg));
-                }()) != nullptr) {
-                    CreateContainer(pas::concat_wide({u"mm_", aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph}));
+                        const pas::WideString& cpp_arg = pas::concat_wide({u"mm_",
+                            aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph});
+                        EC_BlockPar::TBlockParEC* block = GR_Main::GameDataConfig->GetBlock(
+                            u"SE"sv)->GetBlock(u"Item"sv);
+                        return block->FindBlock(pas::view(cpp_arg));
+                    }()) != nullptr) {
+                    CreateContainer(pas::concat_wide({u"mm_",
+                        aConst::MicroModuleTemplates[microModule->MicroModuleIndex - 1].KindGraph}));
                 } else {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"mm_", SysUtils::IntToStr(aItem::GetMicroModulePriorityColorTier(microModule->MicroModuleIndex - 1))})));
+                    CreateContainer(pas::concat_wide({u"mm_",
+                        pas::wide_int_to_str(
+                            static_cast<std::int32_t>(
+                                aItem::GetMicroModulePriorityColorTier(microModule->MicroModuleIndex - 1)))}));
                 }
             } else if (ItemType == aConst::t_ArtefactBomb) {
                 CreateContainer(u"Bomb"_w);
             } else if (pas::class_cast_if<TUselessItem*>(this) != nullptr && ([&] {
-                EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Item"_wref.get());
-                const pas::WideString& configBlockName = reinterpret_cast<TUselessItem*>(this)->ConfigBlockName;
-                return blockByPath->CountBlocks(configBlockName);
-            }()) > 0) {
+                    EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(
+                        u"SE.Item"_wref.get());
+                    const pas::WideString& configBlockName = reinterpret_cast<TUselessItem*>(this)->ConfigBlockName;
+                    return blockByPath->CountBlocks(configBlockName);
+                }()) > 0) {
                 CreateContainer(reinterpret_cast<TUselessItem*>(this)->ConfigBlockName);
             } else if (pas::class_cast_if<TCistern*>(this) != nullptr) {
                 CreateContainer(u"Cistern"_w);
             } else if (TGoods* goods = pas::class_cast_if<TGoods*>(this); goods != nullptr && goods->NaturalFlag) {
                 if (Weight <= 29) {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
+                    CreateContainer(pas::concat_wide({u"m0_",
+                        pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))}));
                 } else if (Weight <= 59) {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
+                    CreateContainer(pas::concat_wide({u"m1_",
+                        pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))}));
                 } else {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"m2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))})));
+                    CreateContainer(pas::concat_wide({u"m2_",
+                        pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 2, Id * 25457))}));
                 }
-            } else if (TProtoplasm* protoplasm = pas::class_cast_if<TProtoplasm*>(this); protoplasm != nullptr && protoplasm->DropFlag != 0) {
+            } else if (TProtoplasm* protoplasm = pas::class_cast_if<TProtoplasm*>(this); protoplasm != nullptr &&
+                protoplasm->DropFlag != 0) {
                 if (Weight <= 29) {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n0_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
+                    CreateContainer(pas::concat_wide({u"n0_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 59) {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n1_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
+                    CreateContainer(pas::concat_wide({u"n1_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 99) {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n2_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
+                    CreateContainer(pas::concat_wide({u"n2_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else {
-                    CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"n3_", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Id) % 5)})));
+                    CreateContainer(pas::concat_wide({u"n3_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 }
-            } else if (TCountableItem* countableItem = pas::class_cast_if<TCountableItem*>(this); countableItem != nullptr && countableItem->DropFlag != 0) {
+            } else if (TCountableItem* countableItem = pas::class_cast_if<TCountableItem*>(this); countableItem !=
+                nullptr && countableItem->DropFlag != 0) {
                 if (Weight <= 29) {
-                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"0_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"0_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 59) {
-                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"1_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"1_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else if (Weight <= 99) {
-                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"2_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"2_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 } else {
-                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"3_", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
+                    CreateContainer(pas::concat_wide({countableItem->ConfigBlockName, u"3_",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 5))}));
                 }
-            } else if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this); equipment != nullptr && equipment->CustomFaction != u"") {
+            } else if (TEquipment* equipment = pas::class_cast_if<TEquipment*>(this); equipment != nullptr &&
+                equipment->CustomFaction != u"") {
                 if (Weight <= 29) {
                     CreateContainer(pas::concat_wide({equipment->CustomFaction, u"0"}));
                 } else if (Weight <= 59) {
@@ -1106,7 +1332,8 @@ namespace aItem {
                 } else {
                     CreateContainer(pas::concat_wide({equipment->CustomFaction, u"3"}));
                 }
-            } else if (TEquipment* equipment_2 = pas::class_cast_if<TEquipment*>(this); equipment_2 != nullptr && OwnerId == aGalaxyStruct::oiDominator) {
+            } else if (TEquipment* equipment_2 = pas::class_cast_if<TEquipment*>(this); equipment_2 != nullptr &&
+                OwnerId == aGalaxyStruct::oiDominator) {
                 if (equipment_2->DominatorSeries == aGalaxyStruct::dsBlazer) {
                     if (Weight <= 29) {
                         CreateContainer(u"db0"_w);
@@ -1141,13 +1368,17 @@ namespace aItem {
                     GR_Main::RaiseWideMessage(u"Item graph"_wref.get());
                 }
             } else if (Weight <= 29) {
-                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c0_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
+                CreateContainer(pas::concat_wide({u"c0_",
+                    pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))}));
             } else if (Weight <= 59) {
-                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c1_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
+                CreateContainer(pas::concat_wide({u"c1_",
+                    pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))}));
             } else if (Weight <= 99) {
-                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c2_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
+                CreateContainer(pas::concat_wide({u"c2_",
+                    pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))}));
             } else {
-                CreateContainer(static_cast<pas::WideString>(pas::concat_ansi({"c3_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))})));
+                CreateContainer(pas::concat_wide({u"c3_",
+                    pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, 7, Id * 25457))}));
             }
             GraphObject->SetPosition(Position);
         }
@@ -1169,7 +1400,8 @@ namespace aItem {
         } else if (Self->OwnerId == aGalaxyStruct::oiDominator && pas::class_cast_if<TEquipment*>(Self) != nullptr) {
             return aConst::DominatorSeriesNames[static_cast<TEquipment*>(Self)->DominatorSeries];
         } else if (THull* hull = pas::class_cast_if<THull*>(Self); hull != nullptr && hull->PirateBuilt) {
-            return pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerToSys(Self->OwnerId)});
+            return pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName,
+                aConst::OwnerToSys(Self->OwnerId)});
         } else {
             return aConst::OwnerInfo[Self->OwnerId].InternalName;
         }
@@ -1185,9 +1417,14 @@ namespace aItem {
         std::int32_t I{};
         PExtraSpecial Entry{};
         if (Self->ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(Self->ExtraSpecials, I);
-                pas::dispose(Entry);
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->ExtraSpecials) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Entry = pas::list_at<TExtraSpecial>(Self->ExtraSpecials, I);
+                        pas::dispose(Entry);
+                    }
+                }
             }
             pas::free(Self->ExtraSpecials);
         }
@@ -1228,14 +1465,19 @@ namespace aItem {
             Buffer->AddIntegerValue(0);
         } else {
             Buffer->AddIntegerValue(pas::list_count(ExtraSpecials));
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(Index); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, Index);
-                ModuleIndex = Entry->ModuleIndexPlusOne;
-                Buffer->AddIntegerValue(ModuleIndex);
-                if (ModuleIndex > 0) {
-                    Buffer->AddDWord(aConst::MicroModuleTemplates[ModuleIndex - 1].ConfigNameHash);
+            {
+                const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, Index);
+                        ModuleIndex = Entry->ModuleIndexPlusOne;
+                        Buffer->AddIntegerValue(ModuleIndex);
+                        if (ModuleIndex > 0) {
+                            Buffer->AddDWord(aConst::MicroModuleTemplates[ModuleIndex - 1].ConfigNameHash);
+                        }
+                        Buffer->AddIntegerValue(Entry->Count);
+                    }
                 }
-                Buffer->AddIntegerValue(Entry->Count);
             }
         }
         Buffer->AddAnsiChar(static_cast<std::uint8_t>(DominatorSeries));
@@ -1267,42 +1509,44 @@ namespace aItem {
         };
         aItem::TItem::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion >= 152) {
-            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+            if (Buffer->GetBoolean()) {
                 CustomFaction = Buffer->ReadWideString();
             }
         }
         if (GlobalsV::LoadedSaveVersion >= 86) {
-            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+            if (Buffer->GetBoolean()) {
                 ConfigBlockName = Buffer->ReadWideString();
             }
         }
-        EquippedFlag = EC_Buf::TBufEC_GetBoolean(Buffer);
-        ConditionPercent = EC_Buf::TBufEC_GetSingle(Buffer);
-        BrokenFlag = EC_Buf::TBufEC_GetBoolean(Buffer);
-        AssignedSlotData = EC_Buf::TBufEC_GetByte(Buffer);
+        EquippedFlag = Buffer->GetBoolean();
+        ConditionPercent = Buffer->GetSingle();
+        BrokenFlag = Buffer->GetBoolean();
+        AssignedSlotData = Buffer->GetByte();
         if (GlobalsV::LoadedSaveVersion >= 157) {
             MicroModuleIndex = aItem::ReadSavedMicroModuleIndex(Buffer);
             SpecialModuleIndex = aItem::ReadSavedMicroModuleIndex(Buffer);
         } else if (GlobalsV::LoadedSaveVersion >= 67) {
-            MicroModuleIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-            SpecialModuleIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            MicroModuleIndex = Buffer->GetInt32();
+            SpecialModuleIndex = Buffer->GetInt32();
             if (GlobalsV::LoadedSaveVersion >= 98) {
                 if (MicroModuleIndex > 0) {
-                    ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
-                    if (aConst::MicroModuleTemplates.length() - 1 + 1 < MicroModuleIndex || aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber != ConfigNumber) {
+                    ConfigNumber = Buffer->GetInt32();
+                    if (aConst::MicroModuleTemplates.length() - 1 + 1 < MicroModuleIndex ||
+                        aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber != ConfigNumber) {
                         MicroModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                     }
                 }
                 if (SpecialModuleIndex > 0) {
-                    ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
-                    if (aConst::MicroModuleTemplates.length() - 1 + 1 < SpecialModuleIndex || aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigNumber != ConfigNumber) {
+                    ConfigNumber = Buffer->GetInt32();
+                    if (aConst::MicroModuleTemplates.length() - 1 + 1 < SpecialModuleIndex ||
+                        aConst::MicroModuleTemplates[SpecialModuleIndex - 1].ConfigNumber != ConfigNumber) {
                         SpecialModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                     }
                 }
             }
         } else {
-            MicroModuleIndex = EC_Buf::TBufEC_GetByte(Buffer);
-            SpecialModuleIndex = EC_Buf::TBufEC_GetByte(Buffer);
+            MicroModuleIndex = Buffer->GetByte();
+            SpecialModuleIndex = Buffer->GetByte();
         }
         if (GlobalsV::LoadedSaveVersion < 98) {
             if (MicroModuleIndex != 0) {
@@ -1329,16 +1573,17 @@ namespace aItem {
             }
         }
         if (GlobalsV::LoadedSaveVersion >= 116) {
-            Count = EC_Buf::TBufEC_GetInt32(Buffer);
+            Count = Buffer->GetInt32();
             if (Count > 0) {
                 ExtraSpecials = pas::make_object<pas::List>();
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
                     if (GlobalsV::LoadedSaveVersion >= 157) {
                         ModuleIndex = aItem::ReadSavedMicroModuleIndex(Buffer);
                     } else {
-                        ModuleIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-                        ConfigNumber = EC_Buf::TBufEC_GetInt32(Buffer);
-                        if (aConst::MicroModuleTemplates.length() - 1 + 1 < ModuleIndex || aConst::MicroModuleTemplates[ModuleIndex - 1].ConfigNumber != ConfigNumber) {
+                        ModuleIndex = Buffer->GetInt32();
+                        ConfigNumber = Buffer->GetInt32();
+                        if (aConst::MicroModuleTemplates.length() - 1 + 1 < ModuleIndex ||
+                            aConst::MicroModuleTemplates[ModuleIndex - 1].ConfigNumber != ConfigNumber) {
                             ModuleIndex = FindLegacyMicroModuleIndex(ConfigNumber);
                         }
                     }
@@ -1348,15 +1593,21 @@ namespace aItem {
                     if (GlobalsV::LoadedSaveVersion >= 140) {
                         pas::new_value(Entry);
                         Entry->ModuleIndexPlusOne = ModuleIndex;
-                        Entry->Count = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Entry->Count = Buffer->GetInt32();
                         pas::list_add(ExtraSpecials, static_cast<void*>(Entry));
                     } else {
                         Entry = nullptr;
-                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_2.next(ExistingIndex); ) {
-                            if (pas::list_at<TExtraSpecial>(ExtraSpecials, ExistingIndex)->ModuleIndexPlusOne == ModuleIndex) {
-                                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, ExistingIndex);
-                                ++Entry->Count;
-                                break;
+                        {
+                            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+                            if (0 <= cpp_last) {
+                                for (ExistingIndex = 0; ExistingIndex <= cpp_last; ++ExistingIndex) {
+                                    if (pas::list_at<TExtraSpecial>(ExtraSpecials, ExistingIndex)->ModuleIndexPlusOne ==
+                                        ModuleIndex) {
+                                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, ExistingIndex);
+                                        ++Entry->Count;
+                                        break;
+                                    }
+                                }
                             }
                         }
                         if (Entry == nullptr) {
@@ -1369,7 +1620,7 @@ namespace aItem {
                 }
             }
         }
-        DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(EC_Buf::TBufEC_GetByte(Buffer));
+        DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(Buffer->GetByte());
     }
 
     // Allocates a new item ID and resolves references in the current galaxy; changes LoadedSaveVersion.
@@ -1395,69 +1646,93 @@ namespace aItem {
         pas::WideString ModuleName{};
         aItem::TItem::SaveToBlock(Block);
         {
-            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(ConditionPercent), SysUtils::DecimalSeparator));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_w);
+            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(
+                static_cast<double>(ConditionPercent), SysUtils::DecimalSeparator));
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_wref.get());
             Block->AddParam(decodeTextW, cpp_arg);
         }
         {
             const pas::WideString& boolToWideString = EC_Str::BoolToWideString(BrokenFlag);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"BorYorkNeln"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"BorYorkNeln"_wref.get());
             Block->AddParam(decodeTextW_2, boolToWideString);
         }
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(MicroModuleIndex);
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"BrognWulso"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"BrognWulso"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr);
         }
         if (MicroModuleIndex != 0) {
-            Block->AddParam(EC_Str::DecodeTextW(u"IQBaodn4ursTNgatm2e"_w), aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name);
+            Block->AddParam(EC_Str::DecodeTextW(u"IQBaodn4ursTNgatm2e"_wref.get()),
+                aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(SpecialModuleIndex);
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_w);
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_wref.get());
             Block->AddParam(decodeTextW_4, intToStr_2);
         }
         if (SpecialModuleIndex != 0) {
-            Block->AddParam(EC_Str::DecodeTextW(u"IaSopRefcGihajl6NtaEm3ew"_w), aConst::MicroModuleTemplates[SpecialModuleIndex - 1].Name);
+            Block->AddParam(EC_Str::DecodeTextW(u"IaSopRefcGihajl6NtaEm3ew"_wref.get()),
+                aConst::MicroModuleTemplates[SpecialModuleIndex - 1].Name);
         }
         if (ExtraSpecials != nullptr) {
             Text = pas::WideString();
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                if (Text != u"") {
-                    Text = pas::concat_wide({Text, u", "});
-                }
-                if (Entry->ModuleIndexPlusOne <= 0 || Entry->ModuleIndexPlusOne > aConst::MicroModuleTemplateCount) {
-                    ModuleName = pas::concat_wide({u"<", EC_Str::IntToWideString(Entry->ModuleIndexPlusOne - 1), u">"});
-                } else {
-                    ModuleName = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].Name;
-                    if (ModuleName == u"") {
-                        ModuleName = pas::concat_wide({u"[", aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].ConfigName, u"]"});
+            {
+                const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                        if (Text != u"") {
+                            Text = pas::concat_wide({Text, u", "});
+                        }
+                        if (Entry->ModuleIndexPlusOne <= 0 || Entry->ModuleIndexPlusOne >
+                                aConst::MicroModuleTemplateCount) {
+                            ModuleName = pas::concat_wide({u"<", EC_Str::IntToWideString(Entry->ModuleIndexPlusOne - 1),
+                                    u">"});
+                        } else {
+                            ModuleName = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].Name;
+                            if (ModuleName == u"") {
+                                ModuleName = pas::concat_wide({u"[",
+                                        aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].ConfigName, u"]"});
+                            }
+                        }
+                        if (Entry->Count != 1) {
+                            Text = pas::concat_wide({Text, EC_Str::IntToWideString(Entry->Count), u"x", ModuleName});
+                        } else {
+                            Text = pas::concat_wide({Text, ModuleName});
+                        }
                     }
-                }
-                if (Entry->Count != 1) {
-                    Text = pas::concat_wide({Text, EC_Str::IntToWideString(Entry->Count), u"x", ModuleName});
-                } else {
-                    Text = pas::concat_wide({Text, ModuleName});
                 }
             }
             if (Text != u"") {
-                Block->AddParam(EC_Str::DecodeTextW(u"IaEoxRtfrGahSjp6etcEi3awlhs4"_w), Text);
+                Block->AddParam(EC_Str::DecodeTextW(u"IaEoxRtfrGahSjp6etcEi3awlhs4"_wref.get()), Text);
             }
         }
-        Block->AddParam(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_w), aConst::DominatorSeriesNames[DominatorSeries]);
+        Block->AddParam(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_wref.get()),
+            aConst::DominatorSeriesNames[DominatorSeries]);
     }
 
     void TEquipment_LoadFromBlock(TEquipment* Self, EC_BlockPar::TBlockParEC* Block) {
         std::int32_t SeriesIndex{};
         pas::WideString Text{};
         aItem::TItem_LoadFromBlock(Self, Block);
-        Self->ConditionPercent = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_w))));
-        Self->BrokenFlag = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BorYorkNeln"_w))))) == "true";
-        Self->MicroModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BrognWulso"_w)))));
-        Self->SpecialModuleIndex = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_w)))));
-        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_w)));
-        for (SeriesIndex = static_cast<std::int32_t>(aGalaxyStruct::dsBlazer); SeriesIndex <= static_cast<std::int32_t>(aGalaxyStruct::dsTerron); ++SeriesIndex) {
+        Self->ConditionPercent =
+            EC_Str::ExtractDecimalToSingleW(
+                Block->GetParam(pas::view(EC_Str::DecodeTextW(u"DyuRrdawbRiblNijtSyp"_wref.get()))));
+        Self->BrokenFlag =
+            SysUtilsImports::LowerCase(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BorYorkNeln"_wref.get()))))) == "true";
+        Self->MicroModuleIndex =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BrognWulso"_wref.get())))));
+        Self->SpecialModuleIndex =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SrpeeIcjigaEl4"_wref.get())))));
+        Text = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"D9o5meScewr3iwegs4"_wref.get())));
+        for (SeriesIndex = static_cast<std::int32_t>(aGalaxyStruct::dsBlazer); SeriesIndex <=
+            static_cast<std::int32_t>(aGalaxyStruct::dsTerron); ++SeriesIndex) {
             if (Text == aConst::DominatorSeriesNames[static_cast<aGalaxyStruct::TDominatorSeries>(SeriesIndex)]) {
                 Self->DominatorSeries = static_cast<aGalaxyStruct::TDominatorSeries>(SeriesIndex);
             }
@@ -1470,7 +1745,8 @@ namespace aItem {
             return;
         }
         if (ScriptItem != nullptr) {
-            reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemEquip, nullptr, nullptr, nullptr, 0);
+            reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemEquip, nullptr,
+                nullptr, nullptr, 0);
         }
         if (TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<TEquipmentWithActCode*>(this)) {
             aScript::RunItemConfigActionCode(this, aGalaxyStruct::satOnItemEquip, nullptr, nullptr, nullptr, 0);
@@ -1483,7 +1759,8 @@ namespace aItem {
             return;
         }
         if (ScriptItem != nullptr) {
-            reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemDeEquip, nullptr, nullptr, nullptr, 0);
+            reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->RunActionCode(aGalaxyStruct::satOnItemDeEquip, nullptr,
+                nullptr, nullptr, 0);
         }
         if (TEquipmentWithActCode* equipmentWithActCode = pas::class_cast_if<TEquipmentWithActCode*>(this)) {
             aScript::RunItemConfigActionCode(this, aGalaxyStruct::satOnItemDeEquip, nullptr, nullptr, nullptr, 0);
@@ -1497,12 +1774,13 @@ namespace aItem {
 
     // Tests hull damage or supported equipment below 90 percent condition.
     std::uint8_t TEquipment::NeedsRepair() {
-        static const pas::Set<0, 255> RepairableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
+        static const pas::Set<0, 255> RepairableTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) -
+            pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         if (ItemType == aConst::t_Hull) {
             std::int32_t cpp_left = pas::checked_cast<THull*>(this)->HullPoints;
             return cpp_left < pas::checked_cast<THull*>(this)->Weight;
         }
-        return pas::contains(RepairableTypes, static_cast<std::uint8_t>(ItemType)) && ConditionPercent < 9.0E+1L;
+        return pas::contains(RepairableTypes, static_cast<std::uint8_t>(ItemType)) && ConditionPercent < 9.0E+1;
     }
 
     // Undiscounted cost; hulls use HullPoints, other supported equipment uses ConditionPercent and BrokenFlag.
@@ -1519,33 +1797,36 @@ namespace aItem {
                 if (cpp_left - pas::checked_cast<THull*>(Self)->HullPoints != 0) {
                     {
                         std::int32_t cpp_left_2 = static_cast<THull*>(Self)->Weight;
-                        pas::Extended cpp_right = cpp_left_2 - static_cast<THull*>(Self)->HullPoints;
-                        DamagePercent = pas::real_divide(1.0E+2L, static_cast<THull*>(Self)->Weight) * cpp_right;
+                        double cpp_right = cpp_left_2 - static_cast<THull*>(Self)->HullPoints;
+                        DamagePercent = static_cast<float>(static_cast<float>(1.0E+2 / static_cast<THull*>(Self)->Weight) * cpp_right);
                     }
-                    return aMyFunction::RoundAndTruncateToTens(pas::real_divide(Self->Cost / 40, 1.0E+2L) * DamagePercent + 1.0E+1L);
+                    return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>(Self->Cost / 40 / 1.0E+2) * DamagePercent) + 1.0E+1));
                 }
             }
             return Result;
-        } else if (pas::in_set<aConst::t_FuelTanks, aConst::t_CustomWeapon, aConst::t_Satellite, aConst::t_Satellite>(Self->ItemType)) {
-            if (Self->ConditionPercent == 1.0E+2L) {
+        } else if (pas::in_set<aConst::t_FuelTanks, aConst::t_CustomWeapon, aConst::t_Satellite,
+            aConst::t_Satellite>(Self->ItemType)) {
+            if (Self->ConditionPercent == 1.0E+2) {
                 Result = 0;
             } else {
-                pas::Extended cpp_left_3 = 100 - System::Round(Self->ConditionPercent);
-                Result = aMyFunction::RoundAndTruncateToTens(cpp_left_3 * pas::real_divide(Self->Cost / 7, 1.0E+2L) + Self->Cost / 20 + 1.0E+1L);
+                Result = aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>((100 - pas::real_round(Self->ConditionPercent)) *
+                        (static_cast<float>(Self->Cost / 7 / 1.0E+2))) + Self->Cost / 20) + 1.0E+1));
             }
             if (Self->BrokenFlag != 0) {
-                return System::Round(Result * 1.3L);
+                return pas::real_round(static_cast<float>(Result * 0x1.4ccccccccccccp+0));
             }
             return Result;
-        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(Self->ItemType)) {
-            if (Self->ConditionPercent == 1.0E+2L) {
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull,
+            aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio,
+            aConst::t_ArtFastRacks>(Self->ItemType)) {
+            if (Self->ConditionPercent == 1.0E+2) {
                 Result = 0;
             } else {
-                pas::Extended cpp_left_4 = 100 - System::Round(Self->ConditionPercent);
-                Result = aMyFunction::RoundAndTruncateToTens(cpp_left_4 * pas::real_divide(Self->Cost / 5, 1.0E+2L) + Self->Cost / 10 + 1.0E+1L);
+                Result = aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<float>((100 - pas::real_round(Self->ConditionPercent)) *
+                        (static_cast<float>(Self->Cost / 5 / 1.0E+2))) + Self->Cost / 10) + 1.0E+1));
             }
             if (Self->BrokenFlag != 0) {
-                Result = System::Round(Result * 1.3L);
+                Result = pas::real_round(static_cast<float>(Result * 0x1.4ccccccccccccp+0));
             }
             return Result * 2;
         } else {
@@ -1556,7 +1837,8 @@ namespace aItem {
     // Includes player technology restrictions as well as wear and breakage.
     pas::WideString TEquipment::GetConditionText(std::uint8_t PrefixNewLine) {
         pas::WideString Result{};
-        static const pas::Set<0, 255> SupportedTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
+        static const pas::Set<0, 255> SupportedTypes = pas::constant_set<pas::Set<0, 255>>({{0, 79}}) -
+            pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}});
         pas::WideString Prefix{};
         if (!pas::contains(SupportedTypes, static_cast<std::uint8_t>(ItemType))) {
             return pas::WideString();
@@ -1566,118 +1848,170 @@ namespace aItem {
         } else {
             Prefix = pas::WideString();
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(aPlayer::GetPlayer(), this) ^ 1)) {
-            pas::WideString cpp_arg = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())});
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(
+                aPlayer::GetPlayer(), this) ^ 1)) {
+            pas::WideString cpp_arg = pas::concat_wide({Prefix,
+                aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())});
             pas::WideString redColorTag = aMyFunction::RedColorTag;
             return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg)), pas::view(std::move(redColorTag)));
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), this) ^ 1) && BrokenFlag != 0 && static_cast<std::uint8_t>(pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_Engine)) ^ 1)) {
-            pas::WideString cpp_arg_2 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())});
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(
+                aPlayer::GetPlayer(), this) ^ 1) && BrokenFlag != 0 && !pas::in_range(ItemType,
+                static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_Engine))) {
+            pas::WideString cpp_arg_2 = pas::concat_wide({Prefix,
+                aConst::LocalizedText(u"Items.Equpments.CanNotBeUsed"_wref.get())});
             pas::WideString redColorTag_2 = aMyFunction::RedColorTag;
             return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_2)), pas::view(std::move(redColorTag_2)));
         }
         if (BrokenFlag != 0) {
-            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks),
+                static_cast<std::int32_t>(aConst::t_DefGenerator))) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_3 = pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Broken"}))});
-                    pas::WideString redColorTag_3 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_3)), pas::view(std::move(redColorTag_3)));
-                }());
-            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                        pas::WideString cpp_arg_3 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                                u".Broken"}))});
+                        pas::WideString redColorTag_3 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_3)),
+                            pas::view(std::move(redColorTag_3)));
+                    }());
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_4 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())});
-                    pas::WideString redColorTag_4 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_4)), pas::view(std::move(redColorTag_4)));
-                }());
-            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
+                        pas::WideString cpp_arg_4 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(u"Items.Weapon.Broken"_wref.get())});
+                        pas::WideString redColorTag_4 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_4)),
+                            pas::view(std::move(redColorTag_4)));
+                    }());
+            } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+                static_cast<std::int32_t>(aConst::t_Artefact2))) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_5 = pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Broken"}))});
-                    pas::WideString redColorTag_5 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_5)), pas::view(std::move(redColorTag_5)));
-                }());
-            } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
+                        pas::WideString cpp_arg_5 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName,
+                                u".Broken"}))});
+                        pas::WideString redColorTag_5 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_5)),
+                            pas::view(std::move(redColorTag_5)));
+                    }());
+            } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull,
+                aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio,
+                aConst::t_ArtFastRacks>(ItemType)) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_6 = pas::concat_wide({Prefix, aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Broken"}))});
-                    pas::WideString redColorTag_6 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_6)), pas::view(std::move(redColorTag_6)));
-                }());
+                        pas::WideString cpp_arg_6 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType],
+                                u".Broken"}))});
+                        pas::WideString redColorTag_6 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_6)),
+                            pas::view(std::move(redColorTag_6)));
+                    }());
             } else if (ItemType == aConst::t_Satellite) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_7 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())});
-                    pas::WideString redColorTag_7 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_7)), pas::view(std::move(redColorTag_7)));
-                }());
+                        pas::WideString cpp_arg_7 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(u"Items.Satellite.Broken"_wref.get())});
+                        pas::WideString redColorTag_7 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_7)),
+                            pas::view(std::move(redColorTag_7)));
+                    }());
             } else {
                 Result = pas::WideString();
             }
         } else if (pas::class_cast_if<TArtefact*>(this) != nullptr) {
             // Native retains this transmitter branch despite the initial supported-type set.
-            if (ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(this)->Power < aConst::MinTransmitterPower) {
+            if (ItemType == aConst::t_ArtefactTransmitter && pas::checked_cast<TArtefactTransmitter*>(this)->Power <
+                    aConst::MinTransmitterPower) {
                 Result = ([&] {
-                    pas::WideString cpp_arg_8 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())});
-                    pas::WideString goldColorTag = aMyFunction::GoldColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_8)), pas::view(std::move(goldColorTag)));
-                }());
+                        pas::WideString cpp_arg_8 = pas::concat_wide({Prefix,
+                            aConst::LocalizedText(u"Artefacts.ArtTransmitter.Broken"_wref.get())});
+                        pas::WideString goldColorTag = aMyFunction::GoldColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_8)),
+                            pas::view(std::move(goldColorTag)));
+                    }());
             } else {
                 Result = pas::WideString();
             }
-        } else if (ConditionPercent < 2.0E+1L) {
+        } else if (ConditionPercent < 2.0E+1) {
             Result = ([&] {
-                pas::WideString cpp_arg_9 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.SmallDuration"_wref.get())});
-                pas::WideString goldColorTag_2 = aMyFunction::GoldColorTag;
-                return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_9)), pas::view(std::move(goldColorTag_2)));
-            }());
-        } else if (ConditionPercent < 5.0E+1L) {
+                    pas::WideString cpp_arg_9 = pas::concat_wide({Prefix,
+                        aConst::LocalizedText(u"Items.Equpments.SmallDuration"_wref.get())});
+                    pas::WideString goldColorTag_2 = aMyFunction::GoldColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_9)),
+                        pas::view(std::move(goldColorTag_2)));
+                }());
+        } else if (ConditionPercent < 5.0E+1) {
             Result = ([&] {
-                pas::WideString cpp_arg_10 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.AverageDuration"_wref.get())});
-                pas::WideString grayColorTag = aMyFunction::GrayColorTag;
-                return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_10)), pas::view(std::move(grayColorTag)));
-            }());
+                    pas::WideString cpp_arg_10 = pas::concat_wide({Prefix,
+                        aConst::LocalizedText(u"Items.Equpments.AverageDuration"_wref.get())});
+                    pas::WideString grayColorTag = aMyFunction::GrayColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_10)),
+                        pas::view(std::move(grayColorTag)));
+                }());
         } else {
             Result = pas::WideString();
         }
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(aPlayer::GetPlayer(), this) ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aShip::TShip_CanRepairEquipmentTech(
+                aPlayer::GetPlayer(), this) ^ 1)) {
             if (!PrefixNewLine) {
                 Result = pas::WideString();
             }
-            return pas::concat_wide({([&] {
-                pas::WideString cpp_arg_11 = pas::concat_wide({Prefix, aConst::LocalizedText(u"Items.Equpments.CanNotBeRepaired"_wref.get())});
-                pas::WideString grayColorTag_2 = aMyFunction::GrayColorTag;
-                return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_11)), pas::view(std::move(grayColorTag_2)));
-            }()), Result});
+            return pas::concat_wide({
+                ([&] {
+                    pas::WideString cpp_arg_11 = pas::concat_wide({Prefix,
+                        aConst::LocalizedText(u"Items.Equpments.CanNotBeRepaired"_wref.get())});
+                    pas::WideString grayColorTag_2 = aMyFunction::GrayColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg_11)),
+                        pas::view(std::move(grayColorTag_2)));
+                }()), Result});
         }
         return Result;
     }
 
     pas::WideString TEquipment::GetBrokenInBattleText() {
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".BrokenInBattle"}));
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks),
+            static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                u".BrokenInBattle"}));
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             pas::WideString displayName = GetDisplayName();
             pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.BrokenInBattle"_wref.get());
             pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(displayName));
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenInBattle"}));
-        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
-            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenInBattle"}));
+            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w,
+                std::move(displayName));
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName,
+                u".BrokenInBattle"}));
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull,
+            aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio,
+            aConst::t_ArtFastRacks>(ItemType)) {
+            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType],
+                u".BrokenInBattle"}));
         } else {
             return pas::WideString();
         }
     }
 
     pas::WideString TEquipment::GetBrokenInUseText() {
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".BrokenInUse"}));
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks),
+            static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                u".BrokenInUse"}));
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             pas::WideString displayName = GetDisplayName();
             pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.BrokenInUse"_wref.get());
             pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(displayName));
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenInUse"}));
-        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
-            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenInUse"}));
+            return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w,
+                std::move(displayName));
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName,
+                u".BrokenInUse"}));
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull,
+            aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio,
+            aConst::t_ArtFastRacks>(ItemType)) {
+            return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType],
+                u".BrokenInUse"}));
         } else {
             return pas::WideString();
         }
@@ -1685,19 +2019,28 @@ namespace aItem {
 
     pas::WideString TEquipment::GetBrokenByForceText() {
         pas::WideString Result{};
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator))) {
-            Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".BrokenByForce"}));
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks),
+            static_cast<std::int32_t>(aConst::t_DefGenerator))) {
+            Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                    u".BrokenByForce"}));
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
             Result = ([&] {
-                pas::WideString displayName = GetDisplayName();
-                pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.BrokenByForce"_wref.get());
-                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag), u"<Name>"_w, std::move(displayName));
-            }());
-        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".BrokenByForce"}));
-        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
-            Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".BrokenByForce"}));
+                    pas::WideString displayName = GetDisplayName();
+                    pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.BrokenByForce"_wref.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedText), std::move(textHighlightColorTag),
+                        u"<Name>"_w, std::move(displayName));
+                }());
+        } else if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName,
+                    u".BrokenByForce"}));
+        } else if (pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull,
+            aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio,
+            aConst::t_ArtFastRacks>(ItemType)) {
+            Result = aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType],
+                    u".BrokenByForce"}));
         } else {
             return Result;
         }
@@ -1719,7 +2062,8 @@ namespace aItem {
             case aConst::t_CargoHook: return pas::checked_cast<TCargoHook*>(this)->TechLevel;
             case aConst::t_DefGenerator: return pas::checked_cast<TDefGenerator*>(this)->TechLevel;
             default: {
-                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
+                if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+                    static_cast<std::int32_t>(aConst::t_CustomWeapon))) {
                     return pas::checked_cast<TWeapon*>(this)->TechLevel;
                 }
                 return 0;
@@ -1738,10 +2082,13 @@ namespace aItem {
     }
 
     pas::WideString TEquipment::GetDescriptionText() {
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks), static_cast<std::int32_t>(aConst::t_DefGenerator)) && OwnerId == aGalaxyStruct::oiDominator) {
-            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".KlingDescription.", pas::wide_int_to_str(GetLevel())}));
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_FuelTanks),
+            static_cast<std::int32_t>(aConst::t_DefGenerator)) && OwnerId == aGalaxyStruct::oiDominator) {
+            return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                u".KlingDescription.", pas::wide_int_to_str(GetLevel())}));
         }
-        return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Description.", pas::wide_int_to_str(GetLevel())}));
+        return aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Description.",
+            pas::wide_int_to_str(GetLevel())}));
     }
 
     pas::WideString TEquipment::GetDisplayName() {
@@ -1751,27 +2098,35 @@ namespace aItem {
             Result = NameOverride;
         } else if (SpecialModuleIndex != 0) {
             Result = ([&] {
-                pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
-                pas::WideString specialModuleName = GetSpecialModuleName();
-                return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)), pas::view(std::move(microModuleTextColorTag)));
-            }());
+                    pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
+                    pas::WideString specialModuleName = GetSpecialModuleName();
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)),
+                        pas::view(std::move(microModuleTextColorTag)));
+                }());
         } else if (CustomFaction != u"") {
-            Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".", CustomFaction, u"Name"}));
+            Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".",
+                    CustomFaction, u"Name"}));
         }
         if (Result == u"") {
             if (OwnerId != aGalaxyStruct::oiDominator) {
-                TypeName = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Type.", pas::wide_int_to_str(GetLevel())}));
-                Result = aMyFunction::ReplaceColoredToken(aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Name"})), u"<Type>"_w, TypeName, pas::WideString());
+                TypeName = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                        u".Type.", pas::wide_int_to_str(GetLevel())}));
+                Result = aMyFunction::ReplaceColoredToken(
+                        aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".Name"})),
+                        u"<Type>"_w, TypeName, pas::WideString());
             } else {
-                Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType], u".KlingName"}));
+                Result = aConst::LocalizedText(pas::concat_wide({u"Items.", aConst::ItemTypeNames[ItemType],
+                        u".KlingName"}));
             }
         }
         if (HasMicroModule()) {
-            return pas::concat_wide({Result, u" ", ([&] {
-                pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
-                pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
-            }())});
+            return pas::concat_wide({Result, u" ",
+                ([&] {
+                    pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
+                    pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)),
+                        pas::view(std::move(microModuleNameColorTag)));
+                }())});
         }
         return Result;
     }
@@ -1801,13 +2156,10 @@ namespace aItem {
         }
     }
 
-    std::uint8_t TEquipment::HasMicroModule() {
-        return MicroModuleIndex != 0;
-    }
-
     pas::WideString TEquipment::GetMicroModuleQuotedName() {
         if (HasMicroModule()) {
-            if (EC_Str::FindTextOffsetW(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name, u"\""_wref.get(), 0) >= 0) {
+            if (EC_Str::FindTextOffsetW(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name, u"\""_wref.get(), 0) >=
+                0) {
                 return aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name;
             }
             return pas::concat_wide({u"\"", aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name, u"\""});
@@ -1829,11 +2181,12 @@ namespace aItem {
     // Only ikMinor, ikMedium and ikMajor are valid: Cost times 0.3, 0.6 or 1.2, rounded then truncated to a multiple of 10, before service discounts.
     std::int32_t TEquipment::CalculateImprovementCost(TImprovementKind Kind) {
         switch (Kind) {
-            case ikMinor: return aMyFunction::RoundAndTruncateToTens(Cost * 0.3L);
-            case ikMedium: return aMyFunction::RoundAndTruncateToTens(Cost * 0.6L);
-            case ikMajor: return aMyFunction::RoundAndTruncateToTens(Cost * 1.2L);
+            case ikMinor: return aMyFunction::RoundAndTruncateToTens(static_cast<float>(Cost * 0x1.3333333333334p-2));
+            case ikMedium: return aMyFunction::RoundAndTruncateToTens(static_cast<float>(Cost * 0x1.3333333333334p-1));
+            case ikMajor: return aMyFunction::RoundAndTruncateToTens(static_cast<float>(Cost * 0x1.3333333333334p+0));
             default: {
-                GR_Main::RaiseWideMessage(u"\u041a\u043e\u0441\u044f\u043a \u0432 \u0443\u043b\u0443\u0447\u0448\u0435\u043d\u0438\u0438"_wref.get());
+                GR_Main::RaiseWideMessage(
+                    u"\u041a\u043e\u0441\u044f\u043a \u0432 \u0443\u043b\u0443\u0447\u0448\u0435\u043d\u0438\u0438"_wref.get());
                 return 0;
             }
         }
@@ -1850,18 +2203,24 @@ namespace aItem {
         if (ConfigBlockName != u"") {
             Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType],
+                    aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
         } else if (CustomFaction != u"") {
-            Path = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], CustomFaction});
-            if (GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"a"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"i"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"s"}))) {
+            Path = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType],
+                    CustomFaction});
+            if (GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"a"})) &&
+                GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"i"})) &&
+                GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Path, u"s"}))) {
                 Result = Path;
             }
         }
         if (Result == u"") {
             if (OwnerId == aGalaxyStruct::oiDominator) {
-                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], u"Kling0"});
+                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType],
+                    u"Kling0"});
             }
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], pas::wide_int_to_str(GetLevel() - 1)});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType],
+                pas::wide_int_to_str(GetLevel() - 1)});
         }
         return Result;
     }
@@ -1870,22 +2229,25 @@ namespace aItem {
         std::int32_t I{};
         PExtraSpecial Entry{};
         float Factor{};
-        float Result = pas::real_divide(1.0L, pas::real_max<float>(0.001f, aConst::OwnerInfo[OwnerId].EquipmentDurabilityFactor));
+        float Result = static_cast<float>(1.0 / pas::real_max_scalar<float>(0.001f, aConst::OwnerInfo[OwnerId].EquipmentDurabilityFactor));
         if (MicroModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[MicroModuleIndex - 1].FragilityFactor;
+            Result = static_cast<float>(static_cast<double>(Result) * aConst::MicroModuleTemplates[MicroModuleIndex - 1].FragilityFactor);
         }
         if (SpecialModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[SpecialModuleIndex - 1].FragilityFactor;
+            Result = static_cast<float>(static_cast<double>(Result) * aConst::MicroModuleTemplates[SpecialModuleIndex - 1].FragilityFactor);
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Factor = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].FragilityFactor;
-                if (std::fabs(Factor - 1.0L) > 1.0E-6L) {
-                    if (Entry->Count == 1) {
-                        Result = static_cast<long double>(Result) * Factor;
-                    } else {
-                        Result = Math::Power(Factor, Entry->Count) * Result;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    Factor = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].FragilityFactor;
+                    if (std::fabs(static_cast<float>(Factor - 1.0)) > 1.0E-6) {
+                        if (Entry->Count == 1) {
+                            Result = static_cast<float>(static_cast<double>(Result) * Factor);
+                        } else {
+                            Result = static_cast<float>(Math::Power(Factor, Entry->Count) * Result);
+                        }
                     }
                 }
             }
@@ -1901,12 +2263,15 @@ namespace aItem {
         std::int32_t I{};
         std::int32_t SpecialBonus{};
         PExtraSpecial Entry{};
-        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0) {
+        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity,
+            aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0) {
             Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius, aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius,
+                aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
@@ -1915,16 +2280,24 @@ namespace aItem {
             SpecialBonus = 0;
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                SpecialBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    SpecialBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] *
+                            Entry->Count;
+                }
             }
         }
-        if (SpecialBonus != 0 && MicroModuleIndex != 0 && static_cast<std::uint8_t>(pas::is_one_of<aConst::bonExtraAkrinEff, aConst::bonExtraAkrinPenalty>(BonusKind) ^ 1)) {
-            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == SpecialBonus > 0) {
-                SpecialBonus += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] * SpecialBonus * 1.0E-4L);
+        if (SpecialBonus != 0 && MicroModuleIndex != 0 && !pas::is_one_of<aConst::bonExtraAkrinEff,
+                aConst::bonExtraAkrinPenalty>(BonusKind)) {
+            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass),
+                static_cast<std::int32_t>(aConst::bonMass)) == SpecialBonus > 0) {
+                SpecialBonus += pas::real_round(static_cast<float>(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonExtraAkrinPenalty] * SpecialBonus * 1.0E-4));
             } else {
-                SpecialBonus += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] * SpecialBonus * 1.0E-4L);
+                SpecialBonus += pas::real_round(static_cast<float>(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonExtraAkrinEff] * SpecialBonus * 1.0E-4));
             }
         }
         Result += SpecialBonus;
@@ -1938,12 +2311,16 @@ namespace aItem {
         std::int32_t EffectPercent{};
         std::int32_t PenaltyPercent{};
         PExtraSpecial Entry{};
-        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity, aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0 && static_cast<std::uint8_t>(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers ^ 1)) {
+        if (pas::in_set<aConst::bonSkill1, aConst::bonSkill6, aConst::bonStimCapacity,
+            aConst::bonStimCapacity>(BonusKind) && MicroModuleIndex != 0 &&
+            static_cast<std::uint8_t>(aConst::MicroModuleTemplates[MicroModuleIndex - 1].SeparatedNumbers ^ 1)) {
             Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         } else {
             Result = 0;
         }
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser), static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius, aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_IndustrialLaser),
+            static_cast<std::int32_t>(aConst::t_CustomWeapon)) && pas::in_set<aConst::bonWEnergy, aConst::bonWRadius,
+                aConst::bonMissileSpeed, aConst::bonMissileSpeed>(BonusKind)) {
             return Result;
         }
         std::int32_t CombinedBonus = 0;
@@ -1957,38 +2334,50 @@ namespace aItem {
             }
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(Index); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, Index);
-                if (aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                    ExtraSeparatedBonus = CombinedBonus + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
-                } else {
-                    CombinedBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, Index);
+                    if (aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].SeparatedNumbers) {
+                        ExtraSeparatedBonus = CombinedBonus + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                                    1].StatBonuses[BonusKind] * Entry->Count;
+                    } else {
+                        CombinedBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                                1].StatBonuses[BonusKind] * Entry->Count;
+                    }
                 }
             }
         }
         if (MicroModuleIndex != 0) {
             EffectPercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff];
-            PenaltyPercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty];
+            PenaltyPercent = aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonExtraAkrinPenalty];
         } else {
             EffectPercent = 0;
             PenaltyPercent = 0;
         }
-        if ((EffectPercent != 0 || PenaltyPercent != 0) && (CombinedBonus != 0 || SeparatedBonus != 0 || ExtraSeparatedBonus != 0) && static_cast<std::uint8_t>(pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonExtraAkrinEff), static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty)) ^ 1)) {
+        if ((EffectPercent != 0 || PenaltyPercent != 0) && (CombinedBonus != 0 || SeparatedBonus != 0 ||
+                ExtraSeparatedBonus != 0) && !pas::in_range(BonusKind,
+                static_cast<std::int32_t>(aConst::bonExtraAkrinEff),
+                static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty))) {
             CombinedBonus = CombinedBonus + SeparatedBonus + ExtraSeparatedBonus;
-            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == CombinedBonus > 0) {
-                CombinedBonus += System::Round(CombinedBonus * PenaltyPercent * 1.0E-4L);
+            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass),
+                static_cast<std::int32_t>(aConst::bonMass)) == CombinedBonus > 0) {
+                CombinedBonus += pas::real_round(static_cast<float>(CombinedBonus * PenaltyPercent * 1.0E-4));
             } else {
-                CombinedBonus += System::Round(CombinedBonus * EffectPercent * 1.0E-4L);
+                CombinedBonus += pas::real_round(static_cast<float>(CombinedBonus * EffectPercent * 1.0E-4));
             }
-            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == SeparatedBonus > 0) {
-                SeparatedBonus += System::Round(SeparatedBonus * PenaltyPercent * 1.0E-4L);
+            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass),
+                static_cast<std::int32_t>(aConst::bonMass)) == SeparatedBonus > 0) {
+                SeparatedBonus += pas::real_round(static_cast<float>(SeparatedBonus * PenaltyPercent * 1.0E-4));
             } else {
-                SeparatedBonus += System::Round(SeparatedBonus * EffectPercent * 1.0E-4L);
+                SeparatedBonus += pas::real_round(static_cast<float>(SeparatedBonus * EffectPercent * 1.0E-4));
             }
-            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == ExtraSeparatedBonus > 0) {
-                ExtraSeparatedBonus += System::Round(ExtraSeparatedBonus * PenaltyPercent * 1.0E-4L);
+            if (pas::in_range(BonusKind, static_cast<std::int32_t>(aConst::bonMass),
+                static_cast<std::int32_t>(aConst::bonMass)) == ExtraSeparatedBonus > 0) {
+                ExtraSeparatedBonus += pas::real_round(static_cast<float>(ExtraSeparatedBonus * PenaltyPercent * 1.0E-4));
             } else {
-                ExtraSeparatedBonus += System::Round(ExtraSeparatedBonus * EffectPercent * 1.0E-4L);
+                ExtraSeparatedBonus += pas::real_round(static_cast<float>(ExtraSeparatedBonus * EffectPercent * 1.0E-4));
             }
             CombinedBonus = CombinedBonus - SeparatedBonus - ExtraSeparatedBonus;
         }
@@ -2005,24 +2394,29 @@ namespace aItem {
         std::int32_t Index{};
         std::int32_t ModuleIndexPlusOne{};
         // Uses the parent description, bonus multipliers and color. RET 4 removes Result; the caller removes ParentFrame. Count 0 suppresses numeric bonuses.
-        auto ExpandModuleTokens = [&](const std::u16string_view& Text, std::int32_t ModuleIndexPlusOne, std::int32_t Count) -> pas::WideString {
+        auto ExpandModuleTokens = [&](const std::u16string_view& Text, std::int32_t ModuleIndexPlusOne,
+            std::int32_t Count) -> pas::WideString {
             pas::WideString Result{};
             aConst::TEquipmentBonusKind BonusIndex{};
             std::int32_t Value{};
             // The native helper reads the captured description; Text remains an unused managed parameter.
             Result = Description;
-            for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range.next(BonusIndex); ) {
+            for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull,
+                aConst::bonNull); cpp_range.next(BonusIndex); ) {
                 Value = aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].StatBonuses[BonusIndex];
                 Value *= Count;
-                if (Count != 0 && EffectPercent != 0 && static_cast<std::uint8_t>(pas::in_range(BonusIndex, static_cast<std::int32_t>(aConst::bonExtraAkrinEff), static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty)) ^ 1)) {
-                    if (pas::in_range(BonusIndex, static_cast<std::int32_t>(aConst::bonMass), static_cast<std::int32_t>(aConst::bonMass)) == Value > 0) {
-                        Value += System::Round(Value * PenaltyPercent * 1.0E-4L);
+                if (Count != 0 && EffectPercent != 0 && !pas::in_range(BonusIndex,
+                        static_cast<std::int32_t>(aConst::bonExtraAkrinEff),
+                        static_cast<std::int32_t>(aConst::bonExtraAkrinPenalty))) {
+                    if (pas::in_range(BonusIndex, static_cast<std::int32_t>(aConst::bonMass),
+                        static_cast<std::int32_t>(aConst::bonMass)) == Value > 0) {
+                        Value += pas::real_round(static_cast<float>(Value * PenaltyPercent * 1.0E-4));
                     } else {
-                        Value += System::Round(Value * EffectPercent * 1.0E-4L);
+                        Value += pas::real_round(static_cast<float>(Value * EffectPercent * 1.0E-4));
                     }
                 }
                 if (Value > 0) {
-                    pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(Value)}));
+                    pas::WideString cpp_arg = pas::concat_wide({u"+", pas::wide_int_to_str(Value)});
                     pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_2), std::move(cpp_arg), ColorTag);
                 } else if (Value < 0) {
@@ -2030,62 +2424,88 @@ namespace aItem {
                     pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_3), std::move(intToStr), ColorTag);
                 } else {
-                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"}), u"--"_w, ColorTag);
+                    aMyFunction::ReplaceTextToken(Result,
+                        pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusIndex], u">"}), u"--"_w, ColorTag);
                 }
             }
             return Result;
         };
         Result = pas::WideString();
         if (Self->MicroModuleIndex != 0) {
-            EffectPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff];
-            PenaltyPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty];
+            EffectPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex -
+                    1].StatBonuses[aConst::bonExtraAkrinEff];
+            PenaltyPercent = aConst::MicroModuleTemplates[Self->MicroModuleIndex -
+                    1].StatBonuses[aConst::bonExtraAkrinPenalty];
         } else {
             EffectPercent = 0;
             PenaltyPercent = 0;
         }
         if (Self->SpecialModuleIndex != 0) {
-            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].ConfigName, u".Text"}));
+            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.",
+                    aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].ConfigName, u".Text"}));
             if (aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].SeparatedNumbers) {
                 Description = ExpandModuleTokens(pas::view(Description), Self->SpecialModuleIndex, 1);
             }
-            if (pas::class_cast_if<TWeapon*>(Self) != nullptr && aConst::MicroModuleTemplates[Self->SpecialModuleIndex - 1].TextReplace == u"" && Self->GetSpecialModuleName() != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()), u" ", aMyFunction::WrapTextInColor(pas::view(Self->GetSpecialModuleName()), pas::view(aMyFunction::TextHighlightColorTag))});
+            if (pas::class_cast_if<TWeapon*>(Self) != nullptr && aConst::MicroModuleTemplates[Self->SpecialModuleIndex -
+                    1].TextReplace == u"" && Self->GetSpecialModuleName() != u"") {
+                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedText(u"Items.Weapon.WSpecial"_wref.get()),
+                        u" ",
+                        aMyFunction::WrapTextInColor(pas::view(Self->GetSpecialModuleName()),
+                            pas::view(aMyFunction::TextHighlightColorTag))});
                 if (Description != u"") {
-                    Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
+                    Result = pas::concat_wide({Result, u"\r\n",
+                            aMyFunction::WrapTextInColor(pas::view(Description),
+                                pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
                 }
             } else if (Description != u"") {
-                Result = pas::concat_wide({u"\r\n \r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
+                Result = pas::concat_wide({u"\r\n \r\n",
+                        aMyFunction::WrapTextInColor(pas::view(Description),
+                            pas::view(aItem::GetMicroModuleTextColorTag(Self->SpecialModuleIndex - 1)))});
             }
         }
         if (Self->MicroModuleIndex != 0) {
-            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].ConfigName, u".ExText"}));
+            Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.",
+                    aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].ConfigName, u".ExText"}));
             if (Description != u"") {
                 if (aConst::MicroModuleTemplates[Self->MicroModuleIndex - 1].SeparatedNumbers) {
                     Description = ExpandModuleTokens(pas::view(Description), Self->MicroModuleIndex, 0);
                 }
-                Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(Self->MicroModuleIndex - 1)))});
+                Result = pas::concat_wide({Result, u"\r\n",
+                        aMyFunction::WrapTextInColor(pas::view(Description),
+                            pas::view(aItem::GetMicroModuleTextColorTag(Self->MicroModuleIndex - 1)))});
             }
         }
         if (Self->ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->ExtraSpecials) - 1); cpp_range.next(Index); ) {
-                ModuleIndexPlusOne = pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->ModuleIndexPlusOne;
-                if (ModuleIndexPlusOne != Self->MicroModuleIndex || aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                    Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.", aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].ConfigName, u".ExText"}));
-                    if (Description != u"") {
-                        aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w, pas::wide_int_to_str(pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count), ColorTag);
-                        if (aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
-                            Description = ExpandModuleTokens(pas::view(Description), ModuleIndexPlusOne, pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count);
+            const std::int32_t cpp_last = pas::list_count(Self->ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    ModuleIndexPlusOne = pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->ModuleIndexPlusOne;
+                    if (ModuleIndexPlusOne != Self->MicroModuleIndex ||
+                        aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
+                        Description = aConst::LocalizedColorText(pas::concat_wide({u"MicroModuls.",
+                                aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].ConfigName, u".ExText"}));
+                        if (Description != u"") {
+                            aMyFunction::ReplaceTextToken(Description, u"<ExCount>"_w,
+                                pas::wide_int_to_str(pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count),
+                                ColorTag);
+                            if (aConst::MicroModuleTemplates[ModuleIndexPlusOne - 1].SeparatedNumbers) {
+                                Description = ExpandModuleTokens(pas::view(Description), ModuleIndexPlusOne,
+                                        pas::list_at<TExtraSpecial>(Self->ExtraSpecials, Index)->Count);
+                            }
+                            Result = pas::concat_wide({Result, u"\r\n",
+                                    aMyFunction::WrapTextInColor(pas::view(Description),
+                                        pas::view(aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1)))});
                         }
-                        Result = pas::concat_wide({Result, u"\r\n", aMyFunction::WrapTextInColor(pas::view(Description), pas::view(aItem::GetMicroModuleTextColorTag(ModuleIndexPlusOne - 1)))});
                     }
                 }
             }
         }
         if (Result != u"") {
-            for (auto cpp_range_2 = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull, aConst::bonNull); cpp_range_2.next(BonusKind); ) {
+            for (auto cpp_range = pas::for_to<aConst::TEquipmentBonusKind>(aConst::bonHull,
+                aConst::bonNull); cpp_range.next(BonusKind); ) {
                 StatBonus = Self->GetDescriptionStatBonus(BonusKind);
                 if (StatBonus > 0) {
-                    pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}));
+                    pas::WideString cpp_arg = pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)});
                     pas::WideString cpp_arg_2 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusKind], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_2), std::move(cpp_arg), ColorTag);
                 } else if (StatBonus < 0) {
@@ -2093,7 +2513,8 @@ namespace aItem {
                     pas::WideString cpp_arg_3 = pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusKind], u">"});
                     aMyFunction::ReplaceTextToken(Result, std::move(cpp_arg_3), std::move(intToStr), ColorTag);
                 } else {
-                    aMyFunction::ReplaceTextToken(Result, pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusKind], u">"}), u"--"_w, ColorTag);
+                    aMyFunction::ReplaceTextToken(Result,
+                        pas::concat_wide({u"<", aConst::EquipmentBonusNames[BonusKind], u">"}), u"--"_w, ColorTag);
                 }
             }
         }
@@ -2102,10 +2523,12 @@ namespace aItem {
 
     // Requires HasStandardStats and no special module that blocks the special slot; does not check technology access.
     std::uint8_t TEquipment::CanImprove() {
-        return HasStandardStats() && (SpecialModuleIndex == 0 || static_cast<std::uint8_t>(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].BlocksSpecialSlot ^ 1));
+        return HasStandardStats() && (SpecialModuleIndex == 0 ||
+                static_cast<std::uint8_t>(aConst::MicroModuleTemplates[SpecialModuleIndex - 1].BlocksSpecialSlot ^ 1));
     }
 
-    void THull::Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType, std::int32_t Series, std::uint8_t PirateBuilt) {
+    void THull::Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner,
+        aGalaxyStruct::THullType HullType, std::int32_t Series, std::uint8_t PirateBuilt) {
         ItemType = aConst::t_Hull;
         OwnerShip = nullptr;
         Weight = Capacity;
@@ -2132,13 +2555,14 @@ namespace aItem {
     void THull::ApplySeriesSizeAndCost() {
         std::int32_t NewWeight{};
         if (HullSeries != -1) {
-            NewWeight = System::Round(pas::real_divide(Weight, 1.0E+2L) * aConst::HullSeriesDefinitions[HullSeries].SizePercent);
+            NewWeight = pas::real_round(static_cast<float>(static_cast<float>(Weight / 1.0E+2) * aConst::HullSeriesDefinitions[HullSeries].SizePercent));
             if (NewWeight < Weight) {
                 NewWeight = std::min<std::int32_t>(Weight, std::max<std::int32_t>(250, NewWeight));
             }
             Weight = NewWeight;
             HullPoints = Weight;
-            Cost = aMyFunction::RoundAndTruncateToTens(pas::real_divide(Cost, 1.0E+2L) * aConst::HullSeriesDefinitions[HullSeries].CostPercent);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Cost / 1.0E+2) *
+                    aConst::HullSeriesDefinitions[HullSeries].CostPercent));
             if (Cost < 0 || Cost > aGalaxyStruct::MaxMonetaryValue) {
                 Cost = aGalaxyStruct::MaxMonetaryValue;
             }
@@ -2177,10 +2601,11 @@ namespace aItem {
         auto ReadSavedHullSeriesIndex = [&](EC_Buf::TBufEC* Buffer) -> std::int32_t {
             std::int32_t I{};
             std::uint32_t CRC{};
-            std::int32_t Result = EC_Buf::TBufEC_GetInt32(Buffer);
+            std::int32_t Result = Buffer->GetInt32();
             if (Result != -1) {
-                CRC = EC_Buf::TBufEC_GetUInt32(Buffer);
-                if (Result > aConst::HullSeriesDefinitions.length() - 1 || aConst::HullSeriesDefinitions[Result].SystemNameCRC != CRC) {
+                CRC = Buffer->GetUInt32();
+                if (Result > aConst::HullSeriesDefinitions.length() - 1 ||
+                    aConst::HullSeriesDefinitions[Result].SystemNameCRC != CRC) {
                     Result = -1;
                     {
                         const std::int32_t cpp_last = aConst::HullSeriesDefinitions.length() - 1;
@@ -2199,13 +2624,13 @@ namespace aItem {
         };
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion >= 51) {
-            HullPoints = EC_Buf::TBufEC_GetInt32(Buffer);
+            HullPoints = Buffer->GetInt32();
         } else {
-            HullPoints = EC_Buf::TBufEC_GetWord(Buffer);
+            HullPoints = Buffer->GetWord();
         }
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        Armor = EC_Buf::TBufEC_GetByte(Buffer);
-        std::int32_t SavedHullType = EC_Buf::TBufEC_GetByte(Buffer);
+        TechLevel = Buffer->GetByte();
+        Armor = Buffer->GetByte();
+        std::int32_t SavedHullType = Buffer->GetByte();
         if (GlobalsV::LoadedSaveVersion >= 88) {
             HullType = static_cast<aGalaxyStruct::THullType>(SavedHullType);
         } else if (GlobalsV::LoadedSaveVersion >= 67) {
@@ -2233,22 +2658,22 @@ namespace aItem {
         if (GlobalsV::LoadedSaveVersion >= 163) {
             HullSeries = ReadSavedHullSeriesIndex(Buffer);
         } else {
-            HullSeries = EC_Buf::TBufEC_GetByte(Buffer);
+            HullSeries = Buffer->GetByte();
             if (HullSeries == 255 || aConst::HullSeriesDefinitions.length() - 1 < HullSeries) {
                 HullSeries = -1;
             }
         }
         if (GlobalsV::LoadedSaveVersion >= 50) {
-            PirateBuilt = EC_Buf::TBufEC_GetBoolean(Buffer);
+            PirateBuilt = Buffer->GetBoolean();
         } else {
             PirateBuilt = false;
         }
         if (GlobalsV::LoadedSaveVersion >= 51) {
-            CapitalShip = EC_Buf::TBufEC_GetByte(Buffer);
-            ImpulseShieldsEnabled = EC_Buf::TBufEC_GetBoolean(Buffer);
-            InterceptorsEnabled = EC_Buf::TBufEC_GetBoolean(Buffer);
-            Energy = EC_Buf::TBufEC_GetInt32(Buffer);
-            EnergyMax = EC_Buf::TBufEC_GetInt32(Buffer);
+            CapitalShip = Buffer->GetByte();
+            ImpulseShieldsEnabled = Buffer->GetBoolean();
+            InterceptorsEnabled = Buffer->GetBoolean();
+            Energy = Buffer->GetInt32();
+            EnergyMax = Buffer->GetInt32();
         } else {
             CapitalShip = 0;
             ImpulseShieldsEnabled = false;
@@ -2258,16 +2683,19 @@ namespace aItem {
         }
         if (GlobalsV::LoadedSaveVersion >= 52) {
             if (InterceptorsEnabled) {
-                InterceptorTarget = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-                InterceptorTargetingStrategy = static_cast<TInterceptorTargetingStrategy>(EC_Buf::TBufEC_GetByte(Buffer));
-                InterceptorPassCountOverride = EC_Buf::TBufEC_GetByte(Buffer);
+                InterceptorTarget =
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
+                InterceptorTargetingStrategy = static_cast<TInterceptorTargetingStrategy>(Buffer->GetByte());
+                InterceptorPassCountOverride = Buffer->GetByte();
             } else {
                 InterceptorTarget = nullptr;
                 InterceptorTargetingStrategy = itsManual;
                 InterceptorPassCountOverride = 0;
             }
         } else if (GlobalsV::LoadedSaveVersion == 51) {
-            InterceptorTarget = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
+            InterceptorTarget =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
             InterceptorTargetingStrategy = itsManual;
             InterceptorPassCountOverride = 0;
         } else {
@@ -2279,7 +2707,8 @@ namespace aItem {
 
     void THull::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         if (InterceptorTarget != nullptr) {
-            InterceptorTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(InterceptorTarget)), false)));
+            InterceptorTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                    static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(InterceptorTarget)), false)));
         }
     }
 
@@ -2287,49 +2716,68 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(HullPoints);
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Hristophorisnotuse"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Hristophorisnotuse"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(Armor));
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"Alrumuotr"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"Alrumuotr"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
         {
             const pas::WideString& intToStr_4 = pas::wide_int_to_str(static_cast<std::int32_t>(HullType));
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_w);
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_wref.get());
             Block->AddParam(decodeTextW_4, intToStr_4);
         }
         {
             const pas::WideString& intToStr_5 = pas::wide_int_to_str(HullSeries);
-            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Stearoidess"_w);
+            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Stearoidess"_wref.get());
             Block->AddParam(decodeTextW_5, intToStr_5);
         }
         if (HullSeries != -1) {
             const pas::WideString& seriesName = GetSeriesName();
-            const pas::WideString& decodeTextW_6 = EC_Str::DecodeTextW(u"IfSoenrOilets2Noarmye"_w);
+            const pas::WideString& decodeTextW_6 = EC_Str::DecodeTextW(u"IfSoenrOilets2Noarmye"_wref.get());
             Block->AddParam(decodeTextW_6, seriesName);
         }
         {
             const pas::WideString& boolToWideString = EC_Str::BoolToWideString(PirateBuilt);
-            const pas::WideString& decodeTextW_7 = EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_w);
+            const pas::WideString& decodeTextW_7 = EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_wref.get());
             Block->AddParam(decodeTextW_7, boolToWideString);
         }
     }
 
     void THull_LoadFromBlock(THull* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->HullPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Hristophorisnotuse"_w)))));
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->Armor = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Alrumuotr"_w)))));
-        Self->HullType = static_cast<aGalaxyStruct::THullType>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_w))))));
-        Self->HullSeries = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Stearoidess"_w)))));
-        Self->PirateBuilt = SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_w))))) == "true";
+        Self->HullPoints =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Hristophorisnotuse"_wref.get())))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->Armor =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Alrumuotr"_wref.get())))));
+        Self->HullType =
+            static_cast<aGalaxyStruct::THullType>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SohtiEprTtyopwec"_wref.get()))))));
+        Self->HullSeries =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Stearoidess"_wref.get())))));
+        Self->PirateBuilt =
+            SysUtilsImports::LowerCase(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"BlueivlitoBuyAPIinroaLtte"_wref.get()))))) ==
+                "true";
     }
 
     std::int8_t THull::CalculateGeneratedArmor() {
@@ -2340,7 +2788,7 @@ namespace aItem {
     std::int32_t THull::CalculateGeneratedCost() {
         std::int32_t Value = aItem::CalculateGeneratedHullCost(Weight, TechLevel, OwnerId, HullType);
         while (Value < 0) {
-            Weight = pas::abs(System::Round(pas::real_divide(Weight, 2.0L)));
+            Weight = pas::abs(pas::real_round(static_cast<float>(Weight / 2.0)));
             HullPoints = Weight;
             Value = aItem::CalculateGeneratedHullCost(Weight, TechLevel, OwnerId, HullType);
         }
@@ -2355,7 +2803,8 @@ namespace aItem {
     void THull::Improve(TImprovementKind Kind) {
         std::int32_t ExtraCapacity{};
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: Armor += aMyFunction::SeededRandomIntRange(1, 2, Id * 254571); break;
@@ -2367,17 +2816,19 @@ namespace aItem {
             switch (Kind) {
                 case ikMinor: {
                     std::int32_t SeededRandomIntRange = aMyFunction::SeededRandomIntRange(3, 7, Id * 214571);
-                    ExtraCapacity = System::Round(SeededRandomIntRange * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    ExtraCapacity = pas::real_round(static_cast<float>(SeededRandomIntRange * std::max<std::int32_t>(Weight, 500) * 0x1.47ae147ae147ap-7));
                     break;
                 }
                 case ikMedium: {
                     std::int32_t SeededRandomIntRange_2 = aMyFunction::SeededRandomIntRange(8, 12, Id * 214571);
-                    ExtraCapacity = System::Round(SeededRandomIntRange_2 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    ExtraCapacity = pas::real_round(static_cast<float>(SeededRandomIntRange_2 * std::max<std::int32_t>(Weight, 500) *
+                            0x1.47ae147ae147ap-7));
                     break;
                 }
                 case ikMajor: {
                     std::int32_t SeededRandomIntRange_3 = aMyFunction::SeededRandomIntRange(13, 17, Id * 214571);
-                    ExtraCapacity = System::Round(SeededRandomIntRange_3 * std::max<std::int32_t>(Weight, 500) * 0.01L);
+                    ExtraCapacity = pas::real_round(static_cast<float>(SeededRandomIntRange_3 * std::max<std::int32_t>(Weight, 500) *
+                            0x1.47ae147ae147ap-7));
                     break;
                 }
             }
@@ -2388,10 +2839,12 @@ namespace aItem {
     }
 
     std::uint8_t THull::HasStandardStats() {
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] ==
+                0) {
             return CalculateGeneratedArmor() == Armor;
         }
-        return CalculateGeneratedArmor() == Armor - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
+        return CalculateGeneratedArmor() == Armor - aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonHull];
     }
 
     pas::WideString THull::GetDisplayName() {
@@ -2402,13 +2855,17 @@ namespace aItem {
             Result = NameOverride;
         } else if (SpecialModuleIndex != 0) {
             Result = ([&] {
-                pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
-                pas::WideString specialModuleName = GetSpecialModuleName();
-                return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)), pas::view(std::move(microModuleTextColorTag)));
-            }());
-            aMyFunction::ReplaceTextToken(Result, u"<Type>"_w, aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Hull.Type.", SysUtils::IntToStr(TechLevel)}))), pas::WideString());
+                    pas::WideString microModuleTextColorTag = aItem::GetMicroModuleTextColorTag(SpecialModuleIndex - 1);
+                    pas::WideString specialModuleName = GetSpecialModuleName();
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(specialModuleName)),
+                        pas::view(std::move(microModuleTextColorTag)));
+                }());
+            aMyFunction::ReplaceTextToken(Result, u"<Type>"_w,
+                aConst::LocalizedText(pas::concat_wide({u"Items.Hull.Type.",
+                    pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel))})), pas::WideString());
         } else {
-            TypeName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Hull.Type.", SysUtils::IntToStr(TechLevel)})));
+            TypeName = aConst::LocalizedText(pas::concat_wide({u"Items.Hull.Type.",
+                    pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel))}));
             switch (HullType) {
                 case aGalaxyStruct::htRanger: {
                     ShipTypeName = aConst::LocalizedText(u"Items.Hull.ShipType.Ranger"_wref.get());
@@ -2440,14 +2897,17 @@ namespace aItem {
                 }
                 default: ShipTypeName = pas::WideString(); break;
             }
-            Result = aMyFunction::FormatText2(aConst::LocalizedText(u"Items.Hull.Name"_wref.get()), pas::WideString(), u"<Type>"_w, TypeName, u"<ShipType>"_w, ShipTypeName);
+            Result = aMyFunction::FormatText2(aConst::LocalizedText(u"Items.Hull.Name"_wref.get()), pas::WideString(),
+                    u"<Type>"_w, TypeName, u"<ShipType>"_w, ShipTypeName);
         }
         if (HasMicroModule()) {
-            return pas::concat_wide({Result, u" ", ([&] {
-                pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
-                pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
-            }())});
+            return pas::concat_wide({Result, u" ",
+                ([&] {
+                    pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
+                    pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)),
+                        pas::view(std::move(microModuleNameColorTag)));
+                }())});
         }
         return Result;
     }
@@ -2457,12 +2917,14 @@ namespace aItem {
         if (OwnerShip != nullptr && static_cast<aShip::TShip*>(OwnerShip)->UsesVeteranHumanRangerAppearance()) {
             pas::WideString localizedText = aConst::LocalizedText(u"HullType.HullOldfag.Name"_wref.get());
             pas::WideString localizedText_2 = aConst::LocalizedText(u"HullType.SeriesName"_wref.get());
-            return aMyFunction::FormatText1(std::move(localizedText_2), pas::WideString(), u"<Name>"_w, std::move(localizedText));
+            return aMyFunction::FormatText1(std::move(localizedText_2), pas::WideString(), u"<Name>"_w,
+                std::move(localizedText));
         } else if (HullSeries == -1) {
             return pas::WideString();
         } else {
             Result = aConst::LocalizedText(u"HullType.SeriesName"_wref.get());
-            return aMyFunction::FormatText1(Result, pas::WideString(), u"<Name>"_w, aConst::HullSeriesDefinitions[HullSeries].Name);
+            return aMyFunction::FormatText1(Result, pas::WideString(), u"<Name>"_w,
+                aConst::HullSeriesDefinitions[HullSeries].Name);
         }
     }
 
@@ -2483,12 +2945,13 @@ namespace aItem {
         if (Text == u"") {
             Text = aConst::LocalizedText(u"Items.Hull.Text"_wref.get());
         }
-        if (Self->OwnerShip != nullptr && static_cast<aShip::TShip*>(Self->OwnerShip)->UsesVeteranHumanRangerAppearance()) {
+        if (Self->OwnerShip != nullptr &&
+            static_cast<aShip::TShip*>(Self->OwnerShip)->UsesVeteranHumanRangerAppearance()) {
             Text = pas::concat_wide({aConst::LocalizedText(u"HullType.HullOldfag.Text"_wref.get()), u" ", Text});
         } else if (Self->HullSeries != -1) {
             Text = pas::concat_wide({aConst::HullSeriesDefinitions[Self->HullSeries].Text, u" ", Text});
         }
-        if (Self->HullPoints <= pas::real_divide(Self->Weight, 2.0L)) {
+        if (Self->HullPoints <= static_cast<float>(Self->Weight / 2.0)) {
             SizeColor = aMyFunction::GoldColorTag;
         } else {
             SizeColor = ColorTag;
@@ -2506,22 +2969,39 @@ namespace aItem {
     void THull::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseArmor{};
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityE>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkEnergy}})) * 1.0E+2L)), ColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityS>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkSplinter}})) * 1.0E+2L)), ColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<FragilityM>"_w, pas::wide_int64_to_str(System::Round(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({{aGalaxyStruct::dkMissile}})) * 1.0E+2L)), ColorTag);
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] == 0) {
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityE>"_w,
+            pas::wide_int64_to_str(pas::real_round(static_cast<float>(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({
+                {aGalaxyStruct::dkEnergy}})) * 1.0E+2))), ColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityS>"_w,
+            pas::wide_int64_to_str(pas::real_round(static_cast<float>(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({
+                {aGalaxyStruct::dkSplinter}})) * 1.0E+2))), ColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<FragilityM>"_w,
+            pas::wide_int64_to_str(pas::real_round(static_cast<float>(GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({
+                {aGalaxyStruct::dkMissile}})) * 1.0E+2))), ColorTag);
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] ==
+                0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHull])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHull])), pas::view(aMyFunction::RedColorTag));
         }
         std::int32_t StatBonus = GetStatBonus(aConst::bonHull);
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (OwnerShip != nullptr) {
@@ -2531,9 +3011,15 @@ namespace aItem {
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (MicroModuleIndex == 0) {
@@ -2542,11 +3028,18 @@ namespace aItem {
             BaseArmor = Armor - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHull];
         }
         if (CalculateGeneratedArmor() == BaseArmor) {
-            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({pas::wide_int_to_str(BaseArmor), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseArmor), BonusText}), ColorTag);
         } else if (CalculateGeneratedArmor() < BaseArmor) {
-            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<HitProtect>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseArmor)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -2555,30 +3048,41 @@ namespace aItem {
         if (ConfigBlockName != u"") {
             Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         } else if (HullType == aGalaxyStruct::htRanger) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_R_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_R_"});
         } else if (HullType == aGalaxyStruct::htWarrior) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_W_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_W_"});
         } else if (HullType == aGalaxyStruct::htPirate) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_P_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_P_"});
         } else if (HullType == aGalaxyStruct::htTransport) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_T_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_T_"});
         } else if (HullType == aGalaxyStruct::htLiner) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_L_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_L_"});
         } else if (HullType == aGalaxyStruct::htDiplomat) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_D_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_D_"});
         } else if (HullType == aGalaxyStruct::htSpecial && SpecialModuleIndex != 0) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", GetSpecialKindGraph(), u"_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", GetSpecialKindGraph(),
+                    u"_"});
         } else {
             GR_Main::RaiseWideMessage(u"THull.Image"_wref.get());
         }
         aShip::TShip* Ship = static_cast<aShip::TShip*>(OwnerShip);
         if (Ship != nullptr) {
-            if (HullType == aGalaxyStruct::htSpecial && SpecialModuleIndex != 0 && GetSpecialKindGraph() == u"J" && Ship->IsFemaleHumanPilot() && Ship->TypeId == aGalaxyStruct::stRanger) {
+            if (HullType == aGalaxyStruct::htSpecial && SpecialModuleIndex != 0 && GetSpecialKindGraph() == u"J" &&
+                Ship->IsFemaleHumanPilot() && Ship->TypeId == aGalaxyStruct::stRanger) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_J_alt_"});
-            } else if (HullType == aGalaxyStruct::htRanger && SpecialModuleIndex == 0 && Ship->UsesVeteranHumanRangerAppearance()) {
+            } else if (HullType == aGalaxyStruct::htRanger && SpecialModuleIndex == 0 &&
+                Ship->UsesVeteranHumanRangerAppearance()) {
                 return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_People_ROld_"});
-            } else if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == aGalaxyStruct::oiPirate && pas::checked_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
-                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_", aConst::OwnerInfo[OwnerId].InternalName, u"_PC_"});
+            } else if (Ship->TypeId == aGalaxyStruct::stPirate && Ship->OwnerId == aGalaxyStruct::oiPirate &&
+                pas::checked_cast<aPirate::TPirate*>(Ship)->PirateType != 0) {
+                return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Hull_",
+                    aConst::OwnerInfo[OwnerId].InternalName, u"_PC_"});
             } else {
                 return Result;
             }
@@ -2607,27 +3111,39 @@ namespace aItem {
         std::int32_t Maximum = aConst::DefaultHullSlotCounts[Kind];
         std::int32_t Minimum = aConst::MinimumHullSlotCounts[Kind];
         if (SpecialModuleIndex != 0) {
-            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind]));
+            Result = std::min<std::int32_t>(Maximum,
+                    std::max<std::int32_t>(Minimum,
+                        Result + aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[BonusKind]));
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] * Entry->Count;
+            {
+                const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                        Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[BonusKind] *
+                                Entry->Count;
+                    }
+                }
             }
             Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result));
         }
         if (HullSeries != -1) {
-            Result = std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::HullSeriesDefinitions[HullSeries].SlotBonuses[Kind]));
+            Result = std::min<std::int32_t>(Maximum,
+                    std::max<std::int32_t>(Minimum,
+                        Result + aConst::HullSeriesDefinitions[HullSeries].SlotBonuses[Kind]));
         }
         if (MicroModuleIndex != 0) {
-            return std::min<std::int32_t>(Maximum, std::max<std::int32_t>(Minimum, Result + aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind]));
+            return std::min<std::int32_t>(Maximum,
+                std::max<std::int32_t>(Minimum,
+                    Result + aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind]));
         }
         return Result;
     }
 
     // Round(capacity * (0.6 + 0.2 * (clamped level - 1) / 7)); excludes carried cargo and ship mass modifiers.
     std::int32_t THull::CalculateMass() {
-        return System::Round(aMyFunction::RemapClamped(TechLevel, 1.0, 8.0, Weight * 0.6L, Weight * 0.8L));
+        return pas::real_round(aMyFunction::RemapClamped(TechLevel, 1.0, 8.0, static_cast<float>(Weight * 0x1.3333333333334p-1), static_cast<float>(Weight * 0x1.999999999999bp-1)));
     }
 
     // Zero flags return the average of energy, splinter and missile factors.
@@ -2639,37 +3155,51 @@ namespace aItem {
         float Factor{};
         if (DamageFlags == pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})) {
             Result = 0.0f;
-            for (auto cpp_range = pas::for_to<aConst::TWeaponDamageClass>(aConst::wdcEnergy, aConst::wdcMissile); cpp_range.next(DamageClass); ) {
-                Result = static_cast<long double>(GetFragilityFactor(pas::make_set<aGalaxyStruct::TDamageFlagSet>({{static_cast<std::int32_t>(static_cast<aGalaxyStruct::TDamageKind>(aConst::WeaponDamageClasses[DamageClass].Kind))}}))) + Result;
+            for (auto cpp_range = pas::for_to<aConst::TWeaponDamageClass>(aConst::wdcEnergy,
+                aConst::wdcMissile); cpp_range.next(DamageClass); ) {
+                Result = static_cast<float>(static_cast<double>(GetFragilityFactor(pas::make_set<aGalaxyStruct::TDamageFlagSet>({
+                        {
+                            static_cast<std::int32_t>(
+                            static_cast<aGalaxyStruct::TDamageKind>(
+                            aConst::WeaponDamageClasses[DamageClass].Kind))}}))) + Result);
             }
-            return pas::real_divide(Result, 3.0L);
+            return static_cast<float>(Result / 3.0);
         }
         DamageClass = aConst::ClassifyWeaponDamageFlags(DamageFlags);
-        Result = static_cast<long double>(aConst::HullFragilityByType[HullType]) * pas::load_unaligned<float>(pas::byte_offset(&aConst::HullLevelStats[TechLevel].Fragility, DamageClass * sizeof(float))) * aConst::HullFragilityByOwner[DamageClass][OwnerId];
+        Result = static_cast<float>(static_cast<float>(static_cast<double>(aConst::HullFragilityByType[HullType]) *
+                pas::load_unaligned<float>(pas::byte_offset(&aConst::HullLevelStats[TechLevel].Fragility,
+                    DamageClass * sizeof(float)))) * aConst::HullFragilityByOwner[DamageClass][OwnerId]);
         if (PirateBuilt) {
-            Result = static_cast<long double>(Result) * aConst::HullFragilityByOwner[DamageClass][aGalaxyStruct::oiPirate];
+            Result = static_cast<float>(static_cast<double>(Result) * aConst::HullFragilityByOwner[DamageClass][aGalaxyStruct::oiPirate]);
         }
         if (MicroModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[MicroModuleIndex - 1].FragilityFactorByDamageClass[DamageClass];
+            Result = static_cast<float>(static_cast<double>(Result) * aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].FragilityFactorByDamageClass[DamageClass]);
         }
         if (SpecialModuleIndex != 0) {
-            Result = static_cast<long double>(Result) * aConst::MicroModuleTemplates[SpecialModuleIndex - 1].FragilityFactorByDamageClass[DamageClass];
+            Result = static_cast<float>(static_cast<double>(Result) * aConst::MicroModuleTemplates[SpecialModuleIndex -
+                        1].FragilityFactorByDamageClass[DamageClass]);
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_2.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Factor = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].FragilityFactorByDamageClass[DamageClass];
-                if (std::fabs(Factor - 1.0L) > 1.0E-6L) {
-                    if (Entry->Count == 1) {
-                        Result = static_cast<long double>(Result) * Factor;
-                    } else {
-                        Result = Math::Power(Factor, Entry->Count) * Result;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    Factor = aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                            1].FragilityFactorByDamageClass[DamageClass];
+                    if (std::fabs(static_cast<float>(Factor - 1.0)) > 1.0E-6) {
+                        if (Entry->Count == 1) {
+                            Result = static_cast<float>(static_cast<double>(Result) * Factor);
+                        } else {
+                            Result = static_cast<float>(Math::Power(Factor, Entry->Count) * Result);
+                        }
                     }
                 }
             }
         }
         if (HullSeries != -1) {
-            return static_cast<long double>(Result) * aConst::HullSeriesDefinitions[HullSeries].FragilityByDamageClass[DamageClass];
+            return static_cast<float>(static_cast<double>(Result) *
+                aConst::HullSeriesDefinitions[HullSeries].FragilityByDamageClass[DamageClass]);
         }
         return Result;
     }
@@ -2684,14 +3214,18 @@ namespace aItem {
             if (Percent <= 0) {
                 Factor = 1.0f;
             } else {
-                Factor = pas::real_divide(1.0E+2L, Percent);
+                Factor = static_cast<float>(1.0E+2 / Percent);
             }
-            Result = System::Round(static_cast<long double>(Result) * Factor);
+            Result = pas::real_round(static_cast<float>(static_cast<double>(Result) * Factor));
         };
         Result = Weight;
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                UndoSizePercent(aConst::MicroModuleTemplates[pas::list_at<TExtraSpecial>(ExtraSpecials, I)->ModuleIndexPlusOne - 1].SizePercent);
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    UndoSizePercent(aConst::MicroModuleTemplates[pas::list_at<TExtraSpecial>(ExtraSpecials,
+                        I)->ModuleIndexPlusOne - 1].SizePercent);
+                }
             }
         }
         if (MicroModuleIndex != 0) {
@@ -2727,35 +3261,45 @@ namespace aItem {
 
     void TFuelTanks::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        Fuel = EC_Buf::TBufEC_GetWord(Buffer);
-        Capacity = EC_Buf::TBufEC_GetByte(Buffer);
+        TechLevel = Buffer->GetByte();
+        Fuel = Buffer->GetWord();
+        Capacity = Buffer->GetByte();
     }
 
     void TFuelTanks::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Fuel);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"FiuNeol"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"FiuNeol"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(Capacity));
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"CraspiaNcliotay"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"CraspiaNcliotay"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
     }
 
     void TFuelTanks_LoadFromBlock(TFuelTanks* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->Fuel = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_w))))));
-        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w)))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->Fuel =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_wref.get()))))));
+        Self->Capacity =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_wref.get())))));
     }
 
     std::uint8_t TFuelTanks::CalculateGeneratedCapacity() {
@@ -2768,24 +3312,25 @@ namespace aItem {
 
     void TFuelTanks::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: {
-                pas::Extended cpp_right = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
-                std::int64_t cpp_left = System::Round(Capacity * cpp_right);
+                double cpp_right = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
+                std::int64_t cpp_left = pas::real_round(static_cast<float>(Capacity * cpp_right));
                 Capacity = cpp_left + Capacity + 1;
                 break;
             }
             case ikMedium: {
-                pas::Extended cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.1, 0.15);
-                std::int64_t cpp_left_2 = System::Round(Capacity * cpp_right_2);
+                double cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.1, 0.15);
+                std::int64_t cpp_left_2 = pas::real_round(static_cast<float>(Capacity * cpp_right_2));
                 Capacity = cpp_left_2 + Capacity + 3;
                 break;
             }
             case ikMajor: {
-                pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.15, 0.2);
-                std::int64_t cpp_left_3 = System::Round(Capacity * cpp_right_3);
+                double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.15, 0.2);
+                std::int64_t cpp_left_3 = pas::real_round(static_cast<float>(Capacity * cpp_right_3));
                 Capacity = cpp_left_3 + Capacity + 5;
                 break;
             }
@@ -2796,19 +3341,21 @@ namespace aItem {
     std::uint8_t TFuelTanks::HasStandardStats() {
         std::int32_t BaseCapacity{};
         std::int32_t SizePercent{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] ==
+                0) {
             BaseCapacity = Capacity;
         } else {
             BaseCapacity = Capacity - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
         }
-        std::int32_t ExpectedWeight = System::Round(pas::real_divide((BaseCapacity - aConst::FuelCapacityByLevel[TechLevel]) * aConst::FuelTanksBaseSize, 2.0E+1L));
+        std::int32_t ExpectedWeight = pas::real_round(static_cast<float>((BaseCapacity - aConst::FuelCapacityByLevel[TechLevel]) *
+            aConst::FuelTanksBaseSize / 2.0E+1));
         if (MicroModuleIndex != 0) {
             SizePercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].SizePercent;
         } else {
             SizePercent = 0;
         }
         if (SizePercent > 0) {
-            ExpectedWeight = System::Round(pas::real_divide(ExpectedWeight * SizePercent, 1.0E+2L));
+            ExpectedWeight = pas::real_round(static_cast<float>(ExpectedWeight * SizePercent / 1.0E+2));
         }
         if (SpecialModuleIndex != 0) {
             SizePercent = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SizePercent;
@@ -2816,7 +3363,7 @@ namespace aItem {
             SizePercent = 0;
         }
         if (SizePercent > 0) {
-            ExpectedWeight = System::Round(pas::real_divide(ExpectedWeight * SizePercent, 1.0E+2L));
+            ExpectedWeight = pas::real_round(static_cast<float>(ExpectedWeight * SizePercent / 1.0E+2));
         }
         return pas::abs(ExpectedWeight - Weight) <= 1;
     }
@@ -2850,26 +3397,33 @@ namespace aItem {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
         std::int32_t SizePercent{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] ==
+                0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonFuel])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonFuel])), pas::view(aMyFunction::RedColorTag));
         }
         if (MicroModuleIndex == 0) {
             BaseValue = Capacity;
         } else {
             BaseValue = Capacity - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonFuel];
         }
-        std::int32_t ExpectedWeight = System::Round(pas::real_divide((BaseValue - aConst::FuelCapacityByLevel[TechLevel]) * aConst::FuelTanksBaseSize, 2.0E+1L));
+        std::int32_t ExpectedWeight = pas::real_round(static_cast<float>((BaseValue - aConst::FuelCapacityByLevel[TechLevel]) *
+            aConst::FuelTanksBaseSize / 2.0E+1));
         if (MicroModuleIndex != 0) {
             SizePercent = aConst::MicroModuleTemplates[MicroModuleIndex - 1].SizePercent;
         } else {
             SizePercent = 0;
         }
         if (SizePercent > 0) {
-            ExpectedWeight = System::Round(pas::real_divide(ExpectedWeight * SizePercent, 1.0E+2L));
+            ExpectedWeight = pas::real_round(static_cast<float>(ExpectedWeight * SizePercent / 1.0E+2));
         }
         if (SpecialModuleIndex != 0) {
             SizePercent = aConst::MicroModuleTemplates[SpecialModuleIndex - 1].SizePercent;
@@ -2877,14 +3431,21 @@ namespace aItem {
             SizePercent = 0;
         }
         if (SizePercent > 0) {
-            ExpectedWeight = System::Round(pas::real_divide(ExpectedWeight * SizePercent, 1.0E+2L));
+            ExpectedWeight = pas::real_round(static_cast<float>(ExpectedWeight * SizePercent / 1.0E+2));
         }
         if (pas::abs(ExpectedWeight - Weight) <= 1) {
-            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (ExpectedWeight > Weight) {
-            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Capacity>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -2911,14 +3472,14 @@ namespace aItem {
 
     void TEngine::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
+        TechLevel = Buffer->GetByte();
         if (GlobalsV::LoadedSaveVersion >= 161) {
-            Speed = EC_Buf::TBufEC_GetInt32(Buffer);
+            Speed = Buffer->GetInt32();
         } else {
-            Speed = EC_Buf::TBufEC_GetWord(Buffer);
+            Speed = Buffer->GetWord();
         }
-        JumpRange = EC_Buf::TBufEC_GetByte(Buffer);
-        OutputPercent = EC_Buf::TBufEC_GetByte(Buffer);
+        JumpRange = Buffer->GetByte();
+        OutputPercent = Buffer->GetByte();
         ItemType = aConst::t_Engine;
     }
 
@@ -2926,26 +3487,35 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Speed);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Sapreneld"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Sapreneld"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(JumpRange));
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"JiuOmipa"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"JiuOmipa"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
     }
 
     void TEngine_LoadFromBlock(TEngine* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->Speed = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Sapreneld"_w))))));
-        Self->JumpRange = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"JiuOmipa"_w)))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->Speed =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Sapreneld"_wref.get()))))));
+        Self->JumpRange =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"JiuOmipa"_wref.get())))));
     }
 
     std::int32_t TEngine::CalculateGeneratedSpeed() {
@@ -2962,10 +3532,11 @@ namespace aItem {
 
     void TEngine::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         if (DetailImprovement == 0) {
-            if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5L) {
+            if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5) {
                 DetailImprovement = 1;
             } else {
                 DetailImprovement = 2;
@@ -2975,28 +3546,28 @@ namespace aItem {
             switch (Kind) {
                 case ikMinor: {
                     Speed += ([&] {
-                        pas::Extended cpp_right = aMyFunction::SeededRandomIntRange(10, 30, Id * 254571);
-                        pas::Extended cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_2 + cpp_right);
-                    }());
+                            double cpp_right = aMyFunction::SeededRandomIntRange(10, 30, Id * 254571);
+                            double cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_2) + cpp_right));
+                        }());
                     JumpRange += aMyFunction::SeededRandomIntRange(1, 2, Id * 354571);
                     break;
                 }
                 case ikMedium: {
                     Speed += ([&] {
-                        pas::Extended cpp_right_3 = aMyFunction::SeededRandomIntRange(30, 60, Id * 254571);
-                        pas::Extended cpp_right_4 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.02, 0.06);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_4 + cpp_right_3);
-                    }());
+                            double cpp_right_3 = aMyFunction::SeededRandomIntRange(30, 60, Id * 254571);
+                            double cpp_right_4 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.02, 0.06);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_4) + cpp_right_3));
+                        }());
                     JumpRange += aMyFunction::SeededRandomIntRange(2, 4, Id * 354571);
                     break;
                 }
                 case ikMajor: {
                     Speed += ([&] {
-                        pas::Extended cpp_right_5 = aMyFunction::SeededRandomIntRange(50, 80, Id * 254571);
-                        pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.03, 0.07);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_6 + cpp_right_5);
-                    }());
+                            double cpp_right_5 = aMyFunction::SeededRandomIntRange(50, 80, Id * 254571);
+                            double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.03, 0.07);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_6) + cpp_right_5));
+                        }());
                     JumpRange += aMyFunction::SeededRandomIntRange(3, 7, Id * 354571);
                     break;
                 }
@@ -3006,28 +3577,28 @@ namespace aItem {
                 case ikMinor: {
                     JumpRange += aMyFunction::SeededRandomIntRange(2, 5, Id * 354571);
                     Speed += ([&] {
-                        pas::Extended cpp_right_7 = aMyFunction::SeededRandomIntRange(10, 20, Id * 254571);
-                        pas::Extended cpp_right_8 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.03);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_8 + cpp_right_7);
-                    }());
+                            double cpp_right_7 = aMyFunction::SeededRandomIntRange(10, 20, Id * 254571);
+                            double cpp_right_8 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.03);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_8) + cpp_right_7));
+                        }());
                     break;
                 }
                 case ikMedium: {
                     JumpRange += aMyFunction::SeededRandomIntRange(5, 7, Id * 354571);
                     Speed += ([&] {
-                        pas::Extended cpp_right_9 = aMyFunction::SeededRandomIntRange(20, 40, Id * 254571);
-                        pas::Extended cpp_right_10 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.04);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_10 + cpp_right_9);
-                    }());
+                            double cpp_right_9 = aMyFunction::SeededRandomIntRange(20, 40, Id * 254571);
+                            double cpp_right_10 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.04);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_10) + cpp_right_9));
+                        }());
                     break;
                 }
                 case ikMajor: {
                     JumpRange += aMyFunction::SeededRandomIntRange(7, 12, Id * 354571);
                     Speed += ([&] {
-                        pas::Extended cpp_right_11 = aMyFunction::SeededRandomIntRange(30, 50, Id * 254571);
-                        pas::Extended cpp_right_12 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
-                        return aMyFunction::RoundAndTruncateToTens(Speed * cpp_right_12 + cpp_right_11);
-                    }());
+                            double cpp_right_11 = aMyFunction::SeededRandomIntRange(30, 50, Id * 254571);
+                            double cpp_right_12 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Speed * cpp_right_12) + cpp_right_11));
+                        }());
                     break;
                 }
             }
@@ -3039,15 +3610,19 @@ namespace aItem {
     std::uint8_t TEngine::HasStandardStats() {
         std::uint8_t StandardSpeed{};
         std::uint8_t StandardJump{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed] ==
+                0) {
             StandardSpeed = CalculateGeneratedSpeed() == Speed;
         } else {
-            StandardSpeed = CalculateGeneratedSpeed() == Speed - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonSpeed];
+            StandardSpeed = CalculateGeneratedSpeed() == Speed - aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonSpeed];
         }
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump] ==
+                0) {
             StandardJump = CalculateGeneratedJumpRange() == JumpRange;
         } else {
-            StandardJump = CalculateGeneratedJumpRange() == JumpRange - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonJump];
+            StandardJump = CalculateGeneratedJumpRange() == JumpRange - aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonJump];
         }
         return StandardSpeed && StandardJump;
     }
@@ -3089,36 +3664,59 @@ namespace aItem {
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                    pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                    pas::view(aMyFunction::RedColorTag));
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Speed), GetStatBonus(aConst::bonSpeed));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonSpeed) - StatBonus, -(Speed + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonSpeed) - StatBonus,
+                    -(Speed + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (CalculateGeneratedSpeed() == BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedSpeed() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Speed>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
         if (MicroModuleIndex == 0) {
             StatBonus = 0;
@@ -3130,36 +3728,60 @@ namespace aItem {
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                    pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                    pas::view(aMyFunction::RedColorTag));
         }
-        StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(JumpRange)), GetStatBonus(aConst::bonJump));
+        StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(JumpRange)),
+                GetStatBonus(aConst::bonJump));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonJump) - StatBonus, -(JumpRange + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonJump) - StatBonus,
+                    -(JumpRange + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (CalculateGeneratedJumpRange() == BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedJumpRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -3182,28 +3804,35 @@ namespace aItem {
 
     void TRadar::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        Range = EC_Buf::TBufEC_GetWord(Buffer);
+        TechLevel = Buffer->GetByte();
+        Range = Buffer->GetWord();
     }
 
     void TRadar::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Range);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Rialdoinurs"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
     }
 
     void TRadar_LoadFromBlock(TRadar* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->Range =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get()))))));
     }
 
     std::int32_t TRadar::CalculateGeneratedRange() {
@@ -3216,31 +3845,32 @@ namespace aItem {
 
     void TRadar::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: {
                 Range += ([&] {
-                    pas::Extended cpp_right = aMyFunction::SeededRandomIntRange(100, 200, Id * 254571);
-                    pas::Extended cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
-                    return aMyFunction::RoundAndTruncateToTens(Range * cpp_right_2 + cpp_right);
-                }());
+                        double cpp_right = aMyFunction::SeededRandomIntRange(100, 200, Id * 254571);
+                        double cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
+                        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Range * cpp_right_2) + cpp_right));
+                    }());
                 break;
             }
             case ikMedium: {
                 Range += ([&] {
-                    pas::Extended cpp_right_3 = aMyFunction::SeededRandomIntRange(300, 400, Id * 254571);
-                    pas::Extended cpp_right_4 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
-                    return aMyFunction::RoundAndTruncateToTens(Range * cpp_right_4 + cpp_right_3);
-                }());
+                        double cpp_right_3 = aMyFunction::SeededRandomIntRange(300, 400, Id * 254571);
+                        double cpp_right_4 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
+                        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Range * cpp_right_4) + cpp_right_3));
+                    }());
                 break;
             }
             case ikMajor: {
                 Range += ([&] {
-                    pas::Extended cpp_right_5 = aMyFunction::SeededRandomIntRange(400, 500, Id * 254571);
-                    pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
-                    return aMyFunction::RoundAndTruncateToTens(Range * cpp_right_6 + cpp_right_5);
-                }());
+                        double cpp_right_5 = aMyFunction::SeededRandomIntRange(400, 500, Id * 254571);
+                        double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.05, 0.1);
+                        return aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(Range * cpp_right_6) + cpp_right_5));
+                    }());
                 break;
             }
         }
@@ -3248,10 +3878,12 @@ namespace aItem {
     }
 
     std::uint8_t TRadar::HasStandardStats() {
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] ==
+                0) {
             return CalculateGeneratedRange() == Range;
         }
-        return CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
+        return CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonRadar];
     }
 
     pas::WideString TRadar_GetInfoText(TRadar* Self, pas::WideString ColorTag, void* Ship) {
@@ -3281,31 +3913,51 @@ namespace aItem {
     void TRadar::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] ==
+                0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonRadar])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonRadar])), pas::view(aMyFunction::RedColorTag));
         }
-        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Range), GetStatBonus(aConst::bonRadar));
+        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Range),
+            GetStatBonus(aConst::bonRadar));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonRadar) - StatBonus, -(Range + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonRadar) - StatBonus,
+                    -(Range + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (MicroModuleIndex == 0) {
@@ -3314,11 +3966,18 @@ namespace aItem {
             BaseValue = Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonRadar];
         }
         if (HasStandardStats()) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -3341,9 +4000,10 @@ namespace aItem {
 
     void TScaner::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        ScanPower = EC_Buf::TBufEC_GetByte(Buffer);
-        if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber == 122) {
+        TechLevel = Buffer->GetByte();
+        ScanPower = Buffer->GetByte();
+        if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 &&
+            aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber == 122) {
             ++ScanPower;
         }
     }
@@ -3352,20 +4012,25 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(ScanPower));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
     }
 
     void TScaner_LoadFromBlock(TScaner* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->ScanPower = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w)))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->ScanPower =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_wref.get())))));
     }
 
     std::int32_t TScaner::CalculateGeneratedScanPower() {
@@ -3378,27 +4043,28 @@ namespace aItem {
 
     void TScaner::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: {
                 std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(1, 3, Id * 354571);
-                pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
-                std::int64_t cpp_right_2 = System::Round(ScanPower * cpp_right_3);
+                double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
+                std::int64_t cpp_right_2 = pas::real_round(static_cast<float>(ScanPower * cpp_right_3));
                 ScanPower = ScanPower + cpp_right_2 + cpp_right;
                 break;
             }
             case ikMedium: {
                 std::int32_t cpp_right_4 = aMyFunction::SeededRandomIntRange(3, 5, Id * 354571);
-                pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
-                std::int64_t cpp_right_5 = System::Round(ScanPower * cpp_right_6);
+                double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
+                std::int64_t cpp_right_5 = pas::real_round(static_cast<float>(ScanPower * cpp_right_6));
                 ScanPower = ScanPower + cpp_right_5 + cpp_right_4;
                 break;
             }
             case ikMajor: {
                 std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(5, 7, Id * 354571);
-                pas::Extended cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
-                std::int64_t cpp_right_8 = System::Round(ScanPower * cpp_right_9);
+                double cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.05, 0.1);
+                std::int64_t cpp_right_8 = pas::real_round(static_cast<float>(ScanPower * cpp_right_9));
                 ScanPower = ScanPower + cpp_right_8 + cpp_right_7;
                 break;
             }
@@ -3407,10 +4073,12 @@ namespace aItem {
     }
 
     std::uint8_t TScaner::HasStandardStats() {
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan] ==
+                0) {
             return CalculateGeneratedScanPower() == ScanPower;
         }
-        return CalculateGeneratedScanPower() == ScanPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonScan];
+        return CalculateGeneratedScanPower() == ScanPower - aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonScan];
     }
 
     pas::WideString TScaner_GetInfoText(TScaner* Self, pas::WideString ColorTag, void* Ship) {
@@ -3450,36 +4118,60 @@ namespace aItem {
         if (StatBonus == 0) {
             BonusText = pas::WideString();
         } else if (StatBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                    pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                    pas::view(aMyFunction::RedColorTag));
         }
-        StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(ScanPower)), GetStatBonus(aConst::bonScan));
+        StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(ScanPower)),
+                GetStatBonus(aConst::bonScan));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonScan) - StatBonus, -(ScanPower + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonScan) - StatBonus,
+                    -(ScanPower + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (CalculateGeneratedScanPower() == BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedScanPower() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -3502,13 +4194,14 @@ namespace aItem {
 
     void TRepairRobot::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        RepairPoints = EC_Buf::TBufEC_GetByte(Buffer);
+        TechLevel = Buffer->GetByte();
+        RepairPoints = Buffer->GetByte();
         if (GlobalsV::LoadedSaveVersion < 118) {
             if (TechLevel < 5) {
                 RepairPoints += 5;
             }
-            if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] != 0) {
+            if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonDroid] != 0) {
                 switch (aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber) {
                     case 122: RepairPoints += 7; break;
                     case 21: RepairPoints += 4; break;
@@ -3526,20 +4219,26 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(RepairPoints));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Raenplavikr"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Raenplavikr"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
     }
 
     void TRepairRobot_LoadFromBlock(TRepairRobot* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->RepairPoints = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Raenplavikr"_w)))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->RepairPoints =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Raenplavikr"_wref.get())))));
     }
 
     std::uint8_t TRepairRobot::CalculateGeneratedRepairPoints() {
@@ -3552,27 +4251,28 @@ namespace aItem {
 
     void TRepairRobot::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: {
                 std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(1, 4, Id * 354571);
-                pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
-                std::int64_t cpp_right_2 = System::Round(RepairPoints * cpp_right_3);
+                double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
+                std::int64_t cpp_right_2 = pas::real_round(static_cast<float>(RepairPoints * cpp_right_3));
                 RepairPoints = RepairPoints + cpp_right_2 + cpp_right;
                 break;
             }
             case ikMedium: {
                 std::int32_t cpp_right_4 = aMyFunction::SeededRandomIntRange(4, 7, Id * 354571);
-                pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
-                std::int64_t cpp_right_5 = System::Round(RepairPoints * cpp_right_6);
+                double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
+                std::int64_t cpp_right_5 = pas::real_round(static_cast<float>(RepairPoints * cpp_right_6));
                 RepairPoints = RepairPoints + cpp_right_5 + cpp_right_4;
                 break;
             }
             case ikMajor: {
                 std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(7, 10, Id * 354571);
-                pas::Extended cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
-                std::int64_t cpp_right_8 = System::Round(RepairPoints * cpp_right_9);
+                double cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.07, 0.12);
+                std::int64_t cpp_right_8 = pas::real_round(static_cast<float>(RepairPoints * cpp_right_9));
                 RepairPoints = RepairPoints + cpp_right_8 + cpp_right_7;
                 break;
             }
@@ -3581,10 +4281,12 @@ namespace aItem {
     }
 
     std::uint8_t TRepairRobot::HasStandardStats() {
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] ==
+                0) {
             return CalculateGeneratedRepairPoints() == RepairPoints;
         }
-        return CalculateGeneratedRepairPoints() == RepairPoints - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
+        return CalculateGeneratedRepairPoints() == RepairPoints - aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonDroid];
     }
 
     pas::WideString TRepairRobot_GetInfoText(TRepairRobot* Self, pas::WideString ColorTag, void* Ship) {
@@ -3614,31 +4316,51 @@ namespace aItem {
     void TRepairRobot::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] ==
+                0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonDroid])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonDroid])), pas::view(aMyFunction::RedColorTag));
         }
-        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(RepairPoints)), GetStatBonus(aConst::bonDroid));
+        std::int32_t StatBonus = std::max<std::int32_t>(
+            -std::max<std::int32_t>(0, static_cast<std::int32_t>(RepairPoints)), GetStatBonus(aConst::bonDroid));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonDroid) - StatBonus, -(RepairPoints + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonDroid) - StatBonus,
+                    -(RepairPoints + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (MicroModuleIndex == 0) {
@@ -3647,16 +4369,19 @@ namespace aItem {
             BaseValue = RepairPoints - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDroid];
         }
         if (HasStandardStats()) {
-            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedRepairPoints() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<RecoverHitPoints>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
-    }
-
-    void TCargoHook_Create(TCargoHook* Self) {
-        aItem::TEquipment_Create(Self);
     }
 
     void TCargoHook::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
@@ -3684,49 +4409,66 @@ namespace aItem {
 
     void TCargoHook::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        PickupPower = EC_Buf::TBufEC_GetWord(Buffer);
-        Range = EC_Buf::TBufEC_GetWord(Buffer);
-        MinPullSpeed = EC_Buf::TBufEC_GetSingle(Buffer);
-        MaxPullSpeed = EC_Buf::TBufEC_GetSingle(Buffer);
+        TechLevel = Buffer->GetByte();
+        PickupPower = Buffer->GetWord();
+        Range = Buffer->GetWord();
+        MinPullSpeed = Buffer->GetSingle();
+        MaxPullSpeed = Buffer->GetSingle();
     }
 
     void TCargoHook::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(PickupPower);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(Range);
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"Rialdoinurs"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
         {
-            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(MinPullSpeed), SysUtils::DecimalSeparator));
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SapperenduMaidno"_w);
+            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(
+                static_cast<double>(MinPullSpeed), SysUtils::DecimalSeparator));
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"SapperenduMaidno"_wref.get());
             Block->AddParam(decodeTextW_4, cpp_arg);
         }
         {
-            const pas::WideString& cpp_arg_2 = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(MaxPullSpeed), SysUtils::DecimalSeparator));
-            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_w);
+            const pas::WideString& cpp_arg_2 = static_cast<pas::WideString>(pas::float_to_str(
+                static_cast<double>(MaxPullSpeed), SysUtils::DecimalSeparator));
+            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_wref.get());
             Block->AddParam(decodeTextW_5, cpp_arg_2);
         }
     }
 
     void TCargoHook_LoadFromBlock(TCargoHook* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->PickupPower = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w))))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
-        Self->MinPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SapperenduMaidno"_w))));
-        Self->MaxPullSpeed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_w))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->PickupPower =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_wref.get()))))));
+        Self->Range =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get()))))));
+        Self->MinPullSpeed =
+            EC_Str::ExtractDecimalToSingleW(
+                Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SapperenduMaidno"_wref.get()))));
+        Self->MaxPullSpeed =
+            EC_Str::ExtractDecimalToSingleW(
+                Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Suplexe2d3Moarxi"_wref.get()))));
     }
 
     std::int32_t TCargoHook::CalculateGeneratedPickupPower() {
@@ -3751,10 +4493,11 @@ namespace aItem {
 
     void TCargoHook::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         if (DetailImprovement == 0) {
-            if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5L) {
+            if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5) {
                 DetailImprovement = 1;
             } else {
                 DetailImprovement = 2;
@@ -3765,8 +4508,8 @@ namespace aItem {
                 case ikMinor: {
                     {
                         std::int32_t cpp_right = aMyFunction::SeededRandomIntRange(5, 10, Id * 254571);
-                        pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
-                        std::int64_t cpp_right_2 = System::Round(PickupPower * cpp_right_3);
+                        double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
+                        std::int64_t cpp_right_2 = pas::real_round(static_cast<float>(PickupPower * cpp_right_3));
                         PickupPower = PickupPower + cpp_right_2 + cpp_right;
                     }
                     Range += aMyFunction::SeededRandomIntRange(2, 4, Id * 354571);
@@ -3775,8 +4518,8 @@ namespace aItem {
                 case ikMedium: {
                     {
                         std::int32_t cpp_right_4 = aMyFunction::SeededRandomIntRange(10, 15, Id * 254571);
-                        pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
-                        std::int64_t cpp_right_5 = System::Round(PickupPower * cpp_right_6);
+                        double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
+                        std::int64_t cpp_right_5 = pas::real_round(static_cast<float>(PickupPower * cpp_right_6));
                         PickupPower = PickupPower + cpp_right_5 + cpp_right_4;
                     }
                     Range += aMyFunction::SeededRandomIntRange(5, 7, Id * 354571);
@@ -3785,8 +4528,8 @@ namespace aItem {
                 case ikMajor: {
                     {
                         std::int32_t cpp_right_7 = aMyFunction::SeededRandomIntRange(15, 20, Id * 254571);
-                        pas::Extended cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
-                        std::int64_t cpp_right_8 = System::Round(PickupPower * cpp_right_9);
+                        double cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.07, 0.12);
+                        std::int64_t cpp_right_8 = pas::real_round(static_cast<float>(PickupPower * cpp_right_9));
                         PickupPower = PickupPower + cpp_right_8 + cpp_right_7;
                     }
                     Range += aMyFunction::SeededRandomIntRange(8, 10, Id * 354571);
@@ -3799,8 +4542,8 @@ namespace aItem {
                     Range += aMyFunction::SeededRandomIntRange(10, 15, Id * 354571);
                     {
                         std::int32_t cpp_right_10 = aMyFunction::SeededRandomIntRange(2, 3, Id * 254571);
-                        pas::Extended cpp_right_12 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
-                        std::int64_t cpp_right_11 = System::Round(PickupPower * cpp_right_12);
+                        double cpp_right_12 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
+                        std::int64_t cpp_right_11 = pas::real_round(static_cast<float>(PickupPower * cpp_right_12));
                         PickupPower = PickupPower + cpp_right_11 + cpp_right_10;
                     }
                     break;
@@ -3809,8 +4552,8 @@ namespace aItem {
                     Range += aMyFunction::SeededRandomIntRange(15, 20, Id * 354571);
                     {
                         std::int32_t cpp_right_13 = aMyFunction::SeededRandomIntRange(3, 4, Id * 254571);
-                        pas::Extended cpp_right_15 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
-                        std::int64_t cpp_right_14 = System::Round(PickupPower * cpp_right_15);
+                        double cpp_right_15 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
+                        std::int64_t cpp_right_14 = pas::real_round(static_cast<float>(PickupPower * cpp_right_15));
                         PickupPower = PickupPower + cpp_right_14 + cpp_right_13;
                     }
                     break;
@@ -3819,8 +4562,8 @@ namespace aItem {
                     Range += aMyFunction::SeededRandomIntRange(20, 25, Id * 354571);
                     {
                         std::int32_t cpp_right_16 = aMyFunction::SeededRandomIntRange(4, 5, Id * 254571);
-                        pas::Extended cpp_right_18 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
-                        std::int64_t cpp_right_17 = System::Round(PickupPower * cpp_right_18);
+                        double cpp_right_18 = aMyFunction::SeededRandomFloatRange(Id * 374571, 0.01, 0.05);
+                        std::int64_t cpp_right_17 = pas::real_round(static_cast<float>(PickupPower * cpp_right_18));
                         PickupPower = PickupPower + cpp_right_17 + cpp_right_16;
                     }
                     break;
@@ -3834,15 +4577,19 @@ namespace aItem {
     std::uint8_t TCargoHook::HasStandardStats() {
         std::uint8_t StandardPower{};
         std::uint8_t StandardRange{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] ==
+                0) {
             StandardPower = CalculateGeneratedPickupPower() == PickupPower;
         } else {
-            StandardPower = CalculateGeneratedPickupPower() == PickupPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
+            StandardPower = CalculateGeneratedPickupPower() == PickupPower -
+                        aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
         }
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex -
+                1].StatBonuses[aConst::bonHookRadius] == 0) {
             StandardRange = CalculateGeneratedRange() == Range;
         } else {
-            StandardRange = CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
+            StandardRange = CalculateGeneratedRange() == Range - aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHookRadius];
         }
         return StandardPower && StandardRange;
     }
@@ -3874,31 +4621,51 @@ namespace aItem {
     void TCargoHook::ReplaceInfoTokens(pas::WideString& Text, pas::WideString ColorTag, void* Ship) {
         pas::WideString BonusText{};
         std::int32_t BaseValue{};
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] ==
+                0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHook])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHook])), pas::view(aMyFunction::RedColorTag));
         }
-        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, PickupPower), GetStatBonus(aConst::bonHook));
+        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, PickupPower),
+            GetStatBonus(aConst::bonHook));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonHook) - StatBonus, -(PickupPower + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonHook) - StatBonus,
+                    -(PickupPower + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (MicroModuleIndex == 0) {
@@ -3907,37 +4674,63 @@ namespace aItem {
             BaseValue = PickupPower - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHook];
         }
         if (CalculateGeneratedPickupPower() == BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), ColorTag);
         } else if (CalculateGeneratedPickupPower() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<PickUpSize>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] == 0) {
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex -
+                1].StatBonuses[aConst::bonHookRadius] == 0) {
             BonusText = pas::WideString();
         } else if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius] > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius])}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+",
+                        pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHookRadius])})), pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius])), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aConst::MicroModuleTemplates[MicroModuleIndex -
+                        1].StatBonuses[aConst::bonHookRadius])), pas::view(aMyFunction::RedColorTag));
         }
         StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, Range), GetStatBonus(aConst::bonHookRadius));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonHookRadius) - StatBonus, -(Range + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonHookRadius) - StatBonus,
+                    -(Range + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (MicroModuleIndex == 0) {
@@ -3946,14 +4739,25 @@ namespace aItem {
             BaseValue = Range - aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonHookRadius];
         }
         if (CalculateGeneratedRange() == BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), aMyFunction::TextHighlightColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({pas::wide_int_to_str(BaseValue), BonusText}), aMyFunction::TextHighlightColorTag);
         } else if (CalculateGeneratedRange() < BaseValue) {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseValue)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
-        aMyFunction::ReplaceTextToken(Text, u"<SpeedMin>"_w, pas::wide_int64_to_str(System::Round(aConst::CargoHookLevelStats[TechLevel].MinPullSpeed)), aMyFunction::TextHighlightColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<SpeedMax>"_w, pas::wide_int64_to_str(System::Round(aConst::CargoHookLevelStats[TechLevel].MaxPullSpeed)), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<SpeedMin>"_w,
+            pas::wide_int64_to_str(pas::real_round(aConst::CargoHookLevelStats[TechLevel].MinPullSpeed)),
+            aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<SpeedMax>"_w,
+            pas::wide_int64_to_str(pas::real_round(aConst::CargoHookLevelStats[TechLevel].MaxPullSpeed)),
+            aMyFunction::TextHighlightColorTag);
     }
 
     void TDefGenerator::Init(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
@@ -3975,28 +4779,34 @@ namespace aItem {
 
     void TDefGenerator::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        DamageFactor = EC_Buf::TBufEC_GetSingle(Buffer);
+        TechLevel = Buffer->GetByte();
+        DamageFactor = Buffer->GetSingle();
     }
 
     void TDefGenerator::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
-            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(1.0L - DamageFactor, SysUtils::DecimalSeparator));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_w);
+            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(static_cast<float>(1.0 - DamageFactor),
+                SysUtils::DecimalSeparator));
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Prouwseor"_wref.get());
             Block->AddParam(decodeTextW_2, cpp_arg);
         }
     }
 
     void TDefGenerator_LoadFromBlock(TDefGenerator* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->DamageFactor = 1.0L - EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->DamageFactor = static_cast<float>(1.0 -
+                EC_Str::ExtractDecimalToSingleW(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_wref.get())))));
     }
 
     float TDefGenerator::CalculateGeneratedDamageFactor() {
@@ -4005,22 +4815,23 @@ namespace aItem {
 
     void TDefGenerator::Improve(TImprovementKind Kind) {
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         switch (Kind) {
             case ikMinor: {
-                pas::Extended cpp_right = aMyFunction::SeededRandomFloatRange(Id * 254573, 0.01, 0.03);
-                DamageFactor = DamageFactor - cpp_right;
+                double cpp_right = aMyFunction::SeededRandomFloatRange(Id * 254573, 0.01, 0.03);
+                DamageFactor = static_cast<float>(DamageFactor - cpp_right);
                 break;
             }
             case ikMedium: {
-                pas::Extended cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 254572, 0.02, 0.04);
-                DamageFactor = DamageFactor - cpp_right_2;
+                double cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 254572, 0.02, 0.04);
+                DamageFactor = static_cast<float>(DamageFactor - cpp_right_2);
                 break;
             }
             case ikMajor: {
-                pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.03, 0.05);
-                DamageFactor = DamageFactor - cpp_right_3;
+                double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 254571, 0.03, 0.05);
+                DamageFactor = static_cast<float>(DamageFactor - cpp_right_3);
                 break;
             }
         }
@@ -4028,12 +4839,14 @@ namespace aItem {
     }
 
     std::uint8_t TDefGenerator::HasStandardStats() {
-        std::int32_t ActualPercent = System::Round(DamageFactor * 1.0E+2L);
-        std::int32_t GeneratedPercent = System::Round(CalculateGeneratedDamageFactor() * 1.0E+2L);
-        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] == 0) {
+        std::int32_t ActualPercent = pas::real_round(static_cast<float>(DamageFactor * 1.0E+2));
+        std::int32_t GeneratedPercent = pas::real_round(static_cast<float>(CalculateGeneratedDamageFactor() * 1.0E+2));
+        if (MicroModuleIndex == 0 || aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] ==
+                0) {
             return ActualPercent == GeneratedPercent;
         }
-        std::int32_t BonusPercent = System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef]);
+        std::int32_t BonusPercent = pas::real_round(aConst::MicroModuleTemplates[MicroModuleIndex -
+            1].StatBonuses[aConst::bonDef]);
         return ActualPercent + BonusPercent == GeneratedPercent;
     }
 
@@ -4071,41 +4884,67 @@ namespace aItem {
         if (ModuleBonus == 0) {
             BonusText = pas::WideString();
         } else if (ModuleBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(ModuleBonus)})),
+                    pas::view(aMyFunction::GreenColorTag));
         } else {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)),
+                    pas::view(aMyFunction::RedColorTag));
         }
-        std::int32_t StatBonus = std::max<std::int32_t>(-std::max<std::int32_t>(0, static_cast<std::int32_t>(DisplayPercent)), GetStatBonus(aConst::bonDef));
+        std::int32_t StatBonus = std::max<std::int32_t>(
+            -std::max<std::int32_t>(0, static_cast<std::int32_t>(DisplayPercent)), GetStatBonus(aConst::bonDef));
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(StatBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(StatBonus)})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(StatBonus)),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            StatBonus = std::max<std::int32_t>(static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonDef) - StatBonus, -(DisplayPercent + StatBonus));
+            StatBonus = std::max<std::int32_t>(
+                    static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::bonDef) - StatBonus,
+                    -(DisplayPercent + StatBonus));
         } else {
             StatBonus = 0;
         }
         if (StatBonus != 0) {
             if (StatBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(StatBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(StatBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
-        std::int32_t ActualFactorPercent = System::Round(DamageFactor * 1.0E+2L);
-        std::int32_t GeneratedFactorPercent = System::Round(CalculateGeneratedDamageFactor() * 1.0E+2L);
-        if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] != 0) {
-            ActualFactorPercent += System::Round(aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef]);
+        std::int32_t ActualFactorPercent = pas::real_round(static_cast<float>(DamageFactor * 1.0E+2));
+        std::int32_t GeneratedFactorPercent = pas::real_round(static_cast<float>(CalculateGeneratedDamageFactor() * 1.0E+2));
+        if (MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonDef] !=
+                0) {
+            ActualFactorPercent += pas::real_round(aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::bonDef]);
         }
         if (HasStandardStats()) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({pas::wide_int_to_str(DisplayPercent - ModuleBonus), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({pas::wide_int_to_str(DisplayPercent - ModuleBonus), BonusText}), ColorTag);
         } else if (ActualFactorPercent < GeneratedFactorPercent) {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)),
+                        pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<Percent>"_w,
+                pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(DisplayPercent - ModuleBonus)),
+                        pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
         }
     }
 
@@ -4113,7 +4952,8 @@ namespace aItem {
         aItem::TEquipment_Destroy(Self);
     }
 
-    void TWeapon::Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
+    void TWeapon::Init(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner) {
         Target = nullptr;
         this->ItemType = ItemType;
         this->Weight = Weight;
@@ -4124,14 +4964,16 @@ namespace aItem {
         OwnerId = Owner;
         Repair();
         Cost = aItem::CalculateGeneratedWeaponCost(GetWeaponInfo(), Weight, Level, Owner);
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             AmmoCapacity = CalculateGeneratedAmmoCapacity();
             Ammo = AmmoCapacity;
         }
         MicroModuleIndex = 0;
     }
 
-    void TCustomWeapon::InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
+    void TCustomWeapon::InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight,
+        std::uint8_t Level, aGalaxyStruct::TOwnerId Owner) {
         Target = nullptr;
         ItemType = aConst::t_CustomWeapon;
         CustomInfo = Info;
@@ -4148,7 +4990,8 @@ namespace aItem {
         OwnerId = Owner;
         Repair();
         Cost = aItem::CalculateGeneratedWeaponCost(Info, Weight, Level, Owner);
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             AmmoCapacity = CalculateGeneratedAmmoCapacity();
             Ammo = AmmoCapacity;
         }
@@ -4178,7 +5021,8 @@ namespace aItem {
         } else {
             Buffer->AddAnsiChar('\000');
         }
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             Buffer->AddDWord(Ammo);
             Buffer->AddDWord(AmmoCapacity);
         }
@@ -4191,25 +5035,29 @@ namespace aItem {
 
     void TWeapon::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TechLevel = EC_Buf::TBufEC_GetByte(Buffer);
-        Range = EC_Buf::TBufEC_GetWord(Buffer);
+        TechLevel = Buffer->GetByte();
+        Range = Buffer->GetWord();
         if (GlobalsV::LoadedSaveVersion >= 115) {
-            MinDamage = EC_Buf::TBufEC_GetInt32(Buffer);
-            MaxDamage = EC_Buf::TBufEC_GetInt32(Buffer);
+            MinDamage = Buffer->GetInt32();
+            MaxDamage = Buffer->GetInt32();
         } else {
-            MinDamage = EC_Buf::TBufEC_GetByte(Buffer);
-            MaxDamage = EC_Buf::TBufEC_GetByte(Buffer);
+            MinDamage = Buffer->GetByte();
+            MaxDamage = Buffer->GetByte();
         }
-        LoadedTargetKind = static_cast<TWeaponTargetKind>(EC_Buf::TBufEC_GetByte(Buffer));
+        LoadedTargetKind = static_cast<TWeaponTargetKind>(Buffer->GetByte());
         if (LoadedTargetKind == wtkNone) {
             Target = nullptr;
         } else {
-            Target = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
+            Target =
+                reinterpret_cast<pas::Object*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
         }
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
-            Ammo = EC_Buf::TBufEC_GetUInt32(Buffer);
-            AmmoCapacity = EC_Buf::TBufEC_GetUInt32(Buffer);
-            if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWMissile] != 0) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+            Ammo = Buffer->GetUInt32();
+            AmmoCapacity = Buffer->GetUInt32();
+            if (GlobalsV::LoadedSaveVersion < 118 && MicroModuleIndex != 0 &&
+                aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWMissile] != 0) {
                 switch (aConst::MicroModuleTemplates[MicroModuleIndex - 1].ConfigNumber) {
                     case 204: MaxDamage += 10; break;
                     case 210: MaxDamage += 15; break;
@@ -4218,7 +5066,8 @@ namespace aItem {
                     case 18: MaxDamage += 4; break;
                     case 119: MaxDamage -= 2; break;
                     default: {
-                        MaxDamage += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonWMissile] / 2;
+                        MaxDamage += aConst::MicroModuleTemplates[MicroModuleIndex -
+                                1].StatBonuses[aConst::bonWMissile] / 2;
                         break;
                     }
                 }
@@ -4235,66 +5084,94 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(TechLevel));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Range);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Rialdoinurs"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(MinDamage);
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
         {
             const pas::WideString& intToStr_4 = pas::wide_int_to_str(MaxDamage);
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_w);
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_wref.get());
             Block->AddParam(decodeTextW_4, intToStr_4);
         }
         {
             const pas::WideString& intToStr_5 = pas::wide_int_to_str(Ammo);
-            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Almamuo"_w);
+            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"Almamuo"_wref.get());
             Block->AddParam(decodeTextW_5, intToStr_5);
         }
         {
             const pas::WideString& intToStr_6 = pas::wide_int_to_str(AmmoCapacity);
-            const pas::WideString& decodeTextW_6 = EC_Str::DecodeTextW(u"MraixoAsmImGod"_w);
+            const pas::WideString& decodeTextW_6 = EC_Str::DecodeTextW(u"MraixoAsmImGod"_wref.get());
             Block->AddParam(decodeTextW_6, intToStr_6);
         }
     }
 
     void TCustomWeapon::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
-        Block->AddParam(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_w), CustomInfo->ConfigName);
+        Block->AddParam(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_wref.get()), CustomInfo->ConfigName);
         aItem::TWeapon::SaveToBlock(Block);
     }
 
     void TWeapon_LoadFromBlock(TWeapon* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->TechLevel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_w)))));
-        Self->Range = static_cast<std::uint16_t>(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_w))))));
-        Self->MinDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_w)))));
-        Self->MaxDamage = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_w)))));
-        Self->Ammo = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Almamuo"_w)))));
-        Self->AmmoCapacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MraixoAsmImGod"_w)))));
+        Self->TechLevel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Tre4cwh0L6eHv3ealf"_wref.get())))));
+        Self->Range =
+            static_cast<std::uint16_t>(
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Rialdoinurs"_wref.get()))))));
+        Self->MinDamage =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MailnoDrakmoarglen"_wref.get())))));
+        Self->MaxDamage =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MianxaDoarmuavgre"_wref.get())))));
+        Self->Ammo =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Almamuo"_wref.get())))));
+        Self->AmmoCapacity =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"MraixoAsmImGod"_wref.get())))));
     }
 
     void TCustomWeapon_LoadFromBlock(TCustomWeapon* Self, EC_BlockPar::TBlockParEC* Block) {
-        Self->CustomInfo = aGalaxy::Galaxy->RequireCustomWeaponInfo(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_w))));
+        Self->CustomInfo =
+            aGalaxy::Galaxy->RequireCustomWeaponInfo(
+                Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CrulsitroimaTryspie"_wref.get()))));
         aItem::TWeapon_LoadFromBlock(Self, Block);
     }
 
     void TWeapon::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         aItem::TItem::ResolveLoadedReferences(Galaxy);
         if (LoadedTargetKind == wtkShip) {
-            Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
+            Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                    static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
         } else if (LoadedTargetKind == wtkItem) {
-            Target = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
+            Target = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(
+                    static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));
         } else if (LoadedTargetKind == wtkAsteroid) {
-            Target = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(Galaxy->IdToAsteroid(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
+            Target =
+                pas::checked_cast<aAsteroid::TAsteroid*>(
+                    static_cast<pas::Object*>(
+                        Galaxy->IdToAsteroid(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
         } else if (LoadedTargetKind == wtkMissile) {
-            Target = pas::checked_cast<aMissile::TMissile*>(static_cast<pas::Object*>(Galaxy->IdToMissile(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
+            Target =
+                pas::checked_cast<aMissile::TMissile*>(
+                    static_cast<pas::Object*>(
+                        Galaxy->IdToMissile(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));
         }
     }
 
@@ -4303,28 +5180,28 @@ namespace aItem {
         Target = nullptr;
     }
 
-    std::int32_t TWeapon::CalculateGeneratedAmmoCapacity() {
-        return TechLevel * 5 + 25;
-    }
-
     std::int32_t TWeapon::CalculateGeneratedMinDamage() {
         aConst::PWeaponInfo Info = GetWeaponInfo();
-        return System::Round(static_cast<long double>(Info->MinDamage) * pas::load_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (TechLevel - 1) * sizeof(float))));
+        return pas::real_round(static_cast<float>(static_cast<double>(Info->MinDamage) * pas::load_unaligned<float>(pas::byte_offset(
+                &Info->DamageScaleByLevel, (TechLevel - 1) * sizeof(float)))));
     }
 
     std::int32_t TWeapon::CalculateGeneratedMaxDamage() {
         aConst::PWeaponInfo Info = GetWeaponInfo();
-        return System::Round(static_cast<long double>(Info->MaxDamage) * pas::load_unaligned<float>(pas::byte_offset(&Info->DamageScaleByLevel, (TechLevel - 1) * sizeof(float))));
+        return pas::real_round(static_cast<float>(static_cast<double>(Info->MaxDamage) * pas::load_unaligned<float>(pas::byte_offset(
+                &Info->DamageScaleByLevel, (TechLevel - 1) * sizeof(float)))));
     }
 
     std::int32_t TWeapon::CalculateGeneratedRange() {
-        return System::Round(static_cast<long double>(GetWeaponInfo()->AverageRange) * aConst::WeaponRangeLevelFactors[TechLevel]);
+        return pas::real_round(static_cast<float>(static_cast<double>(GetWeaponInfo()->AverageRange) *
+            aConst::WeaponRangeLevelFactors[TechLevel]));
     }
 
     // Generated maximum plus ordinary and special module damage bonuses; used by HasStandardStats.
     std::int32_t TWeapon::CalculateStandardMaxDamage() {
         std::int32_t Result = CalculateGeneratedMaxDamage();
-        aConst::TEquipmentBonusKind BonusKind = aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags)].BonusKind;
+        aConst::TEquipmentBonusKind BonusKind = aConst::WeaponDamageClasses[
+            aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags)].BonusKind;
         if (MicroModuleIndex != 0) {
             Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[BonusKind];
         }
@@ -4349,13 +5226,15 @@ namespace aItem {
     void TWeapon::Improve(TImprovementKind Kind) {
         std::int32_t ModuleDamage{};
         if (Kind == ikAny) {
-            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2, aGalaxy::Galaxy->CurrentTurn * Id));
+            Kind = static_cast<TImprovementKind>(aMyFunction::SeededRandomIntRange(0, 2,
+                    aGalaxy::Galaxy->CurrentTurn * Id));
         }
         aConst::PWeaponInfo Info = GetWeaponInfo();
         if (DetailImprovement == 0) {
-            if (pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+            if (pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+                static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
                 DetailImprovement = 1;
-            } else if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5L) {
+            } else if (aMyFunction::SeededRandomUnitFloat(aGalaxy::Galaxy->CurrentTurn * (Kind + 1) * Id) < 0.5) {
                 DetailImprovement = 1;
             } else {
                 DetailImprovement = 2;
@@ -4363,118 +5242,123 @@ namespace aItem {
         }
         std::int32_t CurrentDamage = MaxDamage;
         std::int32_t BaseDamage = Info->MaxDamage;
-        if (pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstMissile), static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && MicroModuleIndex > 0 && static_cast<std::uint8_t>(aGalaxy::Galaxy->AreOldMissileBonusesEnabled() ^ 1)) {
-            ModuleDamage = aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(Info->DamageFlags)].BonusKind];
-            CurrentDamage = MathImports::Ceil(CurrentDamage - (1.0L - pas::real_divide(1.0L, GetShotCount())) * ModuleDamage);
+        if (pas::in_range(Info->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstMissile),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket)) && MicroModuleIndex > 0 &&
+            !aGalaxy::Galaxy->AreOldMissileBonusesEnabled()) {
+            ModuleDamage = aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[
+                    aConst::WeaponDamageClasses[aConst::ClassifyWeaponDamageFlags(Info->DamageFlags)].BonusKind];
+            CurrentDamage = MathImports::Ceil(static_cast<float>(CurrentDamage - static_cast<float>((static_cast<float>(1.0 - static_cast<float>(1.0 / GetShotCount()))) * ModuleDamage)));
         }
         if (DetailImprovement == 1) {
             switch (Kind) {
                 case ikMinor: {
                     {
-                        pas::Extended cpp_left = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.07, 0.12);
-                        std::int64_t cpp_right = System::Round(cpp_left + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.1, 0.2));
+                        double cpp_left = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.07, 0.12));
+                        std::int64_t cpp_right = pas::real_round(static_cast<float>(cpp_left + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.1, 0.2))));
                         MaxDamage = MaxDamage + cpp_right + 1;
                     }
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
-                        pas::Extended cpp_left_2 = Range * cpp_right_2;
-                        return cpp_left_2 + ([&] {
-                            pas::Extended cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.02, 0.04);
-                            return Info->AverageRange * cpp_right_3;
+                    Range += ([&] {
+                            double cpp_right_2 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
+                            double cpp_left_2 = static_cast<float>(Range * cpp_right_2);
+                            double cpp_right_3 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.02, 0.04);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_2 + static_cast<float>(Info->AverageRange * cpp_right_3)));
                         }());
-                    }()));
                     break;
                 }
                 case ikMedium: {
                     {
-                        pas::Extended cpp_left_3 = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.07, 0.12);
-                        std::int64_t cpp_right_4 = System::Round(cpp_left_3 + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.2, 0.3));
+                        double cpp_left_3 = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.07, 0.12));
+                        std::int64_t cpp_right_4 = pas::real_round(static_cast<float>(cpp_left_3 + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.2, 0.3))));
                         MaxDamage = MaxDamage + cpp_right_4 + 2;
                     }
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_5 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
-                        pas::Extended cpp_left_4 = Range * cpp_right_5;
-                        return cpp_left_4 + ([&] {
-                            pas::Extended cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.03, 0.04);
-                            return Info->AverageRange * cpp_right_6;
+                    Range += ([&] {
+                            double cpp_right_5 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
+                            double cpp_left_4 = static_cast<float>(Range * cpp_right_5);
+                            double cpp_right_6 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.03, 0.04);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_4 + static_cast<float>(Info->AverageRange * cpp_right_6)));
                         }());
-                    }()));
                     break;
                 }
                 case ikMajor: {
                     {
-                        pas::Extended cpp_left_5 = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.07, 0.12);
-                        std::int64_t cpp_right_7 = System::Round(cpp_left_5 + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.3, 0.4));
+                        double cpp_left_5 = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.07, 0.12));
+                        std::int64_t cpp_right_7 = pas::real_round(static_cast<float>(cpp_left_5 + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.3, 0.4))));
                         MaxDamage = MaxDamage + cpp_right_7 + 3;
                     }
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_8 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
-                        pas::Extended cpp_left_6 = Range * cpp_right_8;
-                        return cpp_left_6 + ([&] {
-                            pas::Extended cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.04, 0.06);
-                            return Info->AverageRange * cpp_right_9;
+                    Range += ([&] {
+                            double cpp_right_8 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.02, 0.05);
+                            double cpp_left_6 = static_cast<float>(Range * cpp_right_8);
+                            double cpp_right_9 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.04, 0.06);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_6 + static_cast<float>(Info->AverageRange * cpp_right_9)));
                         }());
-                    }()));
                     break;
                 }
             }
         } else if (DetailImprovement == 2) {
             switch (Kind) {
                 case ikMinor: {
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_10 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
-                        pas::Extended cpp_left_7 = Range * cpp_right_10;
-                        return cpp_left_7 + ([&] {
-                            pas::Extended cpp_right_11 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.03, 0.06);
-                            return Info->AverageRange * cpp_right_11;
+                    Range += ([&] {
+                            double cpp_right_10 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
+                            double cpp_left_7 = static_cast<float>(Range * cpp_right_10);
+                            double cpp_right_11 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.03, 0.06);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_7 + static_cast<float>(Info->AverageRange * cpp_right_11)));
                         }());
-                    }()));
                     {
-                        pas::Extended cpp_left_8 = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.03, 0.06);
-                        std::int64_t cpp_right_12 = System::Round(cpp_left_8 + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.05, 0.1));
+                        double cpp_left_8 = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.03, 0.06));
+                        std::int64_t cpp_right_12 = pas::real_round(static_cast<float>(cpp_left_8 + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.05, 0.1))));
                         MaxDamage = MaxDamage + cpp_right_12 + 1;
                     }
                     break;
                 }
                 case ikMedium: {
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_13 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
-                        pas::Extended cpp_left_9 = Range * cpp_right_13;
-                        return cpp_left_9 + ([&] {
-                            pas::Extended cpp_right_14 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.06, 0.08);
-                            return Info->AverageRange * cpp_right_14;
+                    Range += ([&] {
+                            double cpp_right_13 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
+                            double cpp_left_9 = static_cast<float>(Range * cpp_right_13);
+                            double cpp_right_14 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.06, 0.08);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_9 + static_cast<float>(Info->AverageRange * cpp_right_14)));
                         }());
-                    }()));
                     {
-                        pas::Extended cpp_left_10 = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.03, 0.06);
-                        std::int64_t cpp_right_15 = System::Round(cpp_left_10 + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.1, 0.15));
+                        double cpp_left_10 = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.03, 0.06));
+                        std::int64_t cpp_right_15 = pas::real_round(static_cast<float>(cpp_left_10 + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.1, 0.15))));
                         MaxDamage = MaxDamage + cpp_right_15 + 2;
                     }
                     break;
                 }
                 case ikMajor: {
-                    Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                        pas::Extended cpp_right_16 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
-                        pas::Extended cpp_left_11 = Range * cpp_right_16;
-                        return cpp_left_11 + ([&] {
-                            pas::Extended cpp_right_17 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.08, 0.11);
-                            return Info->AverageRange * cpp_right_17;
+                    Range += ([&] {
+                            double cpp_right_16 = aMyFunction::SeededRandomFloatRange(Id * 354571, 0.04, 0.07);
+                            double cpp_left_11 = static_cast<float>(Range * cpp_right_16);
+                            double cpp_right_17 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.08, 0.11);
+                            return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_11 + static_cast<float>(Info->AverageRange * cpp_right_17)));
                         }());
-                    }()));
                     {
-                        pas::Extended cpp_left_12 = static_cast<long double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(Id * 276247, 0.03, 0.06);
-                        std::int64_t cpp_right_18 = System::Round(cpp_left_12 + static_cast<long double>(BaseDamage) * aMyFunction::SeededRandomFloatRange(Id * 976247, 0.15, 0.2));
+                        double cpp_left_12 = static_cast<float>(static_cast<double>(CurrentDamage) * aMyFunction::SeededRandomFloatRange(
+                                Id * 276247, 0.03, 0.06));
+                        std::int64_t cpp_right_18 = pas::real_round(static_cast<float>(cpp_left_12 + static_cast<float>(static_cast<double>(BaseDamage) *
+                                aMyFunction::SeededRandomFloatRange(Id * 976247, 0.15, 0.2))));
                         MaxDamage = MaxDamage + cpp_right_18 + 3;
                     }
                     break;
                 }
             }
         } else if (DetailImprovement == 3) {
-            Range += aMyFunction::RoundAndTruncateToTens(([&] {
-                pas::Extended cpp_right_19 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.12, 0.18);
-                pas::Extended cpp_left_13 = Range * cpp_right_19;
-                return cpp_left_13 + (System::Sqrt(pas::sqr(Info->AverageRange) + 90000) - Info->AverageRange);
-            }()));
+            Range += ([&] {
+                    double cpp_right_19 = aMyFunction::SeededRandomFloatRange(Id * 976247, 0.12, 0.18);
+                    double cpp_left_13 = static_cast<float>(Range * cpp_right_19);
+                    return aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_13 +
+                        (static_cast<float>(System::Sqrt(pas::sqr(Info->AverageRange) + 90000) - Info->AverageRange))));
+                }());
         }
         Cost += CalculateImprovementCost(Kind) / 2;
         DetailImprovement = 0;
@@ -4494,11 +5378,13 @@ namespace aItem {
             Result = GetShortName();
         }
         if (HasMicroModule()) {
-            return pas::concat_wide({Result, u" ", ([&] {
-                pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
-                pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
-                return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)), pas::view(std::move(microModuleNameColorTag)));
-            }())});
+            return pas::concat_wide({Result, u" ",
+                ([&] {
+                    pas::WideString microModuleNameColorTag = aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1);
+                    pas::WideString microModuleQuotedName = GetMicroModuleQuotedName();
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(microModuleQuotedName)),
+                        pas::view(std::move(microModuleNameColorTag)));
+                }())});
         }
         return Result;
     }
@@ -4524,11 +5410,15 @@ namespace aItem {
         DamageClass = aConst::ClassifyWeaponDamageFlags(Self->GetWeaponInfo()->DamageFlags);
         Self->ReplaceInfoTokens(Text, ColorTag, Ship);
         LevelText = pas::concat_wide({u" (", Self->GetLevelLetter(), u")"});
-        Text = pas::concat_wide({Text, u"\r\n", ([&] {
-            pas::WideString cpp_arg = pas::concat_wide({aConst::LocalizedText(pas::concat_wide({u"Items.Weapon.Type", aConst::WeaponDamageClasses[DamageClass].Name})), LevelText});
-            pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.AddText"_wref.get());
-            return aMyFunction::FormatText1(std::move(localizedText), ColorTag, u"<WeaponType>"_w, std::move(cpp_arg));
-        }())});
+        Text = pas::concat_wide({Text, u"\r\n",
+                ([&] {
+                    pas::WideString cpp_arg = pas::concat_wide({
+                        aConst::LocalizedText(pas::concat_wide({u"Items.Weapon.Type",
+                            aConst::WeaponDamageClasses[DamageClass].Name})), LevelText});
+                    pas::WideString localizedText = aConst::LocalizedText(u"Items.Weapon.AddText"_wref.get());
+                    return aMyFunction::FormatText1(std::move(localizedText), ColorTag, u"<WeaponType>"_w,
+                        std::move(cpp_arg));
+                }())});
         Text = pas::concat_wide_reverse({aItem::TEquipment_GetBonusDescription(Self, ColorTag), Text});
         if (Self->ScriptItem != nullptr) {
             Text = reinterpret_cast<aScript::TScriptItem*>(Self->ScriptItem)->FormatDataText(Text, ColorTag);
@@ -4550,55 +5440,80 @@ namespace aItem {
         std::int32_t MissileRange{};
         // Native flag displays the maximum as the minimum too.
         if ((std::bit_cast<std::uint32_t>(GetDamageFlags()) & aGalaxyStruct::DamageNoDeltaMask) != 0) {
-            aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w, pas::wide_int_to_str(std::max<std::int32_t>(MaxDamage, MinDamage)), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w,
+                pas::wide_int_to_str(std::max<std::int32_t>(MaxDamage, MinDamage)), ColorTag);
         } else {
             aMyFunction::ReplaceTextToken(Text, u"<MinDamage>"_w, pas::wide_int_to_str(MinDamage), ColorTag);
         }
         std::int32_t ModuleBonus = 0;
         aConst::TWeaponDamageClass DamageClass = aConst::ClassifyWeaponDamageFlags(GetWeaponInfo()->DamageFlags);
         if (MicroModuleIndex != 0) {
-            ModuleBonus += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind];
+            ModuleBonus += aConst::MicroModuleTemplates[MicroModuleIndex -
+                    1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind];
         }
         std::int32_t BaseDamage = std::max<std::int32_t>(MaxDamage, MinDamage) - ModuleBonus;
         std::int32_t ExpectedDamage = CalculateGeneratedMaxDamage();
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                BaseDamage += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    BaseDamage += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                            1].StatBonuses[aConst::WeaponDamageClasses[DamageClass].BonusKind] * Entry->Count;
+                }
             }
         }
         if (ModuleBonus > 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), pas::view(aMyFunction::GreenColorTag));
+            BonusText = aMyFunction::WrapTextInColor(
+                    pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(ModuleBonus)})),
+                    pas::view(aMyFunction::GreenColorTag));
         }
         if (ModuleBonus < 0) {
-            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), pas::view(aMyFunction::RedColorTag));
+            BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)),
+                    pas::view(aMyFunction::RedColorTag));
         }
         if (Ship != nullptr && EquippedFlag != 0) {
-            ShipBonus = static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::WeaponDamageClasses[DamageClass].BonusKind);
+            ShipBonus =
+                static_cast<aShip::TShip*>(Ship)->GetTotalStatBonus(aConst::WeaponDamageClasses[DamageClass].BonusKind);
         } else {
             ShipBonus = 0;
         }
         if (ShipBonus != 0) {
             if (ShipBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(ShipBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(ShipBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(", SysUtils::IntToStr(ShipBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(", pas::wide_int_to_str(ShipBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             }
         }
         if (BaseDamage == ExpectedDamage) {
             aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, pas::wide_int_to_str(BaseDamage), ColorTag);
         } else if (BaseDamage > ExpectedDamage) {
-            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)), pas::view(aMyFunction::GreenColorTag)), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w,
+                aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)),
+                    pas::view(aMyFunction::GreenColorTag)), ColorTag);
         } else {
-            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)), pas::view(aMyFunction::RedColorTag)), ColorTag);
+            aMyFunction::ReplaceTextToken(Text, u"<MaxDamage>"_w,
+                aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseDamage)),
+                    pas::view(aMyFunction::RedColorTag)), ColorTag);
         }
         aMyFunction::ReplaceTextToken(Text, u"<Bonus>"_w, BonusText, ColorTag);
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             ModuleBonus = 0;
             if (ExtraSpecials != nullptr) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_2.next(I); ) {
-                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                    ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonWRadius] * Entry->Count;
+                const std::int32_t cpp_last_2 = pas::list_count(ExtraSpecials) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                        ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                                1].StatBonuses[aConst::bonWRadius] * Entry->Count;
+                    }
                 }
             }
             ExpectedRange = CalculateGeneratedRange() + ModuleBonus;
@@ -4610,12 +5525,16 @@ namespace aItem {
             }
             BaseRange = CurrentRange - ModuleBonus;
             MissileRange = GetWeaponInfo()->MissileRange;
-            EffectiveBonus = std::max<std::int32_t>(CurrentRange, MissileRange) - std::max<std::int32_t>(BaseRange, MissileRange);
+            EffectiveBonus = std::max<std::int32_t>(CurrentRange, MissileRange) - std::max<std::int32_t>(BaseRange,
+                        MissileRange);
             if (ModuleBonus > 0) {
-                BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(EffectiveBonus)}))), pas::view(aMyFunction::GreenColorTag));
+                BonusText = aMyFunction::WrapTextInColor(
+                        pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(EffectiveBonus)})),
+                        pas::view(aMyFunction::GreenColorTag));
             } else if (ModuleBonus < 0) {
                 if (EffectiveBonus < 0) {
-                    BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(EffectiveBonus)), pas::view(aMyFunction::RedColorTag));
+                    BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(EffectiveBonus)),
+                            pas::view(aMyFunction::RedColorTag));
                 } else {
                     BonusText = aMyFunction::WrapTextInColor(u"-0"sv, pas::view(aMyFunction::RedColorTag));
                 }
@@ -4627,23 +5546,41 @@ namespace aItem {
             } else {
                 ShipBonus = 0;
             }
-            EffectiveBonus = std::max<std::int32_t>(CurrentRange + ShipBonus, MissileRange) - std::max<std::int32_t>(CurrentRange, MissileRange);
+            EffectiveBonus = std::max<std::int32_t>(CurrentRange + ShipBonus, MissileRange) - std::max<std::int32_t>(
+                        CurrentRange, MissileRange);
             if (ShipBonus > 0) {
-                BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"(+", SysUtils::IntToStr(EffectiveBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                BonusText = pas::concat_wide({BonusText,
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::concat_wide({u"(+", pas::wide_int_to_str(EffectiveBonus), u")"})),
+                            pas::view(aMyFunction::EquipmentBonusColorTag))});
             } else if (ShipBonus < 0) {
                 // Native negative branch omits the opening parenthesis.
                 if (EffectiveBonus < 0) {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(EffectiveBonus), ")"}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                    BonusText = pas::concat_wide({BonusText,
+                            aMyFunction::WrapTextInColor(
+                                pas::view(pas::concat_wide({pas::wide_int_to_str(EffectiveBonus), u")"})),
+                                pas::view(aMyFunction::EquipmentBonusColorTag))});
                 } else {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(u"(-0)"sv, pas::view(aMyFunction::EquipmentBonusColorTag))});
+                    BonusText = pas::concat_wide({BonusText,
+                            aMyFunction::WrapTextInColor(u"(-0)"sv, pas::view(aMyFunction::EquipmentBonusColorTag))});
                 }
             }
             if (BaseRange == ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange)), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange)),
+                        BonusText}), ColorTag);
             } else if (BaseRange > ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))),
+                            pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
             } else {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({
+                        aMyFunction::WrapTextInColor(
+                            pas::view(pas::wide_int_to_str(std::max<std::int32_t>(BaseRange, MissileRange))),
+                            pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
             }
             aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Ammo), ColorTag);
             aMyFunction::ReplaceTextToken(Text, u"<MaxCount>"_w, pas::wide_int_to_str(AmmoCapacity), ColorTag);
@@ -4651,9 +5588,13 @@ namespace aItem {
         } else {
             ModuleBonus = 0;
             if (ExtraSpecials != nullptr) {
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range_3.next(I); ) {
-                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                    ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonWRadius] * Entry->Count;
+                const std::int32_t cpp_last_3 = pas::list_count(ExtraSpecials) - 1;
+                if (0 <= cpp_last_3) {
+                    for (I = 0; I <= cpp_last_3; ++I) {
+                        Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                        ModuleBonus += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                                1].StatBonuses[aConst::bonWRadius] * Entry->Count;
+                    }
                 }
             }
             ExpectedRange = CalculateGeneratedRange() + ModuleBonus;
@@ -4665,9 +5606,12 @@ namespace aItem {
             }
             BaseRange = CurrentRange - ModuleBonus;
             if (ModuleBonus > 0) {
-                BonusText = aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ModuleBonus)}))), pas::view(aMyFunction::GreenColorTag));
+                BonusText = aMyFunction::WrapTextInColor(
+                        pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(ModuleBonus)})),
+                        pas::view(aMyFunction::GreenColorTag));
             } else if (ModuleBonus < 0) {
-                BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)), pas::view(aMyFunction::RedColorTag));
+                BonusText = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ModuleBonus)),
+                        pas::view(aMyFunction::RedColorTag));
             } else {
                 BonusText = pas::WideString();
             }
@@ -4678,17 +5622,29 @@ namespace aItem {
             }
             if (ShipBonus != 0) {
                 if (ShipBonus > 0) {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(ShipBonus)}))), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                    BonusText = pas::concat_wide({BonusText,
+                            aMyFunction::WrapTextInColor(
+                                pas::view(pas::concat_wide({u"+", pas::wide_int_to_str(ShipBonus)})),
+                                pas::view(aMyFunction::EquipmentBonusColorTag))});
                 } else {
-                    BonusText = pas::concat_wide({BonusText, aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ShipBonus)), pas::view(aMyFunction::EquipmentBonusColorTag))});
+                    BonusText = pas::concat_wide({BonusText,
+                            aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(ShipBonus)),
+                                pas::view(aMyFunction::EquipmentBonusColorTag))});
                 }
             }
             if (BaseRange == ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({pas::wide_int_to_str(BaseRange), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({pas::wide_int_to_str(BaseRange), BonusText}), ColorTag);
             } else if (BaseRange > ExpectedRange) {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)), pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)),
+                            pas::view(aMyFunction::GreenColorTag)), BonusText}), ColorTag);
             } else {
-                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w, pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)), pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Radius>"_w,
+                    pas::concat_wide({
+                        aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(BaseRange)),
+                            pas::view(aMyFunction::RedColorTag)), BonusText}), ColorTag);
             }
         }
         aMyFunction::ReplaceTextToken(Text, u"<CntAttacks>"_w, pas::wide_int_to_str(GetAttackCount()), ColorTag);
@@ -4709,20 +5665,25 @@ namespace aItem {
             SpeedPercent += aConst::MicroModuleTemplates[SpecialModuleIndex - 1].StatBonuses[aConst::bonShotSpeed];
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                SpeedPercent += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonShotSpeed] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    SpeedPercent += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                            1].StatBonuses[aConst::bonShotSpeed] * Entry->Count;
+                }
             }
         }
         SpeedPercent = std::max<std::int32_t>(0, std::min<std::int32_t>(100, SpeedPercent));
-        return 1.0L - SpeedPercent * 0.01L;
+        return static_cast<float>(1.0 - static_cast<float>(SpeedPercent * 0x1.47ae147ae147ap-7));
     }
 
     pas::WideString TWeapon::GetBitmapResourceName() {
         if (ConfigBlockName != u"") {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType], aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType],
+                aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
         } else {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[ItemType]});
         }
@@ -4732,7 +5693,8 @@ namespace aItem {
         if (ConfigBlockName != u"") {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         } else if (SpecialModuleIndex > 0 && aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph != u"") {
-            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", GetConfigName(), aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
+            return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", GetConfigName(),
+                aConst::MicroModuleTemplates[SpecialModuleIndex - 1].KindGraph});
         } else {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"W", GetConfigName()});
         }
@@ -4740,7 +5702,8 @@ namespace aItem {
 
     std::uint8_t TWeapon::NeedsAmmo() {
         std::uint8_t Result = false;
-        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             if (Ammo < AmmoCapacity) {
                 return true;
             }
@@ -4752,13 +5715,14 @@ namespace aItem {
         std::int32_t MissingAmmo{};
         float UnitCost{};
         std::int32_t Result = 0;
-        if (!pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo), static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
+        if (!pas::in_range(GetWeaponInfo()->ShotType, static_cast<std::int32_t>(aGalaxyStruct::wstTorpedo),
+            static_cast<std::int32_t>(aGalaxyStruct::wstRocket))) {
             return Result;
         }
         if (Ammo < AmmoCapacity) {
             MissingAmmo = AmmoCapacity - Ammo;
             UnitCost = aGalaxy::Galaxy->ScaleIntByTechLevel(10, 100);
-            return System::Round(static_cast<long double>(MissingAmmo) * UnitCost);
+            return pas::real_round(static_cast<float>(static_cast<double>(MissingAmmo) * UnitCost));
         }
         return Result;
     }
@@ -4783,9 +5747,12 @@ namespace aItem {
             Result = Result + aConst::MicroModuleTemplates[MicroModuleIndex - 1].WeaponDamageFlags;
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result = Result + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].WeaponDamageFlags;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    Result = Result + aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].WeaponDamageFlags;
+                }
             }
         }
         return Result;
@@ -4795,7 +5762,8 @@ namespace aItem {
         std::int32_t I{};
         PExtraSpecial Entry{};
         std::int32_t Result = GetWeaponInfo()->ShotCount;
-        if (!pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(GetWeaponInfo()->ShotType)) {
+        if (!pas::is_one_of<aGalaxyStruct::wstChain, aGalaxyStruct::wstMissile,
+            aGalaxyStruct::wstRocket>(GetWeaponInfo()->ShotType)) {
             return Result;
         }
         if (SpecialModuleIndex != 0) {
@@ -4805,9 +5773,13 @@ namespace aItem {
             Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonShots];
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonShots] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                            1].StatBonuses[aConst::bonShots] * Entry->Count;
+                }
             }
         }
         return std::max<std::int32_t>(Result, 1);
@@ -4824,9 +5796,13 @@ namespace aItem {
             Result += aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonAttacks];
         }
         if (ExtraSpecials != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ExtraSpecials) - 1); cpp_range.next(I); ) {
-                Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
-                Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne - 1].StatBonuses[aConst::bonAttacks] * Entry->Count;
+            const std::int32_t cpp_last = pas::list_count(ExtraSpecials) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TExtraSpecial>(ExtraSpecials, I);
+                    Result += aConst::MicroModuleTemplates[Entry->ModuleIndexPlusOne -
+                            1].StatBonuses[aConst::bonAttacks] * Entry->Count;
+                }
             }
         }
         return std::max<std::int32_t>(Result, 1);
@@ -4864,8 +5840,8 @@ namespace aItem {
 
     void TGoods::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TItem::LoadFromBuffer(Buffer, Galaxy);
-        Quantity = EC_Buf::TBufEC_GetInt32(Buffer);
-        NaturalFlag = EC_Buf::TBufEC_GetBoolean(Buffer);
+        Quantity = Buffer->GetInt32();
+        NaturalFlag = Buffer->GetBoolean();
     }
 
     pas::WideString TGoods::GetDisplayName() {
@@ -4877,12 +5853,14 @@ namespace aItem {
 
     pas::WideString TGoods_GetInfoText(TGoods* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Text{};
-        Text = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text", SysUtils::IntToStr(Self->ItemType + 1)})));
-        return pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(Self->GetDisplayName()), pas::view(ColorTag)), Text});
+        Text = aConst::LocalizedText(pas::concat_wide({u"Items.Goods.Text", pas::wide_int_to_str(Self->ItemType + 1)}));
+        return pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(Self->GetDisplayName()), pas::view(ColorTag)),
+            Text});
     }
 
     pas::WideString TGoods::GetDescriptionText() {
-        return aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Description.", SysUtils::IntToStr(ItemType + 1)})));
+        return aConst::LocalizedText(pas::concat_wide({u"Items.Goods.Description.",
+            pas::wide_int_to_str(ItemType + 1)}));
     }
 
     pas::WideString TGoods::GetBitmapResourceName() {
@@ -4897,8 +5875,8 @@ namespace aItem {
 
     void TCountableItem::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        StackCount = EC_Buf::TBufEC_GetInt32(Buffer);
-        DropFlag = EC_Buf::TBufEC_GetBoolean(Buffer);
+        StackCount = Buffer->GetInt32();
+        DropFlag = Buffer->GetBoolean();
     }
 
     void TCountableItem::Init(pas::WideString ConfigName, std::int32_t Count, std::uint8_t DropFlag) {
@@ -4954,7 +5932,8 @@ namespace aItem {
         EC_BlockPar::TBlockParEC* Block{};
         std::int32_t Result = 1;
         if (ItemType != aConst::t_Protoplasm) {
-            Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Items.CustomCountables.", ConfigBlockName}));
+            Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Items.CustomCountables.",
+                    ConfigBlockName}));
             if (Block->CountParams(u"UnitSize"_wref.get()) > 0) {
                 return EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"UnitSize"sv)));
             }
@@ -4976,7 +5955,8 @@ namespace aItem {
             Result = pas::construct_call<TCountableItem>(TEquipment_Create);
             Result->Init(ConfigBlockName, SplitCount, 0);
         }
-        Result->Cost = std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(pas::real_divide(Cost, StackCount) * SplitCount));
+        Result->Cost = std::max<std::int64_t>(static_cast<std::int64_t>(1),
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Cost) / StackCount) * SplitCount)));
         Cost = std::max<std::int32_t>(1, Cost - Result->Cost);
         StackCount -= SplitCount;
         {
@@ -4989,12 +5969,17 @@ namespace aItem {
         if (ScriptItem != nullptr && reinterpret_cast<aScript::TScriptItem*>(ScriptItem)->Name == u"") {
             OriginalScriptItem = reinterpret_cast<aScript::TScriptItem*>(ScriptItem);
             NewScriptItem = nullptr;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(OriginalScriptItem->Script->Items) - 1); cpp_range.next(I); ) {
-                NewScriptItem = pas::list_at<aScript::TScriptItem>(OriginalScriptItem->Script->Items, I);
-                if (NewScriptItem->Name == u"" && NewScriptItem->Item == nullptr) {
-                    break;
+            {
+                const std::int32_t cpp_last = pas::list_count(OriginalScriptItem->Script->Items) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        NewScriptItem = pas::list_at<aScript::TScriptItem>(OriginalScriptItem->Script->Items, I);
+                        if (NewScriptItem->Name == u"" && NewScriptItem->Item == nullptr) {
+                            break;
+                        }
+                        NewScriptItem = nullptr;
+                    }
                 }
-                NewScriptItem = nullptr;
             }
             if (NewScriptItem == nullptr) {
                 NewScriptItem = pas::construct_call<aScript::TScriptItem>(aScript::TScriptItem_Create);
@@ -5077,7 +6062,9 @@ namespace aItem {
         if (NameOverride != u"") {
             return NameOverride;
         }
-        return pas::concat_wide({aConst::LocalizedText(u"Items.Nod.Name"_wref.get()), u" ", aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Nod.S", SysUtils::IntToStr(DominatorSeries)})))});
+        return pas::concat_wide({aConst::LocalizedText(u"Items.Nod.Name"_wref.get()), u" ",
+            aConst::LocalizedText(pas::concat_wide({u"Items.Nod.S",
+                pas::wide_int_to_str(static_cast<std::int32_t>(DominatorSeries))}))});
     }
 
     pas::WideString TProtoplasm_GetInfoText(TProtoplasm* Self, pas::WideString ColorTag, void* Ship) {
@@ -5122,20 +6109,25 @@ namespace aItem {
     }
 
     void TUselessItem_Destroy(TUselessItem* Self) {
-        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
+        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) &&
+            aPlayer::GetPlayer() != nullptr) {
             aScript::RunItemConfigActionCode(Self, aGalaxyStruct::satOnItemDestroy, nullptr, nullptr, nullptr, 0);
         }
         aItem::TEquipmentWithActCode_Destroy(Self);
     }
 
-    void TUselessItem::Init(pas::WideString ConfigName, aGalaxyStruct::TDominatorSeries Series, std::uint32_t Seed, std::uint8_t ForceArtefactDisplay) {
+    void TUselessItem::Init(pas::WideString ConfigName, aGalaxyStruct::TDominatorSeries Series, std::uint32_t Seed,
+        std::uint8_t ForceArtefactDisplay) {
         ItemType = aConst::t_UselessItem;
         DominatorSeries = Series;
         if (ConfigName == u"Remains") {
             do {
-                ConfigBlockName = static_cast<pas::WideString>(pas::concat_ansi({"Remains_", SysUtils::IntToStr(aMyFunction::SeededRandomIntRange(0, Globals::UselessItemRemainsCount - 1, Seed))}));
+                ConfigBlockName = pas::concat_wide({u"Remains_",
+                        pas::wide_int_to_str(aMyFunction::SeededRandomIntRange(0, Globals::UselessItemRemainsCount - 1,
+                            Seed))});
                 if (([&] {
-                    const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"}));
+                    const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                        pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"}));
                     const pas::WideString& cpp_arg = aConst::DominatorSeriesNames[Series];
                     return pas::pos(cpp_arg, lookupLocalizedTextByKey);
                 }()) > 0) {
@@ -5154,31 +6146,38 @@ namespace aItem {
         if (ConfigName == u"Remains") {
             OwnerId = aGalaxyStruct::oiDominator;
         } else {
-            OwnerId = aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Owner"}))));
+            OwnerId = aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                    u"UselessItems.", ConfigBlockName, u".Owner"}))));
         }
-        Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Size"}))));
+        Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                u"UselessItems.", ConfigBlockName, u".Size"}))));
         {
-            std::int64_t max = std::max<std::int64_t>(static_cast<std::int64_t>(1), ([&] {
-                pas::Extended cpp_left_2 = aMyFunction::SeededRandomIntRange(0, Weight, Id * 71621723);
-                pas::Extended cpp_left = cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.5, 3.0);
-                return System::Round(cpp_left + Weight);
-            }()));
+            std::int64_t max = std::max<std::int64_t>(static_cast<std::int64_t>(1),
+                ([&] {
+                    double cpp_left_2 = aMyFunction::SeededRandomIntRange(0, Weight, Id * 71621723);
+                    double cpp_left = static_cast<float>(cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.5,
+                            3.0));
+                    return pas::real_round(static_cast<float>(cpp_left + Weight));
+                }()));
             Weight = max;
         }
-        Cost = System::Round(([&] {
-            pas::Extended cpp_left_3 = ([&] {
-                pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"UselessItems.", ConfigBlockName, u".Cost"}));
-                aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey_2)), aGalaxyStruct::oiHuman);
-            }());
-            return cpp_left_3 * aMyFunction::SeededRandomFloatRange(Id * 13567157, 0.5, 1.2);
-        }()));
+        Cost = pas::real_round(([&] {
+                double cpp_left_3 = ([&] {
+                    pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                        u"UselessItems.", ConfigBlockName, u".Cost"}));
+                    aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
+                    return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey_2)),
+                        aGalaxyStruct::oiHuman);
+                }());
+                return static_cast<float>(cpp_left_3 * aMyFunction::SeededRandomFloatRange(Id * 13567157, 0.5, 1.2));
+            }()));
         {
-            pas::Extended cpp_left_7 = aMyFunction::SeededRandomIntRange(150, 200, Id * 13567157);
-            pas::Extended cpp_left_6 = cpp_left_7 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0);
-            pas::Extended cpp_left_5 = cpp_left_6 * aMyFunction::RemapClamped(Weight, 1.0E+1, 1.0E+2, 1.0, 6.0);
-            pas::Extended cpp_left_4 = cpp_left_5 * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].ArcadeRewardScale;
-            Cost = aMyFunction::RoundAndTruncateToTens(cpp_left_4 + Cost);
+            double cpp_left_7 = aMyFunction::SeededRandomIntRange(150, 200, Id * 13567157);
+            double cpp_left_6 = static_cast<float>(cpp_left_7 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0));
+            double cpp_left_5 = static_cast<float>(cpp_left_6 * aMyFunction::RemapClamped(Weight, 1.0E+1, 1.0E+2, 1.0, 6.0));
+            double cpp_left_4 = static_cast<float>(cpp_left_5 *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].ArcadeRewardScale);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_4 + Cost));
         }
         Repair();
         CustomText = pas::WideString();
@@ -5202,9 +6201,9 @@ namespace aItem {
         }
         if (GlobalsV::LoadedSaveVersion >= 76) {
             CustomText = Buffer->ReadWideString();
-            Data[0] = EC_Buf::TBufEC_GetInt32(Buffer);
-            Data[1] = EC_Buf::TBufEC_GetInt32(Buffer);
-            Data[2] = EC_Buf::TBufEC_GetInt32(Buffer);
+            Data[0] = Buffer->GetInt32();
+            Data[1] = Buffer->GetInt32();
+            Data[2] = Buffer->GetInt32();
         } else {
             CustomText = pas::WideString();
             Data[0] = 0;
@@ -5216,12 +6215,12 @@ namespace aItem {
 
     void TUselessItem::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
-        Block->AddParam(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_w), ConfigBlockName);
+        Block->AddParam(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_wref.get()), ConfigBlockName);
     }
 
     void TUselessItem_LoadFromBlock(TUselessItem* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->ConfigBlockName = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_w)));
+        Self->ConfigBlockName = Block->GetParam(pas::view(EC_Str::DecodeTextW(u"SoyIsaNoarmoed"_wref.get())));
         Self->CheckIfWeDisplayAsArtefact();
     }
 
@@ -5259,14 +6258,17 @@ namespace aItem {
     pas::WideString TUselessItem::GetBitmapResourceName() {
         pas::WideString Result{};
         if (pas::pos(u"Remains", ConfigBlockName) > 0) {
-            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_", pas::wide_int_to_str(static_cast<std::int32_t>(DominatorSeries)), u"_"});
+            Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_",
+                    pas::wide_int_to_str(static_cast<std::int32_t>(DominatorSeries)), u"_"});
         } else if (pas::pos(u"Mimic", ConfigBlockName) > 0) {
-            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), EC_Str::CopyWideStringUnchecked(ConfigBlockName, 6, ConfigBlockName.length() - 5), u"_"});
+            Result = pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(),
+                    EC_Str::CopyWideStringUnchecked(ConfigBlockName, 6, ConfigBlockName.length() - 5), u"_"});
         } else {
             Result = pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), ConfigBlockName, u"_"});
         }
         if (!GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Result, u"s"}))) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Can not find image for useless item ", ConfigBlockName, u" changing to Usl_FishCont"})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Can not find image for useless item ", ConfigBlockName, u" changing to Usl_FishCont"})));
             return pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), u"Usl_FishCont_"});
         }
         return Result;
@@ -5295,7 +6297,8 @@ namespace aItem {
 
     pas::WideString TUselessItem::GetOnUseCodeText() {
         pas::WideString Result{};
-        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
+        EC_BlockPar::TBlockParEC* Block = GR_Main::LanguageDataConfig->GetBlock(
+            u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
         if (Block != nullptr) {
             Block = Block->FindBlock(u"OnUseCode"sv);
             if (Block != nullptr) {
@@ -5311,7 +6314,8 @@ namespace aItem {
         }
         ActCodeInitialized = true;
         void* Result = nullptr;
-        EC_BlockPar::TBlockParEC* Config = GR_Main::LanguageDataConfig->GetBlock(u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
+        EC_BlockPar::TBlockParEC* Config = GR_Main::LanguageDataConfig->GetBlock(
+            u"UselessItems"sv)->FindBlock(pas::view(ConfigBlockName));
         if (Config != nullptr) {
             ActionCode = aScript::GetCachedActionCode(aScript::UselessItemScriptCache, ConfigBlockName, Config);
             return ActionCode;
@@ -5338,28 +6342,33 @@ namespace aItem {
 
     void TCistern::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        Capacity = EC_Buf::TBufEC_GetByte(Buffer);
-        Fuel = EC_Buf::TBufEC_GetInt32(Buffer);
+        Capacity = Buffer->GetByte();
+        Fuel = Buffer->GetInt32();
     }
 
     void TCistern::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(Fuel);
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"FiuNeol"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"FiuNeol"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Capacity));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"CraspiaNcliotay"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"CraspiaNcliotay"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
     }
 
     void TCistern_LoadFromBlock(TCistern* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Fuel = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_w)))));
-        Self->Capacity = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_w)))));
+        Self->Fuel =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"FiuNeol"_wref.get())))));
+        Self->Capacity =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"CraspiaNcliotay"_wref.get())))));
     }
 
     pas::WideString TCistern::GetDisplayName() {
@@ -5373,7 +6382,8 @@ namespace aItem {
         pas::WideString Result{};
         Result = aConst::LocalizedText(u"Items.Cistern.Text"_wref.get());
         aMyFunction::ReplaceTextToken(Result, u"<Fuel>"_w, pas::wide_int_to_str(Self->Fuel), ColorTag);
-        aMyFunction::ReplaceTextToken(Result, u"<Capacity>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Self->Capacity)), ColorTag);
+        aMyFunction::ReplaceTextToken(Result, u"<Capacity>"_w,
+            pas::wide_int_to_str(static_cast<std::int32_t>(Self->Capacity)), ColorTag);
         return Result;
     }
 
@@ -5396,42 +6406,52 @@ namespace aItem {
         OwnerId = Owner;
         TargetPlanet = nullptr;
         TrajectoryIndex = 0;
-        SpeedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Speed"})));
-        WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 0, u","sv)));
-        LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 1, u","sv)));
-        HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(SpeedText), 2, u","sv)));
+        SpeedText = aConst::LocalizedText(pas::concat_wide({u"Items.Satellite.",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u".Speed"}));
+        WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                pas::view(SpeedText), 0, u","sv)));
+        LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                pas::view(SpeedText), 1, u","sv)));
+        HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                pas::view(SpeedText), 2, u","sv)));
         float Roll = aMyFunction::NextRandomUnitFloat(Seed);
-        if (Roll < 0.2L) {
+        if (Roll < 0.2) {
             ++WaterExplorationRate;
-        } else if (Roll < 0.4L) {
+        } else if (Roll < 0.4) {
             ++LandExplorationRate;
-        } else if (Roll < 0.6L) {
+        } else if (Roll < 0.6) {
             ++HillExplorationRate;
         }
         EquippedFlag = 0;
-        Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Size"})))));
+        Weight = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                u"Items.Satellite.", pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u".Size"}))));
         {
-            pas::Extended cpp_left_2 = aMyFunction::NextRandomIntRange(0, Weight, Seed);
-            pas::Extended cpp_left = cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 1.5);
-            Weight = System::Round(cpp_left + Weight / 2);
+            double cpp_left_2 = aMyFunction::NextRandomIntRange(0, Weight, Seed);
+            double cpp_left = static_cast<float>(cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 1.5));
+            Weight = pas::real_round(static_cast<float>(cpp_left + Weight / 2));
         }
-        Cost = System::Round(([&] {
-            pas::Extended cpp_left_3 = ([&] {
-                pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Cost"})));
-                aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey)), aGalaxyStruct::oiHuman);
-            }());
-            return cpp_left_3 * aMyFunction::NextRandomFloatRange(1.0, 2.0, Seed);
-        }()));
+        Cost = pas::real_round(([&] {
+                double cpp_left_3 = ([&] {
+                    pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                        u"Items.Satellite.", pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)),
+                        u".Cost"}));
+                    aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
+                    return aGalaxy::TGalaxy::ResolveMoneySizeTag(pas::view(std::move(lookupLocalizedTextByKey)),
+                        aGalaxyStruct::oiHuman);
+                }());
+                return static_cast<float>(cpp_left_3 * aMyFunction::NextRandomFloatRange(1.0, 2.0, Seed));
+            }()));
         {
-            pas::Extended cpp_left_7 = aMyFunction::NextRandomIntRange(150, 200, Seed);
-            pas::Extended cpp_left_6 = cpp_left_7 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0);
-            pas::Extended cpp_left_5 = cpp_left_6 * aMyFunction::RemapClamped(Weight, 1.0E+1, 5.0E+1, 2.0, 1.0);
-            pas::Extended cpp_left_4 = pas::real_divide(cpp_left_5, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor);
-            Cost = aMyFunction::RoundAndTruncateToTens(cpp_left_4 + Cost);
+            double cpp_left_7 = aMyFunction::NextRandomIntRange(150, 200, Seed);
+            double cpp_left_6 = static_cast<float>(cpp_left_7 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0));
+            double cpp_left_5 = static_cast<float>(cpp_left_6 * aMyFunction::RemapClamped(Weight, 1.0E+1, 5.0E+1, 2.0, 1.0));
+            double cpp_left_4 = static_cast<float>(cpp_left_5 /
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_4 + Cost));
         }
-        std::uint8_t WearLevel = aConst::SizeTagToLevel(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Wear"})))));
-        WearPerTurn = aConst::GenerateValueForSizeLevel(WearLevel, 1, 10, 30, Seed * 0xe73fe205u) * 0.1L;
+        std::uint8_t WearLevel = aConst::SizeTagToLevel(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+            u"Items.Satellite.", pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u".Wear"}))));
+        WearPerTurn = static_cast<float>(aConst::GenerateValueForSizeLevel(WearLevel, 1, 10, 30, Seed * 0xe73fe205u) * 0x1.999999999999bp-4);
         Repair();
     }
 
@@ -5452,80 +6472,100 @@ namespace aItem {
 
     void TSatellite::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        SatelliteTypeId = EC_Buf::TBufEC_GetByte(Buffer);
-        TrajectoryIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-        TargetPlanet = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-        WaterExplorationRate = EC_Buf::TBufEC_GetByte(Buffer);
-        LandExplorationRate = EC_Buf::TBufEC_GetByte(Buffer);
-        HillExplorationRate = EC_Buf::TBufEC_GetByte(Buffer);
-        WearPerTurn = EC_Buf::TBufEC_GetSingle(Buffer);
+        SatelliteTypeId = Buffer->GetByte();
+        TrajectoryIndex = Buffer->GetInt32();
+        TargetPlanet =
+            reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
+        WaterExplorationRate = Buffer->GetByte();
+        LandExplorationRate = Buffer->GetByte();
+        HillExplorationRate = Buffer->GetByte();
+        WearPerTurn = Buffer->GetSingle();
     }
 
     void TSatellite::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId));
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"ToyIprey"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"ToyIprey"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(WaterExplorationRate));
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"WuartTewrf"_w);
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(u"WuartTewrf"_wref.get());
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(static_cast<std::int32_t>(LandExplorationRate));
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"LLagnsd3"_w);
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(u"LLagnsd3"_wref.get());
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
         {
             const pas::WideString& intToStr_4 = pas::wide_int_to_str(static_cast<std::int32_t>(HillExplorationRate));
-            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"HbiFldle"_w);
+            const pas::WideString& decodeTextW_4 = EC_Str::DecodeTextW(u"HbiFldle"_wref.get());
             Block->AddParam(decodeTextW_4, intToStr_4);
         }
         {
-            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(WearPerTurn), SysUtils::DecimalSeparator));
-            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"WoeIamrr"_w);
+            const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::float_to_str(
+                static_cast<double>(WearPerTurn), SysUtils::DecimalSeparator));
+            const pas::WideString& decodeTextW_5 = EC_Str::DecodeTextW(u"WoeIamrr"_wref.get());
             Block->AddParam(decodeTextW_5, cpp_arg);
         }
     }
 
     void TSatellite_LoadFromBlock(TSatellite* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->SatelliteTypeId = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"ToyIprey"_w)))));
-        Self->WaterExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WuartTewrf"_w)))));
-        Self->LandExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"LLagnsd3"_w)))));
-        Self->HillExplorationRate = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"HbiFldle"_w)))));
-        Self->WearPerTurn = EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WoeIamrr"_w))));
+        Self->SatelliteTypeId =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"ToyIprey"_wref.get())))));
+        Self->WaterExplorationRate =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(
+                    Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WuartTewrf"_wref.get())))));
+        Self->LandExplorationRate =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"LLagnsd3"_wref.get())))));
+        Self->HillExplorationRate =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"HbiFldle"_wref.get())))));
+        Self->WearPerTurn =
+            EC_Str::ExtractDecimalToSingleW(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"WoeIamrr"_wref.get()))));
     }
 
     void TSatellite::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         aItem::TItem::ResolveLoadedReferences(Galaxy);
-        TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));
+        TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(
+                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));
     }
 
     pas::WideString TSatellite::GetDisplayName() {
         if (NameOverride != u"") {
             return NameOverride;
         }
-        return pas::concat_wide({GR_Main::LookupLocalizedTextByKey(u"Items.Satellite.Name"_wref.get()), u" ", aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Name"}))), u"-", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 100 + 1))});
+        return pas::concat_wide({GR_Main::LookupLocalizedTextByKey(u"Items.Satellite.Name"_wref.get()), u" ",
+            aConst::LocalizedText(pas::concat_wide({u"Items.Satellite.",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u".Name"})), u"-",
+            pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Id) % 100 + 1))});
     }
 
     pas::WideString TSatellite_GetInfoText(TSatellite* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
-        Result = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(Self->SatelliteTypeId), ".Text"})));
+        Result = aConst::LocalizedText(pas::concat_wide({u"Items.Satellite.",
+                pas::wide_int_to_str(static_cast<std::int32_t>(Self->SatelliteTypeId)), u".Text"}));
         if (Self->WaterExplorationRate > 0) {
-            aMyFunction::ReplaceTextToken(Result, u"<Water>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Self->WaterExplorationRate)), ColorTag);
+            aMyFunction::ReplaceTextToken(Result, u"<Water>"_w,
+                pas::wide_int_to_str(static_cast<std::int32_t>(Self->WaterExplorationRate)), ColorTag);
         } else {
             aMyFunction::ReplaceTextToken(Result, u"<Water>"_w, u"-"_w, pas::WideString());
         }
         if (Self->LandExplorationRate > 0) {
-            aMyFunction::ReplaceTextToken(Result, u"<Land>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Self->LandExplorationRate)), ColorTag);
+            aMyFunction::ReplaceTextToken(Result, u"<Land>"_w,
+                pas::wide_int_to_str(static_cast<std::int32_t>(Self->LandExplorationRate)), ColorTag);
         } else {
             aMyFunction::ReplaceTextToken(Result, u"<Land>"_w, u"-"_w, pas::WideString());
         }
         if (Self->HillExplorationRate > 0) {
-            aMyFunction::ReplaceTextToken(Result, u"<Hill>"_w, pas::wide_int_to_str(static_cast<std::int32_t>(Self->HillExplorationRate)), ColorTag);
+            aMyFunction::ReplaceTextToken(Result, u"<Hill>"_w,
+                pas::wide_int_to_str(static_cast<std::int32_t>(Self->HillExplorationRate)), ColorTag);
         } else {
             aMyFunction::ReplaceTextToken(Result, u"<Hill>"_w, u"-"_w, pas::WideString());
         }
@@ -5564,20 +6604,23 @@ namespace aItem {
             pas::WideString displayName = GetDisplayName();
             aMyFunction::ReplaceTextToken(Result, u"<Name>"_w, std::move(displayName), textHighlightColorTag.get());
         }
-        aMyFunction::ReplaceTextToken(Result, u"<Size>"_w, pas::wide_int_to_str(Weight), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Result, u"<Size>"_w, pas::wide_int_to_str(Weight),
+            aMyFunction::TextHighlightColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Planet>"_w, PlanetName, aMyFunction::TextHighlightColorTag);
         return Result;
     }
 
     pas::WideString TSatellite::GetDescriptionText() {
-        return aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Satellite.", SysUtils::IntToStr(SatelliteTypeId), ".Description"})));
+        return aConst::LocalizedText(pas::concat_wide({u"Items.Satellite.",
+            pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u".Description"}));
     }
 
     pas::WideString TSatellite::GetBitmapResourceName() {
         if (ConfigBlockName != u"") {
             return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), ConfigBlockName});
         }
-        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Satellite", pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u"_"});
+        return pas::concat_wide({u"Bm.Items.", GR_Main::GiResourceSuffix(), u"Satellite",
+            pas::wide_int_to_str(static_cast<std::int32_t>(SatelliteTypeId)), u"_"});
     }
 
     void TTreasureMap::Init(void* Planet, void* Victim) {
@@ -5586,9 +6629,11 @@ namespace aItem {
         Cost = 1;
         OwnerId = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Victim))->OwnerId;
         if (pas::class_cast_if<aPirate::TPirate*>(static_cast<pas::Object*>(Victim)) != nullptr) {
-            SourceShipName = pas::checked_cast<aPirate::TPirate*>(static_cast<pas::Object*>(Victim))->GetFullName(u" "_wref.get());
+            SourceShipName =
+                pas::checked_cast<aPirate::TPirate*>(static_cast<pas::Object*>(Victim))->GetFullName(u" "_wref.get());
         } else {
-            SourceShipName = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Victim))->GetFullName(u" "_wref.get());
+            SourceShipName =
+                pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Victim))->GetFullName(u" "_wref.get());
         }
         TargetPlanet = Planet;
         PreviewTablePage1 = TTreasureMap::BuildPreviewTable(1, Planet);
@@ -5611,7 +6656,8 @@ namespace aItem {
 
     void TTreasureMap::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        TargetPlanet = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
+        TargetPlanet =
+            reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
         SourceShipName = Buffer->ReadWideString();
         PreviewTablePage1 = Buffer->ReadWideString();
         PreviewTablePage2 = Buffer->ReadWideString();
@@ -5619,7 +6665,8 @@ namespace aItem {
 
     void TTreasureMap::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         aItem::TItem::ResolveLoadedReferences(Galaxy);
-        TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));
+        TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(
+                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));
     }
 
     pas::WideString TTreasureMap::GetDisplayName() {
@@ -5631,8 +6678,10 @@ namespace aItem {
 
     pas::WideString TTreasureMap_GetInfoText(TTreasureMap* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
-        Result = pas::concat_wide({aConst::LocalizedText(u"Items.TreasureMap.Text"_wref.get()), u" ", aConst::LocalizedText(u"Items.TreasureMap.Hint"_wref.get())});
-        aMyFunction::ReplaceTextToken(Result, u"<Planet>"_w, Self->GetTargetPlanetName(), aMyFunction::TextHighlightColorTag);
+        Result = pas::concat_wide({aConst::LocalizedText(u"Items.TreasureMap.Text"_wref.get()), u" ",
+                aConst::LocalizedText(u"Items.TreasureMap.Hint"_wref.get())});
+        aMyFunction::ReplaceTextToken(Result, u"<Planet>"_w, Self->GetTargetPlanetName(),
+            aMyFunction::TextHighlightColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Ship>"_w, Self->SourceShipName, aMyFunction::TextHighlightColorTag);
         return Result;
     }
@@ -5643,12 +6692,14 @@ namespace aItem {
 
     pas::WideString TTreasureMap::GetBitmapResourceName() {
         std::int32_t Kind{};
-        if (pas::in_range(OwnerId, static_cast<std::int32_t>(aGalaxyStruct::oiMaloc), static_cast<std::int32_t>(aGalaxyStruct::oiHuman))) {
+        if (pas::in_range(OwnerId, static_cast<std::int32_t>(aGalaxyStruct::oiMaloc),
+            static_cast<std::int32_t>(aGalaxyStruct::oiHuman))) {
             Kind = 1;
         } else {
             Kind = 2;
         }
-        return pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), u"TreasureMap", pas::wide_int_to_str(Kind), u"_"});
+        return pas::concat_wide({u"Bm.ItemsUseless.", GR_Main::GiResourceSuffix(), u"TreasureMap",
+            pas::wide_int_to_str(Kind), u"_"});
     }
 
     pas::WideString TTreasureMap::GetTargetPlanetName() {
@@ -5683,50 +6734,75 @@ namespace aItem {
             }
         };
         Rule = ([&] {
-            pas::WideString stringOfChar = static_cast<pas::WideString>(SystemImports::StringOfChar('-', TreasureMapRuleLengths[PageIndex]));
-            pas::WideString grayColorTag = aMyFunction::GrayColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(stringOfChar)), pas::view(std::move(grayColorTag)));
-        }());
+                pas::WideString stringOfChar = static_cast<pas::WideString>(SystemImports::StringOfChar('-',
+                    TreasureMapRuleLengths[PageIndex]));
+                pas::WideString grayColorTag = aMyFunction::GrayColorTag;
+                return aMyFunction::WrapTextInColor(pas::view(std::move(stringOfChar)),
+                    pas::view(std::move(grayColorTag)));
+            }());
         Caption = ([&] {
-            auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->Name);
-            pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGS.PlanetInfo"_wref.get());
-            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Planet>"_w, name.get());
-        }());
-        Header = pas::concat_wide({Header, u"\r\n", u"<td=", pas::wide_int_to_str(0), u">", u"<align=left>", Caption, u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3] / 2), u">", u"<align=center>", ([&] {
-            pas::WideString localizedText = aConst::LocalizedText(u"Items.TreasureMap.Name"_wref.get());
-            pas::WideString greenColorTag = aMyFunction::GreenColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)), pas::view(std::move(greenColorTag)));
-        }()), u"</align>"});
+                auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->Name);
+                pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGS.PlanetInfo"_wref.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                    u"<Planet>"_w, name.get());
+            }());
+        Header = pas::concat_wide({Header, u"\r\n", u"<td=", pas::wide_int_to_str(0), u">", u"<align=left>", Caption,
+                u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3] / 2),
+                u">", u"<align=center>",
+                ([&] {
+                    pas::WideString localizedText = aConst::LocalizedText(u"Items.TreasureMap.Name"_wref.get());
+                    pas::WideString greenColorTag = aMyFunction::GreenColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)),
+                        pas::view(std::move(greenColorTag)));
+                }()), u"</align>"});
         Caption = ([&] {
-            auto name_2 = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->CurrentStar->Name);
-            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
-            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Star>"_w, name_2.get());
-        }());
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(Caption), u""sv), u"</align>"});
+                auto name_2 = pas::borrow(
+                    pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet))->CurrentStar->Name);
+                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
+                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2),
+                    u"<Star>"_w, name_2.get());
+            }());
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]),
+                u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(Caption), u""sv), u"</align>"});
         Header = pas::concat_wide({Header, u"\r\n", Rule, u"\r\n"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", ([&] {
-            pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormGS.ColumnNumber"_wref.get());
-            pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_3)), pas::view(std::move(textHighlightColorTag_3)));
-        }()), u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", ([&] {
-            pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get());
-            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_4)), pas::view(std::move(textHighlightColorTag_4)));
-        }())});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", ([&] {
-            pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormShip.StorageInfo.Size"_wref.get());
-            pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_5)), pas::view(std::move(textHighlightColorTag_5)));
-        }()), u"</align>"});
-        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", ([&] {
-            pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormShip.StorageInfo.Cost"_wref.get());
-            pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_6)), pas::view(std::move(textHighlightColorTag_6)));
-        }()), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]),
+                u">", u"<align=right>",
+                ([&] {
+                    pas::WideString localizedColorText_3 = aConst::LocalizedColorText(
+                        u"FormGS.ColumnNumber"_wref.get());
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_3)),
+                        pas::view(std::move(textHighlightColorTag_3)));
+                }()), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]),
+                u">",
+                ([&] {
+                    pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get());
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_4)),
+                        pas::view(std::move(textHighlightColorTag_4)));
+                }())});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]),
+                u">", u"<align=right>",
+                ([&] {
+                    pas::WideString localizedColorText_5 = aConst::LocalizedColorText(
+                        u"FormShip.StorageInfo.Size"_wref.get());
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_5)),
+                        pas::view(std::move(textHighlightColorTag_5)));
+                }()), u"</align>"});
+        Header = pas::concat_wide({Header, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]),
+                u">", u"<align=right>",
+                ([&] {
+                    pas::WideString localizedColorText_6 = aConst::LocalizedColorText(
+                        u"FormShip.StorageInfo.Cost"_wref.get());
+                    pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_6)),
+                        pas::view(std::move(textHighlightColorTag_6)));
+                }()), u"</align>"});
         Header = pas::concat_wide({Header, u"\r\n", Rule});
         if (Planet != nullptr) {
             if (pas::class_cast_if<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet)) != nullptr) {
@@ -5734,20 +6810,47 @@ namespace aItem {
                 Number = 1;
                 World = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Planet));
                 if (World->SurfaceLootEntries != nullptr) {
-                    for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(World->SurfaceLootEntries) - 1); cpp_range.next(I); ) {
-                        Entry = pas::list_at<aPlanet::TPlanetSurfaceLootEntry>(World->SurfaceLootEntries, I);
-                        if (Entry->Item != nullptr) {
-                            if ((static_cast<void>(aPlayer::GetPlayer()), aPlayer::TPlayer::CanAccessSurfaceLootItem(Entry->Item)) && !(pas::class_cast_if<TGoods*>(Entry->Item) != nullptr) && !(pas::class_cast_if<TCistern*>(Entry->Item) != nullptr)) {
-                                Rows = pas::concat_wide({Rows, u"\r\n"});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Number)), u""sv), u"</align>"});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">", u"", ([&] {
-                                    pas::WideString itemColorTag = ItemColorTag(Entry->Item);
-                                    pas::WideString displayName = Entry->Item->GetDisplayName();
-                                    return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(itemColorTag)));
-                                }()), u""});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Weight)), pas::view(aMyFunction::GreenColorTag)), u"</align>"});
-                                Rows = pas::concat_wide({Rows, u"<td=", pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">", u"<align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Entry->Item->Cost)), pas::view(aMyFunction::CyanColorTag)), u"</align>"});
-                                ++Number;
+                    {
+                        const std::int32_t cpp_last = pas::list_count(World->SurfaceLootEntries) - 1;
+                        if (0 <= cpp_last) {
+                            for (I = 0; I <= cpp_last; ++I) {
+                                Entry = pas::list_at<aPlanet::TPlanetSurfaceLootEntry>(World->SurfaceLootEntries, I);
+                                if (Entry->Item != nullptr) {
+                                    if ((static_cast<void>(aPlayer::GetPlayer()),
+                                        aPlayer::TPlayer::CanAccessSurfaceLootItem(Entry->Item)) &&
+                                        !(pas::class_cast_if<TGoods*>(Entry->Item) != nullptr) &&
+                                        !(pas::class_cast_if<TCistern*>(Entry->Item) != nullptr)) {
+                                        Rows = pas::concat_wide({Rows, u"\r\n"});
+                                        Rows = pas::concat_wide({Rows, u"<td=",
+                                                pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][0]), u">",
+                                                u"<align=right>",
+                                                aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Number)),
+                                                    u""sv), u"</align>"});
+                                        Rows = pas::concat_wide({Rows, u"<td=",
+                                                pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][1]), u">",
+                                                u"",
+                                                ([&] {
+                                                    pas::WideString itemColorTag = ItemColorTag(Entry->Item);
+                                                    pas::WideString displayName = Entry->Item->GetDisplayName();
+                                                    return aMyFunction::WrapTextInColor(
+                                                        pas::view(std::move(displayName)),
+                                                        pas::view(std::move(itemColorTag)));
+                                                }()), u""});
+                                        Rows = pas::concat_wide({Rows, u"<td=",
+                                                pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][2]), u">",
+                                                u"<align=right>",
+                                                aMyFunction::WrapTextInColor(
+                                                    pas::view(pas::wide_int_to_str(Entry->Item->Weight)),
+                                                    pas::view(aMyFunction::GreenColorTag)), u"</align>"});
+                                        Rows = pas::concat_wide({Rows, u"<td=",
+                                                pas::wide_int_to_str(TreasureMapColumnPositions[PageIndex][3]), u">",
+                                                u"<align=right>",
+                                                aMyFunction::WrapTextInColor(
+                                                    pas::view(pas::wide_int_to_str(Entry->Item->Cost)),
+                                                    pas::view(aMyFunction::CyanColorTag)), u"</align>"});
+                                        ++Number;
+                                    }
+                                }
                             }
                         }
                     }
@@ -5765,15 +6868,18 @@ namespace aItem {
         MicroModuleIndex = ModuleIndex + 1;
         Repair();
         Weight = 1;
-        Cost = aMyFunction::RoundAndTruncateToTens(([&] {
-            pas::Extended cpp_right = aMyFunction::SeededRandomFloatRange(Id * 1367, 0.5, 1.2);
-            return pas::real_divide(100 * aGalaxy::Galaxy->ComputeScaledSmallMoney(aGalaxyStruct::oiHuman), aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority + 20) * cpp_right;
-        }()));
         {
-            pas::Extended cpp_left_3 = aMyFunction::SeededRandomIntRange(150, 200, Id * 13567157);
-            pas::Extended cpp_left_2 = cpp_left_3 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0);
-            pas::Extended cpp_left = cpp_left_2 * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor;
-            Cost = aMyFunction::RoundAndTruncateToTens(cpp_left + Cost);
+            double cpp_right = aMyFunction::SeededRandomFloatRange(Id * 1367, 0.5, 1.2);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<float>(static_cast<double>(100 *
+                    aGalaxy::Galaxy->ComputeScaledSmallMoney(aGalaxyStruct::oiHuman)) /
+                    (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority + 20)) * cpp_right));
+        }
+        {
+            double cpp_left_3 = aMyFunction::SeededRandomIntRange(150, 200, Id * 13567157);
+            double cpp_left_2 = static_cast<float>(cpp_left_3 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 1.0, 3.0));
+            double cpp_left = static_cast<float>(cpp_left_2 *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[7]].QuestMoneyFactor);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left + Cost));
         }
     }
 
@@ -5784,7 +6890,7 @@ namespace aItem {
     void TMicroModule::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
         if (GlobalsV::LoadedSaveVersion < 113) {
-            EC_Buf::TBufEC_GetInt32(Buffer);
+            Buffer->GetInt32();
         }
         if (MicroModuleIndex == 0) {
             MicroModuleIndex = 1;
@@ -5799,13 +6905,16 @@ namespace aItem {
         }
         Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].NamePrefix;
         if (Result == u"") {
-            Result = aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
+            Result = aMyFunction::WrapTextInColor(
+                    pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
         }
         Text = aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name;
         if (EC_Str::FindTextOffsetW(Text, u"\""_wref.get(), 0) < 0) {
             Text = pas::concat_wide({u"\"", Text, u"\""});
         }
-        return pas::concat_wide({Result, u" ", aMyFunction::WrapTextInColor(pas::view(Text), pas::view(aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1)))});
+        return pas::concat_wide({Result, u" ",
+            aMyFunction::WrapTextInColor(pas::view(Text),
+                pas::view(aItem::GetMicroModuleNameColorTag(MicroModuleIndex - 1)))});
     }
 
     pas::WideString TMicroModule::GetPlainName() {
@@ -5816,7 +6925,8 @@ namespace aItem {
         }
         Result = aConst::MicroModuleTemplates[MicroModuleIndex - 1].NamePrefix;
         if (Result == u"") {
-            Result = aMyFunction::WrapTextInColor(pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
+            Result = aMyFunction::WrapTextInColor(
+                    pas::view(GR_Main::LookupLocalizedTextOrEmpty(u"MicroModuls.Name"_wref.get())), u""sv);
         }
         Text = aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name;
         if (EC_Str::FindTextOffsetW(Text, u"\""_wref.get(), 0) < 0) {
@@ -5841,41 +6951,42 @@ namespace aItem {
     }
 
     // Node refund at the current ranger center, using priority and docked station ID. Priorities 31..69 are capped by half LowPriorityOfferCost; 70..100 by half MediumPriorityOfferCost. Minimum 5 nodes.
-    std::int32_t TMicroModule::CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost, std::int32_t MediumPriorityOfferCost) {
+    std::int32_t TMicroModule::CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost,
+        std::int32_t MediumPriorityOfferCost) {
         std::int32_t Result = 0;
-        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 0 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 30) {
-            Result = System::Round(aMyFunction::RemapClamped(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
-            {
-                std::int32_t round = System::Round(Result * 1.2L);
-                std::int32_t round_2 = System::Round(Result * 0.8L);
-                Result = aMyFunction::SeededRandomIntRange(round_2, round, Result + aPlayer::GetPlayer()->DockedTo->Id);
-            }
-            Result = aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(Result, 1.5L));
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 0 &&
+            aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 30) {
+            Result = pas::real_round(aMyFunction::RemapClamped(
+                    aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
+            Result = aMyFunction::SeededRandomIntRange(pas::real_round(static_cast<float>(Result * 0x1.999999999999bp-1)), pas::real_round(static_cast<float>(Result * 0x1.3333333333334p+0)),
+                    Result + aPlayer::GetPlayer()->DockedTo->Id);
+            Result = aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(Result / 1.5));
         }
-        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 31 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 69) {
-            Result = System::Round(aMyFunction::RemapClamped(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
-            {
-                std::int32_t round_3 = System::Round(Result * 1.2L);
-                std::int32_t round_4 = System::Round(Result * 0.8L);
-                Result = aMyFunction::SeededRandomIntRange(round_4, round_3, Result + aPlayer::GetPlayer()->DockedTo->Id);
-            }
-            Result = aMyFunction::RoundAndTruncateToHundreds(pas::real_min<pas::Extended>(static_cast<pas::Extended>(LowPriorityOfferCost / 2), pas::real_divide(Result, 1.5L)));
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 31 &&
+            aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 69) {
+            Result = pas::real_round(aMyFunction::RemapClamped(
+                    aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
+            Result = aMyFunction::SeededRandomIntRange(pas::real_round(static_cast<float>(Result * 0x1.999999999999bp-1)), pas::real_round(static_cast<float>(Result * 0x1.3333333333334p+0)),
+                    Result + aPlayer::GetPlayer()->DockedTo->Id);
+            Result = aMyFunction::RoundAndTruncateToHundreds(pas::real_min<double>(
+                    static_cast<double>(LowPriorityOfferCost / 2), static_cast<float>(Result / 1.5)));
         }
-        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 70 && aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 100) {
-            Result = System::Round(aMyFunction::RemapClamped(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
-            {
-                std::int32_t round_5 = System::Round(Result * 1.2L);
-                std::int32_t round_6 = System::Round(Result * 0.8L);
-                Result = aMyFunction::SeededRandomIntRange(round_6, round_5, Result + aPlayer::GetPlayer()->DockedTo->Id);
-            }
-            Result = aMyFunction::RoundAndTruncateToTens(pas::real_min<pas::Extended>(static_cast<pas::Extended>(MediumPriorityOfferCost / 2), pas::real_divide(Result, 1.5L)));
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority >= 70 &&
+            aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority <= 100) {
+            Result = pas::real_round(aMyFunction::RemapClamped(
+                    aConst::MicroModuleTemplates[MicroModuleIndex - 1].Priority, 0.0, 1.0E+2, 2.0E+3, 1.0E+2));
+            Result = aMyFunction::SeededRandomIntRange(pas::real_round(static_cast<float>(Result * 0x1.999999999999bp-1)), pas::real_round(static_cast<float>(Result * 0x1.3333333333334p+0)),
+                    Result + aPlayer::GetPlayer()->DockedTo->Id);
+            Result = aMyFunction::RoundAndTruncateToTens(pas::real_min<double>(
+                    static_cast<double>(MediumPriorityOfferCost / 2), static_cast<float>(Result / 1.5)));
         }
-        return std::max<std::int64_t>(static_cast<std::int64_t>(5), System::Round(Result * 0.3L));
+        return std::max<std::int64_t>(static_cast<std::int64_t>(5), pas::real_round(static_cast<float>(Result * 0x1.3333333333334p-2)));
     }
 
     // Template name wrapped in the standard yellow highlight color.
     pas::WideString TMicroModule::GetHighlightedName() {
-        return aMyFunction::WrapTextInColor(pas::view(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name), pas::view(aMyFunction::TextHighlightColorTag));
+        return aMyFunction::WrapTextInColor(pas::view(aConst::MicroModuleTemplates[MicroModuleIndex - 1].Name),
+            pas::view(aMyFunction::TextHighlightColorTag));
     }
 
     // Uses this micromodule item's template and checks slot blockers and equipment compatibility.
@@ -5884,13 +6995,16 @@ namespace aItem {
         if (Item->MicroModuleIndex != 0) {
             return Result;
         }
-        if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].BlocksMicroModuleSlot) {
+        if (Item->SpecialModuleIndex != 0 && aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                1].BlocksMicroModuleSlot) {
             return Result;
         }
-        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinEff] != 0 &&
+            Item->SpecialModuleIndex == 0) {
             return Result;
         }
-        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 && Item->SpecialModuleIndex == 0) {
+        if (aConst::MicroModuleTemplates[MicroModuleIndex - 1].StatBonuses[aConst::bonExtraAkrinPenalty] != 0 &&
+            Item->SpecialModuleIndex == 0) {
             return Result;
         }
         if (TWeapon* weapon = pas::class_cast_if<TWeapon*>(Item)) {
@@ -5909,7 +7023,8 @@ namespace aItem {
     }
 
     void TArtefact_Destroy(TArtefact* Self) {
-        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
+        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) &&
+            aPlayer::GetPlayer() != nullptr) {
             aScript::RunItemConfigActionCode(Self, aGalaxyStruct::satOnItemDestroy, nullptr, nullptr, nullptr, 0);
         }
         aItem::TEquipmentWithActCode_Destroy(Self);
@@ -5917,7 +7032,8 @@ namespace aItem {
 
     void TArtefact::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TEquipment::LoadFromBuffer(Buffer, Galaxy);
-        if (!pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
+        if (!pas::in_set<aConst::t_Artefact, aConst::t_Artefact, aConst::t_ArtefactHull, aConst::t_ArtefactAntigrav,
+            aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtBio, aConst::t_ArtFastRacks>(ItemType)) {
             Repair();
         }
     }
@@ -5933,7 +7049,8 @@ namespace aItem {
         std::int32_t MaxCost{};
         this->ItemType = ItemType;
         OwnerId = Owner;
-        if (!pas::in_range(this->ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
+        if (!pas::in_range(this->ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
             Weight = aConst::GetAverageItemSize(this->ItemType);
         }
         switch (ItemType) {
@@ -6303,16 +7420,22 @@ namespace aItem {
         }
         if (aPlayer::GetPlayer() != nullptr) {
             Weight += ([&] {
-                pas::Extended cpp_left = aMyFunction::SeededRandomIntRange(MinExtraWeight, MaxExtraWeight, Id * 317847);
-                return System::Round(cpp_left * aMyFunction::RemapClamped(aPlayer::GetPlayer()->GetHull()->Weight, static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5] * 1.5L, static_cast<long double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[1], MinWeightScale, MaxWeightScale));
-            }());
+                    double cpp_left = aMyFunction::SeededRandomIntRange(MinExtraWeight, MaxExtraWeight, Id * 317847);
+                    return pas::real_round(static_cast<float>(cpp_left * aMyFunction::RemapClamped(aPlayer::GetPlayer()->GetHull()->Weight,
+                            static_cast<float>(static_cast<float>(static_cast<double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[5]) * 1.5),
+                            static_cast<float>(static_cast<double>(aConst::HullBaseSize) * aConst::EquipmentSizeFactors[1]), MinWeightScale,
+                            MaxWeightScale)));
+                }());
         }
         {
-            pas::Extended cpp_left_2 = aMyFunction::SeededRandomIntRange(MinCost, MaxCost, Id + 135671);
-            Cost = aMyFunction::RoundAndTruncateToTens(cpp_left_2 * aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, MinCostScale, MaxCostScale));
+            double cpp_left_2 = aMyFunction::SeededRandomIntRange(MinCost, MaxCost, Id + 135671);
+            Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(cpp_left_2 * aMyFunction::RemapClamped(
+                        aGalaxy::Galaxy->TechLevel, 4.0, 8.0, MinCostScale, MaxCostScale)));
         }
-        Weight = System::Round(static_cast<long double>(Weight) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[4]].QuestTimeAndExperienceFactor);
-        Cost = aMyFunction::RoundAndTruncateToTens(static_cast<long double>(Cost) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].QuestTimeAndExperienceFactor);
+        Weight = pas::real_round(static_cast<float>(static_cast<double>(Weight) *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[4]].QuestTimeAndExperienceFactor));
+        Cost = aMyFunction::RoundAndTruncateToTens(static_cast<float>(static_cast<double>(Cost) *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[1]].QuestTimeAndExperienceFactor));
     }
 
     pas::WideString TArtefact::GetBitmapResourceName() {
@@ -6333,24 +7456,38 @@ namespace aItem {
     }
 
     pas::WideString TArtefact_GetInfoText(TArtefact* Self, pas::WideString ColorTag, void* Ship) {
-        if (Self->ConfigBlockName != u"" && GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->CountBlocks(Self->ConfigBlockName) > 0) {
-            return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", Self->ConfigBlockName, u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
+        if (Self->ConfigBlockName != u"" &&
+            GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->CountBlocks(Self->ConfigBlockName) > 0) {
+            return pas::concat_wide({
+                aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", Self->ConfigBlockName, u".Text"})),
+                aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true),
+                Self->GetBoostStatusText()});
         }
-        return pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
+        return pas::concat_wide({
+            aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType],
+                u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true),
+            Self->GetBoostStatusText()});
     }
 
     pas::WideString TArtefact::GetDescriptionText() {
-        return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Description"}));
+        return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType],
+            u".Description"}));
     }
 
     // Returns empty when the OnUseCode block is absent.
     pas::WideString TArtefact::GetOnUseCodeText() {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Block{};
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName))->FindBlock(u"OnUseCode"sv);
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            Block =
+                GR_Main::LanguageDataConfig->GetBlock(
+                    u"Artefacts"sv)->GetBlock(
+                    u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName))->FindBlock(u"OnUseCode"sv);
         } else {
-            Block = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]))->FindBlock(u"OnUseCode"sv);
+            Block =
+                GR_Main::LanguageDataConfig->GetBlock(
+                    u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]))->FindBlock(u"OnUseCode"sv);
         }
         if (Block != nullptr) {
             return Block->ConcatenateValues();
@@ -6366,16 +7503,23 @@ namespace aItem {
         }
         void* Result = nullptr;
         ActCodeInitialized = true;
-        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName));
+        if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+            static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            Config =
+                GR_Main::LanguageDataConfig->GetBlock(
+                    u"Artefacts"sv)->GetBlock(u"CustomArtefacts"sv)->GetBlock(pas::view(ConfigBlockName));
         } else {
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]));
+            Config =
+                GR_Main::LanguageDataConfig->GetBlock(
+                    u"Artefacts"sv)->GetBlock(pas::view(aConst::ItemTypeNames[ItemType]));
         }
         if (Config != nullptr) {
-            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2))) {
+            if (pas::in_range(ItemType, static_cast<std::int32_t>(aConst::t_Artefact),
+                static_cast<std::int32_t>(aConst::t_Artefact2))) {
                 ActionCode = aScript::GetCachedActionCode(aScript::ArtefactScriptCache, ConfigBlockName, Config);
             } else {
-                ActionCode = aScript::GetCachedActionCode(aScript::ArtefactKindScriptCache, aConst::ItemTypeNames[ItemType], Config);
+                ActionCode = aScript::GetCachedActionCode(aScript::ArtefactKindScriptCache,
+                        aConst::ItemTypeNames[ItemType], Config);
             }
             return ActionCode;
         }
@@ -6384,7 +7528,8 @@ namespace aItem {
 
     // Custom artefacts with SharedEffect use CountsAsItemType; otherwise returns ItemType.
     aConst::TItemType TArtefact::GetEffectiveType() {
-        if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) && reinterpret_cast<TArtefactCustom*>(this)->SharedEffect) {
+        if (pas::is_one_of<aConst::t_Artefact, aConst::t_Artefact2>(ItemType) &&
+            reinterpret_cast<TArtefactCustom*>(this)->SharedEffect) {
             return reinterpret_cast<TArtefactCustom*>(this)->CountsAsItemType;
         }
         return ItemType;
@@ -6392,7 +7537,8 @@ namespace aItem {
 
     void TArtefactTransmitter::InitTransmitter(aGalaxyStruct::TOwnerId Owner) {
         Init(Owner, aConst::t_ArtefactTransmitter);
-        Power = aMyFunction::RoundAndTruncateToTens(aMyFunction::SeededRandomIntRange(aConst::MinTransmitterPower, aConst::AverageTransmitterPower, Id * 317321));
+        Power = aMyFunction::RoundAndTruncateToTens(aMyFunction::SeededRandomIntRange(aConst::MinTransmitterPower,
+                aConst::AverageTransmitterPower, Id * 317321));
     }
 
     void TArtefactTransmitter::SaveToBuffer(EC_Buf::TBufEC* Buffer) {
@@ -6402,27 +7548,31 @@ namespace aItem {
 
     void TArtefactTransmitter::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TArtefact::LoadFromBuffer(Buffer, Galaxy);
-        Power = EC_Buf::TBufEC_GetInt32(Buffer);
+        Power = Buffer->GetInt32();
     }
 
     void TArtefactTransmitter::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(Power);
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Prouwseor"_w);
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(u"Prouwseor"_wref.get());
             Block->AddParam(decodeTextW, intToStr);
         }
     }
 
     void TArtefactTransmitter_LoadFromBlock(TArtefactTransmitter* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Power = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_w)))));
+        Self->Power =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(u"Prouwseor"_wref.get())))));
     }
 
     pas::WideString TArtefactTransmitter_GetInfoText(TArtefactTransmitter* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
         std::int32_t DisplayPower{};
-        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType], u".Text"})), Self->GetConditionText(true), Self->GetBoostStatusText()});
+        Result = pas::concat_wide({
+                aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[Self->ItemType],
+                    u".Text"})), Self->GetConditionText(true), Self->GetBoostStatusText()});
         if (Self->Power < 0) {
             DisplayPower = 0;
         } else {
@@ -6452,7 +7602,8 @@ namespace aItem {
             Companion = pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(Ship));
             Companion->Init(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(OwnerShip)), Owner, false);
             if (OwnerShip != nullptr) {
-                pas::list_delete(Companion->CurrentStar->Ships, pas::list_indexof(Companion->CurrentStar->Ships, reinterpret_cast<void*>(Companion)));
+                pas::list_delete(Companion->CurrentStar->Ships,
+                    pas::list_indexof(Companion->CurrentStar->Ships, reinterpret_cast<void*>(Companion)));
                 Companion->CurrentStar = nullptr;
             }
         }
@@ -6464,13 +7615,23 @@ namespace aItem {
         }
         ConfigBlockName = Companion->ArtefactSystemName;
         OwnerId = Companion->GetHull()->OwnerId;
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Companion->Inventory) - 1); cpp_range.next(I); ) {
-            Item = pas::list_at<aItem::TItem>(Companion->Inventory, I);
-            Cost += Item->Cost;
+        {
+            const std::int32_t cpp_last = pas::list_count(Companion->Inventory) - 1;
+            if (1 <= cpp_last) {
+                for (I = 1; I <= cpp_last; ++I) {
+                    Item = pas::list_at<aItem::TItem>(Companion->Inventory, I);
+                    Cost += Item->Cost;
+                }
+            }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Companion->Artefacts) - 1); cpp_range_2.next(I); ) {
-            Item = pas::list_at<aItem::TItem>(Companion->Artefacts, I);
-            Cost += Item->Cost;
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Companion->Artefacts) - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    Item = pas::list_at<aItem::TItem>(Companion->Artefacts, I);
+                    Cost += Item->Cost;
+                }
+            }
         }
     }
 
@@ -6482,7 +7643,8 @@ namespace aItem {
     void TArtefactTranclucator::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TArtefact::LoadFromBuffer(Buffer, Galaxy);
         Ship = pas::construct_call<aTranclucator::TTranclucator>(aTranclucator::TTranclucator_Create);
-        pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(Ship))->LoadFromBuffer(Buffer, Galaxy);
+        pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(Ship))->LoadFromBuffer(Buffer,
+            Galaxy);
     }
 
     // Always returns nil.
@@ -6493,7 +7655,11 @@ namespace aItem {
     void TArtefactTranclucator::SaveToBlock(EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment::SaveToBlock(Block);
         {
-            EC_BlockPar::TBlockParEC* addBlockByPath = Block->AddBlockByPath(pas::concat_wide_reverse({pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(static_cast<aTranclucator::TTranclucator*>(Ship)->Id))), EC_Str::DecodeTextW(u"S5heifphI4d"_w)}));
+            EC_BlockPar::TBlockParEC* addBlockByPath = Block->AddBlockByPath(pas::concat_wide_reverse({
+                pas::wide_int64_to_str(
+                    static_cast<std::int64_t>(
+                        static_cast<std::uint32_t>(static_cast<aTranclucator::TTranclucator*>(Ship)->Id))),
+                EC_Str::DecodeTextW(u"S5heifphI4d"_wref.get())}));
             aShip::TShip* ship = static_cast<aTranclucator::TTranclucator*>(Ship);
             ship->SaveToBlock(addBlockByPath);
         }
@@ -6502,7 +7668,11 @@ namespace aItem {
     void TArtefactTranclucator_LoadFromBlock(TArtefactTranclucator* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
         {
-            EC_BlockPar::TBlockParEC* blockByPath = Block->GetBlockByPath(pas::concat_wide_reverse({pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(static_cast<aTranclucator::TTranclucator*>(Self->Ship)->Id))), EC_Str::DecodeTextW(u"S5heifphI4d"_w)}));
+            EC_BlockPar::TBlockParEC* blockByPath = Block->GetBlockByPath(pas::concat_wide_reverse({
+                pas::wide_int64_to_str(
+                    static_cast<std::int64_t>(
+                        static_cast<std::uint32_t>(static_cast<aTranclucator::TTranclucator*>(Self->Ship)->Id))),
+                EC_Str::DecodeTextW(u"S5heifphI4d"_wref.get())}));
             aShip::TShip* ship = static_cast<aTranclucator::TTranclucator*>(Self->Ship);
             ship->LoadFromBlock(blockByPath);
         }
@@ -6510,7 +7680,8 @@ namespace aItem {
 
     void TArtefactTranclucator::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         aItem::TItem::ResolveLoadedReferences(Galaxy);
-        pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(Ship))->virtual_TShip_ResolveLoadedReferences(Galaxy);
+        pas::checked_cast<aTranclucator::TTranclucator*>(
+            static_cast<pas::Object*>(Ship))->virtual_TShip_ResolveLoadedReferences(Galaxy);
     }
 
     pas::WideString TArtefactTranclucator::GetDisplayName() {
@@ -6520,7 +7691,13 @@ namespace aItem {
             if (pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->Name.length() > 0) {
                 return pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->Name;
             }
-            return pas::concat_wide({aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Name"})), u"-", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->Id)))});
+            return pas::concat_wide({
+                aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Name"})),
+                u"-",
+                pas::wide_int64_to_str(
+                    static_cast<std::int64_t>(
+                        static_cast<std::uint32_t>(
+                        pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Ship))->Id)))});
         } else {
             return aConst::LocalizedText(pas::concat_wide({u"Artefacts.", aConst::ItemTypeNames[ItemType], u".Name"}));
         }
@@ -6531,8 +7708,10 @@ namespace aItem {
         EC_BlockPar::TBlockParEC* Block{};
         pas::WideString Name{};
         aConst::TItemType Kind{};
-        Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName}));
-        if (Block->CountParams(u"NoWear"_wref.get()) > 0 && EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"NoWear"sv))) != 0) {
+        Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"Artefacts.CustomArtefacts.",
+                ConfigBlockName}));
+        if (Block->CountParams(u"NoWear"_wref.get()) > 0 &&
+            EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"NoWear"sv))) != 0) {
             ItemType = aConst::t_Artefact2;
         } else {
             ItemType = aConst::t_Artefact;
@@ -6549,8 +7728,12 @@ namespace aItem {
         SharedEffect = false;
         if (Block->CountParams(u"CountsAs"_wref.get()) > 0) {
             Name = Block->GetParam(u"CountsAs"sv);
-            for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Food, aConst::t_UselessCountableItem); cpp_range.next(Kind); ) {
-                if (pas::in_set<aConst::t_Artefact, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy, aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_ArtFastRacks>(Kind) && static_cast<std::uint8_t>(pas::in_range(Kind, static_cast<std::int32_t>(aConst::t_Artefact), static_cast<std::int32_t>(aConst::t_Artefact2)) ^ 1) && aConst::ItemTypeNames[Kind] == Name) {
+            for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_Food,
+                aConst::t_UselessCountableItem); cpp_range.next(Kind); ) {
+                if (pas::in_set<aConst::t_Artefact, aConst::t_ArtefactAntigrav, aConst::t_ArtDefToEnergy,
+                    aConst::t_ArtGiperJump, aConst::t_ArtDefToArms1, aConst::t_ArtFastRacks>(Kind) && !pas::in_range(
+                        Kind, static_cast<std::int32_t>(aConst::t_Artefact),
+                        static_cast<std::int32_t>(aConst::t_Artefact2)) && aConst::ItemTypeNames[Kind] == Name) {
                     CountsAsItemType = Kind;
                     break;
                 }
@@ -6594,17 +7777,17 @@ namespace aItem {
     void TArtefactCustom::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         aItem::TArtefact::LoadFromBuffer(Buffer, Galaxy);
         LoadConfig(false);
-        Data[1] = EC_Buf::TBufEC_GetInt32(Buffer);
-        Data[2] = EC_Buf::TBufEC_GetInt32(Buffer);
-        Data[3] = EC_Buf::TBufEC_GetInt32(Buffer);
+        Data[1] = Buffer->GetInt32();
+        Data[2] = Buffer->GetInt32();
+        Data[3] = Buffer->GetInt32();
         if (GlobalsV::LoadedSaveVersion >= 96) {
-            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+            if (Buffer->GetBoolean()) {
                 TextData1 = Buffer->ReadWideString();
             }
-            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+            if (Buffer->GetBoolean()) {
                 TextData2 = Buffer->ReadWideString();
             }
-            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+            if (Buffer->GetBoolean()) {
                 TextData3 = Buffer->ReadWideString();
             }
         }
@@ -6614,31 +7797,46 @@ namespace aItem {
         aItem::TEquipment::SaveToBlock(Block);
         {
             const pas::WideString& intToStr = pas::wide_int_to_str(Data[1]);
-            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(1)})));
+            const pas::WideString& decodeTextW = EC_Str::DecodeTextW(pas::concat_wide({u"Drastuan",
+                pas::wide_int_to_str(1)}));
             Block->AddParam(decodeTextW, intToStr);
         }
         {
             const pas::WideString& intToStr_2 = pas::wide_int_to_str(Data[2]);
-            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(2)})));
+            const pas::WideString& decodeTextW_2 = EC_Str::DecodeTextW(pas::concat_wide({u"Drastuan",
+                pas::wide_int_to_str(2)}));
             Block->AddParam(decodeTextW_2, intToStr_2);
         }
         {
             const pas::WideString& intToStr_3 = pas::wide_int_to_str(Data[3]);
-            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(3)})));
+            const pas::WideString& decodeTextW_3 = EC_Str::DecodeTextW(pas::concat_wide({u"Drastuan",
+                pas::wide_int_to_str(3)}));
             Block->AddParam(decodeTextW_3, intToStr_3);
         }
     }
 
     void TArtefactCustom_LoadFromBlock(TArtefactCustom* Self, EC_BlockPar::TBlockParEC* Block) {
         aItem::TEquipment_LoadFromBlock(Self, Block);
-        Self->Data[1] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(1)})))))));
-        Self->Data[2] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(2)})))))));
-        Self->Data[3] = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(static_cast<pas::WideString>(pas::concat_ansi({"Drastuan", SysUtils::IntToStr(3)})))))));
+        Self->Data[1] =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(pas::concat_wide({
+                    u"Drastuan", pas::wide_int_to_str(1)}))))));
+        Self->Data[2] =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(pas::concat_wide({
+                    u"Drastuan", pas::wide_int_to_str(2)}))))));
+        Self->Data[3] =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(Block->GetParam(pas::view(EC_Str::DecodeTextW(pas::concat_wide({
+                    u"Drastuan", pas::wide_int_to_str(3)}))))));
     }
 
     pas::WideString TArtefactCustom_GetInfoText(TArtefactCustom* Self, pas::WideString ColorTag, void* Ship) {
         pas::WideString Result{};
-        Result = pas::concat_wide({aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", Self->ConfigBlockName, u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true), Self->GetBoostStatusText()});
+        Result = pas::concat_wide({
+                aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", Self->ConfigBlockName,
+                    u".Text"})), aItem::TEquipment_GetBonusDescription(Self, ColorTag), Self->GetConditionText(true),
+                Self->GetBoostStatusText()});
         aMyFunction::ReplaceTextToken(Result, u"<Data1>"_w, pas::wide_int_to_str(Self->Data[1]), ColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Data2>"_w, pas::wide_int_to_str(Self->Data[2]), ColorTag);
         aMyFunction::ReplaceTextToken(Result, u"<Data3>"_w, pas::wide_int_to_str(Self->Data[3]), ColorTag);
@@ -6656,7 +7854,8 @@ namespace aItem {
     }
 
     pas::WideString TArtefactCustom::GetDescriptionText() {
-        return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName, u".Description"}));
+        return aConst::LocalizedColorText(pas::concat_wide({u"Artefacts.CustomArtefacts.", ConfigBlockName,
+            u".Description"}));
     }
 
     // Uses the active equipment screen's ship; empty for broken artefacts or without a supported screen context.
@@ -6679,14 +7878,23 @@ namespace aItem {
         }
         if (Ship->CanBoostArtefact(GetEffectiveType(), nullptr, true)) {
             if (EquippedFlag != 0) {
-                return pas::concat_wide({u"\r\n \r\n", aConst::LocalizedColorText(u"Artefacts.TextArtGettingBoost"_wref.get())});
+                return pas::concat_wide({u"\r\n \r\n",
+                    aConst::LocalizedColorText(u"Artefacts.TextArtGettingBoost"_wref.get())});
             }
-            return pas::concat_wide({u"\r\n \r\n", aConst::LocalizedColorText(u"Artefacts.TextArtCanGetBoost"_wref.get())});
+            return pas::concat_wide({u"\r\n \r\n",
+                aConst::LocalizedColorText(u"Artefacts.TextArtCanGetBoost"_wref.get())});
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ship->Inventory) - 1); cpp_range.next(I); ) {
-            if (Ship->CanBoostArtefact(GetEffectiveType(), pas::list_at<aItem::TEquipment>(Ship->Inventory, I), true)) {
-                Result = pas::concat_wide({u"\r\n \r\n", aConst::LocalizedColorText(u"Artefacts.TextArtCanGetBoost"_wref.get())});
-                break;
+        {
+            const std::int32_t cpp_last = pas::list_count(Ship->Inventory) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    if (Ship->CanBoostArtefact(GetEffectiveType(), pas::list_at<aItem::TEquipment>(Ship->Inventory, I),
+                        true)) {
+                        Result = pas::concat_wide({u"\r\n \r\n",
+                                aConst::LocalizedColorText(u"Artefacts.TextArtCanGetBoost"_wref.get())});
+                        break;
+                    }
+                }
             }
         }
         return Result;

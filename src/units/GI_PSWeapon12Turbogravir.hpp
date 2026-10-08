@@ -13,7 +13,8 @@ namespace GI_PSWeapon12Turbogravir {
 
     void LoadTurbogravirPalettes();
 
-    void TPSWeapon12Turbogravir_Create(TPSWeapon12Turbogravir* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon12Turbogravir_Create(TPSWeapon12Turbogravir* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon12Turbogravir_Destroy(TPSWeapon12Turbogravir* Self);
 

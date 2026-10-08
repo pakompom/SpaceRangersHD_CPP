@@ -16,18 +16,16 @@ namespace Forms {
     }
 
     std::uint8_t TApplication::GetActive() {
-        return Handle != 0 && ([&] {
+        bool cpp_condition = Handle != 0;
+        if (cpp_condition) {
             std::uint32_t cpp_left = WindowsImports::GetActiveWindow();
-            return cpp_left == Handle;
-        }());
+            cpp_condition = cpp_left == Handle;
+        }
+        return cpp_condition;
     }
 
     void UnitInitialize() {
         Application = pas::make_object<TApplication>();
-    }
-
-    void UnitFinalize() {
-        pas::free(Application);
     }
 
 } // namespace Forms

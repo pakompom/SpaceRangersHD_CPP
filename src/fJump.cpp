@@ -53,7 +53,8 @@ namespace fJump {
         {
             GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""sv);
             cpp_with->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            cpp_with->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            cpp_with->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         RestoreOrdersOnArrival = false;
@@ -103,9 +104,11 @@ namespace fJump {
             LoadPanel->SetProgress(1.0f);
             LoadPanel->Hide();
             if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase) {
-                MovieConfig = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.WB.HyperJumpVideo"_wref.get());
+                MovieConfig =
+                    GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.WB.HyperJumpVideo"_wref.get());
             } else if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion) {
-                MovieConfig = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.CB.HyperJumpVideo"_wref.get());
+                MovieConfig =
+                    GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormRuins.CB.HyperJumpVideo"_wref.get());
             } else {
                 BeginTravel();
                 return;
@@ -120,7 +123,8 @@ namespace fJump {
                         while (GR_Main::MusicManager->IsPlaying()) {
                             SysUtilsImports::Sleep(1u);
                         }
-                        GR_Main::MusicManager->PlayCategory(EC_Str::ExtractDelimitedPartW(pas::view(MovieConfig), 1, u","sv));
+                        GR_Main::MusicManager->PlayCategory(EC_Str::ExtractDelimitedPartW(pas::view(MovieConfig), 1,
+                            u","sv));
                         while (!GR_Main::MusicManager->IsPlaying()) {
                             SysUtilsImports::Sleep(1u);
                         }
@@ -166,12 +170,13 @@ namespace fJump {
             RequestClose(1);
             return;
         }
-        Progress = Progress + 0.008L;
-        if (Progress > 0.49L) {
+        Progress = static_cast<float>(Progress + 0.008);
+        if (Progress > 0.49) {
             Progress = 0.5f;
         }
         LoadPanel->SetProgress(Progress);
-        if (aCalc::IsTurnCalculationRunningUI() || pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase)) {
+        if (aCalc::IsTurnCalculationRunningUI() || pas::is_one_of<ThreadCalc::tcpGalaxyRunning,
+                ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase)) {
             return;
         }
         if (aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyFinished) {
@@ -179,7 +184,10 @@ namespace fJump {
             return;
         }
         if (aPlayer::GetPlayer()->IsDockedToShip()) {
-            if (aPlayer::GetPlayer()->DockedTo->Order != aShip::soTeleport && (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar == aPlayer::GetPlayer()->DockedTo->CurrentStar || pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar == nullptr)) {
+            if (aPlayer::GetPlayer()->DockedTo->Order != aShip::soTeleport &&
+                (pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar ==
+                    aPlayer::GetPlayer()->DockedTo->CurrentStar ||
+                    pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar == nullptr)) {
                 aCalc::QueueGalaxyTurnCalculation();
                 AdvanceLoading(nullptr, 0);
                 return;
@@ -197,7 +205,9 @@ namespace fJump {
             aCalc::QueueGalaxyTurnCalculation();
             Present();
         } else {
-            if (static_cast<std::uint8_t>(pas::is_one_of<aShip::soJump, aShip::soJumpHole, aShip::soTeleport>(aPlayer::GetPlayer()->Order) ^ 1) || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == aGalaxyStruct::HoleExitOrderState) {
+            if (!pas::is_one_of<aShip::soJump, aShip::soJumpHole, aShip::soTeleport>(aPlayer::GetPlayer()->Order) ||
+                aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData ==
+                        aGalaxyStruct::HoleExitOrderState) {
                 aCalc::QueueGalaxyTurnCalculation();
                 Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrTurnFilm;
@@ -239,15 +249,18 @@ namespace fJump {
             }
         } else {
             if (NoPendingLoads) {
-                Progress = Progress + 0.008L;
+                Progress = static_cast<float>(Progress + 0.008);
             } else {
-                Progress = pas::real_min<pas::Extended>(Progress + 0.008L, pas::real_divide(Globals::CacheLoader->CompletedLoadCount, Globals::CacheLoader->TotalLoadCount) * 0.5L + 0.5L);
+                Progress = pas::real_min<double>(static_cast<float>(Progress + 0.008),
+                        static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Globals::CacheLoader->CompletedLoadCount) /
+                            Globals::CacheLoader->TotalLoadCount) * 0.5) + 0.5));
             }
-            if (Progress > 0.99L) {
+            if (Progress > 0.99) {
                 Progress = 1.0f;
             }
             LoadPanel->SetProgress(Progress);
-            if ((NoPendingLoads || static_cast<std::uint8_t>(Globals::CacheLoader->IsRunning() ^ 1)) && Progress >= 1.0L) {
+            if ((NoPendingLoads || static_cast<std::uint8_t>(Globals::CacheLoader->IsRunning() ^ 1)) && Progress >=
+                    1.0) {
                 if (TransitionTimer != nullptr) {
                     CancelCallbackTimer(TransitionTimer);
                     TransitionTimer = nullptr;

@@ -532,12 +532,12 @@ namespace Globals {
     // Sets the shown bit and enqueues localized Tips.00-style player text; returns whether a new tip was shown.
     std::uint8_t ShowPlayerTipOnce(std::int32_t Index);
 
-    std::uint8_t HasShownPlayerTip(std::int32_t Index);
+    inline std::uint8_t HasShownPlayerTip(std::int32_t Index);
 
     // Weighted selection restricted to Kind; returns 0 if no weight is available.
     std::int32_t SelectSpaceImageTemplateFromSeed(std::int32_t Kind, std::uint32_t Seed);
 
-    std::int32_t SelectSpaceImageTemplate(std::int32_t Kind);
+    inline std::int32_t SelectSpaceImageTemplate(std::int32_t Kind);
 
     // Raises when no template matches the two SE.Planet.Style values.
     std::int32_t FindPlanetSpaceTemplateIndex(std::int32_t Style, std::int32_t StyleVariant);
@@ -584,10 +584,12 @@ namespace Globals {
     GI_MessageLoop::TMessageLoopGI* GetInnermostScreenLoop();
 
     // Key is an optional substring; returned queue node is borrowed.
-    TMessagePlayer* FindPlayerMessageExceptKinds(const pas::WideString& Key, TPlayerMessageKindSet ExcludedKinds, std::uint8_t SkipLock);
+    TMessagePlayer* FindPlayerMessageExceptKinds(const pas::WideString& Key, TPlayerMessageKindSet ExcludedKinds,
+        std::uint8_t SkipLock);
 
     // Returns whether any queued message was removed.
-    std::uint8_t RemovePlayerMessagesExceptKinds(pas::WideString Key, TPlayerMessageKindSet ExcludedKinds, std::uint8_t SkipLock);
+    std::uint8_t RemovePlayerMessagesExceptKinds(pas::WideString Key, TPlayerMessageKindSet ExcludedKinds,
+        std::uint8_t SkipLock);
 
     void ClearPersistentPlayerMessages();
 
@@ -614,7 +616,8 @@ namespace Globals {
     TMessagePlayer* CreatePersistentPlayerMessage();
 
     // Returns a borrowed queue node. An existing key updates kind/turn and nonempty text; otherwise an exact text match is returned unchanged.
-    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key);
+    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text,
+        const pas::WideString& Key);
 
     void PruneExpiredPersistentPlayerMessages();
 
@@ -628,3 +631,5 @@ namespace Globals {
     void TScriptTemplUnit_Destroy(TScriptTemplUnit* Self);
 
 } // namespace Globals
+
+#include "inline/Globals.hpp"

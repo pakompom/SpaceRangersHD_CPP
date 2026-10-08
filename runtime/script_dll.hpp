@@ -8,9 +8,13 @@
 namespace pas {
 // The game's library ABI passes only raw 32-bit words, including Single bits
 // and Win32 pointers. Floating results also come back as raw word bits.
-inline std::uint32_t script_call_words(std::uint32_t address,
+inline std::uint32_t script_call_words(std::uint64_t address,
                                        const DynArray<std::uint32_t>& words) {
 #if defined(_WIN32) && defined(__i386__)
+  // Address storage is native-capable, but this explicit adapter still calls
+  // only the recovered Win32 stdcall ABI. Never silently truncate its target.
+  if (address > std::numeric_limits<std::uintptr_t>::max())
+    throw std::out_of_range("script DLL address exceeds the Win32 ABI");
   const auto count = static_cast<unsigned>(words.length());
   std::array<ffi_type*, 16> small_types;
   std::array<void*, 16> small_arguments;

@@ -9,6 +9,8 @@ namespace Types {
 } // namespace Types
 
 namespace TypesImports {
-    std::uint8_t PtInRect(const Types::TRect& Rect, const Types::TPoint& P);
+    inline std::uint8_t PtInRect(const Types::TRect& Rect, const Types::TPoint& P);
 
 } // namespace TypesImports
+
+#include "inline/TypesImports.hpp"

@@ -37,7 +37,7 @@ namespace SystemImports {
                 P = WindowsImports::CharNext(P);
             }
             if (P[0] == '\"' && P[1] == '\"') {
-                P += 2;
+                pas::inc(P, 2);
             } else {
                 break;
             }
@@ -72,7 +72,7 @@ namespace SystemImports {
                     Q = WindowsImports::CharNext(P);
                     while (P < Q) {
                         S[I] = *P;
-                        ++P;
+                        pas::inc(P);
                         ++I;
                     }
                 }
@@ -83,7 +83,7 @@ namespace SystemImports {
                 Q = WindowsImports::CharNext(P);
                 while (P < Q) {
                     S[I] = *P;
-                    ++P;
+                    pas::inc(P);
                     ++I;
                 }
             }
@@ -127,7 +127,8 @@ namespace SystemImports {
         return Result;
     }
 
-    std::int32_t BeginThread(void* SecurityAttributes, std::uint32_t StackSize, System::TThreadFunc ThreadFunc, void* Parameter, std::uint32_t CreationFlags, std::uint32_t& ThreadId) {
+    std::int32_t BeginThread(void* SecurityAttributes, std::uint32_t StackSize, System::TThreadFunc ThreadFunc,
+        void* Parameter, std::uint32_t CreationFlags, std::uint32_t& ThreadId) {
         PThreadStart Start{};
         if (System::SystemThreadFuncProc != nullptr) {
             Start = static_cast<PThreadStart>(System::SystemThreadFuncProc(ThreadFunc, Parameter));
@@ -137,7 +138,10 @@ namespace SystemImports {
             Start->Parameter = Parameter;
         }
         System::IsMultiThread = true;
-        std::int32_t Result = WindowsSdk::CreateThread(SecurityAttributes, StackSize, reinterpret_cast<WindowsSdk::TFNThreadStartRoutine>(pas::callback_address(pas::StdcallProc<std::int32_t(void*)>(RunThread))), Start, CreationFlags, ThreadId);
+        std::int32_t Result = WindowsSdk::CreateThread(SecurityAttributes, StackSize,
+            reinterpret_cast<WindowsSdk::TFNThreadStartRoutine>(
+                pas::callback_address(pas::StdcallProc<std::int32_t(void*)>(RunThread))), Start, CreationFlags,
+            ThreadId);
         if (Result == 0) {
             pas::dispose(Start);
         }

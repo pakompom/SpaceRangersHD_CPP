@@ -16,7 +16,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Treton particle control and configured two-color palettes.
@@ -33,7 +32,8 @@ namespace GI_PSWeapon05Treton {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         TretonPalettes.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
@@ -41,21 +41,27 @@ namespace GI_PSWeapon05Treton {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 1); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         TretonPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
             }
         }
     }
 
-    void TPSWeapon05Treton_Create(TPSWeapon05Treton* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon05Treton_Create(TPSWeapon05Treton* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 3;
         Self->RemainingTicks = 60;
@@ -98,20 +104,25 @@ namespace GI_PSWeapon05Treton {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth - 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth + 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth - 12) * Cosine;
-        float D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon05Treton::UpdateHitTestBounds() {
@@ -131,7 +142,8 @@ namespace GI_PSWeapon05Treton {
     }
 
     PTretonParticle TPSWeapon05Treton::AddParticle() {
-        PTretonParticle Particle = static_cast<PTretonParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TTretonParticle))));
+        PTretonParticle Particle = static_cast<PTretonParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TTretonParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -163,7 +175,8 @@ namespace GI_PSWeapon05Treton {
     void TPSWeapon05Treton::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -183,51 +196,55 @@ namespace GI_PSWeapon05Treton {
         float DelayScale{};
         if (FirstParticle == nullptr && RemainingTicks == 60) {
             Y = 0;
-            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
+            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y));
             OriginalLength = Distance;
-            if (OriginalLength == 0.0L) {
+            if (OriginalLength == 0.0) {
                 OriginalLength = 1.0;
             }
             LengthScale = 1.0;
-            if (Distance > 3.0E+2L) {
+            if (Distance > 3.0E+2) {
                 DelayScale = 2.0E+1f;
             } else {
-                DelayScale = pas::real_divide(2.0E+1L * Distance, 3.0E+2L);
+                DelayScale = static_cast<float>(static_cast<float>(2.0E+1 * Distance) / 3.0E+2);
             }
-            while (static_cast<long double>(Y) < Distance) {
+            while (static_cast<double>(Y) < Distance) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(-HalfWidth, HalfWidth); cpp_range.next(I); ) {
                     Particle = AddParticle();
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(I, Y + 2 - I));
                     Particle->Color = PrimaryColor;
                     Particle->MaximumAlpha = 255 - pas::idiv(212 * pas::abs(I), HalfWidth);
                     if (Y < 64) {
-                        Particle->Alpha = pas::shr(static_cast<std::int32_t>(Particle->MaximumAlpha * System::Trunc(Y)), 6);
+                        Particle->Alpha = pas::shr(Particle->MaximumAlpha * pas::real_trunc(Y), 6);
                     } else {
                         Particle->Alpha = Particle->MaximumAlpha;
                     }
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, -2.0f));
                     Particle->State = 0;
-                    Particle->Countdown = System::Trunc(pas::real_divide(Particle->Position.Y, Distance) * DelayScale);
+                    Particle->Countdown = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Particle->Position.Y) / Distance) *
+                            DelayScale));
                 }
                 for (I = 0; I <= 7; ++I) {
                     Particle = AddParticle();
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(0.0f, Y + I));
                     Particle->Color = SecondaryColor;
-                    Particle->MaximumAlpha = 255 - System::Trunc(System::Sin(pas::real_divide(I, 8.0L) * SystemImports::Pi) * 192.0L);
+                    Particle->MaximumAlpha = 255 - pas::real_trunc(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(I / 8.0) * SystemImports::Pi)) * 192.0));
                     if (Y < 64) {
-                        Particle->Alpha = pas::shr(static_cast<std::int32_t>(Particle->MaximumAlpha * System::Trunc(Y)), 6);
+                        Particle->Alpha = pas::shr(Particle->MaximumAlpha * pas::real_trunc(Y), 6);
                     } else {
                         Particle->Alpha = Particle->MaximumAlpha;
                     }
                     pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, -2.0f));
                     Particle->State = 0;
-                    Particle->Countdown = System::Trunc(pas::real_divide(Particle->Position.Y, Distance) * DelayScale);
+                    Particle->Countdown = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(Particle->Position.Y) / Distance) *
+                            DelayScale));
                 }
                 Y += 12;
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -237,8 +254,9 @@ namespace GI_PSWeapon05Treton {
                     case 0: {
                         if (Current->Countdown == 0) {
                             Current->Countdown = RemainingTicks + 21 - 60;
-                            if (Current->Position.Y < 64.0L) {
-                                Current->Alpha = pas::shr(static_cast<std::int32_t>(Current->MaximumAlpha * System::Trunc(Current->Position.Y)), 6);
+                            if (Current->Position.Y < 64.0) {
+                                Current->Alpha = pas::shr(Current->MaximumAlpha * pas::real_trunc(Current->Position.Y),
+                                        6);
                             } else {
                                 Current->Alpha = Current->MaximumAlpha;
                             }
@@ -249,16 +267,16 @@ namespace GI_PSWeapon05Treton {
                         break;
                     }
                     case 1: {
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
                         if (Current->Position.Y > Distance) {
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) - Distance;
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) - Distance);
                         }
-                        if (Current->Position.Y < 0.0L) {
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) + Distance;
+                        if (Current->Position.Y < 0.0) {
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Distance);
                         }
-                        if (Current->Position.Y < 64.0L) {
-                            Current->Alpha = pas::shr(static_cast<std::int32_t>(Current->MaximumAlpha * System::Trunc(Current->Position.Y)), 6);
+                        if (Current->Position.Y < 64.0) {
+                            Current->Alpha = pas::shr(Current->MaximumAlpha * pas::real_trunc(Current->Position.Y), 6);
                         } else {
                             Current->Alpha = Current->MaximumAlpha;
                         }
@@ -294,9 +312,11 @@ namespace GI_PSWeapon05Treton {
             while (Particle != nullptr) {
                 if (Particle->State >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
                 Particle = Particle->Next;
@@ -306,9 +326,11 @@ namespace GI_PSWeapon05Treton {
             while (Particle != nullptr) {
                 if (Particle->State >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }

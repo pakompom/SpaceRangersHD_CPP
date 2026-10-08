@@ -8,12 +8,8 @@
 
 // Hex helpers in the inferred ExceptionInfo region. Wider unit ownership remains inferred.
 namespace ExceptionInfo {
-    const pas::Array<char16_t, 0, 15> ExportHexDigits = pas::Array<char16_t, 0, 15>{{
-        u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7',
-        u'8', u'9', u'A', u'B', u'C', u'D', u'E', u'F',
-    }};
-
-    std::uint8_t ReportingException = false;
+    const pas::Array<char16_t, 0, 15> ExportHexDigits = pas::Array<char16_t, 0, 15>{{u'0', u'1', u'2', u'3', u'4', u'5',
+        u'6', u'7', u'8', u'9', u'A', u'B', u'C', u'D', u'E', u'F'}};
 
     ExceptionInfo::TRaiseExceptionCallback PreviousRaiseException = nullptr;
 
@@ -35,44 +31,40 @@ namespace ExceptionInfo {
                     Handled = false;
                 }
             }
-            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Exception ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " with message ", E->message}));
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Exception ",
+                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " with message ", E->message}));
             Handled = false;
             if (GR_Main::SuppressExceptionLogCopy) {
                 GR_Main::SuppressExceptionLogCopy = false;
             } else {
-                SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Errors"})));
-                TargetName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Errors\\", static_cast<pas::WideString>(ExceptionInfo::ExceptionLogTimestamp()), u".log"});
+                SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({
+                    GR_Main::GetGameUserDirectory(), u"Errors"})));
+                TargetName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Errors\\",
+                        static_cast<pas::WideString>(ExceptionInfo::ExceptionLogTimestamp()), u".log"});
                 SourceName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"########.log"});
                 WindowsSdk::CopyFileW(SourceName.pchar(), TargetName.pchar(), 0);
             }
         }
     }
 
-    void PAS_STDCALL RaiseExceptionWithLogging(std::uint32_t Code, std::uint32_t Flags, std::uint32_t ArgumentCount, void* Arguments) {
+    void PAS_STDCALL RaiseExceptionWithLogging(std::uint32_t Code, std::uint32_t Flags, std::uint32_t ArgumentCount,
+        void* Arguments) {
         std::uint8_t Handled{};
         if (PreviousRaiseException != nullptr) {
-            if (ReportingException) {
+            // The runtime bypasses this observer during recursive raises on this
+            // thread. A failure in reporting replaces the original exception normally.
+            try {
                 ExceptionInfo::PreviousRaiseException(Code, Flags, ArgumentCount, Arguments);
-            } else {
-                ReportingException = true;
-                {
-                    pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                        ReportingException = false;
-                    };
-                    try {
-                        ExceptionInfo::PreviousRaiseException(Code, Flags, ArgumentCount, Arguments);
-                    } catch (...) {
-                        auto cpp_exception = pas::caught_object();
-                        if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                            Handled = false;
-                            ExceptionInfo::ReportUnhandledException(E, Handled);
-                            if (!Handled) {
-                                throw;
-                            }
-                        } else {
-                            throw;
-                        }
+            } catch (...) {
+                auto cpp_exception = pas::caught_object();
+                if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
+                    Handled = false;
+                    ExceptionInfo::ReportUnhandledException(E, Handled);
+                    if (!Handled) {
+                        throw;
                     }
+                } else {
+                    throw;
                 }
             }
         }
@@ -96,8 +88,12 @@ namespace ExceptionInfo {
 
     // Native initializer saves and replaces the RTL raise hook.
     void UnitInitialize() {
+        System::InstallRaiseExceptionHook(System::RaiseExceptionProc);
         PreviousRaiseException = pas::callback_from_address<TRaiseExceptionCallback>(System::RaiseExceptionProc);
-        System::RaiseExceptionProc = reinterpret_cast<void*>(pas::callback_address(pas::StdcallProc<void(std::uint32_t, std::uint32_t, std::uint32_t, void*)>(RaiseExceptionWithLogging)));
+        System::RaiseExceptionProc =
+            reinterpret_cast<void*>(
+                pas::callback_address(pas::StdcallProc<void(std::uint32_t, std::uint32_t, std::uint32_t, void*)>(
+                    RaiseExceptionWithLogging)));
     }
 
 } // namespace ExceptionInfo

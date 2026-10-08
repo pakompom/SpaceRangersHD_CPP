@@ -1,5 +1,6 @@
 #include "layout/Globals.hpp"
 #include "types/EC_BlockPar.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/EC_CacheGAI.hpp"
 #include "types/GI_GAI.hpp"
 #include "types/GI_GraphButton.hpp"
@@ -28,7 +29,6 @@
 #include "types/fSelectFace.hpp"
 #include "types/fTalk.hpp"
 #include "units/ClassesImports.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_Expression.hpp"
 #include "units/EC_Str.hpp"
@@ -84,16 +84,22 @@ namespace Globals {
     pas::Array<Globals::TMessagePlayerTypeGraph, 0, 10> PlayerMessagePresentations = pas::Array<Globals::TMessagePlayerTypeGraph, 0, 10>{{
         {.NormalImage = u"GalaxyN"_w, .ActiveImage = u"GalaxyA"_w, .PressedImage = u"GalaxyD"_w, .LifetimeTurns = 10},
         {.NormalImage = u"EtherN"_w, .ActiveImage = u"EtherA"_w, .PressedImage = u"EtherD"_w},
-        {.NormalImage = u"ShipPlusN"_w, .ActiveImage = u"ShipPlusA"_w, .PressedImage = u"ShipPlusD"_w, .LifetimeTurns = 5},
-        {.NormalImage = u"QuestNormalN"_w, .ActiveImage = u"QuestNormalA"_w, .PressedImage = u"QuestNormalD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
-        {.NormalImage = u"QuestOkN"_w, .ActiveImage = u"QuestOkA"_w, .PressedImage = u"QuestOkD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
-        {.NormalImage = u"QuestCancelN"_w, .ActiveImage = u"QuestCancelA"_w, .PressedImage = u"QuestCancelD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"ShipPlusN"_w, .ActiveImage = u"ShipPlusA"_w, .PressedImage = u"ShipPlusD"_w,
+            .LifetimeTurns = 5},
+        {.NormalImage = u"QuestNormalN"_w, .ActiveImage = u"QuestNormalA"_w, .PressedImage = u"QuestNormalD"_w,
+            .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"QuestOkN"_w, .ActiveImage = u"QuestOkA"_w, .PressedImage = u"QuestOkD"_w,
+            .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"QuestCancelN"_w, .ActiveImage = u"QuestCancelA"_w, .PressedImage = u"QuestCancelD"_w,
+            .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
         {.NormalImage = u"TipsN"_w, .ActiveImage = u"TipsA"_w, .PressedImage = u"TipsD"_w, .LifetimeTurns = 182},
-        {.NormalImage = u"UserN"_w, .ActiveImage = u"UserA"_w, .PressedImage = u"UserD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
-        {.NormalImage = u"ShipMinusN"_w, .ActiveImage = u"ShipMinusA"_w, .PressedImage = u"ShipMinusD"_w, .LifetimeTurns = 5},
-        {.NormalImage = u"StorageN"_w, .ActiveImage = u"StorageA"_w, .PressedImage = u"StorageD"_w, .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
-        {.NormalImage = u"Ether2N"_w, .ActiveImage = u"Ether2A"_w, .PressedImage = u"Ether2D"_w},
-    }};
+        {.NormalImage = u"UserN"_w, .ActiveImage = u"UserA"_w, .PressedImage = u"UserD"_w,
+            .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"ShipMinusN"_w, .ActiveImage = u"ShipMinusA"_w, .PressedImage = u"ShipMinusD"_w,
+            .LifetimeTurns = 5},
+        {.NormalImage = u"StorageN"_w, .ActiveImage = u"StorageA"_w, .PressedImage = u"StorageD"_w,
+            .LifetimeTurns = Globals::PersistentMessageLifetimeTurns},
+        {.NormalImage = u"Ether2N"_w, .ActiveImage = u"Ether2A"_w, .PressedImage = u"Ether2D"_w}}};
 
     fMainForm::TfMainForm* MainMenuScreen{};
 
@@ -360,10 +366,9 @@ namespace Globals {
 
     pas::DynArray<Globals::TPlanetAdvtGroup> PlanetAdvertDefinitions{};
 
-    pas::Array<pas::WideString, 0, 10> ScriptVariableTypeNames = pas::Array<pas::WideString, 0, 10>{{
-        u"Unknown"_w, u"Int"_w, u"DW"_w, u"Float"_w, u"Str"_w, u"ExternFun"_w, u"LibraryFun"_w, u"Fun"_w,
-        u"Class"_w, u"Array"_w, u"Ref"_w,
-    }};
+    pas::Array<pas::WideString, 0, 10> ScriptVariableTypeNames = pas::Array<pas::WideString, 0, 10>{{u"Unknown"_w,
+        u"Int"_w, u"DW"_w, u"Float"_w, u"Str"_w, u"ExternFun"_w, u"LibraryFun"_w, u"Fun"_w, u"Class"_w, u"Array"_w,
+        u"Ref"_w}};
 
     // Case-sensitive; returns -1 when absent. Requires the template list. Native callers include UI loading and script builtins.
     std::int32_t FindScriptTemplateIndex(const std::u16string_view& Name) {
@@ -396,8 +401,12 @@ namespace Globals {
         if (pas::list_count(Dest) >= 2) {
             Count = pas::list_count(Dest) * 2;
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
-                First = aMyFunction::SeededRandomIntRange(0, pas::list_count(Dest) - 1, aGalaxy::Galaxy->GenerationSeed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) * static_cast<std::uint32_t>(Index));
-                Second = aMyFunction::SeededRandomIntRange(0, pas::list_count(Dest) - 1, aGalaxy::Galaxy->GenerationSeed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn + Index));
+                First = aMyFunction::SeededRandomIntRange(0, pas::list_count(Dest) - 1,
+                        aGalaxy::Galaxy->GenerationSeed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn) *
+                            static_cast<std::uint32_t>(Index));
+                Second = aMyFunction::SeededRandomIntRange(0, pas::list_count(Dest) - 1,
+                        aGalaxy::Galaxy->GenerationSeed * static_cast<std::uint32_t>(aGalaxy::Galaxy->CurrentTurn +
+                            Index));
                 if (First != Second) {
                     Item = pas::list_at<TScriptTemplUnit>(Dest, First);
                     pas::list_put(Dest, First, pas::list_get(Dest, Second));
@@ -421,21 +430,19 @@ namespace Globals {
         if ((pas::shr(ShownPlayerTips, Index) & 1) == 0) {
             ShownPlayerTips |= pas::shl(1, Index);
             if (Index < 10) {
-                const pas::WideString& localizedColorText = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Tips.0", SysUtils::IntToStr(Index)})));
+                const pas::WideString& localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"Tips.0",
+                    pas::wide_int_to_str(Index)}));
                 std::int32_t currentTurn = aGalaxy::Galaxy->CurrentTurn;
                 Globals::AddOrUpdatePlayerBubble(pmTip, currentTurn, localizedColorText, u""_wref.get());
             } else {
-                const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"Tips.", SysUtils::IntToStr(Index)})));
+                const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(pas::concat_wide({u"Tips.",
+                    pas::wide_int_to_str(Index)}));
                 std::int32_t currentTurn_2 = aGalaxy::Galaxy->CurrentTurn;
                 Globals::AddOrUpdatePlayerBubble(pmTip, currentTurn_2, localizedColorText_2, u""_wref.get());
             }
             return true;
         }
         return Result;
-    }
-
-    std::uint8_t HasShownPlayerTip(std::int32_t Index) {
-        return (pas::shr(ShownPlayerTips, Index) & 1) != 0;
     }
 
     // Weighted selection restricted to Kind; returns 0 if no weight is available.
@@ -472,10 +479,6 @@ namespace Globals {
         return 0;
     }
 
-    std::int32_t SelectSpaceImageTemplate(std::int32_t Kind) {
-        return Globals::SelectSpaceImageTemplateFromSeed(Kind, aMyFunction::RandomIntRange(0, 2000000000));
-    }
-
     // Raises when no template matches the two SE.Planet.Style values.
     std::int32_t FindPlanetSpaceTemplateIndex(std::int32_t Style, std::int32_t StyleVariant) {
         std::int32_t Index{};
@@ -483,7 +486,8 @@ namespace Globals {
             const std::int32_t cpp_last = PlanetSpaceTemplates.length() - 1;
             if (0 <= cpp_last) {
                 for (Index = 0; Index <= cpp_last; ++Index) {
-                    if (PlanetSpaceTemplates[Index].Style == Style && PlanetSpaceTemplates[Index].StyleVariant == StyleVariant) {
+                    if (PlanetSpaceTemplates[Index].Style == Style && PlanetSpaceTemplates[Index].StyleVariant ==
+                            StyleVariant) {
                         return Index;
                     }
                 }
@@ -540,9 +544,14 @@ namespace Globals {
             SharedScriptVariables = nullptr;
         }
         if (ScriptTemplates != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ScriptTemplates) - 1); cpp_range.next(Index); ) {
-                Item = pas::list_at<pas::Object>(ScriptTemplates, Index);
-                pas::free(Item);
+            {
+                const std::int32_t cpp_last = pas::list_count(ScriptTemplates) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Item = pas::list_at<pas::Object>(ScriptTemplates, Index);
+                        pas::free(Item);
+                    }
+                }
             }
             pas::free(ScriptTemplates);
             ScriptTemplates = nullptr;
@@ -567,8 +576,10 @@ namespace Globals {
             WindowsImports::CloseHandle(ScriptUiAbortEvent);
             ScriptUiAbortEvent = 0u;
         }
-        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_2.next(Race); ) {
-            for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_3.next(Kind); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+            aGalaxyStruct::oiPirate); cpp_range.next(Race); ) {
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger,
+                aGalaxyStruct::htDiplomat); cpp_range_2.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
                 }
@@ -577,7 +588,8 @@ namespace Globals {
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]));
             }
         }
-        for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_4.next(KlingKind); ) {
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss,
+            aGalaxyStruct::ktKlig); cpp_range_3.next(KlingKind); ) {
             if (KlingKind != aGalaxyStruct::ktBoss) {
                 if (BlazerShipTemplates[KlingKind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]));
@@ -661,7 +673,8 @@ namespace Globals {
                 if (Result != u"") {
                     Result = pas::concat_wide({Result, u"\r\n"});
                 }
-                Result = pas::concat_wide({Result, Block->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(Part)}))});
+                Result = pas::concat_wide({Result,
+                        Block->GetParamByPath(pas::concat_wide({Path, u":", pas::wide_int_to_str(Part)}))});
             }
             return Result;
         };
@@ -680,11 +693,13 @@ namespace Globals {
             RobotMapDefinitions[Index].Map = ReadMapText(u"Map"_wref.get());
             Text = ReadMapText(u"Group"_wref.get());
             if (Text != u"") {
-                RobotMapDefinitions[Index].Group = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Group"_wref.get())));
+                RobotMapDefinitions[Index].Group =
+                    EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Group"_wref.get())));
             } else {
                 RobotMapDefinitions[Index].Group = -1;
             }
-            RobotMapDefinitions[Index].Access = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Access"_wref.get())));
+            RobotMapDefinitions[Index].Access =
+                EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Access"_wref.get())));
             Text = ReadMapText(u"Side"_wref.get());
             RobotMapDefinitions[Index].Side = 0;
             if (pas::pos("Red", static_cast<pas::AnsiString>(Text)) > 0) {
@@ -696,7 +711,8 @@ namespace Globals {
             if (pas::pos("Blue", static_cast<pas::AnsiString>(Text)) > 0) {
                 RobotMapDefinitions[Index].Side = RobotMapDefinitions[Index].Side | 4;
             }
-            RobotMapDefinitions[Index].Length = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Length"_wref.get())));
+            RobotMapDefinitions[Index].Length =
+                EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"Length"_wref.get())));
             Text = ReadMapText(u"PlanetRace"_wref.get());
             RobotMapDefinitions[Index].PlanetRace = Globals::ParseRobotMapRaceMask(Text);
             Text = ReadMapText(u"PlayerRace"_wref.get());
@@ -714,13 +730,19 @@ namespace Globals {
                     pas::include_at(&RobotMapDefinitions[Index].PlayerStatus, aGalaxyStruct::rcWarrior);
                 }
             }
-            RobotMapDefinitions[Index].MinWins = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MinWins"_wref.get())));
-            RobotMapDefinitions[Index].MaxWins = EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MaxWins"_wref.get())));
-            RobotMapDefinitions[Index].Reiteration = EC_Str::ExtractDigitsToIntW(pas::view(ReadMapText(u"Reiteration"_wref.get())));
-            RobotMapDefinitions[Index].ReinforcementsDisabled = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"ReinforcementsDisabled"_wref.get())));
-            RobotMapDefinitions[Index].Terron = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"Terron"_wref.get())));
+            RobotMapDefinitions[Index].MinWins =
+                EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MinWins"_wref.get())));
+            RobotMapDefinitions[Index].MaxWins =
+                EC_Str::ExtractSignedDigitsToIntW(pas::view(ReadMapText(u"MaxWins"_wref.get())));
+            RobotMapDefinitions[Index].Reiteration =
+                EC_Str::ExtractDigitsToIntW(pas::view(ReadMapText(u"Reiteration"_wref.get())));
+            RobotMapDefinitions[Index].ReinforcementsDisabled =
+                GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"ReinforcementsDisabled"_wref.get())));
+            RobotMapDefinitions[Index].Terron =
+                GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"Terron"_wref.get())));
             RobotMapDefinitions[Index].Demo = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"Demo"_wref.get())));
-            RobotMapDefinitions[Index].AfterLiberation = GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"AfterLiberation"_wref.get())));
+            RobotMapDefinitions[Index].AfterLiberation =
+                GI_Main::ParseEnabledNameGI(pas::view(ReadMapText(u"AfterLiberation"_wref.get())));
             RobotMapDefinitions[Index].GovTextStart = ReadMapText(u"GovTextStart"_wref.get());
             RobotMapDefinitions[Index].GovTextWin = ReadMapText(u"GovTextWin"_wref.get());
             RobotMapDefinitions[Index].GovTextLoss = ReadMapText(u"GovTextLoss"_wref.get());
@@ -744,7 +766,9 @@ namespace Globals {
             return pas::WideString();
         };
         ShipGreetingCount = 0;
-        std::int32_t Count = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"ShipGreetings.CountShipGreetings"_wref.get())));
+        std::int32_t Count = SysUtils::StrToInt(
+            static_cast<pas::AnsiString>(
+                GR_Main::LookupLocalizedTextByKey(u"ShipGreetings.CountShipGreetings"_wref.get())));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Index);
@@ -764,7 +788,8 @@ namespace Globals {
             }()) != 0) {
                 ++ShipGreetingCount;
                 EntryIndex = ShipGreetingCount - 1;
-                Block = GR_Main::LanguageDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"ShipGreetings.", SysUtils::IntToStr(Index)})));
+                Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"ShipGreetings.",
+                        pas::wide_int_to_str(Index)}));
                 {
                     TShipGreetingsInfo& cpp_with = ShipGreetingDefinitions[EntryIndex];
                     cpp_with.Name = pas::wide_int_to_str(Index);
@@ -1433,7 +1458,8 @@ namespace Globals {
                     }
                     Text = ReadShipGreetingField(u"LastPlanetRace"_wref.get());
                     if (Text == u"Any") {
-                        cpp_with.LastPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+                        cpp_with.LastPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({
+                                {aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
                     } else {
                         cpp_with.LastPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     }
@@ -2176,7 +2202,9 @@ namespace Globals {
             return pas::WideString();
         };
         GovernmentGreetingCount = 0;
-        std::int32_t Count = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"GovGreetings.CountGovGreetings"_wref.get())));
+        std::int32_t Count = SysUtils::StrToInt(
+            static_cast<pas::AnsiString>(
+                GR_Main::LookupLocalizedTextByKey(u"GovGreetings.CountGovGreetings"_wref.get())));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             if (([&] {
                 const pas::WideString& intToStr = pas::wide_int_to_str(Index);
@@ -2196,7 +2224,8 @@ namespace Globals {
             }()) != 0) {
                 ++GovernmentGreetingCount;
                 EntryIndex = GovernmentGreetingCount - 1;
-                Block = GR_Main::LanguageDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"GovGreetings.", SysUtils::IntToStr(Index)})));
+                Block = GR_Main::LanguageDataConfig->GetBlockByPath(pas::concat_wide({u"GovGreetings.",
+                        pas::wide_int_to_str(Index)}));
                 {
                     TGovGreetingsInfo& cpp_with = GovernmentGreetingDefinitions[EntryIndex];
                     cpp_with.Name = pas::wide_int_to_str(Index);
@@ -2509,7 +2538,8 @@ namespace Globals {
                     }
                     Text = ReadGovernmentGreetingField(u"ToPlanetRace"_w);
                     if (Text == u"Any") {
-                        cpp_with.ToPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
+                        cpp_with.ToPlanetRace = pas::constant_set<aGalaxyStruct::TOwnerMask>({
+                                {aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal}});
                     } else {
                         cpp_with.ToPlanetRace = Globals::ParseRobotMapRaceMask(Text);
                     }
@@ -2869,18 +2899,22 @@ namespace Globals {
         pas::WideString Name{};
         EC_BlockPar::TBlockParEC* Root = GR_Main::MainDataConfig->GetBlockByPath(u"Data\\PlanetAdvt"_wref.get());
         PlanetAdvertDefinitions.set_length(Root->GetBlockCount());
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, PlanetAdvertDefinitions.length() - 1); cpp_range.next(GroupIndex); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            PlanetAdvertDefinitions.length() - 1); cpp_range.next(GroupIndex); ) {
             GroupBlock = Root->GetBlockByIndex(GroupIndex);
             {
-                WindowsSdk::TPoint cpp_value = GI_Main::GetPointGI(pas::view(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get())));
+                WindowsSdk::TPoint cpp_value = GI_Main::GetPointGI(
+                    pas::view(GroupBlock->GetParamByPathOrMarker(u"Info.Pos"_wref.get())));
                 auto cpp_target = &PlanetAdvertDefinitions[GroupIndex].Position;
                 pas::store_unaligned<WindowsSdk::TPoint>(cpp_target, cpp_value);
             }
             if (GroupBlock->GetBlock(u"Info"sv)->CountParams(u"Image1"_wref.get()) > 0) {
-                PlanetAdvertDefinitions[GroupIndex].Image1 = GroupBlock->GetParamByPathOrMarker(u"Info.Image1"_wref.get());
+                PlanetAdvertDefinitions[GroupIndex].Image1 =
+                    GroupBlock->GetParamByPathOrMarker(u"Info.Image1"_wref.get());
             }
             if (GroupBlock->GetBlock(u"Info"sv)->CountParams(u"Image2"_wref.get()) > 0) {
-                PlanetAdvertDefinitions[GroupIndex].Image2 = GroupBlock->GetParamByPathOrMarker(u"Info.Image2"_wref.get());
+                PlanetAdvertDefinitions[GroupIndex].Image2 =
+                    GroupBlock->GetParamByPathOrMarker(u"Info.Image2"_wref.get());
             }
             Count = GroupBlock->GetBlockCount();
             PlanetAdvertDefinitions[GroupIndex].Adverts.set_length(Count - 2);
@@ -2898,7 +2932,8 @@ namespace Globals {
                     }
                     PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = 0;
                     if (Block->CountParams(u"War"_wref.get()) > 0) {
-                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = EC_Str::ExtractSignedDigitsToIntW(pas::view(Block->GetParam(u"War"sv)));
+                        PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War =
+                            EC_Str::ExtractSignedDigitsToIntW(pas::view(Block->GetParam(u"War"sv)));
                         if (PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War < -1) {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War = -1;
                         } else if (PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].War > 1) {
@@ -2925,26 +2960,33 @@ namespace Globals {
                         } else if (Text == u"Narcotics") {
                             PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = 7;
                         } else {
-                            PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods = aGalaxyStruct::UnspecifiedGoods;
+                            PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Goods =
+                                aGalaxyStruct::UnspecifiedGoods;
                         }
                     }
-                    PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner = pas::constant_set<aGalaxyStruct::TOwnerMask>({});
+                    PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner =
+                        pas::constant_set<aGalaxyStruct::TOwnerMask>({});
                     if (Block->CountParams(u"Owner"_wref.get()) > 0) {
                         Text = Block->GetParam(u"Owner"sv);
                         if (pas::pos("Maloc", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiMaloc);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner,
+                                aGalaxyStruct::oiMaloc);
                         }
                         if (pas::pos("Peleng", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiPeleng);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner,
+                                aGalaxyStruct::oiPeleng);
                         }
                         if (pas::pos("People", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiHuman);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner,
+                                aGalaxyStruct::oiHuman);
                         }
                         if (pas::pos("Fei", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiFeyan);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner,
+                                aGalaxyStruct::oiFeyan);
                         }
                         if (pas::pos("Gaal", static_cast<pas::AnsiString>(Text)) > 0) {
-                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner, aGalaxyStruct::oiGaal);
+                            pas::include_at(&PlanetAdvertDefinitions[GroupIndex].Adverts[AdvertIndex].Owner,
+                                aGalaxyStruct::oiGaal);
                         }
                     }
                     ++AdvertIndex;
@@ -2955,8 +2997,10 @@ namespace Globals {
             }
             Block = GroupBlock->GetBlock(u"List"sv);
             PlanetAdvertDefinitions[GroupIndex].Lists.set_length(Block->GetParamCount());
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, PlanetAdvertDefinitions[GroupIndex].Lists.length() - 1); cpp_range_3.next(BlockIndex); ) {
-                PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(BlockIndex)));
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+                PlanetAdvertDefinitions[GroupIndex].Lists.length() - 1); cpp_range_3.next(BlockIndex); ) {
+                PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Weight =
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(BlockIndex)));
                 Text = Block->GetParamValue(BlockIndex);
                 Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
                 PlanetAdvertDefinitions[GroupIndex].Lists[BlockIndex].Indices.set_length(Count);
@@ -3014,133 +3058,222 @@ namespace Globals {
         GlobalsV::SmoothHugeFontName = u"Font.Verdana12"_w;
         GlobalsV::SmoothIntroFontName = u"Font.Verdana13"_w;
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ChangeAutoPilot"_wref.get()) > 0) {
-            GlobalsV::ChangeAutoPilot = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ChangeAutoPilot"_wref.get())));
+            GlobalsV::ChangeAutoPilot =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ChangeAutoPilot"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParams(u"AltResolutionSwitch"_wref.get()) > 0) {
-            GR_Main::AltResolutionSwitch = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AltResolutionSwitch"_wref.get())));
+            GR_Main::AltResolutionSwitch =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AltResolutionSwitch"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DisableAutoPilot"_wref.get()) > 0) {
-            GlobalsV::DisableAutoPilot = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DisableAutoPilot"_wref.get())));
+            GlobalsV::DisableAutoPilot =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DisableAutoPilot"_wref.get())));
         }
         GlobalsV::AwardDialogsEnabled = true;
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PQuestStyle"_wref.get()) > 0) {
-            GlobalsV::QuestStyleIndex = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestStyle"_wref.get())));
+            GlobalsV::QuestStyleIndex =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestStyle"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PQuestAnim"_wref.get()) > 0) {
-            GlobalsV::QuestPageAnimationEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestAnim"_wref.get())));
+            GlobalsV::QuestPageAnimationEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PQuestAnim"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DefaultOrder"_wref.get()) > 0) {
-            GlobalsV::DefaultOrder = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DefaultOrder"_wref.get())));
+            GlobalsV::DefaultOrder =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DefaultOrder"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RightClickOnShip"_wref.get()) > 0) {
-            GlobalsV::RightClickOnShip = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RightClickOnShip"_wref.get())));
+            GlobalsV::RightClickOnShip =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RightClickOnShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DoNotChangeMusicInBattle"_wref.get()) > 0) {
-            GlobalsV::DoNotChangeMusicInBattle = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DoNotChangeMusicInBattle"_wref.get())));
+            GlobalsV::DoNotChangeMusicInBattle =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DoNotChangeMusicInBattle"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ViewFollowShip"_wref.get()) > 0) {
-            GlobalsV::ViewFollowShip = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewFollowShip"_wref.get())));
+            GlobalsV::ViewFollowShip =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewFollowShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ViewPathLength"_wref.get()) > 0) {
-            GlobalsV::ViewPathLength = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewPathLength"_wref.get())));
+            GlobalsV::ViewPathLength =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ViewPathLength"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"TurnSaveStep"_wref.get()) > 0) {
-            GlobalsV::TurnSaveStep = std::min<std::int32_t>(aGalaxyStruct::TurnsPerYear, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get()))));
+            GlobalsV::TurnSaveStep = std::min<std::int32_t>(aGalaxyStruct::TurnsPerYear,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"TurnSaveStep"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"QuickSaveExtraSlots"_wref.get()) > 0) {
-            GlobalsV::QuickSaveExtraSlots = std::min<std::int32_t>(9, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"QuickSaveExtraSlots"_wref.get()))));
+            GlobalsV::QuickSaveExtraSlots = std::min<std::int32_t>(9,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"QuickSaveExtraSlots"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"MaxPlayerNews"_wref.get()) > 0) {
-            GlobalsV::MaxPlayerNews = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxPlayerNews"_wref.get()))));
+            GlobalsV::MaxPlayerNews = std::min<std::int32_t>(100,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxPlayerNews"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ForsageDeactivatePercent"_wref.get()) > 0) {
-            GlobalsV::AfterburnerStopCondition = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ForsageDeactivatePercent"_wref.get()))));
+            GlobalsV::AfterburnerStopCondition = std::min<std::int32_t>(100,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ForsageDeactivatePercent"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"MaxSearchResult"_wref.get()) > 0) {
-            GlobalsV::MaxSearchResult = std::min<std::int32_t>(100, EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxSearchResult"_wref.get()))));
+            GlobalsV::MaxSearchResult = std::min<std::int32_t>(100,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxSearchResult"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ClickAutoCloseForm"_wref.get()) > 0) {
-            GlobalsV::ClickAutoCloseForm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ClickAutoCloseForm"_wref.get())));
+            GlobalsV::ClickAutoCloseForm =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ClickAutoCloseForm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ActionDoubleClick"_wref.get()) > 0) {
-            GlobalsV::ActionDoubleClick = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ActionDoubleClick"_wref.get())));
+            GlobalsV::ActionDoubleClick =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ActionDoubleClick"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipGiper"_wref.get()) > 0) {
-            GlobalsV::SkipGiper = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipGiper"_wref.get())));
+            GlobalsV::SkipGiper =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipGiper"_wref.get())));
         }
         Text = u"e"_w;
         Text = pas::concat_wide({Text, u"s"});
         Text = pas::concat_wide({Text, u"t"});
         if (GR_Main::UserSettingsConfig->CountParamsByPath(Text) > 0) {
-            GlobalsV::EstOptionEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(Text)));
+            GlobalsV::EstOptionEnabled =
+                GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(Text)));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SendRecordOff"_wref.get()) > 0) {
-            GlobalsV::SendRecordOff = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SendRecordOff"_wref.get())));
+            GlobalsV::SendRecordOff =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SendRecordOff"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Wind"_wref.get()) > 0) {
-            GlobalsV::Wind = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Wind"_wref.get())));
+            GlobalsV::Wind =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Wind"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Skip1C"_wref.get()) > 0) {
-            Skip1C = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Skip1C"_wref.get())));
+            Skip1C =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Skip1C"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipVideo"_wref.get()) > 0) {
-            SkipVideo = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipVideo"_wref.get())));
+            SkipVideo =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipVideo"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SkipIntro"_wref.get()) > 0) {
-            SkipIntro = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipIntro"_wref.get())));
+            SkipIntro =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SkipIntro"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ShipTail"_wref.get()) > 0) {
-            GlobalsV::ShipTail = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShipTail"_wref.get())));
+            GlobalsV::ShipTail =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShipTail"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimCaptain"_wref.get()) > 0) {
-            GlobalsV::AnimCaptain = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCaptain"_wref.get())));
+            GlobalsV::AnimCaptain =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCaptain"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimItem"_wref.get()) > 0) {
-            GlobalsV::AnimItem = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimItem"_wref.get())));
+            GlobalsV::AnimItem =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimItem"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BGImage"_wref.get()) > 0) {
-            GlobalsV::BGImage = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGImage"_wref.get())));
+            GlobalsV::BGImage =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGImage"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"Comet"_wref.get()) > 0) {
-            GlobalsV::Comet = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Comet"_wref.get())));
+            GlobalsV::Comet =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"Comet"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimShipFull"_wref.get()) > 0) {
-            GlobalsV::AnimShipFull = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimShipFull"_wref.get())));
+            GlobalsV::AnimShipFull =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimShipFull"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimCity"_wref.get()) > 0) {
-            GlobalsV::AnimCity = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCity"_wref.get())));
+            GlobalsV::AnimCity =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimCity"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimGov"_wref.get()) > 0) {
-            GlobalsV::AnimGov = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimGov"_wref.get())));
+            GlobalsV::AnimGov =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimGov"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimMenuShip"_wref.get()) > 0) {
-            GlobalsV::AnimMenuShip = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMenuShip"_wref.get())));
+            GlobalsV::AnimMenuShip =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMenuShip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimStar"_wref.get()) > 0) {
-            GlobalsV::AnimStar = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimStar"_wref.get())));
+            GlobalsV::AnimStar =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimStar"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimHangar"_wref.get()) > 0) {
-            GlobalsV::AnimHangar = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimHangar"_wref.get())));
+            GlobalsV::AnimHangar =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimHangar"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"CircleAction"_wref.get()) > 0) {
-            GlobalsV::CircleAction = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CircleAction"_wref.get())));
+            GlobalsV::CircleAction =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CircleAction"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"StaticBackground"_wref.get()) > 0) {
-            GlobalsV::StaticBackground = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"StaticBackground"_wref.get())));
+            GlobalsV::StaticBackground =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"StaticBackground"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScrollTime"_wref.get()) > 0) {
-            GlobalsV::ScrollTime = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollTime"_wref.get())));
+            GlobalsV::ScrollTime =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollTime"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScrollStep"_wref.get()) > 0) {
-            GlobalsV::ScrollStep = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollStep"_wref.get())));
+            GlobalsV::ScrollStep =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollStep"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScrollSense"_wref.get()) > 0) {
-            GlobalsV::ScrollSense = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollSense"_wref.get())));
+            GlobalsV::ScrollSense =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScrollSense"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FilmSpeed"_wref.get()) > 0) {
-            GlobalsV::FilmSpeed = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FilmSpeed"_wref.get())));
+            GlobalsV::FilmSpeed =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FilmSpeed"_wref.get())));
         }
-        GR_Main::ScrollInteriorRect = ClassesImports::Rect(GlobalsV::ScrollSense, GlobalsV::ScrollSense, GR_Main::GameScreenWidth - GlobalsV::ScrollSense, GR_Main::GameScreenHeight - GlobalsV::ScrollSense);
+        GR_Main::ScrollInteriorRect = ClassesImports::Rect(GlobalsV::ScrollSense, GlobalsV::ScrollSense,
+                GR_Main::GameScreenWidth - GlobalsV::ScrollSense, GR_Main::GameScreenHeight - GlobalsV::ScrollSense);
         if (!GR_Main::IsInstallFeatureEnabled(u"AnimGov"_wref.get())) {
             GlobalsV::AnimGov = 0;
         }
@@ -3152,123 +3285,208 @@ namespace Globals {
             SkipIntro = true;
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BGOCount"_wref.get()) > 0) {
-            GlobalsV::BGOCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGOCount"_wref.get())));
+            GlobalsV::BGOCount =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGOCount"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BGOTime"_wref.get()) > 0) {
-            GlobalsV::BGOTime = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGOTime"_wref.get())));
+            GlobalsV::BGOTime =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BGOTime"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"MaxFilmStepSkip"_wref.get()) > 0) {
-            GlobalsV::MaxFilmStepSkip = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxFilmStepSkip"_wref.get())));
+            GlobalsV::MaxFilmStepSkip =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"MaxFilmStepSkip"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0) {
-            GlobalsV::FilmHistoryLimit = std::max<std::int32_t>(1, SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()))));
+            GlobalsV::FilmHistoryLimit = std::max<std::int32_t>(1,
+                    SysUtils::StrToInt(
+                        static_cast<pas::AnsiString>(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SputnikShow"_wref.get()) > 0) {
-            GlobalsV::SputnikShow = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SputnikShow"_wref.get())));
+            GlobalsV::SputnikShow =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SputnikShow"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"SpaceImage"_wref.get()) > 0) {
-            GlobalsV::SpaceImage = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SpaceImage"_wref.get())));
+            GlobalsV::SpaceImage =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"SpaceImage"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ShowFPS"_wref.get()) > 0) {
-            GR_Main::ShowFrameRate = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShowFPS"_wref.get())));
+            GR_Main::ShowFrameRate =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ShowFPS"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontGalaxy"_wref.get()) > 0) {
-            GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontGalaxy"_wref.get()))));
+            GlobalsV::GalaxyMapFontChoice =
+                static_cast<GlobalsV::TGalaxyMapFontChoice>(
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontGalaxy"_wref.get()))));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontDialog"_wref.get()) > 0) {
-            GlobalsV::FontDialog = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontDialog"_wref.get())));
+            GlobalsV::FontDialog =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontDialog"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontQuest"_wref.get()) > 0) {
-            GlobalsV::FontQuest = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontQuest"_wref.get())));
+            GlobalsV::FontQuest =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontQuest"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FontSmooth"_wref.get()) > 0) {
-            GlobalsV::FontSmoothingEnabled = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontSmooth"_wref.get())));
+            GlobalsV::FontSmoothingEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"FontSmooth"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScreenShotType"_wref.get()) > 0) {
-            GlobalsV::ScreenshotFormat = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotType"_wref.get())));
+            GlobalsV::ScreenshotFormat =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotType"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"ScreenShotQuality"_wref.get()) > 0) {
-            GlobalsV::ScreenshotJpegQuality = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotQuality"_wref.get())));
+            GlobalsV::ScreenshotJpegQuality =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"ScreenShotQuality"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"DynamicTipsPos"_wref.get()) > 0) {
-            GlobalsV::DynamicTipsPos = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DynamicTipsPos"_wref.get())));
+            GlobalsV::DynamicTipsPos =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"DynamicTipsPos"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundShade"_wref.get()) > 0) {
-            GlobalsV::BackgroundShade = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundShade"_wref.get())));
+            GlobalsV::BackgroundShade =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundShade"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundBlur"_wref.get()) > 0) {
-            GlobalsV::BackgroundBlur = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundBlur"_wref.get())));
+            GlobalsV::BackgroundBlur =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundBlur"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BackgroundGrayscale"_wref.get()) > 0) {
-            GlobalsV::BackgroundGrayscale = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundGrayscale"_wref.get())));
+            GlobalsV::BackgroundGrayscale =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BackgroundGrayscale"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PlanetClouds"_wref.get()) > 0) {
-            GlobalsV::PlanetClouds = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetClouds"_wref.get())));
+            GlobalsV::PlanetClouds =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetClouds"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"PlanetAtm"_wref.get()) > 0) {
-            GlobalsV::PlanetAtm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetAtm"_wref.get())));
+            GlobalsV::PlanetAtm =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"PlanetAtm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimChangeForm"_wref.get()) > 0) {
-            GlobalsV::AnimChangeForm = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimChangeForm"_wref.get())));
+            GlobalsV::AnimChangeForm =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimChangeForm"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"AnimMainFon"_wref.get()) > 0) {
-            GlobalsV::AnimMainFon = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMainFon"_wref.get())));
+            GlobalsV::AnimMainFon =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AnimMainFon"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"BeginCalcNextTurn"_wref.get()) > 0) {
-            GlobalsV::BeginCalcNextTurn = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BeginCalcNextTurn"_wref.get()))), 1.0E+2L);
+            GlobalsV::BeginCalcNextTurn =
+                static_cast<float>(EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"BeginCalcNextTurn"_wref.get()))) /
+                    1.0E+2);
         }
-        if (GlobalsV::BeginCalcNextTurn < 0.0L) {
+        if (GlobalsV::BeginCalcNextTurn < 0.0) {
             GlobalsV::BeginCalcNextTurn = 0.0f;
-        } else if (GlobalsV::BeginCalcNextTurn > 1.0L) {
+        } else if (GlobalsV::BeginCalcNextTurn > 1.0) {
             GlobalsV::BeginCalcNextTurn = 1.0f;
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"HalfGovAnim"_wref.get()) > 0) {
-            GlobalsV::HalfGovAnim = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"HalfGovAnim"_wref.get())));
+            GlobalsV::HalfGovAnim =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"HalfGovAnim"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"UseTablesForGov"_wref.get()) > 0) {
-            GlobalsV::UseTablesForGov = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UseTablesForGov"_wref.get())));
+            GlobalsV::UseTablesForGov =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UseTablesForGov"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotShowStencilShadows"_wref.get()) > 0) {
-            Robot::RobotSettings.ShowStencilShadows = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowStencilShadows"_wref.get())));
+            Robot::RobotSettings.ShowStencilShadows =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowStencilShadows"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotShowProjShadows"_wref.get()) > 0) {
-            Robot::RobotSettings.ShowProjShadows = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowProjShadows"_wref.get())));
+            Robot::RobotSettings.ShowProjShadows =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotShowProjShadows"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSelectEx"_wref.get()) > 0) {
-            Robot::RobotSettings.SelectEx = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSelectEx"_wref.get())));
+            Robot::RobotSettings.SelectEx =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSelectEx"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotLandTexturesGloss"_wref.get()) > 0) {
-            Robot::RobotSettings.LandTexturesGloss = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotLandTexturesGloss"_wref.get())));
+            Robot::RobotSettings.LandTexturesGloss =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotLandTexturesGloss"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotObjTexturesGloss"_wref.get()) > 0) {
-            Robot::RobotSettings.ObjTexturesGloss = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotObjTexturesGloss"_wref.get())));
+            Robot::RobotSettings.ObjTexturesGloss =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotObjTexturesGloss"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSoftwareCursor"_wref.get()) > 0) {
-            Robot::RobotSettings.SoftwareCursor = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoftwareCursor"_wref.get())));
+            Robot::RobotSettings.SoftwareCursor =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoftwareCursor"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSky"_wref.get()) > 0) {
-            Robot::RobotSettings.Sky = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSky"_wref.get())));
+            Robot::RobotSettings.Sky =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSky"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotRobotShadow"_wref.get()) > 0) {
-            Robot::RobotSettings.RobotShadow = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotRobotShadow"_wref.get())));
+            Robot::RobotSettings.RobotShadow =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotRobotShadow"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotSound"_wref.get()) > 0) {
-            Robot::RobotSound = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSound"_wref.get())));
+            Robot::RobotSound =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotSound"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotMusic"_wref.get()) > 0) {
-            Robot::RobotMusic = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusic"_wref.get())));
+            Robot::RobotMusic =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusic"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotVSync"_wref.get()) > 0) {
-            Robot::RobotVSync = GI_Main::ParseEnabledNameGI(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotVSync"_wref.get())));
+            Robot::RobotVSync =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotVSync"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotFSAASamples"_wref.get()) > 0) {
-            Robot::RobotFSAASamples = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotFSAASamples"_wref.get())));
+            Robot::RobotFSAASamples =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotFSAASamples"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotAnisotropy"_wref.get()) > 0) {
-            Robot::RobotAnisotropy = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotAnisotropy"_wref.get())));
+            Robot::RobotAnisotropy =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotAnisotropy"_wref.get())));
         }
         if (GR_Main::UserSettingsConfig->CountParamsByPath(u"RobotMaxDistance"_wref.get()) > 0) {
-            Robot::RobotMaxDistance = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMaxDistance"_wref.get())));
+            Robot::RobotMaxDistance =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"RobotMaxDistance"_wref.get())));
         }
         if (ReloadScriptTemplates) {
             Section = GR_Main::GameDataConfig->GetBlockByPath(u"Script"_wref.get());
@@ -3280,99 +3498,146 @@ namespace Globals {
                 ScriptTemplate = pas::construct_call<TScriptTemplUnit>(TScriptTemplUnit_Create);
                 ScriptTemplate->Name = Section->GetParamName(Index);
                 Text = Section->GetParamValue(Index);
-                ScriptTemplate->ClassId = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                ScriptTemplate->ClassId = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv)));
                 ScriptTemplate->FileName = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
                 pas::list_add(ScriptTemplates, reinterpret_cast<void*>(ScriptTemplate));
                 aScript::CompileScriptTemplateCondition(pas::list_count(ScriptTemplates) - 1);
             }
-            for (auto cpp_range_2 = pas::for_downto<std::int32_t>(GlobalScriptVariables->Count - 2, 0); cpp_range_2.next(Index); ) {
-                Variable = EC_Expression::TVarArrayEC_GetItemByNameOrder(GlobalScriptVariables, Index);
-                Other = EC_Expression::TVarArrayEC_GetItemByNameOrder(GlobalScriptVariables, Index + 1);
+            for (auto cpp_range_2 = pas::for_downto<std::int32_t>(GlobalScriptVariables->Count - 2,
+                0); cpp_range_2.next(Index); ) {
+                Variable = GlobalScriptVariables->GetItemByNameOrder(Index);
+                Other = GlobalScriptVariables->GetItemByNameOrder(Index + 1);
                 if (Variable->Name == Other->Name) {
                     if (EC_Expression::TVarEC_RealVType(Variable) != EC_Expression::TVarEC_RealVType(Other)) {
-                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Types are ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)], u" and ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)]});
+                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <",
+                                Variable->Name, u"> found! Types are ",
+                                ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)], u" and ",
+                                ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)]});
                         if (EC_Expression::TVarEC_RealVType(Variable) == EC_Expression::vkEmpty) {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)], u" will be discarded"});
+                            WarningText = pas::concat_wide({WarningText, u", ",
+                                    ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Variable)],
+                                    u" will be discarded"});
                             GlobalScriptVariables->Remove(Variable);
                         } else {
-                            WarningText = pas::concat_wide({WarningText, u", ", ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)], u" will be discarded"});
+                            WarningText = pas::concat_wide({WarningText, u", ",
+                                    ScriptVariableTypeNames[EC_Expression::TVarEC_RealVType(Other)],
+                                    u" will be discarded"});
                             GlobalScriptVariables->Remove(Other);
                         }
                         GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(WarningText));
-                    } else if (EC_Expression::TVarEC_EqualsValue(Variable, Other) || static_cast<std::uint8_t>(pas::is_one_of<EC_Expression::vkInt, EC_Expression::vkDword, EC_Expression::vkFloat, EC_Expression::vkString>(EC_Expression::TVarEC_RealVType(Variable)) ^ 1)) {
+                    } else if (EC_Expression::TVarEC_EqualsValue(Variable, Other) || !pas::is_one_of<
+                            EC_Expression::vkInt, EC_Expression::vkDword, EC_Expression::vkFloat,
+                            EC_Expression::vkString>(EC_Expression::TVarEC_RealVType(Variable))) {
                         GlobalScriptVariables->Remove(Other);
                     } else {
-                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <", Variable->Name, u"> found! Initial values are ", Variable->GetString(), u" and ", Other->GetString(), u". Value ", Variable->GetString(), u" will be used"});
+                        WarningText = pas::concat_wide({u"Warning! Mismatching global variables with same name <",
+                                Variable->Name, u"> found! Initial values are ", Variable->GetString(), u" and ",
+                                Other->GetString(), u". Value ", Variable->GetString(), u" will be used"});
                         GlobalScriptVariables->Remove(Other);
                     }
                 }
             }
         }
         if (ReloadScriptTemplates) {
-            for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range_3.next(Race); ) {
+            for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+                aGalaxyStruct::oiPirate); cpp_range_3.next(Race); ) {
                 ShipBlock = ([&] {
-                    EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Ship"_wref.get());
-                    const pas::WideString& internalName = aConst::OwnerInfo[Race].InternalName;
-                    return blockByPath->FindBlock(pas::view(internalName));
-                }());
-                for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_4.next(Kind); ) {
+                        EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(
+                            u"SE.Ship"_wref.get());
+                        const pas::WideString& internalName = aConst::OwnerInfo[Race].InternalName;
+                        return blockByPath->FindBlock(pas::view(internalName));
+                    }());
+                for (auto cpp_range_4 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger,
+                    aGalaxyStruct::htDiplomat); cpp_range_4.next(Kind); ) {
                     RaceShipTemplates[Race][Kind] = nullptr;
                 }
                 PirateClanShipTemplates[Race] = nullptr;
                 if (ShipBlock != nullptr) {
                     if (ShipBlock->CountBlocks(u"Ranger"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Ranger"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htRanger]);
+                        SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Ranger"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htRanger]);
                         SE_Space::RetainSpaceObject(cpp_arg, createSpaceObjectByName);
                     }
                     if (ShipBlock->CountBlocks(u"Warrior"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Warrior"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_2 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htWarrior]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Warrior"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_2 = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htWarrior]);
                         SE_Space::RetainSpaceObject(cpp_arg_2, createSpaceObjectByName_2);
                     }
                     if (ShipBlock->CountBlocks(u"Pirate"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Pirate"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_3 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htPirate]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Pirate"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_3 = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htPirate]);
                         SE_Space::RetainSpaceObject(cpp_arg_3, createSpaceObjectByName_3);
                     }
                     if (ShipBlock->CountBlocks(u"Transport"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_4 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Transport"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_4 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htTransport]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_4 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Transport"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_4 = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htTransport]);
                         SE_Space::RetainSpaceObject(cpp_arg_4, createSpaceObjectByName_4);
                     }
                     if (ShipBlock->CountBlocks(u"Liner"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_5 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Liner"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_5 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htLiner]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_5 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Liner"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_5 = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htLiner]);
                         SE_Space::RetainSpaceObject(cpp_arg_5, createSpaceObjectByName_5);
                     }
                     if (ShipBlock->CountBlocks(u"Diplomat"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_6 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Diplomat"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_6 = pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][aGalaxyStruct::htDiplomat]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_6 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".Diplomat"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_6 = pas::Var<SE_Space::TObjectSE*>(
+                            &RaceShipTemplates[Race][aGalaxyStruct::htDiplomat]);
                         SE_Space::RetainSpaceObject(cpp_arg_6, createSpaceObjectByName_6);
                     }
                     if (ShipBlock->CountBlocks(u"PirateClan"_wref.get()) > 0) {
-                        SE_Space::TObjectSE* createSpaceObjectByName_7 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".PirateClan"}), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_7 = pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_7 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.", aConst::OwnerInfo[Race].InternalName, u".PirateClan"}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_7 = pas::Var<SE_Space::TObjectSE*>(
+                            &PirateClanShipTemplates[Race]);
                         SE_Space::RetainSpaceObject(cpp_arg_7, createSpaceObjectByName_7);
                     }
                 }
             }
             Index = 1;
-            for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_5.next(KlingKind); ) {
+            for (auto cpp_range_5 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss,
+                aGalaxyStruct::ktKlig); cpp_range_5.next(KlingKind); ) {
                 if (KlingKind != aGalaxyStruct::ktBoss) {
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_8 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Blazer.B", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_8 = pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_8 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.Blazer.B", pas::wide_int_to_str(Index)}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_8 = pas::Var<SE_Space::TObjectSE*>(
+                            &BlazerShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_8, createSpaceObjectByName_8);
                     }
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_9 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Keller.K", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_9 = pas::Var<SE_Space::TObjectSE*>(&KellerShipTemplates[KlingKind]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_9 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                            pas::concat_wide({u"Ship.Keller.K", pas::wide_int_to_str(Index)}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_9 = pas::Var<SE_Space::TObjectSE*>(
+                            &KellerShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_9, createSpaceObjectByName_9);
                     }
                     {
-                        SE_Space::TObjectSE* createSpaceObjectByName_10 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, static_cast<pas::WideString>(pas::concat_ansi({"Ship.Terron.T", SysUtils::IntToStr(Index)})), ClassesImports::Point(0, 0));
-                        pas::Var<SE_Space::TObjectSE*> cpp_arg_10 = pas::Var<SE_Space::TObjectSE*>(&TerronShipTemplates[KlingKind]);
+                        SE_Space::TObjectSE* createSpaceObjectByName_10 = SE_Process::CreateSpaceObjectByName(
+                            u"Ship2"sv, pas::concat_wide({u"Ship.Terron.T", pas::wide_int_to_str(Index)}),
+                            ClassesImports::Point(0, 0));
+                        pas::Var<SE_Space::TObjectSE*> cpp_arg_10 = pas::Var<SE_Space::TObjectSE*>(
+                            &TerronShipTemplates[KlingKind]);
                         SE_Space::RetainSpaceObject(cpp_arg_10, createSpaceObjectByName_10);
                     }
                     ++Index;
@@ -3382,10 +3647,11 @@ namespace Globals {
         Count = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get())->GetBlockCount();
         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(Index); ) {
             Section = ([&] {
-                EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
-                std::int32_t index = Index;
-                return blockByPath_2->GetBlockByIndex(index);
-            }());
+                    EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(
+                        u"SE.Planet"_wref.get());
+                    std::int32_t index = Index;
+                    return blockByPath_2->GetBlockByIndex(index);
+                }());
             if (Section->CountParams(u"Image"_wref.get()) <= 0) {
                 --Count;
             }
@@ -3395,28 +3661,38 @@ namespace Globals {
         TemplateIndex = 0;
         for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(Index); ) {
             Section = ([&] {
-                EC_BlockPar::TBlockParEC* blockByPath_3 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
-                std::int32_t index_2 = Index;
-                return blockByPath_3->GetBlockByIndex(index_2);
-            }());
+                    EC_BlockPar::TBlockParEC* blockByPath_3 = GR_Main::GameDataConfig->GetBlockByPath(
+                        u"SE.Planet"_wref.get());
+                    std::int32_t index_2 = Index;
+                    return blockByPath_3->GetBlockByIndex(index_2);
+                }());
             if (Section->CountParams(u"Image"_wref.get()) > 0) {
                 {
-                    SE_Space::TObjectSE* createSpaceObjectByName_11 = SE_Process::CreateSpaceObjectByName(u"Planet"sv, pas::concat_wide({u"Planet.", ([&] {
-                        EC_BlockPar::TBlockParEC* blockByPath_4 = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Planet"_wref.get());
-                        std::int32_t index_3 = Index;
-                        return blockByPath_4->GetBlockNameByIndex(index_3);
-                    }())}), ClassesImports::Point(0, 0));
-                    pas::Var<SE_Space::TObjectSE*> spaceObject = pas::Var<SE_Space::TObjectSE*>(&PlanetSpaceTemplates[TemplateIndex].SpaceObject);
+                    SE_Space::TObjectSE* createSpaceObjectByName_11 = SE_Process::CreateSpaceObjectByName(u"Planet"sv,
+                        pas::concat_wide({u"Planet.",
+                            ([&] {
+                                EC_BlockPar::TBlockParEC* blockByPath_4 = GR_Main::GameDataConfig->GetBlockByPath(
+                                    u"SE.Planet"_wref.get());
+                                std::int32_t index_3 = Index;
+                                return blockByPath_4->GetBlockNameByIndex(index_3);
+                            }())}), ClassesImports::Point(0, 0));
+                    pas::Var<SE_Space::TObjectSE*> spaceObject = pas::Var<SE_Space::TObjectSE*>(
+                        &PlanetSpaceTemplates[TemplateIndex].SpaceObject);
                     SE_Space::RetainSpaceObject(spaceObject, createSpaceObjectByName_11);
                 }
-                PlanetSpaceTemplates[TemplateIndex].Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Section->GetParam(u"Radius"sv)));
+                PlanetSpaceTemplates[TemplateIndex].Radius =
+                    SysUtils::StrToInt(static_cast<pas::AnsiString>(Section->GetParam(u"Radius"sv)));
                 PlanetSpaceTemplates[TemplateIndex].Style = 0;
                 PlanetSpaceTemplates[TemplateIndex].StyleVariant = 0;
                 if (Section->CountParams(u"Style"_wref.get()) > 0) {
                     Text = Section->GetParam(u"Style"sv);
-                    PlanetSpaceTemplates[TemplateIndex].Style = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                    PlanetSpaceTemplates[TemplateIndex].Style =
+                        EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                            u","sv)));
                     if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) >= 2) {
-                        PlanetSpaceTemplates[TemplateIndex].StyleVariant = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                        PlanetSpaceTemplates[TemplateIndex].StyleVariant =
+                            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                                u","sv)));
                     }
                 }
                 ++TemplateIndex;
@@ -3490,7 +3766,8 @@ namespace Globals {
         JumpScreen = pas::construct_call<fJump::TfJump>(fJump::TfJump_Create);
         GlobalsV::RegisteredScreens[GlobalsV::screenJump] = JumpScreen;
         JumpScreen->InitializeFromConfig(GR_Main::UiStyleConfig, u"Jump"_wref.get(), true);
-        EquipmentShopScreen = pas::construct_call<fEquipmentShop::TfEquipmentShop>(fEquipmentShop::TfEquipmentShop_Create);
+        EquipmentShopScreen =
+            pas::construct_call<fEquipmentShop::TfEquipmentShop>(fEquipmentShop::TfEquipmentShop_Create);
         GlobalsV::RegisteredScreens[GlobalsV::screenEquipmentShop] = EquipmentShopScreen;
         EquipmentShopScreen->InitializeFromConfig(GR_Main::UiStyleConfig, u"EquipmentShop"_wref.get(), true);
         GoodsShopScreen = pas::construct_call<fGoodsShop2::TfGoodsShop2>(fGoodsShop2::TfGoodsShop2_Create);
@@ -3534,10 +3811,13 @@ namespace Globals {
         AchievementsScreen->InitializeFromConfig(GR_Main::UiStyleConfig, u"Achievements"_wref.get(), true);
         SpaceObjectUiLoop = pas::construct_call<GI_MessageLoop::TMessageLoopGI>(GI_MessageLoop::TMessageLoopGI_Create);
         SpaceObjectUiLoop->InitializeDefaults();
-        SpaceObjectUiLoop->ViewportRect = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height);
+        SpaceObjectUiLoop->ViewportRect = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height);
         SpaceObjectUiLoop->UpdateRectsEnabled = false;
-        SpaceObjectUiLoop->ContentPanel->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
-        SpaceObjectUiLoop->ContentPanel->SetPosition(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+        SpaceObjectUiLoop->ContentPanel->SetOrigin(ClassesImports::Point(
+            pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+        SpaceObjectUiLoop->ContentPanel->SetPosition(ClassesImports::Point(
+            pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
         PrimaryFilm = pas::construct_call<aEFilm::TEFilm>(aEFilm::TEFilm_Create);
         SecondaryFilm = pas::construct_call<aEFilm::TEFilm>(aEFilm::TEFilm_Create);
         Globals::RecreateSpaceProcess(u"Process.Normal"_wref.get());
@@ -3589,7 +3869,9 @@ namespace Globals {
         while (!(Index > GlobalsV::MaximumSatelliteTemplateRadius)) {
             SatelliteTemplate = pas::make_object<TSputnikTempl>();
             pas::list_add(GlobalsV::SatelliteRenderTemplates, reinterpret_cast<void*>(SatelliteTemplate));
-            SatelliteTemplate->MaskName = static_cast<pas::WideString>(pas::concat_ansi({"Bm.Planet.S.Mask0", SysUtils::IntToStr(Index), "?", SysUtils::IntToStr(GlobalsV::SatelliteTemplateParameter1), ",", SysUtils::IntToStr(GlobalsV::SatelliteTemplateParameter2)}));
+            SatelliteTemplate->MaskName = pas::concat_wide({u"Bm.Planet.S.Mask0", pas::wide_int_to_str(Index), u"?",
+                    pas::wide_int_to_str(GlobalsV::SatelliteTemplateParameter1), u",",
+                    pas::wide_int_to_str(GlobalsV::SatelliteTemplateParameter2)});
             SatelliteTemplate->Radius = Index;
             ++Index;
         }
@@ -3601,22 +3883,32 @@ namespace Globals {
             if (EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) < 2) {
                 pas::raise(pas::make_exception<pas::Exception>("Error in GlobalsInit"_a));
             }
-            GlobalsV::SpaceImageTemplates[Index].Kind = EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
-            GlobalsV::SpaceImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            GlobalsV::SpaceImageTemplates[Index].CacheControl = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
+            GlobalsV::SpaceImageTemplates[Index].Kind =
+                EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
+            GlobalsV::SpaceImageTemplates[Index].Weight =
+                EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+            GlobalsV::SpaceImageTemplates[Index].CacheControl =
+                pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             GlobalsV::SpaceImageTemplates[Index].CachedData = nullptr;
-            EC_Cache::TCacheEC::ResetControl(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl));
-            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl)->SetCacheKey(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+            EC_Cache::TCacheEC::ResetControl(
+                reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl));
+            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(
+                GlobalsV::SpaceImageTemplates[Index].CacheControl)->SetCacheKey(EC_Str::ExtractDelimitedPartW(
+                pas::view(Text), 1, u","sv));
         }
         Section = GR_Main::GameDataConfig->GetBlock(u"StarFieldImg"sv);
         Count = Section->GetParamCount();
         GlobalsV::StarFieldImageTemplates.set_length(Count);
         for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
-            GlobalsV::StarFieldImageTemplates[Index].Weight = EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
-            GlobalsV::StarFieldImageTemplates[Index].CacheControl = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
+            GlobalsV::StarFieldImageTemplates[Index].Weight =
+                EC_Str::ExtractDigitsToIntW(pas::view(Section->GetParamName(Index)));
+            GlobalsV::StarFieldImageTemplates[Index].CacheControl =
+                pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
             GlobalsV::StarFieldImageTemplates[Index].CachedData = nullptr;
-            EC_Cache::TCacheEC::ResetControl(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl));
-            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl)->SetCacheKey(Section->GetParamValue(Index));
+            EC_Cache::TCacheEC::ResetControl(
+                reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl));
+            reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(
+                GlobalsV::StarFieldImageTemplates[Index].CacheControl)->SetCacheKey(Section->GetParamValue(Index));
         }
         ReloadScriptTemplates = false;
         aConst::InitializeGameplayConfig();
@@ -3624,7 +3916,9 @@ namespace Globals {
         Globals::InitializeGovernmentGreetingDefinitions();
         Globals::InitializePlanetAdvertDefinitions();
         Globals::InitializeRobotMapDefinitions();
-        UselessItemRemainsCount = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"UselessItems.CntRemains"_wref.get())));
+        UselessItemRemainsCount =
+            SysUtils::StrToInt(
+                static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"UselessItems.CntRemains"_wref.get())));
         Section = GR_Main::GameDataConfig->GetBlock(u"ABSound"sv)->GetBlock(u"Explosion"sv);
         Count = Section->GetParamCount();
         ArcadeExplosionSounds.set_length(Count);
@@ -3658,7 +3952,8 @@ namespace Globals {
                 ArcadeWeaponLoopTicks[Index] = -1;
             } else {
                 Text = Section->GetParam(pas::view(pas::wide_int_to_str(Index)));
-                ArcadeWeaponLoopTicks[Index] = pas::idiv(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))), ab_Global::ArcadeTickMs);
+                ArcadeWeaponLoopTicks[Index] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv))) / ab_Global::ArcadeTickMs;
                 ArcadeWeaponLoopSounds[Index] = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
         }
@@ -3675,16 +3970,21 @@ namespace Globals {
         ArcadeItemSounds = nullptr;
         std::int32_t Count = GlobalsV::SpaceImageTemplates.length() - 1 + 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl) != nullptr) {
-                pas::free(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl));
+            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl) !=
+                nullptr) {
+                pas::free(
+                    reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[Index].CacheControl));
                 GlobalsV::SpaceImageTemplates[Index].CacheControl = nullptr;
             }
         }
         GlobalsV::SpaceImageTemplates = nullptr;
         Count = GlobalsV::StarFieldImageTemplates.length() - 1 + 1;
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
-            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl) != nullptr) {
-                pas::free(reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl));
+            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::StarFieldImageTemplates[Index].CacheControl) !=
+                nullptr) {
+                pas::free(
+                    reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(
+                        GlobalsV::StarFieldImageTemplates[Index].CacheControl));
                 GlobalsV::StarFieldImageTemplates[Index].CacheControl = nullptr;
             }
         }
@@ -3890,7 +4190,8 @@ namespace Globals {
             LoadArcadeScreen = nullptr;
         }
         // Native code omits AchievementsScreen from this cleanup list.
-        for (auto cpp_range_6 = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone, GlobalsV::screenAchievements); cpp_range_6.next(ScreenIndex); ) {
+        for (auto cpp_range_6 = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone,
+            GlobalsV::screenAchievements); cpp_range_6.next(ScreenIndex); ) {
             GlobalsV::RegisteredScreens[ScreenIndex] = nullptr;
         }
         if (PopUp::PopupController != nullptr) {
@@ -3909,7 +4210,8 @@ namespace Globals {
             Count = PlanetSpaceTemplates.length() - 1;
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count); cpp_range_7.next(Index); ) {
                 if (PlanetSpaceTemplates[Index].SpaceObject != nullptr) {
-                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PlanetSpaceTemplates[Index].SpaceObject));
+                    SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(
+                        &PlanetSpaceTemplates[Index].SpaceObject));
                 }
             }
         }
@@ -3960,8 +4262,10 @@ namespace Globals {
             pas::free(aScript::ScriptLibraryCache);
             aScript::ScriptLibraryCache = nullptr;
         }
-        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Race); ) {
-            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger, aGalaxyStruct::htDiplomat); cpp_range_2.next(Kind); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+            aGalaxyStruct::oiPirate); cpp_range.next(Race); ) {
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::THullType>(aGalaxyStruct::htRanger,
+                aGalaxyStruct::htDiplomat); cpp_range_2.next(Kind); ) {
                 if (RaceShipTemplates[Race][Kind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&RaceShipTemplates[Race][Kind]));
                 }
@@ -3970,7 +4274,8 @@ namespace Globals {
                 SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&PirateClanShipTemplates[Race]));
             }
         }
-        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_3.next(KlingKind); ) {
+        for (auto cpp_range_3 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss,
+            aGalaxyStruct::ktKlig); cpp_range_3.next(KlingKind); ) {
             if (KlingKind != aGalaxyStruct::ktBoss) {
                 if (BlazerShipTemplates[KlingKind] != nullptr) {
                     SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&BlazerShipTemplates[KlingKind]));
@@ -3990,8 +4295,13 @@ namespace Globals {
     GI_MessageLoop::TMessageLoopGI* FindMessageLoop(const std::u16string_view& Name) {
         GlobalsV::TGameScreenId Index{};
         GI_MessageLoop::TMessageLoopGI* Result = nullptr;
-        for (auto cpp_range = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone, GlobalsV::screenAchievements); cpp_range.next(Index); ) {
-            if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr && pas::view(pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index])->RegisteredLoopName) == Name) {
+        for (auto cpp_range = pas::for_to<GlobalsV::TGameScreenId>(GlobalsV::screenNone,
+            GlobalsV::screenAchievements); cpp_range.next(Index); ) {
+            if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr &&
+                pas::class_cast_if<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]) != nullptr &&
+                pas::view(
+                    pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[Index])->RegisteredLoopName) == Name) {
                 Result = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[Index]);
                 break;
             }
@@ -4005,10 +4315,12 @@ namespace Globals {
             if (GR_Main::ExitScreenLoop) {
                 break;
             }
-            if (GlobalsV::RequestedScreenId == GlobalsV::screenStarMap || GlobalsV::RequestedScreenId == GlobalsV::screenFilm || GlobalsV::RequestedScreenId == GlobalsV::screenArcadeBattle) {
+            if (GlobalsV::RequestedScreenId == GlobalsV::screenStarMap || GlobalsV::RequestedScreenId ==
+                    GlobalsV::screenFilm || GlobalsV::RequestedScreenId == GlobalsV::screenArcadeBattle) {
                 GlobalsV::CurrentScreenId = GlobalsV::RequestedScreenId;
                 GlobalsV::RequestedScreenId = GlobalsV::screenNone;
-                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RunContinuous();
+                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RunContinuous();
                 GlobalsV::PreviousScreenId = GlobalsV::CurrentScreenId;
                 GlobalsV::CurrentScreenId = GlobalsV::screenNone;
             } else {
@@ -4017,7 +4329,8 @@ namespace Globals {
                 }
                 GlobalsV::CurrentScreenId = GlobalsV::RequestedScreenId;
                 GlobalsV::RequestedScreenId = GlobalsV::screenNone;
-                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->Run();
+                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->Run();
                 GlobalsV::PreviousScreenId = GlobalsV::CurrentScreenId;
                 GlobalsV::CurrentScreenId = GlobalsV::screenNone;
             }
@@ -4033,7 +4346,8 @@ namespace Globals {
 
     // Follows ChildLoop from the current registered screen.
     GI_MessageLoop::TMessageLoopGI* GetInnermostScreenLoop() {
-        GI_MessageLoop::TMessageLoopGI* Result = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+        GI_MessageLoop::TMessageLoopGI* Result = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+            GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
         while (Result->ChildLoop != nullptr) {
             Result = Result->ChildLoop;
         }
@@ -4041,60 +4355,53 @@ namespace Globals {
     }
 
     // Key is an optional substring; returned queue node is borrowed.
-    TMessagePlayer* FindPlayerMessageExceptKinds(const pas::WideString& Key, TPlayerMessageKindSet ExcludedKinds, std::uint8_t SkipLock) {
+    TMessagePlayer* FindPlayerMessageExceptKinds(const pas::WideString& Key, TPlayerMessageKindSet ExcludedKinds,
+        std::uint8_t SkipLock) {
         TMessagePlayer* MessageEntry{};
         TMessagePlayer* Result = nullptr;
         if (!SkipLock) {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
+                }
+            };
             MessageEntry = FirstPersistentPlayerMessage;
             while (MessageEntry != nullptr) {
-                if (static_cast<std::uint8_t>(pas::contains(ExcludedKinds, MessageEntry->Kind) ^ 1) && (Key.length() == 0 || pas::pos(Key, MessageEntry->Key) > 0)) {
+                if (!pas::contains(ExcludedKinds, MessageEntry->Kind) && (Key.length() == 0 || pas::pos(Key,
+                            MessageEntry->Key) > 0)) {
                     Result = MessageEntry;
-                    cpp_flow = pas::FinallyFlow::Return;
-                    goto cpp_cleanup;
+                    return Result;
                 }
                 MessageEntry = MessageEntry->Next;
-            }
-            cpp_cleanup:;
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
-            }
-            if (cpp_flow == pas::FinallyFlow::Return) {
-                return Result;
             }
         }
         return Result;
     }
 
     // Returns whether any queued message was removed.
-    std::uint8_t RemovePlayerMessagesExceptKinds(pas::WideString Key, TPlayerMessageKindSet ExcludedKinds, std::uint8_t SkipLock) {
+    std::uint8_t RemovePlayerMessagesExceptKinds(pas::WideString Key, TPlayerMessageKindSet ExcludedKinds,
+        std::uint8_t SkipLock) {
         TMessagePlayer* MessageEntry{};
         std::uint8_t Result = false;
         if (!SkipLock) {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            std::exception_ptr cpp_error{};
-            try {
-                do {
-                    MessageEntry = Globals::FindPlayerMessageExceptKinds(Key, ExcludedKinds, true);
-                    if (MessageEntry != nullptr) {
-                        Globals::RemovePersistentPlayerMessage(MessageEntry, true);
-                        Result = true;
-                    }
-                } while (!(MessageEntry == nullptr));
-            } catch (...) {
-                cpp_error = std::current_exception();
-            }
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
-            }
-            if (cpp_error) {
-                std::rethrow_exception(cpp_error);
-            }
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
+                }
+            };
+            do {
+                MessageEntry = Globals::FindPlayerMessageExceptKinds(Key, ExcludedKinds, true);
+                if (MessageEntry != nullptr) {
+                    Globals::RemovePersistentPlayerMessage(MessageEntry, true);
+                    Result = true;
+                }
+            } while (!(MessageEntry == nullptr));
         }
         return Result;
     }
@@ -4143,24 +4450,20 @@ namespace Globals {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
+                }
+            };
             Entry = FirstPersistentPlayerMessage;
             while (Entry != nullptr) {
                 if (Entry == MessageEntry) {
                     Result = true;
-                    cpp_flow = pas::FinallyFlow::Return;
-                    goto cpp_cleanup;
+                    return Result;
                 }
                 Entry = Entry->Next;
             }
             Result = false;
-            cpp_cleanup:;
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
-            }
-            if (cpp_flow == pas::FinallyFlow::Return) {
-                return Result;
-            }
         }
         return Result;
     }
@@ -4171,30 +4474,24 @@ namespace Globals {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            std::exception_ptr cpp_error{};
-            try {
-                if (MessageEntry->Prev != nullptr) {
-                    MessageEntry->Prev->Next = MessageEntry->Next;
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
                 }
-                if (MessageEntry->Next != nullptr) {
-                    MessageEntry->Next->Prev = MessageEntry->Prev;
-                }
-                if (LastPersistentPlayerMessage == MessageEntry) {
-                    LastPersistentPlayerMessage = MessageEntry->Prev;
-                }
-                if (FirstPersistentPlayerMessage == MessageEntry) {
-                    FirstPersistentPlayerMessage = MessageEntry->Next;
-                }
-                pas::free(MessageEntry);
-            } catch (...) {
-                cpp_error = std::current_exception();
+            };
+            if (MessageEntry->Prev != nullptr) {
+                MessageEntry->Prev->Next = MessageEntry->Next;
             }
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
+            if (MessageEntry->Next != nullptr) {
+                MessageEntry->Next->Prev = MessageEntry->Prev;
             }
-            if (cpp_error) {
-                std::rethrow_exception(cpp_error);
+            if (LastPersistentPlayerMessage == MessageEntry) {
+                LastPersistentPlayerMessage = MessageEntry->Prev;
             }
+            if (FirstPersistentPlayerMessage == MessageEntry) {
+                FirstPersistentPlayerMessage = MessageEntry->Next;
+            }
+            pas::free(MessageEntry);
         }
     }
 
@@ -4206,22 +4503,18 @@ namespace Globals {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
+                }
+            };
             Entry = FirstPersistentPlayerMessage;
             while (Entry != nullptr) {
                 if (Entry->Text == Text) {
                     Result = Entry;
-                    cpp_flow = pas::FinallyFlow::Return;
-                    goto cpp_cleanup;
+                    return Result;
                 }
                 Entry = Entry->Next;
-            }
-            cpp_cleanup:;
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
-            }
-            if (cpp_flow == pas::FinallyFlow::Return) {
-                return Result;
             }
         }
         return Result;
@@ -4235,22 +4528,18 @@ namespace Globals {
             pas::critical_enter(PersistentPlayerMessageLock);
         }
         {
-            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                if (!SkipLock) {
+                    pas::critical_leave(PersistentPlayerMessageLock);
+                }
+            };
             Entry = FirstPersistentPlayerMessage;
             while (Entry != nullptr) {
                 if (Entry->Key == Key) {
                     Result = Entry;
-                    cpp_flow = pas::FinallyFlow::Return;
-                    goto cpp_cleanup;
+                    return Result;
                 }
                 Entry = Entry->Next;
-            }
-            cpp_cleanup:;
-            if (!SkipLock) {
-                pas::critical_leave(PersistentPlayerMessageLock);
-            }
-            if (cpp_flow == pas::FinallyFlow::Return) {
-                return Result;
             }
         }
         return Result;
@@ -4273,8 +4562,10 @@ namespace Globals {
                 PrefixLength = pas::pos(Prefix, Entry->Key);
                 if (PrefixLength == 1) {
                     PrefixLength = Prefix.length();
-                    Suffix = EC_Str::CopyWideStringUnchecked(Entry->Key, PrefixLength + 1, Entry->Key.length() - PrefixLength);
-                    if (EC_Str::IsIntegerTextW(pas::view(Suffix)) && EC_Str::ExtractDigitsToIntW(pas::view(Suffix)) >= FirstPage) {
+                    Suffix = EC_Str::CopyWideStringUnchecked(Entry->Key, PrefixLength + 1,
+                            Entry->Key.length() - PrefixLength);
+                    if (EC_Str::IsIntegerTextW(pas::view(Suffix)) && EC_Str::ExtractDigitsToIntW(pas::view(Suffix)) >=
+                            FirstPage) {
                         if (Entry->Prev != nullptr) {
                             Entry->Prev->Next = Entry->Next;
                         }
@@ -4349,7 +4640,8 @@ namespace Globals {
     }
 
     // Returns a borrowed queue node. An existing key updates kind/turn and nonempty text; otherwise an exact text match is returned unchanged.
-    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text, const pas::WideString& Key) {
+    TMessagePlayer* AddOrUpdatePlayerBubble(TPlayerMessageKind Kind, std::int32_t Turn, const pas::WideString& Text,
+        const pas::WideString& Key) {
         TMessagePlayer* Result{};
         TMessagePlayer* Entry{};
         pas::critical_enter(PersistentPlayerMessageLock);
@@ -4411,13 +4703,16 @@ namespace Globals {
             while (Next != nullptr) {
                 Entry = Next;
                 Next = Next->Next;
-                if (Entry->WasRead && pas::in_range(Entry->Kind, static_cast<std::int32_t>(pmTip), static_cast<std::int32_t>(pmTip)) && aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= 7) {
+                if (Entry->WasRead && pas::in_range(Entry->Kind, static_cast<std::int32_t>(pmTip),
+                        static_cast<std::int32_t>(pmTip)) && aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= 7) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
-                } else if (aGalaxy::Galaxy->CurrentTurn - Entry->Turn >= PlayerMessagePresentations[Entry->Kind].LifetimeTurns) {
+                } else if (aGalaxy::Galaxy->CurrentTurn - Entry->Turn >=
+                    PlayerMessagePresentations[Entry->Kind].LifetimeTurns) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
-                } else if (Entry->WasRead && pas::in_set<pmGalaxyNews, pmShipPositive, pmQuestSucceeded, pmQuestCancelled, pmShipNegative, pmShipNegative>(Entry->Kind)) {
+                } else if (Entry->WasRead && pas::in_set<pmGalaxyNews, pmShipPositive, pmQuestSucceeded,
+                        pmQuestCancelled, pmShipNegative, pmShipNegative>(Entry->Kind)) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
-                } else if (static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1) && Entry->Kind == pmRadio) {
+                } else if (!aPlayer::GetPlayer()->InNormalSpace() && Entry->Kind == pmRadio) {
                     Globals::RemovePersistentPlayerMessage(Entry, true);
                 }
             }
@@ -4454,19 +4749,19 @@ namespace Globals {
     // Leaves linkage and Button untouched. ImageNameOverride is present only from save version 109 onward.
     void TMessagePlayer::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         Key = Buffer->ReadWideString();
-        Kind = static_cast<TPlayerMessageKind>(EC_Buf::TBufEC_GetByte(Buffer));
-        NotificationSoundKind = EC_Buf::TBufEC_GetInt32(Buffer);
-        Turn = EC_Buf::TBufEC_GetInt32(Buffer);
+        Kind = static_cast<TPlayerMessageKind>(Buffer->GetByte());
+        NotificationSoundKind = Buffer->GetInt32();
+        Turn = Buffer->GetInt32();
         Text = Buffer->ReadWideString();
-        EC_Buf::TBufEC_GetBoolean(Buffer);
-        Targets[0].ShipId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Targets[1].ShipId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Targets[2].ShipId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Targets[0].PlanetId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Targets[1].PlanetId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Targets[2].PlanetId = EC_Buf::TBufEC_GetUInt32(Buffer);
-        WasRead = EC_Buf::TBufEC_GetBoolean(Buffer);
-        NotificationSoundPlayed = EC_Buf::TBufEC_GetBoolean(Buffer);
+        Buffer->GetBoolean();
+        Targets[0].ShipId = Buffer->GetUInt32();
+        Targets[1].ShipId = Buffer->GetUInt32();
+        Targets[2].ShipId = Buffer->GetUInt32();
+        Targets[0].PlanetId = Buffer->GetUInt32();
+        Targets[1].PlanetId = Buffer->GetUInt32();
+        Targets[2].PlanetId = Buffer->GetUInt32();
+        WasRead = Buffer->GetBoolean();
+        NotificationSoundPlayed = Buffer->GetBoolean();
         if (GlobalsV::LoadedSaveVersion >= 109) {
             ImageNameOverride = Buffer->ReadWideString();
         }

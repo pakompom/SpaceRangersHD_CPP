@@ -37,13 +37,15 @@ namespace fCfgSettings {
         void ShowControlHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show);
         void GroupClicked(GI_MessageLoop::TObjectGI* Sender);
         void RefreshVisibleGroup();
-        GI_Label::TLabelGI* AddOptionLabel(pas::WideString OptionName, pas::WideString Caption, std::uint8_t UnusedFlag);
+        GI_Label::TLabelGI* AddOptionLabel(pas::WideString OptionName, pas::WideString Caption,
+            std::uint8_t UnusedFlag);
         void AddOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected, std::uint8_t Disabled);
         void OptionChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         static void OptionChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void OptionChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
         // Invokes Callback immediately with the new slider.
-        void AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback);
+        void AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum,
+            std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback);
         // Searches only the active group.
         std::uint8_t HasOptionValue(const std::u16string_view& OptionName);
         // Searches only the active group; raises when no selected choice or slider exists.
@@ -76,7 +78,8 @@ namespace fCfgSettings {
         // Persists CFG.TXT; changes requiring rebuilt resources request another runtime session.
         void ApplyClicked(GI_MessageLoop::TObjectGI* Sender);
         // Embedded-item data is ignored.
-        static GI_MessageLoop::TObjectGI* CreateWarningImage(GI_Label::TLabelGI* Owner, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateWarningImage(GI_Label::TLabelGI* Owner,
+            EC_CacheFont::PFontObjectEC Item);
         void SelectMusic() override;
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
         std::int32_t ActiveGroupIndex;

@@ -42,7 +42,8 @@ namespace GI_Door {
     void TDoorGI::StartStepTimer() {
         if (FrameStep != 0) {
             StopStepTimer();
-            StepTimer = MessageLoop->ScheduleCallbackTimer(StepTime, StepTime, pas::bind_method<&TDoorGI::StepFrame>(this), 0);
+            StepTimer = MessageLoop->ScheduleCallbackTimer(StepTime, StepTime,
+                    pas::bind_method<&TDoorGI::StepFrame>(this), 0);
         }
     }
 

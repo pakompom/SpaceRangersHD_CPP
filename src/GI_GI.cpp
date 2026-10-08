@@ -18,15 +18,19 @@
 
 namespace GI_GI {
     void LoadGiByPathIntoGraphBuf(const pas::WideString& GiPath, GR_GraphBuf::TGraphBufGR* Destination) {
-        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGI::TCGiControlEC>(EC_Cache::TCacheControlEC_Create);
+        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGI::TCGiControlEC>(
+            EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);
         Control->SetCacheKey(GiPath);
         EC_CacheGI::TCGiEC* Image = EC_CacheGI::AcquireCachedGi(Control);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                Image->Image->DecodeToGraphBuf(Destination, false);
+            } catch (...) {
                 Control->Release();
-            };
-            Image->Image->DecodeToGraphBuf(Destination, false);
+                throw;
+            }
+            Control->Release();
         }
         pas::free(Control);
     }
@@ -129,66 +133,81 @@ namespace GI_GI {
         Clip.Bottom = Point.Y + 1;
         EC_CacheGI::TCGiEC* Image = EC_CacheGI::AcquireCachedGi(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Image->Image->GetContentSize().X;
-            Height = Image->Image->GetContentSize().Y;
-            if (ImageKindX == GI_Main::ikxLeftFill) {
-                Left = HitTestBounds.Left;
-                Right = HitTestBounds.Right;
-            } else if (ImageKindX == GI_Main::ikxRightFill) {
-                Right = HitTestBounds.Right;
-                Left = Right;
-                while (Left > Clip.Left) {
-                    Left -= Width;
+            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            std::exception_ptr cpp_error{};
+            try {
+                Width = Image->Image->GetContentSize().X;
+                Height = Image->Image->GetContentSize().Y;
+                if (ImageKindX == GI_Main::ikxLeftFill) {
+                    Left = HitTestBounds.Left;
+                    Right = HitTestBounds.Right;
+                } else if (ImageKindX == GI_Main::ikxRightFill) {
+                    Right = HitTestBounds.Right;
+                    Left = Right;
+                    while (Left > Clip.Left) {
+                        Left -= Width;
+                    }
+                } else if (ImageKindX == GI_Main::ikxLeft) {
+                    Left = HitTestBounds.Left;
+                    Right = Left + Width;
+                } else if (ImageKindX == GI_Main::ikxRight) {
+                    Right = HitTestBounds.Right;
+                    Left = Right - Width;
+                } else if (ImageKindX == GI_Main::ikxCenter) {
+                    Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
+                    Right = Left + Width;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-            } else if (ImageKindX == GI_Main::ikxLeft) {
-                Left = HitTestBounds.Left;
-                Right = Left + Width;
-            } else if (ImageKindX == GI_Main::ikxRight) {
-                Right = HitTestBounds.Right;
-                Left = Right - Width;
-            } else if (ImageKindX == GI_Main::ikxCenter) {
-                Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
-                Right = Left + Width;
-            } else {
+                if (ImageKindY == GI_Main::ikyTopFill) {
+                    Top = HitTestBounds.Top;
+                    Bottom = HitTestBounds.Bottom;
+                } else if (ImageKindY == GI_Main::ikyBottomFill) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom;
+                    while (Top > Clip.Top) {
+                        Top -= Height;
+                    }
+                } else if (ImageKindY == GI_Main::ikyTop) {
+                    Top = HitTestBounds.Top;
+                    Bottom = Top + Height;
+                } else if (ImageKindY == GI_Main::ikyBottom) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom - Height;
+                } else if (ImageKindY == GI_Main::ikyCenter) {
+                    Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
+                    Bottom = Top + Height;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
+                }
+                Pixels = EC_Mem::AddPointerOffset(&Pixel,
+                        -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X *
+                            static_cast<std::int32_t>(sizeof(std::uint16_t))));
+                Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+                Buffer->AttachPixels(1, 1, GR_Main::ScreenRenderBuffer->PitchBytes, Pixels);
+                Y = Top;
+                while (Y < Bottom) {
+                    X = Left;
+                    while (X < Right) {
+                        Image->Image->DrawToGraphBuf(Buffer, X, Y, Clip, 0, 255);
+                        X += Width;
+                    }
+                    Y += Height;
+                }
+                pas::free(Buffer);
+            } catch (...) {
+                cpp_error = std::current_exception();
+            }
+            cpp_cleanup:;
+            ImageCache->Release();
+            if (cpp_error) {
+                std::rethrow_exception(cpp_error);
+            }
+            if (cpp_flow == pas::FinallyFlow::Return) {
                 return Result;
             }
-            if (ImageKindY == GI_Main::ikyTopFill) {
-                Top = HitTestBounds.Top;
-                Bottom = HitTestBounds.Bottom;
-            } else if (ImageKindY == GI_Main::ikyBottomFill) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom;
-                while (Top > Clip.Top) {
-                    Top -= Height;
-                }
-            } else if (ImageKindY == GI_Main::ikyTop) {
-                Top = HitTestBounds.Top;
-                Bottom = Top + Height;
-            } else if (ImageKindY == GI_Main::ikyBottom) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom - Height;
-            } else if (ImageKindY == GI_Main::ikyCenter) {
-                Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
-                Bottom = Top + Height;
-            } else {
-                return Result;
-            }
-            Pixels = EC_Mem::AddPointerOffset(&Pixel, -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X * static_cast<std::int32_t>(sizeof(std::uint16_t))));
-            Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            Buffer->AttachPixels(1, 1, GR_Main::ScreenRenderBuffer->PitchBytes, Pixels);
-            Y = Top;
-            while (Y < Bottom) {
-                X = Left;
-                while (X < Right) {
-                    Image->Image->DrawToGraphBuf(Buffer, X, Y, Clip, 0, 255);
-                    X += Width;
-                }
-                Y += Height;
-            }
-            pas::free(Buffer);
         }
         return Pixel != 0;
     }
@@ -212,7 +231,8 @@ namespace GI_GI {
         HitTestBounds.Left = 0;
         HitTestBounds.Top = 0;
         Clip = HitTestBounds;
-        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+            GR_GraphBuf::TGraphBufGR_Create, false);
         Buffer->AllocateNative(HitTestBounds.Right, HitTestBounds.Bottom);
         EC_CacheGI::TCGiEC* Image = EC_CacheGI::AcquireCachedGi(ImageCache);
         {
@@ -337,10 +357,6 @@ namespace GI_GI {
         }
     }
 
-    void TgiGI::SetHardwareMirrorHorizontal(std::uint8_t Value) {
-        HardwareMirrorHorizontal = Value;
-    }
-
     void TgiGI::Draw(Types::TRect ClipRect) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -356,99 +372,116 @@ namespace GI_GI {
         Types::TPoint TileOrigin{};
         EC_CacheGI::TCGiEC* Image = EC_CacheGI::AcquireCachedGi(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Image->Image->GetContentSize().X;
-            Height = Image->Image->GetContentSize().Y;
-            if (ImageKindX == GI_Main::ikxLeftFill) {
-                Left = HitTestBounds.Left;
-                Right = HitTestBounds.Right;
-            } else if (ImageKindX == GI_Main::ikxRightFill) {
-                Right = HitTestBounds.Right;
-                Left = Right;
-                while (Left > ClipRect.Left) {
-                    Left -= Width;
+            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            std::exception_ptr cpp_error{};
+            try {
+                Width = Image->Image->GetContentSize().X;
+                Height = Image->Image->GetContentSize().Y;
+                if (ImageKindX == GI_Main::ikxLeftFill) {
+                    Left = HitTestBounds.Left;
+                    Right = HitTestBounds.Right;
+                } else if (ImageKindX == GI_Main::ikxRightFill) {
+                    Right = HitTestBounds.Right;
+                    Left = Right;
+                    while (Left > ClipRect.Left) {
+                        Left -= Width;
+                    }
+                } else if (ImageKindX == GI_Main::ikxLeft) {
+                    Left = HitTestBounds.Left;
+                    Right = Left + Width;
+                } else if (ImageKindX == GI_Main::ikxRight) {
+                    Right = HitTestBounds.Right;
+                    Left = Right - Width;
+                } else if (ImageKindX == GI_Main::ikxCenter) {
+                    Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
+                    Right = Left + Width;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-            } else if (ImageKindX == GI_Main::ikxLeft) {
-                Left = HitTestBounds.Left;
-                Right = Left + Width;
-            } else if (ImageKindX == GI_Main::ikxRight) {
-                Right = HitTestBounds.Right;
-                Left = Right - Width;
-            } else if (ImageKindX == GI_Main::ikxCenter) {
-                Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
-                Right = Left + Width;
-            } else {
-                return;
-            }
-            if (ImageKindY == GI_Main::ikyTopFill) {
-                Top = HitTestBounds.Top;
-                Bottom = HitTestBounds.Bottom;
-            } else if (ImageKindY == GI_Main::ikyBottomFill) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom;
-                while (Top > ClipRect.Top) {
-                    Top -= Height;
+                if (ImageKindY == GI_Main::ikyTopFill) {
+                    Top = HitTestBounds.Top;
+                    Bottom = HitTestBounds.Bottom;
+                } else if (ImageKindY == GI_Main::ikyBottomFill) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom;
+                    while (Top > ClipRect.Top) {
+                        Top -= Height;
+                    }
+                } else if (ImageKindY == GI_Main::ikyTop) {
+                    Top = HitTestBounds.Top;
+                    Bottom = Top + Height;
+                } else if (ImageKindY == GI_Main::ikyBottom) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom - Height;
+                } else if (ImageKindY == GI_Main::ikyCenter) {
+                    Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
+                    Bottom = Top + Height;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-            } else if (ImageKindY == GI_Main::ikyTop) {
-                Top = HitTestBounds.Top;
-                Bottom = Top + Height;
-            } else if (ImageKindY == GI_Main::ikyBottom) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom - Height;
-            } else if (ImageKindY == GI_Main::ikyCenter) {
-                Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
-                Bottom = Top + Height;
-            } else {
-                return;
-            }
-            if (GlobalsV::HardwareRenderingEnabled) {
-                Y = Top;
-                if (Image->UsesTiledSurfaces) {
-                    while (Y < Bottom) {
-                        X = Left;
-                        while (X < Right) {
-                            TileIndex = 0;
-                            while (TileIndex < Image->TileCount) {
-                                TileOrigin = Image->GetTileOrigin(TileIndex);
-                                {
-                                    std::int32_t alpha = Alpha;
-                                    std::uint8_t hardwareMirrorHorizontal = HardwareMirrorHorizontal;
-                                    pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Image->GetOrCreateSurface(TileIndex, cpp_result), cpp_result);
-                                    GR_DX::DrawTexture(orCreateSurface, X + TileOrigin.X, Y + TileOrigin.Y, alpha, GR_DX::RgbWhite, &ClipRect, false, hardwareMirrorHorizontal);
+                if (GlobalsV::HardwareRenderingEnabled) {
+                    Y = Top;
+                    if (Image->UsesTiledSurfaces) {
+                        while (Y < Bottom) {
+                            X = Left;
+                            while (X < Right) {
+                                TileIndex = 0;
+                                while (TileIndex < Image->TileCount) {
+                                    TileOrigin = Image->GetTileOrigin(TileIndex);
+                                    {
+                                        std::int32_t alpha = Alpha;
+                                        std::uint8_t hardwareMirrorHorizontal = HardwareMirrorHorizontal;
+                                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Image->GetOrCreateSurface(
+                                            TileIndex, cpp_result), cpp_result);
+                                        GR_DX::DrawTexture(orCreateSurface, X + TileOrigin.X, Y + TileOrigin.Y, alpha,
+                                            GR_DX::RgbWhite, &ClipRect, false, hardwareMirrorHorizontal);
+                                    }
+                                    ++TileIndex;
                                 }
-                                ++TileIndex;
+                                X += Width;
                             }
-                            X += Width;
+                            Y += Height;
                         }
-                        Y += Height;
+                    } else {
+                        while (Y < Bottom) {
+                            X = Left;
+                            while (X < Right) {
+                                {
+                                    std::int32_t alpha_2 = Alpha;
+                                    std::uint8_t hardwareMirrorHorizontal_2 = HardwareMirrorHorizontal;
+                                    pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface_2 = (Image->GetOrCreateSurface(
+                                        0, cpp_result_2), cpp_result_2);
+                                    GR_DX::DrawTexture(orCreateSurface_2, X, Y, alpha_2, GR_DX::RgbWhite, &ClipRect,
+                                        false, hardwareMirrorHorizontal_2);
+                                }
+                                X += Width;
+                            }
+                            Y += Height;
+                        }
                     }
                 } else {
+                    Y = Top;
                     while (Y < Bottom) {
                         X = Left;
                         while (X < Right) {
-                            {
-                                std::int32_t alpha_2 = Alpha;
-                                std::uint8_t hardwareMirrorHorizontal_2 = HardwareMirrorHorizontal;
-                                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface_2 = (Image->GetOrCreateSurface(0, cpp_result_2), cpp_result_2);
-                                GR_DX::DrawTexture(orCreateSurface_2, X, Y, alpha_2, GR_DX::RgbWhite, &ClipRect, false, hardwareMirrorHorizontal_2);
-                            }
+                            Image->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X, Y, ClipRect, 0, Alpha);
                             X += Width;
                         }
                         Y += Height;
                     }
                 }
-            } else {
-                Y = Top;
-                while (Y < Bottom) {
-                    X = Left;
-                    while (X < Right) {
-                        Image->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X, Y, ClipRect, 0, Alpha);
-                        X += Width;
-                    }
-                    Y += Height;
-                }
+            } catch (...) {
+                cpp_error = std::current_exception();
+            }
+            cpp_cleanup:;
+            ImageCache->Release();
+            if (cpp_error) {
+                std::rethrow_exception(cpp_error);
+            }
+            if (cpp_flow == pas::FinallyFlow::Return) {
+                return;
             }
         }
     }

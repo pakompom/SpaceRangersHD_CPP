@@ -54,34 +54,50 @@ namespace GR_GraphBuf {
         void SetPixel16(std::int32_t X, std::int32_t Y, std::uint32_t Color);
         std::uint32_t GetBrightness16(std::int32_t X, std::int32_t Y);
         void BlendPixel16(std::int32_t X, std::int32_t Y, std::uint32_t Color, std::uint8_t Alpha);
-        void DrawAlphaLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip);
+        void DrawAlphaLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color,
+            std::uint8_t Alpha, WindowsSdk::TRect Clip);
         std::uint32_t GetPixel32(std::int32_t X, std::int32_t Y);
-        void DrawHorizontalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color, WindowsSdk::TRect Clip);
-        void DrawVerticalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color, WindowsSdk::TRect Clip);
+        void DrawHorizontalLine16(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color);
+        void DrawVerticalLine16(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color);
+        void DrawHorizontalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color,
+            WindowsSdk::TRect Clip);
+        void DrawVerticalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color,
+            WindowsSdk::TRect Clip);
         void DrawLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color);
-        void DrawAnimatedLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t Phase, WindowsSdk::TRect Clip);
-        void DrawShadowLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t Phase, WindowsSdk::TRect Clip, void* ShadowPixels, std::int32_t ShadowPitch);
-        void DrawAlphaTrapezium16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip);
-        void DrawLine16Clipped(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, WindowsSdk::TRect Clip);
+        void DrawAnimatedLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+            std::int32_t Phase, WindowsSdk::TRect Clip);
+        void DrawShadowLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+            std::int32_t Phase, WindowsSdk::TRect Clip, void* ShadowPixels, std::int32_t ShadowPitch);
+        void DrawAlphaTrapezium16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3,
+            std::int32_t X4, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip);
+        void DrawLine16Clipped(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+            WindowsSdk::TRect Clip);
         // RGBA pixels; coverage replaces the color alpha. Blending preserves an existing pixel's alpha unless coverage is fully opaque.
         void DrawAntialiasedLine(WindowsSdk::TPoint FirstPoint, WindowsSdk::TPoint SecondPoint, std::uint32_t Color);
         void ClearPixels();
         void FillPixels(std::uint8_t Value);
         void FillPixels16(std::uint16_t Color);
+        void FillRect32(WindowsSdk::TRect Rect, std::uint32_t Color);
+        void ScaleAlpha(WindowsSdk::TRect Rect, std::uint8_t Alpha);
         void FlipHorizontal16();
         void RotateLeft16();
         void Stretch16(std::uint32_t Width, std::uint32_t Height);
         void ConvertRgbTo565();
         void Convert565ToRgb();
         void ShiftLight16(std::int32_t Shift, WindowsSdk::TRect Rect);
-        void DrawCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor, std::uint32_t FillColor, WindowsSdk::TRect Clip);
-        void DrawCircle8(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor, std::uint32_t FillColor, WindowsSdk::TRect Clip);
+        void DrawCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor,
+            std::uint32_t FillColor, WindowsSdk::TRect Clip);
+        void DrawCircle8(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor,
+            std::uint32_t FillColor, WindowsSdk::TRect Clip);
         void ApplyOperations(const pas::WideString& Operations);
         void RescaleRgb(std::int32_t Width, std::int32_t Height);
         void RescaleRgba(std::int32_t Width, std::int32_t Height, std::int32_t Filter);
         void RescaleBilinearRgba(std::int32_t Width, std::int32_t Height);
         void FillPolygon32(pas::OpenArray<WindowsSdk::TPoint> Points, std::uint32_t Color);
         WindowsSdk::TPoint GetPixelCentroid();
+        void CopyRect32(WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect);
+        void BlendRect32(WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect);
+        void MakeShadow();
         // Replaces Buffer with width, height, pitch and raw pixels. Leaves Position at 12, before the pixel data.
         void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         // Accepts zlib-packed or raw buffer data. Allocates software pixels and leaves Position immediately after the 12-byte image header.
@@ -92,10 +108,13 @@ namespace GR_GraphBuf {
         void SaveBmp(pas::WideString FileName);
         // Writes an intermediate BMP to FileName, then replaces it with JPEG. Quality is truncated to one byte; exceptions after the BMP write are swallowed.
         void SaveJpeg(pas::WideString FileName, std::int32_t Quality);
-        void DrawNinePatch(std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, TGraphBufGR* Source, WindowsSdk::TRect SourceRect, WindowsSdk::TRect Borders);
-        void RescaleWithAspect(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect, std::int32_t HorizontalAlign, std::int32_t VerticalAlign, std::int32_t Filter);
+        void DrawNinePatch(std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, TGraphBufGR* Source,
+            WindowsSdk::TRect SourceRect, WindowsSdk::TRect Borders);
+        void RescaleWithAspect(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect,
+            std::int32_t HorizontalAlign, std::int32_t VerticalAlign, std::int32_t Filter);
         // Alignment values: 0=start, 1=center, 2=end.
-        void RescaleRGBA_HW(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect, std::int32_t HorizontalAlign, std::int32_t VerticalAlign);
+        void RescaleRGBA_HW(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect,
+            std::int32_t HorizontalAlign, std::int32_t VerticalAlign);
         void Crop(WindowsSdk::TRect Rect);
         void AdjustBrightness(std::int32_t Percent);
         void ConvertToGrayscale();
@@ -105,8 +124,10 @@ namespace GR_GraphBuf {
         void LockTexture(std::uint8_t ReadOnly);
         void UnlockTexture();
         void ConvertBgraToRgb24();
-        void DrawAntialiasedCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t Color, WindowsSdk::TRect Clip);
-        void DrawAntialiasedLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color, std::int32_t Alpha, WindowsSdk::TRect Clip);
+        void DrawAntialiasedCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t Color,
+            WindowsSdk::TRect Clip);
+        void DrawAntialiasedLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2,
+            std::uint32_t Color, std::int32_t Alpha, WindowsSdk::TRect Clip);
         std::int32_t Width;
         std::int32_t Height;
         std::int32_t PitchBytes;

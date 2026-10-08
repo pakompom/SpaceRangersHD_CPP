@@ -1,5 +1,5 @@
 #include "layout/EC_Ether.hpp"
-#include "units/EC_Buf.hpp"
+#include "types/EC_Buf.hpp"
 #include "units/EC_Ether.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/EC_Str.hpp"
@@ -105,11 +105,14 @@ namespace EC_Ether {
         Item->Value = Value;
         Index = FindInsertionIndex(Name);
         ++Count;
-        SortedItems = static_cast<PEtherIndex>(EC_Mem::ReAllocREC(SortedItems, Count * static_cast<std::int32_t>(sizeof(TEtherUnit*))));
+        SortedItems = static_cast<PEtherIndex>(EC_Mem::ReAllocREC(SortedItems,
+                Count * static_cast<std::int32_t>(sizeof(TEtherUnit*))));
         std::int32_t MoveCount = Count - 1 - Index;
         if (MoveCount > 0) {
             // The assembly shifts the overlapping pointer range backward.
-            pas::move_memory(reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, Index * sizeof(TEtherUnit*))), reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, (Index + 1) * sizeof(TEtherUnit*))), MoveCount * static_cast<std::int32_t>(sizeof(TEtherUnit*)));
+            pas::move_memory(reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, Index * sizeof(TEtherUnit*))),
+                reinterpret_cast<TEtherUnit**>(pas::byte_offset(SortedItems, (Index + 1) * sizeof(TEtherUnit*))),
+                MoveCount * static_cast<std::int32_t>(sizeof(TEtherUnit*)));
         }
         SetIndexedEntry(Index, Item);
         Leave();
@@ -131,10 +134,10 @@ namespace EC_Ether {
         std::int32_t Index{};
         std::int32_t Value{};
         Clear();
-        std::int32_t ItemCount = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t ItemCount = Buffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ItemCount - 1); cpp_range.next(Index); ) {
             Name = Buffer->ReadWideString();
-            Value = EC_Buf::TBufEC_GetInt32(Buffer);
+            Value = Buffer->GetInt32();
             Add(Name, Value);
         }
     }

@@ -42,7 +42,8 @@ namespace abWall {
         auto FindStopPoint = [&](ab_StopLine::PabStopPoint Point) -> TabWall* {
             ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (TabWall* abWall_2 = pas::class_cast_if<TabWall*>(Obj); abWall_2 != nullptr && abWall_2->StopPoint == Point) {
+                if (TabWall* abWall_2 = pas::class_cast_if<TabWall*>(Obj); abWall_2 != nullptr && abWall_2->StopPoint ==
+                        Point) {
                     return abWall_2;
                 }
                 Obj = Obj->Next;
@@ -62,13 +63,13 @@ namespace abWall {
                 ImageLine->Visible = true;
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 1); cpp_range.next(Index); ) {
                     First = ab_StopLine::ab_StopPoint_Add();
-                    First->Radius = static_cast<long double>((Index + 1) * 20) + ab_Global::SphereRadius;
+                    First->Radius = static_cast<float>(static_cast<double>((Index + 1) * 20) + ab_Global::SphereRadius);
                     First->Longitude = ImageLine->First->Longitude;
                     First->PolarAngle = ImageLine->First->PolarAngle;
                     First->Kind = 1;
                     ab_StopLine::ab_StopPoint_UpdatePosition(First);
                     Last = ab_StopLine::ab_StopPoint_Add();
-                    Last->Radius = static_cast<long double>((Index + 1) * 20) + ab_Global::SphereRadius;
+                    Last->Radius = static_cast<float>(static_cast<double>((Index + 1) * 20) + ab_Global::SphereRadius);
                     Last->Longitude = ImageLine->Last->Longitude;
                     Last->PolarAngle = ImageLine->Last->PolarAngle;
                     Last->Kind = 1;
@@ -107,10 +108,14 @@ namespace abWall {
     void TabWall::BindZone(ab_Zone::PabZone Value) {
         Zone = Value;
         if (Value->Name != u"") {
-            WorldImage = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), pas::concat_wide({u"GAI,Bm.ABWall.", GR_Main::GiResourceSuffix(), u".", Value->Name}), u""_wref.get(), true);
-            ab_WorldImage::ab_WorldImage_SetDepth(WorldImage, ab_Global::WorldImageFrontDepth, ab_Global::WorldImageBackDepth);
+            WorldImage = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                    pas::concat_wide({u"GAI,Bm.ABWall.", GR_Main::GiResourceSuffix(), u".", Value->Name}),
+                    u""_wref.get(), true);
+            ab_WorldImage::ab_WorldImage_SetDepth(WorldImage, ab_Global::WorldImageFrontDepth,
+                ab_Global::WorldImageBackDepth);
             DirectionFrameCount = EC_Str::CountDelimitedPartsW(pas::view(Value->Name), u"_"sv);
-            DirectionFrameCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Value->Name), DirectionFrameCount - 1, u"_"sv)));
+            DirectionFrameCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Value->Name), DirectionFrameCount - 1, u"_"sv)));
         }
         DirectionFrameCount = 32;
         EffectOriginSpread = GR_Main::GiScalePixels(20);
@@ -147,7 +152,8 @@ namespace abWall {
                         while (Next != nullptr) {
                             Auxiliary = Next;
                             Next = Next->Next;
-                            if (Auxiliary->UserValue == static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Line))) {
+                            if (Auxiliary->UserValue ==
+                                static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Line))) {
                                 ab_StopLine::ab_StopLine_Delete(Auxiliary);
                             }
                         }
@@ -189,14 +195,17 @@ namespace abWall {
         ab_Hit::TabHit::UpdateVisuals();
         if (WorldImage != nullptr && WorldImage->Image->GaiImageControl != nullptr) {
             Position = GetWorldPosition();
-            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
+            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&Position));
             Value = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(Position.X, -Position.Y));
-            Frame = System::Round(pas::real_divide(Value, 3.6E+2L) * DirectionFrameCount);
+            Frame = pas::real_round(static_cast<float>(static_cast<float>(Value / 3.6E+2) * DirectionFrameCount));
             if (Frame >= DirectionFrameCount) {
                 Frame = 0;
             }
-            Value = pas::real_divide(System::Sqrt(pas::sqr(static_cast<pas::Extended>(Position.X)) + pas::sqr(static_cast<pas::Extended>(Position.Y))), ab_Global::SphereProjectedRadius);
-            Frame += System::Round((pas::real_divide(WorldImage->Image->GaiImageControl->SequenceFrameCount, DirectionFrameCount) - 1.0L) * Value) * DirectionFrameCount;
+            Value = static_cast<float>(System::Sqrt(static_cast<float>(pas::sqr(static_cast<double>(Position.X)) +
+                    pas::sqr(static_cast<double>(Position.Y)))) / ab_Global::SphereProjectedRadius);
+            Frame += pas::real_round(static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(WorldImage->Image->GaiImageControl->SequenceFrameCount) /
+                    DirectionFrameCount) - 1.0)) * Value)) * DirectionFrameCount;
             WorldImage->Image->GaiImageControl->SetSequenceFrame(Frame);
         }
     }

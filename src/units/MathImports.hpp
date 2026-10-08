@@ -4,13 +4,13 @@
 namespace MathImports {
     double RoundTo(double AValue, TRoundToRange ADigit);
 
-    std::int32_t Ceil(pas::Extended X);
+    std::int32_t Ceil(double X);
 
-    std::int32_t Floor(pas::Extended X);
+    std::int32_t Floor(double X);
 
-    pas::Extended ArcSin(pas::Extended X);
+    double ArcSin(double X);
 
-    pas::Extended ArcCos(pas::Extended X);
+    double ArcCos(double X);
 
     std::int32_t Sign(double AValue);
 

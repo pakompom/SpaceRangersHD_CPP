@@ -1,11 +1,11 @@
 #include "layout/GR_GraphBuf.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/EC_OKGF.hpp"
 #include "types/SysUtilsImports.hpp"
 #include "types/Types.hpp"
 #include "units/BitmapPorts.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/Direct3D9.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
@@ -86,24 +86,20 @@ namespace GR_GraphBuf {
     }
 
     std::uint32_t TPixelFormatGR::PackRgbBytes(std::uint8_t Red, std::uint8_t Green, std::uint8_t Blue) {
-        double cpp_arg = pas::real_divide(Red, 255.0L);
-        double cpp_arg_2 = pas::real_divide(Green, 255.0L);
-        double cpp_arg_3 = pas::real_divide(Blue, 255.0L);
-        return PackNormalizedRgb(cpp_arg, cpp_arg_2, cpp_arg_3);
+        return PackNormalizedRgb(static_cast<float>(Red / 255.0), static_cast<float>(Green / 255.0), static_cast<float>(Blue / 255.0));
     }
 
     std::uint32_t TPixelFormatGR::PackRgb(std::int32_t Red, std::int32_t Green, std::int32_t Blue) {
-        double cpp_arg = pas::real_divide(Red, 255.0L);
-        double cpp_arg_2 = pas::real_divide(Green, 255.0L);
-        double cpp_arg_3 = pas::real_divide(Blue, 255.0L);
-        return PackNormalizedRgb(cpp_arg, cpp_arg_2, cpp_arg_3);
+        return PackNormalizedRgb(static_cast<float>(Red / 255.0), static_cast<float>(Green / 255.0), static_cast<float>(Blue / 255.0));
     }
 
     // Does not clamp inputs or include alpha.
     std::uint32_t TPixelFormatGR::PackNormalizedRgb(double Red, double Green, double Blue) {
-        std::uint32_t cpp_left_2 = pas::shl(static_cast<std::uint32_t>(System::Trunc(static_cast<long double>(Red) * (RedLevels - 1))), RedShift);
-        std::uint32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::uint32_t>(System::Trunc(static_cast<long double>(Green) * (GreenLevels - 1))), GreenShift);
-        return cpp_left | pas::shl(static_cast<std::uint32_t>(System::Trunc(static_cast<long double>(Blue) * (BlueLevels - 1))), BlueShift);
+        return pas::shl(static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(static_cast<double>(Red) * (RedLevels - 1)))),
+            RedShift) | pas::shl(
+                static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(static_cast<double>(Green) * (GreenLevels - 1)))),
+                GreenShift) | pas::shl(
+                static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(static_cast<double>(Blue) * (BlueLevels - 1)))), BlueShift);
     }
 
     std::uint32_t TPixelFormatGR::InterpolateRgb(std::uint32_t First, std::uint32_t Second, float Amount) {
@@ -113,9 +109,11 @@ namespace GR_GraphBuf {
         std::int32_t R2 = pas::imod(pas::shr(Second, RedShift), RedLevels);
         std::int32_t G2 = pas::imod(pas::shr(Second, GreenShift), GreenLevels);
         std::int32_t B2 = pas::imod(pas::shr(Second, BlueShift), BlueLevels);
-        std::uint32_t cpp_left_2 = pas::shl(static_cast<std::uint32_t>(System::Trunc(R1 + static_cast<long double>(R2 - R1) * Amount)), RedShift);
-        std::uint32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::uint32_t>(System::Trunc(G1 + static_cast<long double>(G2 - G1) * Amount)), GreenShift);
-        return cpp_left | pas::shl(static_cast<std::uint32_t>(System::Trunc(B1 + static_cast<long double>(B2 - B1) * Amount)), BlueShift);
+        return pas::shl(static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(R1 + static_cast<float>(static_cast<double>(R2 - R1) * Amount)))),
+            RedShift) | pas::shl(
+                static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(G1 + static_cast<float>(static_cast<double>(G2 - G1) * Amount)))), GreenShift) |
+            pas::shl(static_cast<std::uint32_t>(pas::real_trunc(static_cast<float>(B1 + static_cast<float>(static_cast<double>(B2 - B1) * Amount)))),
+                BlueShift);
     }
 
     std::uint8_t TPixelFormatGR::UnpackRed(std::uint32_t Color) {
@@ -192,7 +190,8 @@ namespace GR_GraphBuf {
         BitsPerPixel = 16;
         BytesPerPixel = static_cast<std::int32_t>(sizeof(std::uint16_t));
         if (UseTexture) {
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             if (Texture != nullptr) {
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, Direct3D9::D3DLOCK_READONLY);
                 PitchBytes = Locked.Pitch;
@@ -205,7 +204,8 @@ namespace GR_GraphBuf {
                 PitchBytes = PitchBytes + 4 - (PitchBytes & 3);
             }
             Pixels = EC_Mem::AllocEC(PitchBytes * this->Height);
-            if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) != 0) {
+            if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) !=
+                    0) {
                 pas::raise(pas::make_exception<pas::Exception>("TGraphBufGR.CreateN"_a));
             }
         }
@@ -220,7 +220,8 @@ namespace GR_GraphBuf {
         BitsPerPixel = 16;
         BytesPerPixel = static_cast<std::int32_t>(sizeof(std::uint16_t));
         if (UseTexture) {
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             if (Texture != nullptr) {
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, Direct3D9::D3DLOCK_READONLY);
                 this->PitchBytes = Locked.Pitch;
@@ -240,7 +241,8 @@ namespace GR_GraphBuf {
         this->Height = Height;
         this->PitchBytes = PitchBytes;
         StorageKind = 1;
-        BytesPerPixel = pas::idiv(static_cast<std::uint32_t>(this->PitchBytes), static_cast<std::uint32_t>(this->Width));
+        BytesPerPixel = pas::idiv(static_cast<std::uint32_t>(this->PitchBytes),
+                static_cast<std::uint32_t>(this->Width));
         BitsPerPixel = BytesPerPixel * 8;
     }
 
@@ -254,7 +256,8 @@ namespace GR_GraphBuf {
         BitsPerPixel = 32;
         BytesPerPixel = static_cast<std::int32_t>(sizeof(TColorRGBA));
         if (UseTexture) {
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             if (Texture != nullptr) {
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, Direct3D9::D3DLOCK_READONLY);
                 PitchBytes = Locked.Pitch;
@@ -276,7 +279,8 @@ namespace GR_GraphBuf {
         BitsPerPixel = 32;
         BytesPerPixel = static_cast<std::int32_t>(sizeof(TColorRGBA));
         if (UseTexture) {
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             if (Texture != nullptr) {
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, Direct3D9::D3DLOCK_READONLY);
                 this->PitchBytes = Locked.Pitch;
@@ -333,7 +337,9 @@ namespace GR_GraphBuf {
         Clear();
         EC_OKGF::POkgfReadContext Context = GR_Main::BeginImageRead(Buffer->Data, Buffer->DataSize, Width, Height);
         if (Context == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TGraphBufGR.LoadFromBuf. Error load file 1 (buf size=", EC_Str::IntToWideString(Buffer->DataSize), u")"}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"TGraphBufGR.LoadFromBuf. Error load file 1 (buf size=", EC_Str::IntToWideString(Buffer->DataSize),
+                u")"}))));
         }
         AllocateNative(Width, Height);
         {
@@ -344,10 +350,16 @@ namespace GR_GraphBuf {
             std::int32_t bytesPerPixel = GR_Main::CurrentPixelFormat->BytesPerPixel;
             void* pixels = GetPixels();
             std::int32_t pitchBytes = PitchBytes;
-            Context = static_cast<EC_OKGF::POkgfReadContext>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels, pitchBytes, redMask, greenMask, blueMask, alphaMask, bytesPerPixel)))));
+            Context =
+                static_cast<EC_OKGF::POkgfReadContext>(
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels,
+                        pitchBytes, redMask, greenMask, blueMask, alphaMask, bytesPerPixel)))));
         }
         if (Context == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TGraphBufGR.LoadFromBuf. Error load file 2 (buf size=", EC_Str::IntToWideString(Buffer->DataSize), u")"}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"TGraphBufGR.LoadFromBuf. Error load file 2 (buf size=", EC_Str::IntToWideString(Buffer->DataSize),
+                u")"}))));
         }
     }
 
@@ -362,7 +374,11 @@ namespace GR_GraphBuf {
         {
             void* pixels = GetPixels();
             std::int32_t pitchBytes = PitchBytes;
-            Context = static_cast<EC_OKGF::POkgfReadContext>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels, pitchBytes, 0x00ff0000u, 0x0000ff00u, 0x000000ffu, 0xff000000u, 4)))));
+            Context =
+                static_cast<EC_OKGF::POkgfReadContext>(
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels,
+                        pitchBytes, 0x00ff0000u, 0x0000ff00u, 0x000000ffu, 0xff000000u, 4)))));
         }
         if (Context == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufGR.LoadFromBufRGBA. Error load file"_a));
@@ -380,7 +396,11 @@ namespace GR_GraphBuf {
         {
             void* pixels = GetPixels();
             std::int32_t pitchBytes = PitchBytes;
-            Context = static_cast<EC_OKGF::POkgfReadContext>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels, pitchBytes, 0x000000ffu, 0x0000ff00u, 0x00ff0000u, 0u, 3)))));
+            Context =
+                static_cast<EC_OKGF::POkgfReadContext>(
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels,
+                        pitchBytes, 0x000000ffu, 0x0000ff00u, 0x00ff0000u, 0u, 3)))));
         }
         if (Context == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufGR.LoadFromBufRGB. Error load file"_a));
@@ -397,7 +417,11 @@ namespace GR_GraphBuf {
         {
             void* pixels = GetPixels();
             std::int32_t pitchBytes = PitchBytes;
-            Context = static_cast<EC_OKGF::POkgfReadContext>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels, pitchBytes, 0x000000ffu, 0u, 0u, 0u, 1)))));
+            Context =
+                static_cast<EC_OKGF::POkgfReadContext>(
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadImagePixels(Context, pixels,
+                        pitchBytes, 0x000000ffu, 0u, 0u, 0u, 1)))));
         }
         if (Context == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufGR.LoadFromBufGrayscale. Error load file"_a));
@@ -408,7 +432,8 @@ namespace GR_GraphBuf {
         SysUtilsImports::PByteArray Data{};
         LockTexture(true);
         Data = static_cast<SysUtilsImports::PByteArray>(Pixels);
-        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
+        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(
+            Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
         return pas::load_unaligned<std::uint16_t>(Pixel);
     }
 
@@ -416,7 +441,8 @@ namespace GR_GraphBuf {
         SysUtilsImports::PByteArray Data{};
         LockTexture(false);
         Data = static_cast<SysUtilsImports::PByteArray>(Pixels);
-        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
+        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(
+            Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
         pas::store_unaligned<std::uint16_t>(Pixel, static_cast<std::uint16_t>(Color));
     }
 
@@ -428,7 +454,8 @@ namespace GR_GraphBuf {
             return Result;
         }
         Data = static_cast<SysUtilsImports::PByteArray>(Pixels);
-        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
+        WindowsSdk::PWORD Pixel = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(pas::byte_offset(
+            Data, (Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))) * sizeof(std::uint8_t))));
         std::uint32_t Color = pas::load_unaligned<std::uint16_t>(Pixel);
         if (GR_Main::CurrentPixelFormat->TotalChannelBits == 16) {
             return (Color & 31) + (Color >> 6 & 31) + (Color >> 11 & 31);
@@ -438,20 +465,24 @@ namespace GR_GraphBuf {
 
     void TGraphBufGR::BlendPixel16(std::int32_t X, std::int32_t Y, std::uint32_t Color, std::uint8_t Alpha) {
         LockTexture(false);
-        GR_Main::BlendPixel16(EC_Mem::AddPointerOffset(Pixels, Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))), Color, Alpha);
+        GR_Main::BlendPixel16(
+            EC_Mem::AddPointerOffset(Pixels, Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t))),
+            Color, Alpha);
     }
 
-    void TGraphBufGR::DrawAlphaLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawAlphaLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2,
+        std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip) {
         LockTexture(false);
         GR_Main::Ex_OKGR_Line_DrawClip_Alpha_16(Pixels, PitchBytes, X1, Y1, X2, Y2, Color, Alpha, Clip);
     }
 
     std::uint32_t TGraphBufGR::GetPixel32(std::int32_t X, std::int32_t Y) {
         LockTexture(true);
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Pixels, Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(TColorRGBA))));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Pixels,
+            Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(TColorRGBA))));
     }
 
-    void TGraphBufGR_DrawHorizontalLine16(TGraphBufGR* Self, std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color) {
+    void TGraphBufGR::DrawHorizontalLine16(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color) {
         if (Count == 0) {
             return;
         }
@@ -459,18 +490,18 @@ namespace GR_GraphBuf {
             X = X + Count + 1;
             Count = -Count;
         }
-        Self->LockTexture(false);
-        X = Y * Self->PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t));
-        void* Data = Self->Pixels;
+        LockTexture(false);
+        X = Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t));
+        void* Data = Pixels;
         // Native bug: EDI is clobbered without saving/restoring it, violating
         // Delphi's callee-save convention. The original function has no outer save.
         // DCC32 18.5 O+ callers can retain a destination pointer in EDI; subsequent
         // writes then use the end of this line instead. Recompiling this routine
         // with O+ still leaves EDI unpreserved.
-        BitmapPorts::FillLine16(static_cast<std::uint8_t*>(Data) + X, Count, 2, Color);
+        BitmapPorts::FillLine16(pas::pointer_add(static_cast<std::uint8_t*>(Data), X), Count, 2, Color);
     }
 
-    void TGraphBufGR_DrawVerticalLine16(TGraphBufGR* Self, std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color) {
+    void TGraphBufGR::DrawVerticalLine16(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color) {
         if (Count == 0) {
             return;
         }
@@ -478,20 +509,21 @@ namespace GR_GraphBuf {
             Y = Y + Count + 1;
             Count = -Count;
         }
-        Self->LockTexture(false);
-        X = Y * Self->PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t));
-        void* Data = Self->Pixels;
-        std::int32_t Step = Self->PitchBytes;
+        LockTexture(false);
+        X = Y * PitchBytes + X * static_cast<std::int32_t>(sizeof(std::uint16_t));
+        void* Data = Pixels;
+        std::int32_t Step = PitchBytes;
         // Native bug: EDI and EBX are clobbered without saving/restoring them,
         // violating Delphi's callee-save convention; there are no outer saves.
         // DCC32 18.5 O+ callers can retain Self in EBX and a destination in EDI:
         // after this call they may dereference PitchBytes as Self or write through
         // the advanced pixel pointer. O+ recompilation adds an outer EBX save for
         // Pascal's Self register in the probe, but still leaves EDI unpreserved.
-        BitmapPorts::FillLine16(static_cast<std::uint8_t*>(Data) + X, Count, Step, Color);
+        BitmapPorts::FillLine16(pas::pointer_add(static_cast<std::uint8_t*>(Data), X), Count, Step, Color);
     }
 
-    void TGraphBufGR::DrawHorizontalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawHorizontalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count,
+        std::uint32_t Color, WindowsSdk::TRect Clip) {
         if (Count == 0) {
             return;
         }
@@ -509,10 +541,11 @@ namespace GR_GraphBuf {
         if (X + Count > Clip.Right) {
             Count -= X + Count - Clip.Right;
         }
-        GR_GraphBuf::TGraphBufGR_DrawHorizontalLine16(this, X, Y, Count, Color);
+        DrawHorizontalLine16(X, Y, Count, Color);
     }
 
-    void TGraphBufGR::DrawVerticalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawVerticalLine16Clipped(std::int32_t X, std::int32_t Y, std::int32_t Count, std::uint32_t Color,
+        WindowsSdk::TRect Clip) {
         if (Count == 0) {
             return;
         }
@@ -530,31 +563,35 @@ namespace GR_GraphBuf {
         if (Y + Count > Clip.Bottom) {
             Count -= Y + Count - Clip.Bottom;
         }
-        GR_GraphBuf::TGraphBufGR_DrawVerticalLine16(this, X, Y, Count, Color);
+        DrawVerticalLine16(X, Y, Count, Color);
     }
 
     void TGraphBufGR::DrawLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color) {
         if (First.Y == Last.Y) {
-            GR_GraphBuf::TGraphBufGR_DrawHorizontalLine16(this, First.X, First.Y, Last.X - First.X + 1, Color);
+            DrawHorizontalLine16(First.X, First.Y, Last.X - First.X + 1, Color);
         } else if (First.X == Last.X) {
-            GR_GraphBuf::TGraphBufGR_DrawVerticalLine16(this, First.X, First.Y, Last.Y - First.Y + 1, Color);
+            DrawVerticalLine16(First.X, First.Y, Last.Y - First.Y + 1, Color);
         } else {
             LockTexture(false);
             GR_Main::Ex_OKGR_Line_Draw_WORD(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color);
         }
     }
 
-    void TGraphBufGR::DrawAnimatedLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t Phase, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawAnimatedLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+        std::int32_t Phase, WindowsSdk::TRect Clip) {
         LockTexture(false);
         GR_Main::Ex_OKGR_AnimLine_Draw_16(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color, Phase, Clip);
     }
 
-    void TGraphBufGR::DrawShadowLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t Phase, WindowsSdk::TRect Clip, void* ShadowPixels, std::int32_t ShadowPitch) {
+    void TGraphBufGR::DrawShadowLine16(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+        std::int32_t Phase, WindowsSdk::TRect Clip, void* ShadowPixels, std::int32_t ShadowPitch) {
         LockTexture(false);
-        GR_Main::Ex_OKGR_AnimShadowLine_Draw_16(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color, Phase, Clip, ShadowPixels, ShadowPitch);
+        GR_Main::Ex_OKGR_AnimShadowLine_Draw_16(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color, Phase,
+            Clip, ShadowPixels, ShadowPitch);
     }
 
-    void TGraphBufGR::DrawAlphaTrapezium16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawAlphaTrapezium16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2,
+        std::int32_t X3, std::int32_t X4, std::uint16_t Color, std::uint8_t Alpha, WindowsSdk::TRect Clip) {
         LockTexture(false);
         if (Alpha == 64) {
             GR_Main::Ex_OKGR_Alpha64Trapezium_16(Pixels, PitchBytes, X1, Y1, X2, Y2, X3, X4, Color, Clip);
@@ -563,9 +600,11 @@ namespace GR_GraphBuf {
         }
     }
 
-    void TGraphBufGR::DrawLine16Clipped(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawLine16Clipped(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+        WindowsSdk::TRect Clip) {
         WindowsSdk::TRect InclusiveClip{};
-        if (First.X >= Clip.Left && First.Y >= Clip.Top && First.X < Clip.Right && First.Y < Clip.Bottom && Last.X >= Clip.Left && Last.Y >= Clip.Top && Last.X < Clip.Right && Last.Y < Clip.Bottom) {
+        if (First.X >= Clip.Left && First.Y >= Clip.Top && First.X < Clip.Right && First.Y < Clip.Bottom && Last.X >=
+                Clip.Left && Last.Y >= Clip.Top && Last.X < Clip.Right && Last.Y < Clip.Bottom) {
             DrawLine16(First, Last, Color);
         } else if (First.Y == Last.Y) {
             DrawHorizontalLine16Clipped(First.X, First.Y, Last.X - First.X + 1, Color, Clip);
@@ -577,28 +616,35 @@ namespace GR_GraphBuf {
             InclusiveClip.Right = Clip.Right - 1;
             InclusiveClip.Bottom = Clip.Bottom - 1;
             LockTexture(false);
-            GR_Main::Ex_OKGR_Line_DrawClip_WORD(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color, InclusiveClip);
+            GR_Main::Ex_OKGR_Line_DrawClip_WORD(Pixels, PitchBytes, First.X, First.Y, Last.X, Last.Y, Color,
+                InclusiveClip);
         }
     }
 
     // RGBA pixels; coverage replaces the color alpha. Blending preserves an existing pixel's alpha unless coverage is fully opaque.
-    void TGraphBufGR::DrawAntialiasedLine(WindowsSdk::TPoint FirstPoint, WindowsSdk::TPoint SecondPoint, std::uint32_t Color) {
+    void TGraphBufGR::DrawAntialiasedLine(WindowsSdk::TPoint FirstPoint, WindowsSdk::TPoint SecondPoint,
+        std::uint32_t Color) {
         std::uint8_t Steep{};
         double Temp{};
         auto LineFraction = [&](double Value) -> double {
-            return static_cast<long double>(Value) - MathImports::Floor(Value);
+            return static_cast<float>(static_cast<double>(Value) - MathImports::Floor(Value));
         };
         auto PlotLinePixel = [&](std::int32_t X, std::int32_t Y, std::uint32_t Color, std::int32_t Alpha) -> void {
             std::uint32_t Denominator{};
-            auto BlendLineChannel = [&](std::uint32_t DestColor, std::uint32_t DestAlpha, std::uint32_t SourceColor, std::uint32_t SourceAlpha, std::uint32_t Denominator) -> std::uint32_t {
-                return pas::idiv((255 - SourceAlpha) * DestColor * DestAlpha + SourceAlpha * SourceColor * 255, Denominator);
+            auto BlendLineChannel = [&](std::uint32_t DestColor, std::uint32_t DestAlpha, std::uint32_t SourceColor,
+                std::uint32_t SourceAlpha, std::uint32_t Denominator) -> std::uint32_t {
+                return pas::idiv((255 - SourceAlpha) * DestColor * DestAlpha + SourceAlpha * SourceColor * 255,
+                    Denominator);
             };
-            if (Alpha == 0 || X < 0 || Y < 0 || static_cast<std::uint32_t>(this->Width) <= static_cast<std::uint32_t>(X) || static_cast<std::uint32_t>(this->Height) <= static_cast<std::uint32_t>(Y)) {
+            if (Alpha == 0 || X < 0 || Y < 0 || static_cast<std::uint32_t>(this->Width) <=
+                    static_cast<std::uint32_t>(X) || static_cast<std::uint32_t>(this->Height) <=
+                    static_cast<std::uint32_t>(Y)) {
                 return;
             }
             PColorRGBA Source = reinterpret_cast<PColorRGBA>(&Color);
             Source->A = Alpha;
-            PColorRGBA Dest = static_cast<PColorRGBA>(EC_Mem::AddPointerOffset(this->Pixels, this->PitchBytes * Y + X * static_cast<std::int32_t>(sizeof(TColorRGBA))));
+            PColorRGBA Dest = static_cast<PColorRGBA>(EC_Mem::AddPointerOffset(this->Pixels,
+                this->PitchBytes * Y + X * static_cast<std::int32_t>(sizeof(TColorRGBA))));
             if (Dest->A == 0 || Source->A == 255) {
                 pas::store_unaligned<TColorRGBA>(Dest, pas::load_unaligned<TColorRGBA>(Source));
             } else if (Dest->A == 255) {
@@ -617,12 +663,12 @@ namespace GR_GraphBuf {
         double Y1 = FirstPoint.Y;
         double X2 = SecondPoint.X;
         double Y2 = SecondPoint.Y;
-        double DX = static_cast<long double>(X2) - X1;
-        double DY = static_cast<long double>(Y2) - Y1;
-        if (DX == 0.0L && DY == 0.0L) {
+        double DX = static_cast<float>(static_cast<double>(X2) - X1);
+        double DY = static_cast<float>(static_cast<double>(Y2) - Y1);
+        if (DX == 0.0 && DY == 0.0) {
             return;
         }
-        if (std::fabs(static_cast<pas::Extended>(DX)) > std::fabs(static_cast<pas::Extended>(DY))) {
+        if (std::fabs(static_cast<double>(DX)) > std::fabs(static_cast<double>(DY))) {
             Steep = false;
         } else {
             Steep = true;
@@ -643,68 +689,52 @@ namespace GR_GraphBuf {
             Temp = Y1;
             Y1 = Y2;
             Y2 = Temp;
-            DX = static_cast<long double>(X2) - X1;
-            DY = static_cast<long double>(Y2) - Y1;
+            DX = static_cast<float>(static_cast<double>(X2) - X1);
+            DY = static_cast<float>(static_cast<double>(Y2) - Y1);
         }
-        double Slope = pas::real_divide(DY, DX);
-        double EndX = MathImports::Floor(X1 + 0.5L);
-        double EndY = Y1 + (static_cast<long double>(EndX) - X1) * Slope;
-        double Gap = 1.0L - LineFraction(X1 + 0.5L);
-        std::int32_t FirstX = MathImports::Floor(X1 + 0.5L);
+        double Slope = static_cast<float>(static_cast<double>(DY) / DX);
+        double EndX = MathImports::Floor(static_cast<float>(X1 + 0.5));
+        double EndY = static_cast<float>(Y1 + static_cast<float>((static_cast<float>(static_cast<double>(EndX) - X1)) * Slope));
+        double Gap = static_cast<float>(1.0 - LineFraction(static_cast<float>(X1 + 0.5)));
+        std::int32_t FirstX = MathImports::Floor(static_cast<float>(X1 + 0.5));
         std::int32_t FirstY = MathImports::Floor(EndY);
-        double Coverage1 = (1.0L - LineFraction(EndY)) * Gap;
-        double Coverage2 = static_cast<long double>(LineFraction(EndY)) * Gap;
+        double Coverage1 = static_cast<float>((static_cast<float>(1.0 - LineFraction(EndY))) * Gap);
+        double Coverage2 = static_cast<float>(static_cast<double>(LineFraction(EndY)) * Gap);
         if (Steep) {
-            PlotLinePixel(FirstY, FirstX, Color, MathImports::Ceil(Coverage1 * 255.0L));
-            PlotLinePixel(FirstY + 1, FirstX, Color, MathImports::Ceil(Coverage2 * 255.0L));
+            PlotLinePixel(FirstY, FirstX, Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+            PlotLinePixel(FirstY + 1, FirstX, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
         } else {
-            PlotLinePixel(FirstX, FirstY, Color, MathImports::Ceil(Coverage1 * 255.0L));
-            PlotLinePixel(FirstX, FirstY + 1, Color, MathImports::Ceil(Coverage2 * 255.0L));
+            PlotLinePixel(FirstX, FirstY, Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+            PlotLinePixel(FirstX, FirstY + 1, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
         }
         std::int32_t X = FirstX + 1;
-        double InterY = static_cast<long double>(EndY) + Slope;
-        EndX = MathImports::Floor(X2 + 0.5L);
-        EndY = Y2 + (static_cast<long double>(EndX) - X2) * Slope;
-        Gap = 1.0L - LineFraction(X2 - 0.5L);
-        std::int32_t LastX = MathImports::Floor(X2 + 0.5L);
+        double InterY = static_cast<float>(static_cast<double>(EndY) + Slope);
+        EndX = MathImports::Floor(static_cast<float>(X2 + 0.5));
+        EndY = static_cast<float>(Y2 + static_cast<float>((static_cast<float>(static_cast<double>(EndX) - X2)) * Slope));
+        Gap = static_cast<float>(1.0 - LineFraction(static_cast<float>(X2 - 0.5)));
+        std::int32_t LastX = MathImports::Floor(static_cast<float>(X2 + 0.5));
         std::int32_t LastY = MathImports::Floor(EndY);
         while (LastX - 1 >= X) {
-            Coverage1 = 1.0L - LineFraction(InterY);
+            Coverage1 = static_cast<float>(1.0 - LineFraction(InterY));
             Coverage2 = LineFraction(InterY);
             if (Steep) {
-                {
-                    std::int32_t ceil = MathImports::Ceil(Coverage1 * 255.0L);
-                    std::int32_t floor = MathImports::Floor(InterY);
-                    PlotLinePixel(floor, X, Color, ceil);
-                }
-                {
-                    std::int32_t ceil_2 = MathImports::Ceil(Coverage2 * 255.0L);
-                    std::int32_t cpp_arg = MathImports::Floor(InterY) + 1;
-                    PlotLinePixel(cpp_arg, X, Color, ceil_2);
-                }
+                PlotLinePixel(MathImports::Floor(InterY), X, Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+                PlotLinePixel(MathImports::Floor(InterY) + 1, X, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
             } else {
-                {
-                    std::int32_t ceil_3 = MathImports::Ceil(Coverage1 * 255.0L);
-                    std::int32_t floor_2 = MathImports::Floor(InterY);
-                    PlotLinePixel(X, floor_2, Color, ceil_3);
-                }
-                {
-                    std::int32_t ceil_4 = MathImports::Ceil(Coverage2 * 255.0L);
-                    std::int32_t cpp_arg_2 = MathImports::Floor(InterY) + 1;
-                    PlotLinePixel(X, cpp_arg_2, Color, ceil_4);
-                }
+                PlotLinePixel(X, MathImports::Floor(InterY), Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+                PlotLinePixel(X, MathImports::Floor(InterY) + 1, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
             }
-            InterY = static_cast<long double>(InterY) + Slope;
+            InterY = static_cast<float>(static_cast<double>(InterY) + Slope);
             ++X;
         }
-        Coverage1 = (1.0L - LineFraction(EndY)) * Gap;
-        Coverage2 = static_cast<long double>(LineFraction(EndY)) * Gap;
+        Coverage1 = static_cast<float>((static_cast<float>(1.0 - LineFraction(EndY))) * Gap);
+        Coverage2 = static_cast<float>(static_cast<double>(LineFraction(EndY)) * Gap);
         if (Steep) {
-            PlotLinePixel(LastY, LastX, Color, MathImports::Ceil(Coverage1 * 255.0L));
-            PlotLinePixel(LastY + 1, LastX, Color, MathImports::Ceil(Coverage2 * 255.0L));
+            PlotLinePixel(LastY, LastX, Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+            PlotLinePixel(LastY + 1, LastX, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
         } else {
-            PlotLinePixel(LastX, LastY, Color, MathImports::Ceil(Coverage1 * 255.0L));
-            PlotLinePixel(LastX, LastY + 1, Color, MathImports::Ceil(Coverage2 * 255.0L));
+            PlotLinePixel(LastX, LastY, Color, MathImports::Ceil(static_cast<float>(Coverage1 * 255.0)));
+            PlotLinePixel(LastX, LastY + 1, Color, MathImports::Ceil(static_cast<float>(Coverage2 * 255.0)));
         }
     }
 
@@ -723,25 +753,31 @@ namespace GR_GraphBuf {
         GR_Main::Ex_OKGR_Fill_WORD(Pixels, PitchBytes, Width, Height, Color);
     }
 
-    void TGraphBufGR_FillRect32(TGraphBufGR* Self, WindowsSdk::TRect Rect, std::uint32_t Color) {
-        Self->LockTexture(false);
+    void TGraphBufGR::FillRect32(WindowsSdk::TRect Rect, std::uint32_t Color) {
+        LockTexture(false);
         std::int32_t Columns = Rect.Right - Rect.Left;
         std::int32_t Rows = Rect.Bottom - Rect.Top;
-        std::int32_t RowSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
-        void* Data = Rect.Top * Self->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)) + static_cast<std::uint8_t*>(Self->Pixels);
+        std::int32_t RowSkip = PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
+        void* Data = pas::pointer_add(static_cast<std::uint8_t*>(Pixels),
+            Rect.Top * PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)));
         // Native precondition: Columns and Rows must be positive. Neither is checked
         // before writing; zero wraps on DEC and the loop writes beyond the rectangle.
         BitmapPorts::FillPixels32(Data, Columns, Rows, RowSkip, Color);
     }
 
-    void TGraphBufGR_ScaleAlpha(TGraphBufGR* Self, WindowsSdk::TRect Rect, std::uint8_t Alpha) {
-        Self->LockTexture(false);
+    void TGraphBufGR::ScaleAlpha(WindowsSdk::TRect Rect, std::uint8_t Alpha) {
+        LockTexture(false);
         std::int32_t Columns = Rect.Right - Rect.Left;
         std::int32_t Rows = Rect.Bottom - Rect.Top;
-        std::int32_t RowSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
+        std::int32_t RowSkip = PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
         // Form the relative field address before adding Pixels to retain native load order.
-        void* Data = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Rect.Top * Self->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)) + static_cast<std::uint8_t*>(Self->Pixels);
-        void* Table = static_cast<std::uint8_t*>(GR_Main::Ex_OKGF_MulTable256x256()) + pas::shl(static_cast<std::int32_t>(Alpha), 8);
+        void* Data = pas::pointer_add(static_cast<std::uint8_t*>(Pixels),
+            static_cast<std::int32_t>(
+                reinterpret_cast<std::uintptr_t>(
+                    &reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Rect.Top *
+                    PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)));
+        void* Table = pas::pointer_add(static_cast<std::uint8_t*>(GR_Main::Ex_OKGF_MulTable256x256()),
+            pas::shl(static_cast<std::int32_t>(Alpha), 8));
         // Native precondition: Columns and Rows must be positive. Neither is checked
         // before writing; zero wraps on DEC and the loop writes beyond the rectangle.
         BitmapPorts::ScaleAlpha32(Data, Columns, Rows, RowSkip, Table);
@@ -755,7 +791,8 @@ namespace GR_GraphBuf {
         std::int32_t Y{};
         LockTexture(false);
         WindowsSdk::PWORD LeftRow = static_cast<WindowsSdk::PWORD>(Pixels);
-        WindowsSdk::PWORD RightRow = static_cast<WindowsSdk::PWORD>(static_cast<void*>(static_cast<std::uint8_t*>(Pixels) + (Width - 1) * static_cast<std::int32_t>(sizeof(std::uint16_t))));
+        WindowsSdk::PWORD RightRow = static_cast<WindowsSdk::PWORD>(static_cast<void*>(pas::pointer_add(
+            static_cast<std::uint8_t*>(Pixels), (Width - 1) * static_cast<std::int32_t>(sizeof(std::uint16_t)))));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Height - 1); cpp_range.next(Y); ) {
             LeftPixel = LeftRow;
             RightPixel = RightRow;
@@ -763,11 +800,13 @@ namespace GR_GraphBuf {
                 Temp = pas::load_unaligned<std::uint16_t>(RightPixel);
                 pas::store_unaligned<std::uint16_t>(RightPixel, pas::load_unaligned<std::uint16_t>(LeftPixel));
                 pas::store_unaligned<std::uint16_t>(LeftPixel, Temp);
-                ++LeftPixel;
-                --RightPixel;
+                pas::inc(LeftPixel);
+                pas::dec(RightPixel);
             }
-            LeftRow = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(LeftRow) + PitchBytes);
-            RightRow = reinterpret_cast<WindowsSdk::PWORD>(reinterpret_cast<std::uint8_t*>(RightRow) + PitchBytes);
+            LeftRow = reinterpret_cast<WindowsSdk::PWORD>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(LeftRow),
+                    PitchBytes));
+            RightRow = reinterpret_cast<WindowsSdk::PWORD>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(RightRow),
+                    PitchBytes));
         }
     }
 
@@ -792,12 +831,14 @@ namespace GR_GraphBuf {
                 Dest = EC_Mem::AddPointerOffset(Dest, -NewPitch);
                 if (DestRows <= 0) {
                     DestRows = NewHeight;
-                    Dest = EC_Mem::AddPointerOffset(Dest, NewPitch * NewHeight + static_cast<std::int32_t>(sizeof(std::uint16_t)));
+                    Dest = EC_Mem::AddPointerOffset(Dest,
+                            NewPitch * NewHeight + static_cast<std::int32_t>(sizeof(std::uint16_t)));
                 }
                 Source = EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(sizeof(std::uint16_t)));
                 --X;
             }
-            Source = EC_Mem::AddPointerOffset(Source, PitchBytes - Width * static_cast<std::int32_t>(sizeof(std::uint16_t)));
+            Source = EC_Mem::AddPointerOffset(Source,
+                    PitchBytes - Width * static_cast<std::int32_t>(sizeof(std::uint16_t)));
             --Y;
         }
         EC_Mem::FreeEC(Pixels);
@@ -811,7 +852,8 @@ namespace GR_GraphBuf {
         if (Width == static_cast<std::uint32_t>(this->Width) && Height == static_cast<std::uint32_t>(this->Height)) {
             return;
         }
-        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 || Height < 1) {
+        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 ||
+            Height < 1) {
             return;
         }
         void* Data = EC_Mem::AllocEC(Width * Height * static_cast<std::int32_t>(sizeof(std::uint16_t)));
@@ -833,7 +875,8 @@ namespace GR_GraphBuf {
             return;
         }
         if (UseTexture) {
-            NewTexture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            NewTexture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             Direct3D9::IDirect3DTexture9_LockRect(NewTexture, 0u, Locked, nullptr, 0u);
             NewPitch = Locked.Pitch;
             Data = Locked.Bits;
@@ -882,32 +925,41 @@ namespace GR_GraphBuf {
         if (Pixels == nullptr) {
             return;
         }
-        GR_Main::Ex_OKGR_ShrLight_16(EC_Mem::AddPointerOffset(Pixels, Rect.Left * static_cast<std::int32_t>(sizeof(std::uint16_t)) + Rect.Top * PitchBytes), PitchBytes, Rect.Right - Rect.Left, Rect.Bottom - Rect.Top, Shift);
+        GR_Main::Ex_OKGR_ShrLight_16(
+            EC_Mem::AddPointerOffset(Pixels,
+                Rect.Left * static_cast<std::int32_t>(sizeof(std::uint16_t)) + Rect.Top * PitchBytes), PitchBytes,
+            Rect.Right - Rect.Left, Rect.Bottom - Rect.Top, Shift);
     }
 
-    void TGraphBufGR::DrawCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor, std::uint32_t FillColor, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor,
+        std::uint32_t FillColor, WindowsSdk::TRect Clip) {
         WindowsSdk::TRect InclusiveClip{};
         LockTexture(false);
         InclusiveClip.Left = Clip.Left;
         InclusiveClip.Top = Clip.Top;
         InclusiveClip.Right = Clip.Right - 1;
         InclusiveClip.Bottom = Clip.Bottom - 1;
-        GR_Main::Ex_OKGR_Circle_DrawFillClip_WORD(Pixels, PitchBytes, Center.X, Center.Y, Radius, FillColor, InclusiveClip);
+        GR_Main::Ex_OKGR_Circle_DrawFillClip_WORD(Pixels, PitchBytes, Center.X, Center.Y, Radius, FillColor,
+            InclusiveClip);
         if (OutlineColor != FillColor) {
-            GR_Main::Ex_OKGR_Circle_DrawClip_WORD(Pixels, PitchBytes, Center.X, Center.Y, Radius, OutlineColor, InclusiveClip);
+            GR_Main::Ex_OKGR_Circle_DrawClip_WORD(Pixels, PitchBytes, Center.X, Center.Y, Radius, OutlineColor,
+                InclusiveClip);
         }
     }
 
-    void TGraphBufGR::DrawCircle8(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor, std::uint32_t FillColor, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawCircle8(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t OutlineColor,
+        std::uint32_t FillColor, WindowsSdk::TRect Clip) {
         WindowsSdk::TRect InclusiveClip{};
         LockTexture(false);
         InclusiveClip.Left = Clip.Left;
         InclusiveClip.Top = Clip.Top;
         InclusiveClip.Right = Clip.Right - 1;
         InclusiveClip.Bottom = Clip.Bottom - 1;
-        GR_Main::Ex_OKGR_Circle_DrawFillClip_BYTE(Pixels, PitchBytes, Center.X, Center.Y, Radius, FillColor, InclusiveClip);
+        GR_Main::Ex_OKGR_Circle_DrawFillClip_BYTE(Pixels, PitchBytes, Center.X, Center.Y, Radius, FillColor,
+            InclusiveClip);
         if (OutlineColor != FillColor) {
-            GR_Main::Ex_OKGR_Circle_DrawClip_BYTE(Pixels, PitchBytes, Center.X, Center.Y, Radius, OutlineColor, InclusiveClip);
+            GR_Main::Ex_OKGR_Circle_DrawClip_BYTE(Pixels, PitchBytes, Center.X, Center.Y, Radius, OutlineColor,
+                InclusiveClip);
         }
     }
 
@@ -927,8 +979,10 @@ namespace GR_GraphBuf {
                 if (Value == u"Stretch") {
                     Value = EC_Str::ExtractDelimitedPartW(pas::view(Part), 1, u"="sv);
                     if (EC_Str::CountDelimitedPartsW(pas::view(Value), u","sv) > 1) {
-                        std::uint32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 1, u","sv)));
-                        std::uint32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 0, u","sv)));
+                        std::uint32_t strToInt = SysUtils::StrToInt(
+                            static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 1, u","sv)));
+                        std::uint32_t strToInt_2 = SysUtils::StrToInt(
+                            static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Value), 0, u","sv)));
                         Stretch16(strToInt_2, strToInt);
                     }
                 }
@@ -937,7 +991,8 @@ namespace GR_GraphBuf {
     }
 
     void TGraphBufGR::RescaleRgb(std::int32_t Width, std::int32_t Height) {
-        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 || Height < 1) {
+        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 ||
+            Height < 1) {
             return;
         }
         if (this->Width == Width && this->Height == Height) {
@@ -956,14 +1011,16 @@ namespace GR_GraphBuf {
     }
 
     void TGraphBufGR::RescaleRgba(std::int32_t Width, std::int32_t Height, std::int32_t Filter) {
-        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 || Height < 1) {
+        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 ||
+            Height < 1) {
             return;
         }
         if (this->Width == Width && this->Height == Height) {
             return;
         }
         void* Data = EC_Mem::AllocEC(Width * static_cast<std::int32_t>(sizeof(TColorRGBA)) * Height);
-        GR_Main::Ex_OKGF_Rescale(Data, Width, Height, Width * static_cast<std::int32_t>(sizeof(TColorRGBA)), Pixels, this->Width, this->Height, PitchBytes, 4, Filter);
+        GR_Main::Ex_OKGF_Rescale(Data, Width, Height, Width * static_cast<std::int32_t>(sizeof(TColorRGBA)), Pixels,
+            this->Width, this->Height, PitchBytes, 4, Filter);
         if (StorageKind == 0) {
             EC_Mem::FreeEC(Pixels);
         }
@@ -988,7 +1045,8 @@ namespace GR_GraphBuf {
         std::int32_t BottomRightWeight{};
         PColorRGBAArray TopRow{};
         PColorRGBAArray BottomRow{};
-        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 || Height < 1) {
+        if (static_cast<std::uint32_t>(this->Width) < 1 || static_cast<std::uint32_t>(this->Height) < 1 || Width < 1 ||
+            Height < 1) {
             return;
         }
         if (this->Width == Width && this->Height == Height) {
@@ -1016,12 +1074,48 @@ namespace GR_GraphBuf {
                 TopLeftWeight = TopWeight - TopRightWeight;
                 BottomRightWeight = pas::shr(BottomWeight * FractionX, 16);
                 BottomLeftWeight = BottomWeight - BottomRightWeight;
-                Dest->R = pas::shr(pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) * TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) * TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) * BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) * BottomRightWeight, 16);
-                Dest->G = pas::shr(pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) * TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) * TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) * BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) * BottomRightWeight, 16);
-                Dest->B = pas::shr(pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) * TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) * TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) * BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) * BottomRightWeight, 16);
-                Dest->A = pas::shr(pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) * TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) * TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) * BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) * BottomRightWeight, 16);
+                Dest->R = pas::shr(
+                        pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) *
+                            TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) *
+                            TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) *
+                            BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, R))) *
+                            BottomRightWeight, 16);
+                Dest->G = pas::shr(
+                        pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) *
+                            TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) *
+                            TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) *
+                            BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, G))) *
+                            BottomRightWeight, 16);
+                Dest->B = pas::shr(
+                        pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) *
+                            TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) *
+                            TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) *
+                            BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, B))) *
+                            BottomRightWeight, 16);
+                Dest->A = pas::shr(
+                        pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) *
+                            TopLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(TopRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) *
+                            TopRightWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, PixelX * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) *
+                            BottomLeftWeight + pas::load_unaligned<std::uint8_t>(pas::byte_offset(
+                            pas::byte_offset(BottomRow, (PixelX + 1) * sizeof(TColorRGBA)), offsetof(TColorRGBA, A))) *
+                            BottomRightWeight, 16);
                 SourceX += XStep;
-                ++Dest;
+                pas::inc(Dest);
             }
             YPosition += YStep;
         }
@@ -1096,16 +1190,22 @@ namespace GR_GraphBuf {
             if (Points[RightEnd].Y < Points[LeftEnd].Y) {
                 NextY = Points[RightEnd].Y;
                 NextRightX = Points[RightEnd].X;
-                NextLeftX = pas::idiv((Points[RightEnd].Y - Points[LeftStart].Y) * (Points[LeftEnd].X - Points[LeftStart].X), Points[LeftEnd].Y - Points[LeftStart].Y) + Points[LeftStart].X;
+                NextLeftX = pas::idiv(
+                        (Points[RightEnd].Y - Points[LeftStart].Y) * (Points[LeftEnd].X - Points[LeftStart].X),
+                        Points[LeftEnd].Y - Points[LeftStart].Y) + Points[LeftStart].X;
             } else {
                 NextY = Points[LeftEnd].Y;
                 NextLeftX = Points[LeftEnd].X;
-                NextRightX = pas::idiv((Points[RightEnd].X - Points[RightStart].X) * (Points[LeftEnd].Y - Points[RightStart].Y), Points[RightEnd].Y - Points[RightStart].Y) + Points[RightStart].X;
+                NextRightX = pas::idiv(
+                        (Points[RightEnd].X - Points[RightStart].X) * (Points[LeftEnd].Y - Points[RightStart].Y),
+                        Points[RightEnd].Y - Points[RightStart].Y) + Points[RightStart].X;
             }
             if (LeftX < RightX == NextLeftX < NextRightX) {
-                GR_Main::Ex_OKGR_FillTrapezium_DWORD(Pixels, PitchBytes, RightX, LeftX, Y, NextRightX, NextLeftX, NextY, Color, Clip);
+                GR_Main::Ex_OKGR_FillTrapezium_DWORD(Pixels, PitchBytes, RightX, LeftX, Y, NextRightX, NextLeftX, NextY,
+                    Color, Clip);
             } else {
-                GR_Main::Ex_OKGR_FillTrapezium_DWORD(Pixels, PitchBytes, LeftX, RightX, Y, NextLeftX, NextRightX, NextY, Color, Clip);
+                GR_Main::Ex_OKGR_FillTrapezium_DWORD(Pixels, PitchBytes, LeftX, RightX, Y, NextLeftX, NextRightX, NextY,
+                    Color, Clip);
             }
             LeftX = NextLeftX;
             RightX = NextRightX;
@@ -1139,41 +1239,45 @@ namespace GR_GraphBuf {
         return Result;
     }
 
-    void TGraphBufGR_CopyRect32(TGraphBufGR* Self, WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect) {
+    void TGraphBufGR::CopyRect32(WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect) {
         std::uint8_t* cpp_left = static_cast<std::uint8_t*>(Source->GetPixels());
-        void* Src = cpp_left + (Rect.Top * Source->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)));
+        void* Src = pas::pointer_add(cpp_left,
+            Rect.Top * Source->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)));
         std::int32_t Columns = Rect.Right - Rect.Left;
         std::int32_t Rows = Rect.Bottom - Rect.Top;
         if (Columns == 0 || Rows == 0) {
             return;
         }
         std::int32_t SrcSkip = Source->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
-        std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(Self->GetPixels());
-        void* Dst = cpp_left_2 + (Dest.Y * Self->PitchBytes + Dest.X * static_cast<std::int32_t>(sizeof(TColorRGBA)));
-        std::int32_t DstSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
+        std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(GetPixels());
+        void* Dst = pas::pointer_add(cpp_left_2,
+            Dest.Y * PitchBytes + Dest.X * static_cast<std::int32_t>(sizeof(TColorRGBA)));
+        std::int32_t DstSkip = PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
         BitmapPorts::CopyPixels32(Src, Dst, Columns, Rows, SrcSkip, DstSkip);
     }
 
-    void TGraphBufGR_BlendRect32(TGraphBufGR* Self, WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect) {
+    void TGraphBufGR::BlendRect32(WindowsSdk::TPoint Dest, TGraphBufGR* Source, WindowsSdk::TRect Rect) {
         std::uint8_t* cpp_left = static_cast<std::uint8_t*>(Source->GetPixels());
-        void* Src = cpp_left + (Rect.Top * Source->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)));
+        void* Src = pas::pointer_add(cpp_left,
+            Rect.Top * Source->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)));
         std::int32_t Columns = Rect.Right - Rect.Left;
         std::int32_t Rows = Rect.Bottom - Rect.Top;
         std::int32_t SrcSkip = Source->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
-        std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(Self->GetPixels());
-        void* Dst = cpp_left_2 + (Dest.Y * Self->PitchBytes + Dest.X * static_cast<std::int32_t>(sizeof(TColorRGBA)));
-        std::int32_t DstSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
+        std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(GetPixels());
+        void* Dst = pas::pointer_add(cpp_left_2,
+            Dest.Y * PitchBytes + Dest.X * static_cast<std::int32_t>(sizeof(TColorRGBA)));
+        std::int32_t DstSkip = PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
         void* Table = GR_Main::Ex_OKGF_MulTable256x256();
         // Native precondition: Columns and Rows must be positive. Neither is checked
         // before access; zero wraps on DEC and the loop overruns the rectangle buffers.
         BitmapPorts::BlendPixels32(Src, Dst, Columns, Rows, SrcSkip, DstSkip, Table);
     }
 
-    void TGraphBufGR_MakeShadow(TGraphBufGR* Self) {
-        void* Data = Self->GetPixels();
-        std::int32_t Columns = Self->Width;
-        std::int32_t Rows = Self->Height;
-        std::int32_t RowSkip = Self->PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
+    void TGraphBufGR::MakeShadow() {
+        void* Data = GetPixels();
+        std::int32_t Columns = Width;
+        std::int32_t Rows = Height;
+        std::int32_t RowSkip = PitchBytes - Columns * static_cast<std::int32_t>(sizeof(TColorRGBA));
         // Native precondition: Width and Height must be positive. Neither is checked
         // before access; zero wraps on DEC and the loop overruns the pixel buffer.
         BitmapPorts::ShadowPixels32(Data, Columns, Rows, RowSkip);
@@ -1198,9 +1302,9 @@ namespace GR_GraphBuf {
     void TGraphBufGR::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         Clear();
         Buffer->ExpandZlibPayloadInPlace();
-        Width = EC_Buf::TBufEC_GetUInt32(Buffer);
-        Height = EC_Buf::TBufEC_GetUInt32(Buffer);
-        PitchBytes = EC_Buf::TBufEC_GetUInt32(Buffer);
+        Width = Buffer->GetUInt32();
+        Height = Buffer->GetUInt32();
+        PitchBytes = Buffer->GetUInt32();
         std::int32_t Size = PitchBytes * Height;
         if (Buffer->DataSize - Buffer->Position < Size) {
             GR_Main::RaiseWideMessage(u"load bin"_wref.get());
@@ -1239,7 +1343,8 @@ namespace GR_GraphBuf {
             void* pixels = GetPixels();
             std::uint8_t* cpp_arg = (cpp_text = static_cast<pas::AnsiString>(FileName), cpp_text.pchar());
             std::int32_t pitchBytes = PitchBytes;
-            GR_Main::WriteBmpFile(cpp_arg, pixels, pitchBytes, 32, 0x00ff0000u, 0x0000ff00u, 0x000000ffu, 0u, width, height);
+            GR_Main::WriteBmpFile(cpp_arg, pixels, pitchBytes, 32, 0x00ff0000u, 0x0000ff00u, 0x000000ffu, 0u, width,
+                height);
         }
     }
 
@@ -1276,9 +1381,11 @@ namespace GR_GraphBuf {
         }
     }
 
-    void TGraphBufGR::DrawNinePatch(std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, TGraphBufGR* Source, WindowsSdk::TRect SourceRect, WindowsSdk::TRect Borders) {
+    void TGraphBufGR::DrawNinePatch(std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height,
+        TGraphBufGR* Source, WindowsSdk::TRect SourceRect, WindowsSdk::TRect Borders) {
         WindowsSdk::TRect TileRect{};
-        auto TilePatch = [&](std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Rect) -> void {
+        auto TilePatch = [&](std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height,
+            WindowsSdk::TRect Rect) -> void {
             std::int32_t TileX{};
             std::int32_t TileWidth = Rect.Right - Rect.Left;
             if (TileWidth <= 0) {
@@ -1296,9 +1403,10 @@ namespace GR_GraphBuf {
                 TileX = 0;
                 while (TileX < Width) {
                     if (TileX + TileWidth > Width) {
-                        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X + TileX, Y + TileY), Source, ClassesImports::Rect(Rect.Left, Rect.Top, Width - TileX + Rect.Left, Rect.Bottom));
+                        CopyRect32(ClassesImports::Point(X + TileX, Y + TileY), Source,
+                            ClassesImports::Rect(Rect.Left, Rect.Top, Width - TileX + Rect.Left, Rect.Bottom));
                     } else {
-                        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X + TileX, Y + TileY), Source, Rect);
+                        CopyRect32(ClassesImports::Point(X + TileX, Y + TileY), Source, Rect);
                     }
                     TileX += TileWidth;
                 }
@@ -1317,27 +1425,40 @@ namespace GR_GraphBuf {
         if (SourceRect.Bottom <= SourceRect.Top) {
             SourceRect.Bottom = Source->Height;
         }
-        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Top, SourceRect.Left + Borders.Left, SourceRect.Top + Borders.Top);
-        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X, Y), Source, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Top, SourceRect.Right, SourceRect.Top + Borders.Top);
-        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X + Width - Borders.Right, Y), Source, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Bottom - Borders.Bottom, SourceRect.Left + Borders.Left, SourceRect.Bottom);
-        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X, Y + Height - Borders.Bottom), Source, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Bottom - Borders.Bottom, SourceRect.Right, SourceRect.Bottom);
-        GR_GraphBuf::TGraphBufGR_CopyRect32(this, ClassesImports::Point(X + Width - Borders.Right, Y + Height - Borders.Bottom), Source, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Top, SourceRect.Right - Borders.Right, SourceRect.Top + Borders.Top);
+        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Top, SourceRect.Left + Borders.Left,
+                SourceRect.Top + Borders.Top);
+        CopyRect32(ClassesImports::Point(X, Y), Source, TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Top, SourceRect.Right,
+                SourceRect.Top + Borders.Top);
+        CopyRect32(ClassesImports::Point(X + Width - Borders.Right, Y), Source, TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Bottom - Borders.Bottom,
+                SourceRect.Left + Borders.Left, SourceRect.Bottom);
+        CopyRect32(ClassesImports::Point(X, Y + Height - Borders.Bottom), Source, TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Bottom - Borders.Bottom,
+                SourceRect.Right, SourceRect.Bottom);
+        CopyRect32(ClassesImports::Point(X + Width - Borders.Right, Y + Height - Borders.Bottom), Source, TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Top,
+                SourceRect.Right - Borders.Right, SourceRect.Top + Borders.Top);
         TilePatch(X + Borders.Left, Y, Width - Borders.Left - Borders.Right, Borders.Top, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Bottom - Borders.Bottom, SourceRect.Right - Borders.Right, SourceRect.Bottom);
-        TilePatch(X + Borders.Left, Y + Height - Borders.Bottom, Width - Borders.Left - Borders.Right, Borders.Bottom, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Top + Borders.Top, SourceRect.Left + Borders.Left, SourceRect.Bottom - Borders.Bottom);
+        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Bottom - Borders.Bottom,
+                SourceRect.Right - Borders.Right, SourceRect.Bottom);
+        TilePatch(X + Borders.Left, Y + Height - Borders.Bottom, Width - Borders.Left - Borders.Right, Borders.Bottom,
+            TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Left, SourceRect.Top + Borders.Top, SourceRect.Left + Borders.Left,
+                SourceRect.Bottom - Borders.Bottom);
         TilePatch(X, Y + Borders.Top, Borders.Left, Height - Borders.Top - Borders.Bottom, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Top + Borders.Top, SourceRect.Right, SourceRect.Bottom - Borders.Bottom);
-        TilePatch(X + Width - Borders.Right, Y + Borders.Top, Borders.Right, Height - Borders.Top - Borders.Bottom, TileRect);
-        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Top + Borders.Top, SourceRect.Right - Borders.Right, SourceRect.Bottom - Borders.Bottom);
-        TilePatch(X + Borders.Left, Y + Borders.Top, Width - Borders.Left - Borders.Right, Height - Borders.Top - Borders.Bottom, TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Right - Borders.Right, SourceRect.Top + Borders.Top,
+                SourceRect.Right, SourceRect.Bottom - Borders.Bottom);
+        TilePatch(X + Width - Borders.Right, Y + Borders.Top, Borders.Right, Height - Borders.Top - Borders.Bottom,
+            TileRect);
+        TileRect = ClassesImports::Rect(SourceRect.Left + Borders.Left, SourceRect.Top + Borders.Top,
+                SourceRect.Right - Borders.Right, SourceRect.Bottom - Borders.Bottom);
+        TilePatch(X + Borders.Left, Y + Borders.Top, Width - Borders.Left - Borders.Right,
+            Height - Borders.Top - Borders.Bottom, TileRect);
     }
 
-    void TGraphBufGR::RescaleWithAspect(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect, std::int32_t HorizontalAlign, std::int32_t VerticalAlign, std::int32_t Filter) {
+    void TGraphBufGR::RescaleWithAspect(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect,
+        std::int32_t HorizontalAlign, std::int32_t VerticalAlign, std::int32_t Filter) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         std::uint32_t CropWidth{};
         std::uint32_t CropHeight{};
@@ -1354,9 +1475,10 @@ namespace GR_GraphBuf {
         std::uint32_t Top = 0u;
         if (CropToAspect) {
             CropWidth = this->Width;
-            CropHeight = System::Round(pas::real_divide(Height, Width) * static_cast<std::uint32_t>(this->Width));
+            CropHeight = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Height) / Width) * static_cast<std::uint32_t>(this->Width)));
             if (CropHeight > static_cast<std::uint32_t>(this->Height)) {
-                CropWidth = System::Round(pas::real_divide(Width, Height) * static_cast<std::uint32_t>(this->Height));
+                CropWidth = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Width) / Height) *
+                        static_cast<std::uint32_t>(this->Height)));
                 CropHeight = this->Height;
             }
             if (HorizontalAlign == 1) {
@@ -1373,7 +1495,8 @@ namespace GR_GraphBuf {
             } else {
                 Top = 0u;
             }
-            if (Width == static_cast<std::uint32_t>(this->Width) && Height < static_cast<std::uint32_t>(this->Height) || Height == static_cast<std::uint32_t>(this->Height) && Width < static_cast<std::uint32_t>(this->Width)) {
+            if (Width == static_cast<std::uint32_t>(this->Width) && Height < static_cast<std::uint32_t>(this->Height) ||
+                Height == static_cast<std::uint32_t>(this->Height) && Width < static_cast<std::uint32_t>(this->Width)) {
                 Crop(ClassesImports::Rect(Left, Top, Left + CropWidth, Top + CropHeight));
                 return;
             }
@@ -1382,7 +1505,8 @@ namespace GR_GraphBuf {
             CropHeight = this->Height;
         }
         if (UseTexture && BitsPerPixel == 32) {
-            NewTexture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            NewTexture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             Direct3D9::IDirect3DTexture9_LockRect(NewTexture, 0u, Locked, nullptr, 0u);
             Dest = Locked.Bits;
             DestPitch = Locked.Pitch;
@@ -1398,7 +1522,9 @@ namespace GR_GraphBuf {
             Source = Pixels;
             SourcePitch = PitchBytes;
         }
-        GR_Main::Ex_OKGF_Rescale(Dest, Width, Height, DestPitch, EC_Mem::AddPointerOffset(Source, Top * SourcePitch + Left * BytesPerPixel), CropWidth, CropHeight, SourcePitch, BytesPerPixel, Filter);
+        GR_Main::Ex_OKGF_Rescale(Dest, Width, Height, DestPitch,
+            EC_Mem::AddPointerOffset(Source, Top * SourcePitch + Left * BytesPerPixel), CropWidth, CropHeight,
+            SourcePitch, BytesPerPixel, Filter);
         if (UseTexture && BitsPerPixel == 32) {
             if (!KeepTextureUntilReplacement) {
                 Texture = nullptr;
@@ -1422,7 +1548,8 @@ namespace GR_GraphBuf {
     }
 
     // Alignment values: 0=start, 1=center, 2=end.
-    void TGraphBufGR::RescaleRGBA_HW(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect, std::int32_t HorizontalAlign, std::int32_t VerticalAlign) {
+    void TGraphBufGR::RescaleRGBA_HW(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect,
+        std::int32_t HorizontalAlign, std::int32_t VerticalAlign) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         std::uint32_t Left{};
         std::uint32_t Top{};
@@ -1441,9 +1568,10 @@ namespace GR_GraphBuf {
         }
         if (CropToAspect) {
             CropWidth = this->Width;
-            CropHeight = System::Round(pas::real_divide(Height, Width) * static_cast<std::uint32_t>(this->Width));
+            CropHeight = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Height) / Width) * static_cast<std::uint32_t>(this->Width)));
             if (CropHeight > static_cast<std::uint32_t>(this->Height)) {
-                CropWidth = System::Round(pas::real_divide(Width, Height) * static_cast<std::uint32_t>(this->Height));
+                CropWidth = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Width) / Height) *
+                        static_cast<std::uint32_t>(this->Height)));
                 CropHeight = this->Height;
             }
             if (HorizontalAlign == 1) {
@@ -1461,7 +1589,8 @@ namespace GR_GraphBuf {
                 Top = 0u;
             }
             SourceRect = ClassesImports::Rect(Left, Top, Left + CropWidth, Top + CropHeight);
-            if (Width == static_cast<std::uint32_t>(this->Width) && Height < static_cast<std::uint32_t>(this->Height) || Height == static_cast<std::uint32_t>(this->Height) && Width < static_cast<std::uint32_t>(this->Width)) {
+            if (Width == static_cast<std::uint32_t>(this->Width) && Height < static_cast<std::uint32_t>(this->Height) ||
+                Height == static_cast<std::uint32_t>(this->Height) && Width < static_cast<std::uint32_t>(this->Width)) {
                 Crop(SourceRect);
                 return;
             }
@@ -1474,7 +1603,8 @@ namespace GR_GraphBuf {
             std::uint32_t height = this->Height;
             std::uint32_t width = this->Width;
             pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice = GR_Main::Direct3DDevice;
-            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice, width, height, 1u, 0u, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_SYSTEMMEM, staging, nullptr);
+            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice, width, height, 1u, 0u, Direct3D9::D3DFMT_A8R8G8B8,
+                Direct3D9::D3DPOOL_SYSTEMMEM, staging, nullptr);
         }
         Direct3D9::IDirect3DTexture9_LockRect(Staging, 0u, Locked, nullptr, 0u);
         Windows::CopyMemory(Locked.Bits, Pixels, this->Height * PitchBytes);
@@ -1488,7 +1618,8 @@ namespace GR_GraphBuf {
             std::uint32_t height_2 = this->Height;
             std::uint32_t width_2 = this->Width;
             pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_2 = GR_Main::Direct3DDevice;
-            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice_2, width_2, height_2, 1u, 0u, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_DEFAULT, deviceTexture, nullptr);
+            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice_2, width_2, height_2, 1u, 0u,
+                Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_DEFAULT, deviceTexture, nullptr);
         }
         if (([&] {
             pas::ComView<Direct3D9::IDirect3DBaseTexture9_Tag> deviceTexture_2 = DeviceTexture;
@@ -1501,14 +1632,16 @@ namespace GR_GraphBuf {
         {
             Direct3D9::IDirect3DSurface9& targetSurface = pas::out_interface(TargetSurface);
             pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_3 = GR_Main::Direct3DDevice;
-            Direct3D9::IDirect3DDevice9_CreateRenderTarget(direct3DDevice_3, Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DMULTISAMPLE_NONE, 0u, 0, targetSurface, nullptr);
+            Direct3D9::IDirect3DDevice9_CreateRenderTarget(direct3DDevice_3, Width, Height, Direct3D9::D3DFMT_A8R8G8B8,
+                Direct3D9::D3DMULTISAMPLE_NONE, 0u, 0, targetSurface, nullptr);
         }
         {
             Direct3D9::IDirect3DSurface9& sourceSurface = pas::out_interface(SourceSurface);
             pas::ComView<Direct3D9::IDirect3DTexture9_Tag> deviceTexture_3 = DeviceTexture;
             Direct3D9::IDirect3DTexture9_GetSurfaceLevel(deviceTexture_3, 0u, sourceSurface);
         }
-        if (Direct3D9::IDirect3DDevice9_StretchRect(GR_Main::Direct3DDevice, SourceSurface, reinterpret_cast<Types::PRect>(&SourceRect), TargetSurface, nullptr, Direct3D9::D3DTEXF_LINEAR) != 0) {
+        if (Direct3D9::IDirect3DDevice9_StretchRect(GR_Main::Direct3DDevice, SourceSurface,
+            reinterpret_cast<Types::PRect>(&SourceRect), TargetSurface, nullptr, Direct3D9::D3DTEXF_LINEAR) != 0) {
             GR_Main::AppendLogLineThreadSafe("TGraphBufGR.RescaleRGBA_HW(...)::StretchRect fail"_a);
         }
         SourceSurface = nullptr;
@@ -1516,14 +1649,16 @@ namespace GR_GraphBuf {
         {
             Direct3D9::IDirect3DTexture9& staging_3 = pas::out_interface(Staging);
             pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_4 = GR_Main::Direct3DDevice;
-            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice_4, Width, Height, 1u, 0u, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_SYSTEMMEM, staging_3, nullptr);
+            Direct3D9::IDirect3DDevice9_CreateTexture(direct3DDevice_4, Width, Height, 1u, 0u,
+                Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_SYSTEMMEM, staging_3, nullptr);
         }
         {
             Direct3D9::IDirect3DSurface9& sourceSurface_2 = pas::out_interface(SourceSurface);
             pas::ComView<Direct3D9::IDirect3DTexture9_Tag> staging_4 = Staging;
             Direct3D9::IDirect3DTexture9_GetSurfaceLevel(staging_4, 0u, sourceSurface_2);
         }
-        if (Direct3D9::IDirect3DDevice9_GetRenderTargetData(GR_Main::Direct3DDevice, TargetSurface, SourceSurface) != 0) {
+        if (Direct3D9::IDirect3DDevice9_GetRenderTargetData(GR_Main::Direct3DDevice, TargetSurface, SourceSurface) !=
+            0) {
             GR_Main::AppendLogLineThreadSafe("TGraphBufGR.RescaleRGBA_HW(...)::GetRenderTargetData fail"_a);
         }
         SourceSurface = nullptr;
@@ -1532,7 +1667,8 @@ namespace GR_GraphBuf {
             if (!KeepTextureUntilReplacement) {
                 Texture = nullptr;
             }
-            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+            Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                    cpp_result), cpp_result);
             Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
             Dest = Locked.Bits;
             DestPitch = Locked.Pitch;
@@ -1570,14 +1706,17 @@ namespace GR_GraphBuf {
         Direct3D9::TD3DLockedRect Locked{};
         std::int32_t NewWidth = Rect.Right - Rect.Left;
         std::int32_t NewHeight = Rect.Bottom - Rect.Top;
-        if (NewWidth <= 0 || NewHeight <= 0 || Rect.Left < 0 || Rect.Left >= Width || Rect.Right > Width || Rect.Top < 0 || Rect.Top >= Height || Rect.Bottom > Height) {
+        if (NewWidth <= 0 || NewHeight <= 0 || Rect.Left < 0 || Rect.Left >= Width || Rect.Right > Width || Rect.Top <
+                0 || Rect.Top >= Height || Rect.Bottom > Height) {
             return;
         }
         if (UseTexture) {
             if (BitsPerPixel == 16) {
-                NewTexture = (GR_DX::GR_CreateTexture(NewWidth, NewHeight, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+                NewTexture = (GR_DX::GR_CreateTexture(NewWidth, NewHeight, Direct3D9::D3DFMT_R5G6B5,
+                        Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
             } else if (BitsPerPixel == 32) {
-                NewTexture = (GR_DX::GR_CreateTexture(NewWidth, NewHeight, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
+                NewTexture = (GR_DX::GR_CreateTexture(NewWidth, NewHeight, Direct3D9::D3DFMT_A8R8G8B8,
+                        Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
             }
             Direct3D9::IDirect3DTexture9_LockRect(NewTexture, 0u, Locked, nullptr, 0u);
             Dest = Locked.Bits;
@@ -1590,7 +1729,8 @@ namespace GR_GraphBuf {
         void* Source = EC_Mem::AddPointerOffset(Pixels, Rect.Top * PitchBytes + Rect.Left * BytesPerPixel);
         std::int32_t Y = 0;
         while (Y < NewHeight) {
-            Windows::CopyMemory(EC_Mem::AddPointerOffset(Dest, Y * NewPitch), EC_Mem::AddPointerOffset(Source, Y * PitchBytes), NewWidth * BytesPerPixel);
+            Windows::CopyMemory(EC_Mem::AddPointerOffset(Dest, Y * NewPitch),
+                EC_Mem::AddPointerOffset(Source, Y * PitchBytes), NewWidth * BytesPerPixel);
             ++Y;
         }
         UnlockTexture();
@@ -1629,7 +1769,7 @@ namespace GR_GraphBuf {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Height - 1); cpp_range.next(Y); ) {
                 {
                     std::uint8_t* cpp_left = static_cast<std::uint8_t*>(GetPixels());
-                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(cpp_left + PitchBytes * Y));
+                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(pas::pointer_add(cpp_left, PitchBytes * Y)));
                 }
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Width - 1); cpp_range_2.next(X); ) {
                     C = pas::load_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel));
@@ -1640,21 +1780,23 @@ namespace GR_GraphBuf {
                     G = Table[G];
                     R = Table[R];
                     C = pas::shr(B, 3) | pas::shl(pas::shr(G, 2), 5) | pas::shl(pas::shr(R, 3), 11);
-                    pas::store_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel), static_cast<std::uint16_t>(C));
-                    Pixel += static_cast<std::int32_t>(sizeof(std::uint16_t));
+                    pas::store_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel),
+                        static_cast<std::uint16_t>(C));
+                    pas::inc(Pixel, static_cast<std::int32_t>(sizeof(std::uint16_t)));
                 }
             }
         } else if (BitsPerPixel == 32) {
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Height - 1); cpp_range_3.next(Y); ) {
                 {
                     std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(GetPixels());
-                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(cpp_left_2 + PitchBytes * Y));
+                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(pas::pointer_add(cpp_left_2,
+                            PitchBytes * Y)));
                 }
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Width - 1); cpp_range_4.next(X); ) {
                     reinterpret_cast<PColorBGRA>(Pixel)->B = Table[reinterpret_cast<PColorBGRA>(Pixel)->B];
                     *(&reinterpret_cast<PColorBGRA>(Pixel)->G) = Table[*(&reinterpret_cast<PColorBGRA>(Pixel)->G)];
                     *(&reinterpret_cast<PColorBGRA>(Pixel)->R) = Table[*(&reinterpret_cast<PColorBGRA>(Pixel)->R)];
-                    Pixel += static_cast<std::int32_t>(sizeof(TColorRGBA));
+                    pas::inc(Pixel, static_cast<std::int32_t>(sizeof(TColorRGBA)));
                 }
             }
         }
@@ -1678,7 +1820,7 @@ namespace GR_GraphBuf {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Height - 1); cpp_range.next(Y); ) {
                 {
                     std::uint8_t* cpp_left = static_cast<std::uint8_t*>(GetPixels());
-                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(cpp_left + PitchBytes * Y));
+                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(pas::pointer_add(cpp_left, PitchBytes * Y)));
                 }
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Width - 1); cpp_range_2.next(X); ) {
                     C = pas::load_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel));
@@ -1689,25 +1831,27 @@ namespace GR_GraphBuf {
                     G = R * 2;
                     B = R;
                     C = R << 11 | G << 5 | B;
-                    pas::store_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel), static_cast<std::uint16_t>(C));
-                    Pixel += static_cast<std::int32_t>(sizeof(std::uint16_t));
+                    pas::store_unaligned<std::uint16_t>(reinterpret_cast<WindowsSdk::PWORD>(Pixel),
+                        static_cast<std::uint16_t>(C));
+                    pas::inc(Pixel, static_cast<std::int32_t>(sizeof(std::uint16_t)));
                 }
             }
         } else if (BitsPerPixel == 32) {
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Height - 1); cpp_range_3.next(Y); ) {
                 {
                     std::uint8_t* cpp_left_2 = static_cast<std::uint8_t*>(GetPixels());
-                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(cpp_left_2 + PitchBytes * Y));
+                    Pixel = static_cast<std::uint8_t*>(static_cast<void*>(pas::pointer_add(cpp_left_2,
+                            PitchBytes * Y)));
                 }
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Width - 1); cpp_range_4.next(X); ) {
                     B = reinterpret_cast<PColorBGRA>(Pixel)->B;
                     G = *(&reinterpret_cast<PColorBGRA>(Pixel)->G);
                     R = *(&reinterpret_cast<PColorBGRA>(Pixel)->R);
-                    C = System::Trunc(R * 0.299L + G * 0.587L + B * 0.114L);
+                    C = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<float>(R * 0x1.322d0e5604188p-2) + static_cast<float>(G * 0x1.2c8b439581063p-1)) + static_cast<float>(B * 0x1.d2f1a9fbe76cap-4)));
                     reinterpret_cast<PColorBGRA>(Pixel)->B = C;
                     *(&reinterpret_cast<PColorBGRA>(Pixel)->G) = C;
                     *(&reinterpret_cast<PColorBGRA>(Pixel)->R) = C;
-                    Pixel += static_cast<std::int32_t>(sizeof(TColorRGBA));
+                    pas::inc(Pixel, static_cast<std::int32_t>(sizeof(TColorRGBA)));
                 }
             }
         }
@@ -1720,14 +1864,22 @@ namespace GR_GraphBuf {
         Direct3D9::TD3DLockedRect Locked{};
         std::uint32_t Y{};
         std::int32_t RowBytes{};
-        auto CopyRgbToOpaqueRgba = [&](void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height) -> void {
+        auto CopyRgbToOpaqueRgba = [&](void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+            std::int32_t Width, std::int32_t Height) -> void {
             std::int32_t X{};
             std::int32_t Y = 0;
             while (Y < Height) {
                 X = 0;
                 while (X < Width) {
-                    Windows::CopyMemory(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGBA))), EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGB))), static_cast<std::int32_t>(sizeof(TColorRGB)));
-                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = 255;
+                    Windows::CopyMemory(
+                        EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGBA))),
+                        EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorRGB))),
+                        static_cast<std::int32_t>(sizeof(TColorRGB)));
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest,
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(
+                                &reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                                static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = 255;
                     ++X;
                 }
                 Dest = EC_Mem::AddPointerOffset(Dest, DestPitch);
@@ -1737,21 +1889,25 @@ namespace GR_GraphBuf {
         };
         if (static_cast<std::uint8_t>(UsesTextureStorage ^ 1) && Texture == nullptr) {
             if (BitsPerPixel == 24) {
-                Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+                Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8,
+                        Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                 CopyRgbToOpaqueRgba(Locked.Bits, Locked.Pitch, Pixels, PitchBytes, Width, Height);
                 Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
             } else {
                 if (BitsPerPixel == 16) {
-                    Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5, Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
+                    Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_R5G6B5,
+                            Direct3D9::D3DPOOL_MANAGED, cpp_result_2), cpp_result_2);
                 } else if (BitsPerPixel == 32) {
-                    Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result_3), cpp_result_3);
+                    Texture = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8,
+                            Direct3D9::D3DPOOL_MANAGED, cpp_result_3), cpp_result_3);
                 }
                 Direct3D9::IDirect3DTexture9_LockRect(Texture, 0u, Locked, nullptr, 0u);
                 RowBytes = Width * BytesPerPixel;
                 Y = 0u;
                 while (Y < static_cast<std::uint32_t>(Height)) {
-                    Windows::CopyMemory(EC_Mem::AddPointerOffset(Locked.Bits, Locked.Pitch * Y), EC_Mem::AddPointerOffset(Pixels, PitchBytes * Y), RowBytes);
+                    Windows::CopyMemory(EC_Mem::AddPointerOffset(Locked.Bits, Locked.Pitch * Y),
+                        EC_Mem::AddPointerOffset(Pixels, PitchBytes * Y), RowBytes);
                     ++Y;
                 }
                 Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
@@ -1775,29 +1931,35 @@ namespace GR_GraphBuf {
             std::int32_t X{};
             Alpha &= 0x000000ff;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(X); ) {
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Pixels, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = Alpha;
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Pixels,
+                    static_cast<std::int32_t>(
+                        reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = Alpha;
             }
         };
         try {
             if (GlobalsV::HardwareRenderingEnabled) {
-                ErrorCode = ([&] {
+                {
                     Direct3D9::IDirect3DSurface9& renderTarget = pas::out_interface(RenderTarget);
                     pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice = GR_Main::Direct3DDevice;
-                    return Direct3D9::IDirect3DDevice9_GetRenderTarget(direct3DDevice, 0u, renderTarget);
-                }());
+                    ErrorCode = Direct3D9::IDirect3DDevice9_GetRenderTarget(direct3DDevice, 0u, renderTarget);
+                }
                 if (ErrorCode == 0) {
                     ErrorCode = Direct3D9::IDirect3DSurface9_GetDesc(RenderTarget, Desc);
                     if (ErrorCode == 0) {
-                        ErrorCode = ([&] {
+                        {
                             Direct3D9::IDirect3DSurface9& offscreen = pas::out_interface(Offscreen);
                             std::uint32_t format = Desc.Format;
                             std::uint32_t height = Desc.Height;
                             std::uint32_t width = Desc.Width;
                             pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_2 = GR_Main::Direct3DDevice;
-                            return Direct3D9::IDirect3DDevice9_CreateOffscreenPlainSurface(direct3DDevice_2, width, height, format, Direct3D9::D3DPOOL_SYSTEMMEM, offscreen, nullptr);
-                        }());
+                            ErrorCode = Direct3D9::IDirect3DDevice9_CreateOffscreenPlainSurface(direct3DDevice_2, width,
+                                    height, format, Direct3D9::D3DPOOL_SYSTEMMEM, offscreen, nullptr);
+                        }
                         if (ErrorCode == 0) {
-                            ErrorCode = Direct3D9::IDirect3DDevice9_GetRenderTargetData(GR_Main::Direct3DDevice, RenderTarget, Offscreen);
+                            ErrorCode = Direct3D9::IDirect3DDevice9_GetRenderTargetData(GR_Main::Direct3DDevice,
+                                    RenderTarget, Offscreen);
                             if (ErrorCode == 0) {
                                 Clear();
                                 Width = Desc.Width;
@@ -1805,7 +1967,9 @@ namespace GR_GraphBuf {
                                 BitsPerPixel = 32;
                                 BytesPerPixel = static_cast<std::int32_t>(sizeof(TColorRGBA));
                                 if (UseTexture) {
-                                    Texture = (GR_DX::GR_CreateTexture(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+                                    Texture = (GR_DX::GR_CreateTexture(GR_Main::GameScreenWidth,
+                                            GR_Main::GameScreenHeight, Direct3D9::D3DFMT_A8R8G8B8,
+                                            Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
                                     UsesTextureStorage = true;
                                     LockTexture(false);
                                 } else {
@@ -1814,26 +1978,35 @@ namespace GR_GraphBuf {
                                 }
                                 if (Pixels != nullptr) {
                                     Direct3D9::IDirect3DSurface9_LockRect(Offscreen, Locked, nullptr, 0u);
-                                    for (auto cpp_range = pas::for_to<std::uint32_t>(0u, static_cast<std::uint32_t>(Height) - 1); cpp_range.next(Y); ) {
-                                        Windows::CopyMemory(EC_Mem::AddPointerOffset(Pixels, PitchBytes * Y), EC_Mem::AddPointerOffset(Locked.Bits, Locked.Pitch * Y), Width * static_cast<std::int32_t>(sizeof(TColorRGBA)));
+                                    for (auto cpp_range = pas::for_to<std::uint32_t>(0u,
+                                        static_cast<std::uint32_t>(Height) - 1); cpp_range.next(Y); ) {
+                                        Windows::CopyMemory(EC_Mem::AddPointerOffset(Pixels, PitchBytes * Y),
+                                            EC_Mem::AddPointerOffset(Locked.Bits, Locked.Pitch * Y),
+                                            Width * static_cast<std::int32_t>(sizeof(TColorRGBA)));
                                         SetRowAlpha(EC_Mem::AddPointerOffset(Pixels, PitchBytes * Y), Width, 255);
                                     }
                                     Direct3D9::IDirect3DSurface9_UnlockRect(Offscreen);
                                 }
                                 UnlockTexture();
                             } else {
-                                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TGraphBufGR.LoadFromScreen()::GetRenderTargetData fail (", SysUtils::IntToStr(ErrorCode), ")"})));
+                                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                                    "TGraphBufGR.LoadFromScreen()::GetRenderTargetData fail (",
+                                    SysUtils::IntToStr(ErrorCode), ")"})));
                             }
                             Offscreen = nullptr;
                         } else {
-                            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TGraphBufGR.LoadFromScreen()::CreateOffscreenPlainSurface fail (", SysUtils::IntToStr(ErrorCode), ")"})));
+                            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                                "TGraphBufGR.LoadFromScreen()::CreateOffscreenPlainSurface fail (",
+                                SysUtils::IntToStr(ErrorCode), ")"})));
                         }
                     } else {
-                        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TGraphBufGR.LoadFromScreen()::GetDesc fail (", SysUtils::IntToStr(ErrorCode), ")"})));
+                        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                            "TGraphBufGR.LoadFromScreen()::GetDesc fail (", SysUtils::IntToStr(ErrorCode), ")"})));
                     }
                     RenderTarget = nullptr;
                 } else {
-                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TGraphBufGR.LoadFromScreen()::GetRenderTarget fail (", SysUtils::IntToStr(ErrorCode), ")"})));
+                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                        "TGraphBufGR.LoadFromScreen()::GetRenderTarget fail (", SysUtils::IntToStr(ErrorCode), ")"})));
                 }
             } else {
                 AllocateNative(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
@@ -1844,9 +2017,12 @@ namespace GR_GraphBuf {
                     std::int32_t gameScreenHeight = GR_Main::GameScreenHeight;
                     void* pixels_2 = GetPixels();
                     std::int32_t pitchBytes_2 = PitchBytes;
-                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, 0, 0, pixels, pitchBytes, 0, 0, gameScreenWidth, gameScreenHeight);
+                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, 0, 0, pixels, pitchBytes, 0, 0,
+                        gameScreenWidth, gameScreenHeight);
                 } catch (...) {
-                    pas::raise(pas::make_exception<pas::Exception>("Error in TGraphBufGR.LoadFromScreen()::OKGR_Copy_XY_XY_WORD"_a));
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(
+                            "Error in TGraphBufGR.LoadFromScreen()::OKGR_Copy_XY_XY_WORD"_a));
                 }
             }
         } catch (...) {
@@ -1905,9 +2081,30 @@ namespace GR_GraphBuf {
         while (Y < static_cast<std::uint32_t>(Height)) {
             X = 0u;
             while (X < static_cast<std::uint32_t>(Width)) {
-                static_cast<PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->R))));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->G))));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->B)))) = static_cast<PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorBGRA))))->B;
+                static_cast<PColorRGB>(EC_Mem::AddPointerOffset(Dest,
+                    X * static_cast<std::int32_t>(sizeof(TColorRGB))))->R =
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source,
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(TColorBGRA)))))->R))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest,
+                    static_cast<std::int32_t>(
+                        reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(TColorRGB)))))->G)))) =
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source,
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(TColorBGRA)))))->G))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest,
+                    static_cast<std::int32_t>(
+                        reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(TColorRGB)))))->B)))) =
+                    static_cast<PColorBGRA>(EC_Mem::AddPointerOffset(Source,
+                        X * static_cast<std::int32_t>(sizeof(TColorBGRA))))->B;
                 ++X;
             }
             Dest = EC_Mem::AddPointerOffset(Dest, NewPitch);
@@ -1929,7 +2126,8 @@ namespace GR_GraphBuf {
         BytesPerPixel = 3;
     }
 
-    void TGraphBufGR::DrawAntialiasedCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t Color, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawAntialiasedCircle16(WindowsSdk::TPoint Center, std::int32_t Radius, std::uint32_t Color,
+        WindowsSdk::TRect Clip) {
         std::int32_t SignX{};
         std::int32_t SignY{};
         float Coverage{};
@@ -1953,7 +2151,7 @@ namespace GR_GraphBuf {
         while (X > Y) {
             ++Y;
             Coverage = System::Sqrt(pas::sqr(Radius) - pas::sqr(Y));
-            Coverage = static_cast<long double>(MathImports::Ceil(Coverage)) - Coverage;
+            Coverage = static_cast<float>(static_cast<double>(MathImports::Ceil(Coverage)) - Coverage);
             if (Coverage < PreviousCoverage) {
                 --X;
             }
@@ -1967,11 +2165,15 @@ namespace GR_GraphBuf {
             while (Quadrant < 4) {
                 SignX = 2 * (Quadrant % 2) - 1;
                 SignY = 2 * (Quadrant / 2 % 2) - 1;
-                PlotCirclePixel16(Center.X + SignX * X, Center.Y + SignY * Y, System::Trunc((1.0L - Coverage) * 255.0L));
-                PlotCirclePixel16(Center.X + SignX * Y, Center.Y + SignY * X, System::Trunc((1.0L - Coverage) * 255.0L));
+                PlotCirclePixel16(Center.X + SignX * X, Center.Y + SignY * Y,
+                    pas::real_trunc(static_cast<float>((static_cast<float>(1.0 - Coverage)) * 255.0)));
+                PlotCirclePixel16(Center.X + SignX * Y, Center.Y + SignY * X,
+                    pas::real_trunc(static_cast<float>((static_cast<float>(1.0 - Coverage)) * 255.0)));
                 if (X - 1 >= Y) {
-                    PlotCirclePixel16(Center.X + (X - 1) * SignX, Center.Y + SignY * Y, System::Trunc(255.0L * Coverage));
-                    PlotCirclePixel16(Center.X + SignX * Y, Center.Y + (X - 1) * SignY, System::Trunc(255.0L * Coverage));
+                    PlotCirclePixel16(Center.X + (X - 1) * SignX, Center.Y + SignY * Y,
+                        pas::real_trunc(static_cast<float>(255.0 * Coverage)));
+                    PlotCirclePixel16(Center.X + SignX * Y, Center.Y + (X - 1) * SignY,
+                        pas::real_trunc(static_cast<float>(255.0 * Coverage)));
                 }
                 ++Quadrant;
             }
@@ -1980,11 +2182,12 @@ namespace GR_GraphBuf {
         }
     }
 
-    void TGraphBufGR::DrawAntialiasedLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color, std::int32_t Alpha, WindowsSdk::TRect Clip) {
+    void TGraphBufGR::DrawAntialiasedLine16(std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2,
+        std::uint32_t Color, std::int32_t Alpha, WindowsSdk::TRect Clip) {
         std::uint8_t Steep{};
         double Temp{};
         auto LineFraction16 = [&](double Value) -> double {
-            return static_cast<long double>(Value) - MathImports::Floor(Value);
+            return static_cast<float>(static_cast<double>(Value) - MathImports::Floor(Value));
         };
         auto PlotLinePixel16 = [&](std::int32_t X, std::int32_t Y, std::int32_t Alpha) -> void {
             if (X >= Clip.Left && X < Clip.Right && Y >= Clip.Top && Y < Clip.Bottom && Alpha > 0) {
@@ -1995,12 +2198,12 @@ namespace GR_GraphBuf {
         double StartY = Y1;
         double FinishX = X2;
         double FinishY = Y2;
-        double DX = static_cast<long double>(FinishX) - StartX;
-        double DY = static_cast<long double>(FinishY) - StartY;
-        if (DX == 0.0L && DY == 0.0L) {
+        double DX = static_cast<float>(static_cast<double>(FinishX) - StartX);
+        double DY = static_cast<float>(static_cast<double>(FinishY) - StartY);
+        if (DX == 0.0 && DY == 0.0) {
             return;
         }
-        if (std::fabs(static_cast<pas::Extended>(DX)) > std::fabs(static_cast<pas::Extended>(DY))) {
+        if (std::fabs(static_cast<double>(DX)) > std::fabs(static_cast<double>(DY))) {
             Steep = false;
         } else {
             Steep = true;
@@ -2021,68 +2224,56 @@ namespace GR_GraphBuf {
             Temp = StartY;
             StartY = FinishY;
             FinishY = Temp;
-            DX = static_cast<long double>(FinishX) - StartX;
-            DY = static_cast<long double>(FinishY) - StartY;
+            DX = static_cast<float>(static_cast<double>(FinishX) - StartX);
+            DY = static_cast<float>(static_cast<double>(FinishY) - StartY);
         }
-        double Slope = pas::real_divide(DY, DX);
-        double EndX = MathImports::Floor(StartX + 0.5L);
-        double EndY = StartY + (static_cast<long double>(EndX) - StartX) * Slope;
-        double Gap = 1.0L - LineFraction16(StartX + 0.5L);
-        std::int32_t FirstX = MathImports::Floor(StartX + 0.5L);
+        double Slope = static_cast<float>(static_cast<double>(DY) / DX);
+        double EndX = MathImports::Floor(static_cast<float>(StartX + 0.5));
+        double EndY = static_cast<float>(StartY + static_cast<float>((static_cast<float>(static_cast<double>(EndX) - StartX)) * Slope));
+        double Gap = static_cast<float>(1.0 - LineFraction16(static_cast<float>(StartX + 0.5)));
+        std::int32_t FirstX = MathImports::Floor(static_cast<float>(StartX + 0.5));
         std::int32_t FirstY = MathImports::Floor(EndY);
-        double Coverage1 = (1.0L - LineFraction16(EndY)) * Gap;
-        double Coverage2 = static_cast<long double>(LineFraction16(EndY)) * Gap;
+        double Coverage1 = static_cast<float>((static_cast<float>(1.0 - LineFraction16(EndY))) * Gap);
+        double Coverage2 = static_cast<float>(static_cast<double>(LineFraction16(EndY)) * Gap);
         if (Steep) {
-            PlotLinePixel16(FirstY, FirstX, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
-            PlotLinePixel16(FirstY + 1, FirstX, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
+            PlotLinePixel16(FirstY, FirstX, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+            PlotLinePixel16(FirstY + 1, FirstX, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
         } else {
-            PlotLinePixel16(FirstX, FirstY, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
-            PlotLinePixel16(FirstX, FirstY + 1, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
+            PlotLinePixel16(FirstX, FirstY, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+            PlotLinePixel16(FirstX, FirstY + 1, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
         }
         std::int32_t X = FirstX + 1;
-        double InterY = static_cast<long double>(EndY) + Slope;
-        EndX = MathImports::Floor(FinishX + 0.5L);
-        EndY = FinishY + (static_cast<long double>(EndX) - FinishX) * Slope;
-        Gap = 1.0L - LineFraction16(FinishX - 0.5L);
-        std::int32_t LastX = MathImports::Floor(FinishX + 0.5L);
+        double InterY = static_cast<float>(static_cast<double>(EndY) + Slope);
+        EndX = MathImports::Floor(static_cast<float>(FinishX + 0.5));
+        EndY = static_cast<float>(FinishY + static_cast<float>((static_cast<float>(static_cast<double>(EndX) - FinishX)) * Slope));
+        Gap = static_cast<float>(1.0 - LineFraction16(static_cast<float>(FinishX - 0.5)));
+        std::int32_t LastX = MathImports::Floor(static_cast<float>(FinishX + 0.5));
         std::int32_t LastY = MathImports::Floor(EndY);
         while (LastX - 1 >= X) {
-            Coverage1 = 1.0L - LineFraction16(InterY);
+            Coverage1 = static_cast<float>(1.0 - LineFraction16(InterY));
             Coverage2 = LineFraction16(InterY);
             if (Steep) {
-                {
-                    std::int32_t ceil = MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1);
-                    std::int32_t floor = MathImports::Floor(InterY);
-                    PlotLinePixel16(floor, X, ceil);
-                }
-                {
-                    std::int32_t ceil_2 = MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2);
-                    std::int32_t cpp_arg = MathImports::Floor(InterY) + 1;
-                    PlotLinePixel16(cpp_arg, X, ceil_2);
-                }
+                PlotLinePixel16(MathImports::Floor(InterY), X,
+                    MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+                PlotLinePixel16(MathImports::Floor(InterY) + 1, X,
+                    MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
             } else {
-                {
-                    std::int32_t ceil_3 = MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1);
-                    std::int32_t floor_2 = MathImports::Floor(InterY);
-                    PlotLinePixel16(X, floor_2, ceil_3);
-                }
-                {
-                    std::int32_t ceil_4 = MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2);
-                    std::int32_t cpp_arg_2 = MathImports::Floor(InterY) + 1;
-                    PlotLinePixel16(X, cpp_arg_2, ceil_4);
-                }
+                PlotLinePixel16(X, MathImports::Floor(InterY),
+                    MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+                PlotLinePixel16(X, MathImports::Floor(InterY) + 1,
+                    MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
             }
-            InterY = static_cast<long double>(InterY) + Slope;
+            InterY = static_cast<float>(static_cast<double>(InterY) + Slope);
             ++X;
         }
-        Coverage1 = (1.0L - LineFraction16(EndY)) * Gap;
-        Coverage2 = static_cast<long double>(LineFraction16(EndY)) * Gap;
+        Coverage1 = static_cast<float>((static_cast<float>(1.0 - LineFraction16(EndY))) * Gap);
+        Coverage2 = static_cast<float>(static_cast<double>(LineFraction16(EndY)) * Gap);
         if (Steep) {
-            PlotLinePixel16(LastY, LastX, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
-            PlotLinePixel16(LastY + 1, LastX, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
+            PlotLinePixel16(LastY, LastX, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+            PlotLinePixel16(LastY + 1, LastX, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
         } else {
-            PlotLinePixel16(LastX, LastY, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage1));
-            PlotLinePixel16(LastX, LastY + 1, MathImports::Ceil(static_cast<long double>(Alpha) * Coverage2));
+            PlotLinePixel16(LastX, LastY, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage1)));
+            PlotLinePixel16(LastX, LastY + 1, MathImports::Ceil(static_cast<float>(static_cast<double>(Alpha) * Coverage2)));
         }
     }
 

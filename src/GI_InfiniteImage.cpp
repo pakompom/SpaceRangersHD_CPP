@@ -60,40 +60,46 @@ namespace GI_InfiniteImage {
         std::int32_t Y{};
         EC_CacheBitmap::TCBitmapEC* Image = EC_CacheBitmap::AcquireOrCreateBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Image->Bitmap->Width;
-            Height = Image->Bitmap->Height;
-            StartX = MathImports::Floor(pas::real_divide(ClipRect.Left - AbsolutePosition.X, Width)) * Width + AbsolutePosition.X;
-            StartY = MathImports::Floor(pas::real_divide(ClipRect.Top - AbsolutePosition.Y, Height)) * Height + AbsolutePosition.Y;
-            if (GlobalsV::HardwareRenderingEnabled) {
-                Y = StartY;
-                while (Y < ClipRect.Bottom) {
-                    X = StartX;
-                    while (X < ClipRect.Right) {
-                        // This native path only logs; it does not draw a hardware tile.
-                        GR_Main::AppendLogLineThreadSafe("InfiniteImageDraw"_a);
-                        X += Width;
-                    }
-                    Y += Height;
-                }
-            } else {
-                Y = StartY;
-                while (Y < ClipRect.Bottom) {
-                    X = StartX;
-                    while (X < ClipRect.Right) {
-                        {
-                            GR_GraphBuf::TGraphBufGR* bitmap = Image->Bitmap;
-                            void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
-                            std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                            GR_Main::CopyGraphBuffer16Clipped(pixels, pitchBytes, X, Y, bitmap, ClipRect, false, false);
+            try {
+                Width = Image->Bitmap->Width;
+                Height = Image->Bitmap->Height;
+                StartX = MathImports::Floor(static_cast<float>(static_cast<double>(ClipRect.Left - AbsolutePosition.X) / Width)) * Width +
+                        AbsolutePosition.X;
+                StartY = MathImports::Floor(static_cast<float>(static_cast<double>(ClipRect.Top - AbsolutePosition.Y) / Height)) * Height +
+                        AbsolutePosition.Y;
+                if (GlobalsV::HardwareRenderingEnabled) {
+                    Y = StartY;
+                    while (Y < ClipRect.Bottom) {
+                        X = StartX;
+                        while (X < ClipRect.Right) {
+                            // This native path only logs; it does not draw a hardware tile.
+                            GR_Main::AppendLogLineThreadSafe("InfiniteImageDraw"_a);
+                            X += Width;
                         }
-                        X += Width;
+                        Y += Height;
                     }
-                    Y += Height;
+                } else {
+                    Y = StartY;
+                    while (Y < ClipRect.Bottom) {
+                        X = StartX;
+                        while (X < ClipRect.Right) {
+                            {
+                                GR_GraphBuf::TGraphBufGR* bitmap = Image->Bitmap;
+                                void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
+                                std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
+                                GR_Main::CopyGraphBuffer16Clipped(pixels, pitchBytes, X, Y, bitmap, ClipRect, false,
+                                    false);
+                            }
+                            X += Width;
+                        }
+                        Y += Height;
+                    }
                 }
+            } catch (...) {
+                ImageCache->Release();
+                throw;
             }
+            ImageCache->Release();
         }
     }
 

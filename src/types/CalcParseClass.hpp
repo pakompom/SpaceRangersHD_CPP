@@ -18,33 +18,51 @@ namespace CalcParseClass {
         // Operators borrow operands; OutValue must be an existing, distinct object.
         // Power/add/subtract/multiply promote floats; integer results saturate at +/-2000000000.
         // Negative bases stay negative even for even exponents; integer results round.
-        static void ApplyPower(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyAdd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplySubtract(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyMultiply(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyPower(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyAdd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplySubtract(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyMultiply(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Returns float Left * (1 + Right * 0.01).
-        static void ApplyPercentChange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyPercentChange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Exact integer quotients stay integer. Zero divisor: +/-2000000000 for integers; float operands incorrectly leave integer zero.
-        static void ApplyDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Truncates toward zero; zero-divisor behavior matches ApplyDivide.
-        static void ApplyIntDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyIntDivide(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Float operands produce a float remainder after truncation. Zero-divisor behavior matches ApplyDivide.
-        static void ApplyModulo(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyModulo(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Uses operand extrema, rounds floats and swaps reversed bounds. Range operands must be nonempty.
-        static void ApplyRange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyRange(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Two ranges sample Left once; scalar/range membership rounds the scalar.
-        static void ApplyMembership(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyMembership(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Comparisons return integer 0 or 1 and sample each range operand once.
-        static void ApplyLessThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyGreaterThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyLessOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyGreaterOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
-        static void ApplyNotEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyLessThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyGreaterThan(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyLessOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyGreaterOrEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
+        static void ApplyNotEqual(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Range operands concatenate rather than intersect; duplicates remain.
-        static void ApplyAnd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyAnd(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // Range operands concatenate; duplicates remain.
-        static void ApplyOr(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right, CPVarClass::TCPVariant*& OutValue);
+        static void ApplyOr(CPVarClass::TCPVariant*& Left, CPVarClass::TCPVariant*& Right,
+            CPVarClass::TCPVariant*& OutValue);
         // External spellings -> internal tokens: pct %, div f, mod g, in #,
         // to $, or |, and &, <> e, >= c, <= b, .. h, and decimal dot -> comma.
         // Text is read-only despite var. Uses ANSI lowercase and boundary-free substitutions; always wraps the result in parentheses.
@@ -78,7 +96,8 @@ namespace CalcParseClass {
         void Prepare(pas::WideString Text, std::int32_t DefaultParameterIndex);
         void Reset();
         // One-based inclusive bounds, unchecked. Empty slices pass; square brackets are ignored.
-        static std::uint8_t HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex, std::int32_t LastIndex);
+        static std::uint8_t HasBalancedParenthesesInSlice(const std::u16string_view& Text, std::int32_t FirstIndex,
+            std::int32_t LastIndex);
         // Parameters: borrowed, non-nil TList of TParameter; [pN] is one-based.
         // Unmatched references remain unchanged; negative values are parenthesized.
         pas::WideString SubstituteParameters(pas::List* Parameters);

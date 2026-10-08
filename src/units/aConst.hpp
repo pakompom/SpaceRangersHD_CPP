@@ -612,7 +612,8 @@ namespace aConst {
     std::uint8_t SizeTagToLevel(const std::u16string_view& Tag);
 
     // Seeded variation around a size bucket; unknown nonzero levels use the midpoint.
-    std::int32_t GenerateValueForSizeLevel(std::uint8_t Level, std::int32_t Minimum, std::int32_t Maximum, std::uint8_t VariationPercent, std::uint32_t Seed);
+    std::int32_t GenerateValueForSizeLevel(std::uint8_t Level, std::int32_t Minimum, std::int32_t Maximum,
+        std::uint8_t VariationPercent, std::uint32_t Seed);
 
     std::int32_t GetAverageItemSize(TItemType ItemType);
 
@@ -628,7 +629,7 @@ namespace aConst {
     std::uint8_t GetItemTypeFromMask(TItemTypeSelection Mask, std::int32_t Index);
 
     // Only Coalition manufacturers are eligible.
-    aGalaxyStruct::TOwnerId PickRandomEquipmentOwner(std::uint32_t RandomValue);
+    inline aGalaxyStruct::TOwnerId PickRandomEquipmentOwner(std::uint32_t RandomValue);
 
     pas::WideString LookupNamedColorTag(pas::WideString Name);
 
@@ -661,3 +662,5 @@ namespace aConst {
     std::int32_t FindMicroModuleTemplateByCustomTag(const std::u16string_view& CustomTag);
 
 } // namespace aConst
+
+#include "inline/aConst.hpp"

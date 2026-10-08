@@ -32,7 +32,8 @@ namespace fCustom {
         Dialog->ParentLoop = Parent;
         Parent->ChildLoop = Dialog;
         Dialog->InitializeFromConfig(GR_Main::UiStyleConfig, ScreenName, true);
-        EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlock(pas::view(ScreenName))->FindBlock(u"CodeBeforeRun"sv);
+        EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlock(
+            pas::view(ScreenName))->FindBlock(u"CodeBeforeRun"sv);
         if (Block != nullptr) {
             BeforeCode = Block->ConcatenateValues();
         } else {
@@ -53,7 +54,8 @@ namespace fCustom {
                 Background = Dialog->FindControlByPath(u"BGBuf"_wref.get());
                 if (Background != nullptr) {
                     GR_Main::CaptureScreenBackground(true, 0);
-                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(Background)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                        Background)->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
                 }
                 Result = Dialog->Run();
                 aScript::ExecuteScriptText(AfterCode, nullptr);
@@ -88,7 +90,9 @@ namespace fCustom {
     }
 
     void TfCustomLoop::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle,
+                ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+                ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             if (aGalaxy::Galaxy != nullptr) {
                 aGalaxy::Galaxy->CheckIntegrityChecksum(30011);
             }

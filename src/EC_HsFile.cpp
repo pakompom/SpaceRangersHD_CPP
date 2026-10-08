@@ -86,7 +86,7 @@ namespace EC_HsFile {
     }
 
     void* OffsetPackPointer(void* Data, std::uint32_t ByteOffset) {
-        return static_cast<std::uint8_t*>(Data) + ByteOffset;
+        return pas::pointer_add(static_cast<std::uint8_t*>(Data), ByteOffset);
     }
 
     void TPackFileEC_Create(TPackFileEC* Self) {
@@ -136,20 +136,27 @@ namespace EC_HsFile {
             RootFolder->InitializeEmpty();
             return true;
         }
-        PackageHandle = WindowsImports::CreateFileA(PackagePath.pchar(), WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE, WindowsImports::FILE_SHARE_READ | WindowsImports::FILE_SHARE_WRITE, nullptr, WindowsImports::OPEN_EXISTING, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
+        PackageHandle = WindowsImports::CreateFileA(PackagePath.pchar(),
+                WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE,
+                WindowsImports::FILE_SHARE_READ | WindowsImports::FILE_SHARE_WRITE, nullptr,
+                WindowsImports::OPEN_EXISTING, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
         if (PackageHandle == WindowsImports::INVALID_HANDLE_VALUE) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error openning package file [READ]:", PackagePath})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error openning package file [READ]:",
+                PackagePath})));
         }
-        if (!WindowsImports::ReadFile(PackageHandle, &RootSubtreeOffset, static_cast<std::int32_t>(sizeof(std::uint32_t)), BytesRead, nullptr)) {
+        if (!WindowsImports::ReadFile(PackageHandle, &RootSubtreeOffset,
+            static_cast<std::int32_t>(sizeof(std::uint32_t)), BytesRead, nullptr)) {
             WindowsImports::CloseHandle(PackageHandle);
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error reading package file:", PackagePath})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error reading package file:",
+                PackagePath})));
         }
         RootFolder = pas::construct_call<THsFolderEC>(THsFolderEC_Create, pas::AnsiString());
         if (!RootFolder->Load(PackageHandle, RootSubtreeOffset)) {
             pas::free(RootFolder);
             RootFolder = nullptr;
             Close();
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error reading file system of the package file:", PackagePath})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                "Error reading file system of the package file:", PackagePath})));
         }
         return true;
     }
@@ -234,23 +241,32 @@ namespace EC_HsFile {
             if (!SysUtilsImports::FileExists(pas::concat_ansi({LooseFileRoot, EntryPath}))) {
                 return Result;
             }
-            OpenSlots[Slot].FileHandle = WindowsImports::CreateFileA((cpp_text = pas::concat_ansi({LooseFileRoot, EntryPath}), cpp_text.pchar()), DesiredAccess, WindowsImports::FILE_SHARE_READ, nullptr, WindowsImports::OPEN_EXISTING, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
+            OpenSlots[Slot].FileHandle = WindowsImports::CreateFileA(
+                    (cpp_text = pas::concat_ansi({LooseFileRoot, EntryPath}), cpp_text.pchar()), DesiredAccess,
+                    WindowsImports::FILE_SHARE_READ, nullptr, WindowsImports::OPEN_EXISTING,
+                    WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
             if (OpenSlots[Slot].FileHandle == WindowsImports::INVALID_HANDLE_VALUE) {
                 return Result;
             }
             OpenSlots[Slot].DataStartOffset = 0u;
             OpenSlots[Slot].CurrentDataOffset = 0u;
-            OpenSlots[Slot].DataSize = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, 0, nullptr, WindowsImports::FILE_END);
+            OpenSlots[Slot].DataSize = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, 0, nullptr,
+                    WindowsImports::FILE_END);
             OpenSlots[Slot].CompressedBlockBuffer = nullptr;
             OpenSlots[Slot].DecompressedBlockBuffer = nullptr;
             OpenSlots[Slot].UsesChainedBlocks = false;
             OpenSlots[Slot].CurrentBlockIndex = -1;
             if (OpenSlots[Slot].DataSize == 0xffffffffu) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345 :", EntryPath})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345 :",
+                    EntryPath})));
             }
-            Position = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, 0, nullptr, WindowsImports::FILE_BEGIN);
+            Position = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, 0, nullptr,
+                    WindowsImports::FILE_BEGIN);
             if (Position == 0xffffffffu) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345:", EntryPath})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345:",
+                    EntryPath})));
             }
             OpenSlots[Slot].IsAvailable = false;
             return Slot;
@@ -272,9 +288,12 @@ namespace EC_HsFile {
             OpenSlots[Slot].CompressedBlockBuffer = nullptr;
             OpenSlots[Slot].DecompressedBlockBuffer = nullptr;
         }
-        Position = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, OpenSlots[Slot].CurrentDataOffset, nullptr, WindowsImports::FILE_BEGIN);
+        Position = WindowsImports::SetFilePointer(OpenSlots[Slot].FileHandle, OpenSlots[Slot].CurrentDataOffset,
+                nullptr, WindowsImports::FILE_BEGIN);
         if (Position == 0xffffffffu) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\321\341\356\351 \342 \357\340\352\345\362\355\356\354 \364\340\351\353\345 :", PackagePath, ":", EntryPath})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                "\321\341\356\351 \342 \357\340\352\345\362\355\356\354 \364\340\351\353\345 :", PackagePath, ":",
+                EntryPath})));
         }
         return Slot;
     }
@@ -286,7 +305,9 @@ namespace EC_HsFile {
         if (Slot == -1) {
             return Result;
         }
-        OpenSlots[Slot].FileHandle = WindowsImports::CreateFileW(FilePath.pchar(), WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE, WindowsImports::FILE_SHARE_READ, nullptr, WindowsImports::CREATE_ALWAYS, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
+        OpenSlots[Slot].FileHandle = WindowsImports::CreateFileW(FilePath.pchar(),
+                WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE, WindowsImports::FILE_SHARE_READ, nullptr,
+                WindowsImports::CREATE_ALWAYS, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
         if (OpenSlots[Slot].FileHandle == WindowsImports::INVALID_HANDLE_VALUE) {
             return Result;
         }
@@ -307,7 +328,9 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
@@ -323,7 +346,9 @@ namespace EC_HsFile {
             OpenSlots[SlotIndex].IsAvailable = true;
         } else {
             if (!(WindowsImports::CloseHandle(OpenSlots[SlotIndex].FileHandle) != 0)) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\316\370\350\341\352\340 \347\340\352\360\373\362\350\377 \364\340\351\353\340 : ", SysUtils::Int64ToStr(SlotIndex)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\316\370\350\341\352\340 \347\340\352\360\373\362\350\377 \364\340\351\353\340 : ",
+                    SysUtils::Int64ToStr(SlotIndex)})));
             }
             if (OpenSlots[SlotIndex].UsesChainedBlocks) {
                 pas::free_mem(OpenSlots[SlotIndex].CompressedBlockBuffer);
@@ -337,13 +362,15 @@ namespace EC_HsFile {
     }
 
     // Leaves PackageHandle at the selected payload; I/O errors are unchecked.
-    std::uint32_t TPackFileEC::GetChainedBlockStoredSizeAtIndex(std::uint32_t FirstBlockOffset, std::uint32_t BlockIndex) {
+    std::uint32_t TPackFileEC::GetChainedBlockStoredSizeAtIndex(std::uint32_t FirstBlockOffset,
+        std::uint32_t BlockIndex) {
         std::uint32_t BytesRead{};
         std::uint32_t StoredSize{};
         std::uint32_t Offset = FirstBlockOffset;
         while (true) {
             WindowsImports::SetFilePointer(PackageHandle, Offset, nullptr, WindowsImports::FILE_BEGIN);
-            WindowsImports::ReadFile(PackageHandle, &StoredSize, static_cast<std::int32_t>(sizeof(std::uint32_t)), BytesRead, nullptr);
+            WindowsImports::ReadFile(PackageHandle, &StoredSize, static_cast<std::int32_t>(sizeof(std::uint32_t)),
+                BytesRead, nullptr);
             if (BlockIndex == 0) {
                 break;
             }
@@ -368,7 +395,9 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
@@ -386,21 +415,25 @@ namespace EC_HsFile {
                 }
                 if (OpenSlots[SlotIndex].CurrentBlockIndex != static_cast<std::int32_t>(BlockIndex)) {
                     StoredSize = GetChainedBlockStoredSizeAtIndex(OpenSlots[SlotIndex].DataStartOffset, BlockIndex);
-                    Result = WindowsImports::ReadFile(PackageHandle, OpenSlots[SlotIndex].CompressedBlockBuffer, StoredSize, BytesRead, nullptr) != 0;
+                    Result = WindowsImports::ReadFile(PackageHandle, OpenSlots[SlotIndex].CompressedBlockBuffer,
+                            StoredSize, BytesRead, nullptr) != 0;
                     if (!Result) {
                         return Result;
                     }
-                    EC_OKGF::OKGF_ZLib_UnCompress2(OpenSlots[SlotIndex].DecompressedBlockBuffer, PackCompressionBlockSize, OpenSlots[SlotIndex].CompressedBlockBuffer, StoredSize);
+                    EC_OKGF::OKGF_ZLib_UnCompress2(OpenSlots[SlotIndex].DecompressedBlockBuffer,
+                        PackCompressionBlockSize, OpenSlots[SlotIndex].CompressedBlockBuffer, StoredSize);
                     OpenSlots[SlotIndex].CurrentBlockIndex = BlockIndex;
                 }
-                pas::move_memory(EC_HsFile::OffsetPackPointer(Decoded, BlockOffset), Dest, static_cast<std::int32_t>(ChunkSize));
+                pas::move_memory(EC_HsFile::OffsetPackPointer(Decoded, BlockOffset), Dest,
+                    static_cast<std::int32_t>(ChunkSize));
                 Dest = EC_HsFile::OffsetPackPointer(Dest, ChunkSize);
                 ByteCount -= ChunkSize;
                 OpenSlots[SlotIndex].CurrentDataOffset += ChunkSize;
             }
             return true;
         }
-        WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle, OpenSlots[SlotIndex].CurrentDataOffset, nullptr, WindowsImports::FILE_BEGIN);
+        WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle, OpenSlots[SlotIndex].CurrentDataOffset, nullptr,
+            WindowsImports::FILE_BEGIN);
         Result = WindowsImports::ReadFile(OpenSlots[SlotIndex].FileHandle, Buffer, ByteCount, BytesRead, nullptr) != 0;
         Result = Result && ByteCount == BytesRead;
         OpenSlots[SlotIndex].CurrentDataOffset += BytesRead;
@@ -415,16 +448,22 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
         }
         if (OpenSlots[SlotIndex].UsesChainedBlocks) {
-            pas::raise(pas::make_exception<pas::Exception>("\316\370\350\341\356\367\355\340\377 \356\357\345\360\340\366\350\377 \347\340\357\350\361\350 \342 \361\346\340\362\373\351 \364\340\351\353"_a));
+            pas::raise(
+                pas::make_exception<pas::Exception>(
+                    "\316\370\350\341\356\367\355\340\377 \356\357\345\360\340\366\350\377 \347\340\357\350\361\350 \342 \361\346\340\362\373\351 \364\340\351\353"_a));
         }
-        WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle, OpenSlots[SlotIndex].CurrentDataOffset, nullptr, WindowsImports::FILE_BEGIN);
-        Result = WindowsImports::WriteFile(OpenSlots[SlotIndex].FileHandle, Buffer, ByteCount, BytesWritten, nullptr) != 0;
+        WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle, OpenSlots[SlotIndex].CurrentDataOffset, nullptr,
+            WindowsImports::FILE_BEGIN);
+        Result = WindowsImports::WriteFile(OpenSlots[SlotIndex].FileHandle, Buffer, ByteCount, BytesWritten, nullptr) !=
+                0;
         Result = Result && ByteCount == BytesWritten;
         OpenSlots[SlotIndex].CurrentDataOffset += BytesWritten;
         std::uint32_t Size = OpenSlots[SlotIndex].CurrentDataOffset - OpenSlots[SlotIndex].DataStartOffset;
@@ -443,7 +482,9 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
@@ -463,9 +504,12 @@ namespace EC_HsFile {
             }
             OpenSlots[SlotIndex].CurrentDataOffset = OpenSlots[SlotIndex].DataStartOffset + Offset;
         } else {
-            Position = WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle, OpenSlots[SlotIndex].DataStartOffset + Offset, nullptr, WindowsImports::FILE_BEGIN);
+            Position = WindowsImports::SetFilePointer(OpenSlots[SlotIndex].FileHandle,
+                    OpenSlots[SlotIndex].DataStartOffset + Offset, nullptr, WindowsImports::FILE_BEGIN);
             if (Position == 0xffffffffu) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\316\370\350\341\352\340 \363\361\362\340\355\356\342\352\350 \363\352\340\347\340\362\345\353\377 \342 \357\340\352\345\362\355\356\354 \364\340\351\353\345 :", PackagePath})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\316\370\350\341\352\340 \363\361\362\340\355\356\342\352\350 \363\352\340\347\340\362\345\353\377 \342 \357\340\352\345\362\355\356\354 \364\340\351\353\345 :",
+                    PackagePath})));
             }
             OpenSlots[SlotIndex].CurrentDataOffset = Position;
         }
@@ -479,7 +523,9 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
@@ -494,7 +540,9 @@ namespace EC_HsFile {
             return Result;
         }
         if (SlotIndex > 15) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({PackSlotRangeError, pas::wide_int_to_str(15), u": ", pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                PackSlotRangeError, pas::wide_int_to_str(15), u": ",
+                pas::wide_int64_to_str(static_cast<std::int64_t>(SlotIndex))}))));
         }
         if (OpenSlots[SlotIndex].IsAvailable) {
             return Result;
@@ -544,7 +592,8 @@ namespace EC_HsFile {
         PPackEntryEC Entry{};
         EntryName = SysUtilsImports::UpperCase(EntryName);
         PPackEntryEC Result = nullptr;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
             Entry = GetEntry(i);
             if (Entry->Flags == 0) {
                 if (SysUtilsImports::StrComp(Entry->UpperName.elements, EntryName.pchar()) == 0) {
@@ -590,22 +639,27 @@ namespace EC_HsFile {
             return Result;
         }
         EntryBuffer = static_cast<PPackEntryEC>(System::AllocMem(EntryCount * EntryRecordSize));
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
             Success = WindowsImports::ReadFile(FileHandle, GetEntry(i), EntryRecordSize, BytesRead, nullptr) != 0;
             if (static_cast<std::uint8_t>(Success ^ 1) || BytesRead != EntryRecordSize) {
                 Unload();
                 return Result;
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(EntryCount - 1)); cpp_range_2.next(i); ) {
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+            static_cast<std::int32_t>(EntryCount - 1)); cpp_range_2.next(i); ) {
             Entry = GetEntry(i);
             Entry->ChildFolder = nullptr;
             Entry->KindCopy = Entry->Kind;
         }
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(EntryCount - 1)); cpp_range_3.next(i); ) {
+        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+            static_cast<std::int32_t>(EntryCount - 1)); cpp_range_3.next(i); ) {
             Entry = GetEntry(i);
             if (Entry->Kind == 3 && Entry->Flags == 0) {
-                Folder = pas::construct_call<THsFolderEC>(THsFolderEC_CreateChild, pas::concat_ansi({pas::array_text<pas::AnsiString>(Entry->OriginalName.elements, 63), ""}), this);
+                Folder = pas::construct_call<THsFolderEC>(THsFolderEC_CreateChild,
+                        pas::concat_ansi({pas::array_text<pas::AnsiString>(Entry->OriginalName.elements, 63), ""}),
+                        this);
                 Entry->ChildFolder = Folder;
                 Success = Folder->Load(FileHandle, Entry->TargetOffset);
                 if (!Success) {
@@ -623,7 +677,8 @@ namespace EC_HsFile {
         PPackEntryEC Entry{};
         THsFolderEC* Folder{};
         if (EntryBuffer != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                static_cast<std::int32_t>(EntryCount - 1)); cpp_range.next(i); ) {
                 Entry = GetEntry(i);
                 if (Entry->Kind == 3 && Entry->Flags == 0) {
                     Folder = Entry->ChildFolder;
@@ -673,10 +728,14 @@ namespace EC_HsFile {
         if (Parent != nullptr) {
             Entry = Parent->FindEntry(OriginalName);
             if (Entry == nullptr) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345 \357\340\352\345\362\355\356\343\356 \364\340\351\353\340 - Folder: ", UpperName})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\321\341\356\351 \342 \364\340\351\353\356\342\356\351 \361\350\361\362\345\354\345 \357\340\352\345\362\355\356\343\356 \364\340\351\353\340 - Folder: ",
+                    UpperName})));
             }
             if (Entry->Kind != 3) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"\312\356\355\364\353\350\352\362 \350\354\345\355 \364\340\351\353/\344\350\360\345\352\362\356\360\350\377: ", UpperName})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "\312\356\355\364\353\350\352\362 \350\354\345\355 \364\340\351\353/\344\350\360\345\352\362\356\360\350\377: ",
+                    UpperName})));
             }
             Entry->StoredSize = HeaderSize;
             Entry->TargetOffset = 0u;
@@ -876,7 +935,8 @@ namespace EC_HsFile {
     }
 
     // Returns package index * 16 + slot, or -1.
-    std::int32_t TPackCollectionEC::OpenEntryByPathAcrossPackages(pas::AnsiString EntryPath, std::uint32_t DesiredAccess, std::uint8_t FirstPackageOnly) {
+    std::int32_t TPackCollectionEC::OpenEntryByPathAcrossPackages(pas::AnsiString EntryPath,
+        std::uint32_t DesiredAccess, std::uint8_t FirstPackageOnly) {
         TPackFileEC* Pack{};
         std::int32_t HashSlot{};
         std::int32_t MappedIndex{};

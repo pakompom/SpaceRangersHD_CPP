@@ -36,8 +36,10 @@ namespace fTalk {
     // Native modal conversation wrapper.
     std::uint8_t RunTalk(GI_MessageLoop::TMessageLoopGI* ParentLoop);
 
-    void TfTalkA_Create(TfTalkA* Self);
+    inline void TfTalkA_Create(TfTalkA* Self);
 
     void TfTalkA_Destroy(TfTalkA* Self);
 
 } // namespace fTalk
+
+#include "inline/fTalk.hpp"

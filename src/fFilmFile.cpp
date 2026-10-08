@@ -31,7 +31,8 @@ namespace fFilmFile {
 
     // Caller holds Lock. Appends a zeroed entry owned by this history.
     PFilmHistoryEntry TFilmFile::AppendEntry() {
-        PFilmHistoryEntry Entry = static_cast<PFilmHistoryEntry>(EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TFilmHistoryEntry))));
+        PFilmHistoryEntry Entry = static_cast<PFilmHistoryEntry>(
+            EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TFilmHistoryEntry))));
         if (LastEntry != nullptr) {
             LastEntry->Next = Entry;
         }
@@ -160,7 +161,7 @@ namespace fFilmFile {
     void TFilmFile::LoadEntryFromBuffer(EC_Buf::TBufEC* Buffer) {
         pas::critical_enter(Lock);
         PFilmHistoryEntry Entry = AppendEntry();
-        Entry->Turn = EC_Buf::TBufEC_GetInt32(Buffer);
+        Entry->Turn = Buffer->GetInt32();
         Entry->Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         Buffer->ReadLengthPrefixedBuffer(Entry->Buffer);
         pas::critical_leave(Lock);

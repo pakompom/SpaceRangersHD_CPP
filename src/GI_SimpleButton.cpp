@@ -63,10 +63,13 @@ namespace GI_SimpleButton {
             Self->NormalImage->SetCacheKey(Block->GetParam(u"Image"sv));
             Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(Self->NormalImage);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                try {
+                    Self->SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
+                } catch (...) {
                     Self->NormalImage->Release();
-                };
-                Self->SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
+                    throw;
+                }
+                Self->NormalImage->Release();
             }
         }
         if (Block->CountParams(u"ImageActive"_wref.get()) > 0) {
@@ -79,10 +82,13 @@ namespace GI_SimpleButton {
         NormalImage->SetCacheKey(Block->GetParam(u"Image"sv));
         EC_CacheBitmap::TCBitmapEC* Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(NormalImage);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
+            } catch (...) {
                 NormalImage->Release();
-            };
-            SetSize(ClassesImports::Point(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height));
+                throw;
+            }
+            NormalImage->Release();
         }
         ActiveImage->SetCacheKey(Block->GetParam(u"ImageActive"sv));
         CurrentImage = NormalImage;
@@ -93,18 +99,20 @@ namespace GI_SimpleButton {
         if (CurrentImage != nullptr) {
             Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(CurrentImage);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                    CurrentImage->Release();
-                };
-                {
+                try {
                     void* pixels = Bitmap->Bitmap->GetPixels();
                     std::int32_t pitchBytes = Bitmap->Bitmap->PitchBytes;
                     std::int32_t cpp_arg = ClipRect.Left - HitTestBounds.Left;
                     std::int32_t cpp_arg_2 = ClipRect.Top - HitTestBounds.Top;
                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                     std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, ClipRect.Left, ClipRect.Top, pixels, pitchBytes, cpp_arg, cpp_arg_2, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top);
+                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, ClipRect.Left, ClipRect.Top, pixels,
+                        pitchBytes, cpp_arg, cpp_arg_2, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top);
+                } catch (...) {
+                    CurrentImage->Release();
+                    throw;
                 }
+                CurrentImage->Release();
             }
         }
     }

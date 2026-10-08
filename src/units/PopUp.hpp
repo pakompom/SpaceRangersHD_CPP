@@ -15,6 +15,7 @@ namespace PopUp {
     // Frees queued cells without finalizing their strings; does not call inherited Destroy.
     void TfPopUpController_Destroy(TfPopUpController* Self);
 
-    GI_MessageLoop::TObjectGI* TfPopUpController_CreatePopup(TfPopUpController* Self, pas::WideString Text, pas::WideString ImagePath);
+    GI_MessageLoop::TObjectGI* TfPopUpController_CreatePopup(TfPopUpController* Self, pas::WideString Text,
+        pas::WideString ImagePath);
 
 } // namespace PopUp

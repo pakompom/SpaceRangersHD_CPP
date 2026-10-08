@@ -11,10 +11,12 @@ namespace EC_Cache {
 namespace EC_CacheLightPal {
     TCLightPalEC* AcquireOrCreateLightPalette(EC_Cache::TCacheControlEC* Control);
 
-    void GetLightPaletteMaskInfo(std::uint32_t Mask, System::PCardinal Shift, System::PCardinal BitCount, System::PCardinal LevelCount);
+    void GetLightPaletteMaskInfo(std::uint32_t Mask, System::PCardinal Shift, System::PCardinal BitCount,
+        System::PCardinal LevelCount);
 
     // Returns 64 packed 16-bit brightness levels per source color.
-    WindowsSdk::PWORD BuildLightPalette(System::PCardinal Palette, std::int32_t ColorCount, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask);
+    WindowsSdk::PWORD BuildLightPalette(System::PCardinal Palette, std::int32_t ColorCount, std::uint32_t RedMask,
+        std::uint32_t GreenMask, std::uint32_t BlueMask);
 
     void FreeLightPalette(WindowsSdk::PWORD Palette);
 

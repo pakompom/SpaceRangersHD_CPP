@@ -83,17 +83,22 @@ namespace GI_TransImage {
             Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
             Bitmap = EC_CacheTBitmap::AcquireCachedTransBitmap(Self->ImageCache);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                try {
+                    Self->SetSize(Bitmap->PixelSize);
+                } catch (...) {
                     Self->ImageCache->Release();
-                };
-                Self->SetSize(Bitmap->PixelSize);
+                    throw;
+                }
+                Self->ImageCache->Release();
             }
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"sv);
             Self->SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
@@ -114,16 +119,21 @@ namespace GI_TransImage {
         ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         EC_CacheTBitmap::TCTBitmapEC* Bitmap = EC_CacheTBitmap::AcquireCachedTransBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                SetSize(Bitmap->PixelSize);
+            } catch (...) {
                 ImageCache->Release();
-            };
-            SetSize(Bitmap->PixelSize);
+                throw;
+            }
+            ImageCache->Release();
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"sv);
             SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
@@ -149,68 +159,82 @@ namespace GI_TransImage {
         std::int32_t Y{};
         EC_CacheTBitmap::TCTBitmapEC* Bitmap = EC_CacheTBitmap::AcquireCachedTransBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Bitmap->PixelSize.X;
-            Height = Bitmap->PixelSize.Y;
-            if (ImageKindX == GI_Main::ikxLeftFill) {
-                Left = HitTestBounds.Left;
-                Right = HitTestBounds.Right;
-            } else if (ImageKindX == GI_Main::ikxRightFill) {
-                Right = HitTestBounds.Right;
-                Left = Right;
-                while (Left > ClipRect.Left) {
-                    Left -= Width;
-                }
-            } else if (ImageKindX == GI_Main::ikxLeft) {
-                Left = HitTestBounds.Left;
-                Right = Left + Width;
-            } else if (ImageKindX == GI_Main::ikxRight) {
-                Right = HitTestBounds.Right;
-                Left = Right - Width;
-            } else if (ImageKindX == GI_Main::ikxCenter) {
-                Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
-                Right = Left + Width;
-            } else {
-                return;
-            }
-            if (ImageKindY == GI_Main::ikyTopFill) {
-                Top = HitTestBounds.Top;
-                Bottom = HitTestBounds.Bottom;
-            } else if (ImageKindY == GI_Main::ikyBottomFill) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom;
-                while (Top > ClipRect.Top) {
-                    Top -= Height;
-                }
-            } else if (ImageKindY == GI_Main::ikyTop) {
-                Top = HitTestBounds.Top;
-                Bottom = Top + Height;
-            } else if (ImageKindY == GI_Main::ikyBottom) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom - Height;
-            } else if (ImageKindY == GI_Main::ikyCenter) {
-                Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
-                Bottom = Top + Height;
-            } else {
-                return;
-            }
-            GR_Main::AppendLogLineThreadSafe("Test"_a);
-            Y = Top;
-            while (Y < Bottom) {
-                X = Left;
-                while (X < Right) {
-                    {
-                        void* transBuffer = Bitmap->TransBuffer;
-                        std::uint8_t halfAlpha = HalfAlpha;
-                        void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
-                        std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::DrawTransparentBuffer16(pixels, pitchBytes, X, Y, transBuffer, ClipRect, halfAlpha);
+            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            std::exception_ptr cpp_error{};
+            try {
+                Width = Bitmap->PixelSize.X;
+                Height = Bitmap->PixelSize.Y;
+                if (ImageKindX == GI_Main::ikxLeftFill) {
+                    Left = HitTestBounds.Left;
+                    Right = HitTestBounds.Right;
+                } else if (ImageKindX == GI_Main::ikxRightFill) {
+                    Right = HitTestBounds.Right;
+                    Left = Right;
+                    while (Left > ClipRect.Left) {
+                        Left -= Width;
                     }
-                    X += Width;
+                } else if (ImageKindX == GI_Main::ikxLeft) {
+                    Left = HitTestBounds.Left;
+                    Right = Left + Width;
+                } else if (ImageKindX == GI_Main::ikxRight) {
+                    Right = HitTestBounds.Right;
+                    Left = Right - Width;
+                } else if (ImageKindX == GI_Main::ikxCenter) {
+                    Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
+                    Right = Left + Width;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-                Y += Height;
+                if (ImageKindY == GI_Main::ikyTopFill) {
+                    Top = HitTestBounds.Top;
+                    Bottom = HitTestBounds.Bottom;
+                } else if (ImageKindY == GI_Main::ikyBottomFill) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom;
+                    while (Top > ClipRect.Top) {
+                        Top -= Height;
+                    }
+                } else if (ImageKindY == GI_Main::ikyTop) {
+                    Top = HitTestBounds.Top;
+                    Bottom = Top + Height;
+                } else if (ImageKindY == GI_Main::ikyBottom) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom - Height;
+                } else if (ImageKindY == GI_Main::ikyCenter) {
+                    Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
+                    Bottom = Top + Height;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
+                }
+                GR_Main::AppendLogLineThreadSafe("Test"_a);
+                Y = Top;
+                while (Y < Bottom) {
+                    X = Left;
+                    while (X < Right) {
+                        {
+                            void* transBuffer = Bitmap->TransBuffer;
+                            std::uint8_t halfAlpha = HalfAlpha;
+                            void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
+                            std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
+                            GR_Main::DrawTransparentBuffer16(pixels, pitchBytes, X, Y, transBuffer, ClipRect,
+                                halfAlpha);
+                        }
+                        X += Width;
+                    }
+                    Y += Height;
+                }
+            } catch (...) {
+                cpp_error = std::current_exception();
+            }
+            cpp_cleanup:;
+            ImageCache->Release();
+            if (cpp_error) {
+                std::rethrow_exception(cpp_error);
+            }
+            if (cpp_flow == pas::FinallyFlow::Return) {
+                return;
             }
         }
     }

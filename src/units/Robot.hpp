@@ -50,11 +50,13 @@ namespace Robot {
     void FinalizeRobotRuntime();
 
     // Native diagnostic name: GIRobot.FRun.
-    std::int32_t FRun(const pas::WideString& MapName, const pas::WideString& StartText, const pas::WideString& WinText, const pas::WideString& LossText, const pas::WideString& TerronName);
+    std::int32_t FRun(const pas::WideString& MapName, const pas::WideString& StartText, const pas::WideString& WinText,
+        const pas::WideString& LossText, const pas::WideString& TerronName);
 
     void PAS_STDCALL RobotPlaySound(char16_t* Name);
 
-    GR_Sound::TSoundBufferControl* PAS_STDCALL RobotCreateSound(char16_t* Name, std::int32_t Group, std::int32_t Looping);
+    GR_Sound::TSoundBufferControl* PAS_STDCALL RobotCreateSound(char16_t* Name, std::int32_t Group,
+        std::int32_t Looping);
 
     void PAS_STDCALL RobotFreeSound(GR_Sound::TSoundBufferControl* Sound);
 
@@ -70,7 +72,9 @@ namespace Robot {
 
     float PAS_STDCALL RobotGetSoundPan(GR_Sound::TSoundBufferControl* Sound);
 
-    void PAS_STDCALL RobotRenderText(char16_t* Text, char16_t* FontName, std::uint32_t Color, std::int32_t Width, std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::int32_t Wrap, std::int32_t OffsetX, std::int32_t OffsetY, Types::PRect Clip, PRobotTextImage Image);
+    void PAS_STDCALL RobotRenderText(char16_t* Text, char16_t* FontName, std::uint32_t Color, std::int32_t Width,
+        std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::int32_t Wrap, std::int32_t OffsetX,
+        std::int32_t OffsetY, Types::PRect Clip, PRobotTextImage Image);
 
     void PAS_STDCALL RobotFreeText(PRobotTextImage Image);
 
@@ -84,6 +88,7 @@ namespace Robot {
 
     void PAS_STDCALL RobotReleaseTextures();
 
-    std::int32_t CenterSpan(std::int32_t SpanStart, std::int32_t SpanEnd, std::int32_t ContentStart, std::int32_t ContentEnd);
+    std::int32_t CenterSpan(std::int32_t SpanStart, std::int32_t SpanEnd, std::int32_t ContentStart,
+        std::int32_t ContentEnd);
 
 } // namespace Robot

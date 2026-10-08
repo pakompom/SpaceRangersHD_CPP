@@ -79,12 +79,15 @@ namespace GI_Edit {
         std::uint8_t Result{};
         EC_CacheFont::TCFontEC* Font{};
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                Font = EC_CacheFont::AcquireCachedFont(FontCache);
+                Font->ResetTextMeasureState();
+                Result = Font->HasGlyph(Character);
+            } catch (...) {
                 FontCache->Release();
-            };
-            Font = EC_CacheFont::AcquireCachedFont(FontCache);
-            Font->ResetTextMeasureState();
-            Result = Font->HasGlyph(Character);
+                throw;
+            }
+            FontCache->Release();
         }
         return Result;
     }
@@ -160,7 +163,7 @@ namespace GI_Edit {
         std::int32_t I{};
         std::int32_t N{};
         GI_MessageLoop::TObjectGI* Control{};
-        if (Key == WindowsSdk::VK_BACK && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1)) {
+        if (Key == WindowsSdk::VK_BACK && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT)) {
             if (CaretPosition > 0) {
                 N = Text.length();
                 I = CaretPosition;
@@ -244,7 +247,7 @@ namespace GI_Edit {
         std::int32_t N{};
         GI_MessageLoop::TObjectGI::ProcessCharacter(Character);
         if (HasGlyph(Character)) {
-            if (static_cast<std::uint8_t>(pas::assigned(AcceptCharCallback) ^ 1) || AcceptCharCallback(this, Character)) {
+            if (!pas::assigned(AcceptCharCallback) || AcceptCharCallback(this, Character)) {
                 N = Text.length();
                 if (N < MaxLength) {
                     Text.set_length(N + 1);
@@ -287,15 +290,19 @@ namespace GI_Edit {
             }
         }
         if (Block->CountParams(u"Image"_wref.get()) > 0) {
-            Self->BackgroundCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+            Self->BackgroundCache =
+                pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Self->BackgroundCache);
             Self->BackgroundCache->SetCacheKey(Block->GetParam(u"Image"sv));
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"TextColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             Self->TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
@@ -307,31 +314,41 @@ namespace GI_Edit {
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"BorderLightColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             Self->BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
             Self->BorderDarkColor = Self->BorderLightColor;
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"BorderDarkColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             Self->BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CursorColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"CursorColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             Self->CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"MaxLen"_wref.get()) > 0) {
             Self->MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"sv)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
+            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(
+                pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
             TEditGI* self = Self;
             self->SetTextAlignX(parseTextAlignXName);
         }
@@ -345,7 +362,8 @@ namespace GI_Edit {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         FontCache->SetCacheKey(Block->GetParam(u"Font"sv));
         if (Block->CountParams(u"ReturnFocusLeave"_wref.get()) > 0) {
-            ClearFocusOnEnter = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"ReturnFocusLeave"sv))));
+            ClearFocusOnEnter =
+                GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(Block->GetParam(u"ReturnFocusLeave"sv))));
         }
         if (Block->CountParams(u"Text"_wref.get()) > 0) {
             Text = Block->GetParam(u"Text"sv);
@@ -360,9 +378,12 @@ namespace GI_Edit {
         }
         if (Block->CountParams(u"TextColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"TextColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             TextColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Border"_wref.get()) > 0) {
@@ -374,31 +395,41 @@ namespace GI_Edit {
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"BorderLightColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
             BorderDarkColor = BorderLightColor;
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"BorderDarkColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CursorColor"_wref.get()) > 0) {
             ColorText = Block->GetParam(u"CursorColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    1, u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ColorText),
+                    2, u","sv)));
             CaretColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"MaxLen"_wref.get()) > 0) {
             MaxLength = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxLen"sv)));
         }
         if (Block->CountParams(u"AlignX"_wref.get()) > 0) {
-            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
+            GI_Main::TTextAlignXGI parseTextAlignXName = GI_Main::ParseTextAlignXName(
+                pas::view(EC_Str::TrimWideString(Block->GetParam(u"AlignX"sv))));
             TEditGI* self = this;
             self->SetTextAlignX(parseTextAlignXName);
         }
@@ -451,10 +482,12 @@ namespace GI_Edit {
                 if (BackgroundCache != nullptr) {
                     Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(BackgroundCache);
                     if (GlobalsV::HardwareRenderingEnabled) {
-                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (Bitmap->Bitmap->GetTexture(cpp_result), cpp_result);
+                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (Bitmap->Bitmap->GetTexture(
+                            cpp_result), cpp_result);
                         std::int32_t top = HitTestBounds.Top;
                         std::int32_t left = HitTestBounds.Left;
-                        GR_DX::DrawTexture(texture, left, top, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                        GR_DX::DrawTexture(texture, left, top, 255, GR_DX::RgbWhite,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                     } else {
                         std::int32_t top_2 = ClipRect.Top;
                         void* pixels = Bitmap->Bitmap->GetPixels();
@@ -466,15 +499,18 @@ namespace GI_Edit {
                         void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                         std::int32_t left_2 = ClipRect.Left;
                         std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, left_2, top_2, pixels, pitchBytes, cpp_arg, cpp_arg_2, cpp_arg_3, cpp_arg_4);
+                        GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, left_2, top_2, pixels, pitchBytes,
+                            cpp_arg, cpp_arg_2, cpp_arg_3, cpp_arg_4);
                     }
                 }
                 X = HitTestBounds.Left + 2;
                 cpp_with = Font->MeasureTaggedTextBounds(Text, 0, 0, nullptr);
                 if (TextAlignX == GI_Main::taxCenter) {
-                    X = HitTestBounds.Left + (HitTestBounds.Right - HitTestBounds.Left) / 2 - (cpp_with.Right - cpp_with.Left) / 2;
+                    X = HitTestBounds.Left + (HitTestBounds.Right - HitTestBounds.Left) / 2 - (cpp_with.Right -
+                                cpp_with.Left) / 2;
                 }
-                Y = (HitTestBounds.Top + HitTestBounds.Bottom) / 2 - (Font->AboveBaseline + Font->BelowBaseline) / 2 + Font->AboveBaseline;
+                Y = (HitTestBounds.Top + HitTestBounds.Bottom) / 2 - (Font->AboveBaseline + Font->BelowBaseline) / 2 +
+                        Font->AboveBaseline;
                 N = Text.length();
                 FirstCharacter = 0;
                 if (AutoScrollText) {
@@ -496,7 +532,8 @@ namespace GI_Edit {
                 }
                 Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    Buffer->AllocateRgbaTight(HitTestBounds.Right - HitTestBounds.Left, HitTestBounds.Bottom - HitTestBounds.Top);
+                    Buffer->AllocateRgbaTight(HitTestBounds.Right - HitTestBounds.Left,
+                        HitTestBounds.Bottom - HitTestBounds.Top);
                     Font->UseARGBColors = true;
                     Font->DefaultColor = GR_DX::ColorWithAlpha(GR_DX::Color565ToArgb(TextColor), 255u);
                 }
@@ -515,13 +552,16 @@ namespace GI_Edit {
                                 WindowsSdk::TRect rect = ClassesImports::Rect(0, 0, Buffer->Width, Buffer->Height);
                                 void* pixels_3 = Buffer->GetPixels();
                                 std::int32_t pitchBytes_3 = Buffer->PitchBytes;
-                                Font->DrawTaggedText32(pixels_3, pitchBytes_3, cpp_arg_5, cpp_arg_6, characterText.get(), rect);
+                                Font->DrawTaggedText32(pixels_3, pitchBytes_3, cpp_arg_5, cpp_arg_6,
+                                    characterText.get(), rect);
                             }
                             {
-                                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (Buffer->GetTexture(cpp_result_2), cpp_result_2);
+                                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (Buffer->GetTexture(
+                                    cpp_result_2), cpp_result_2);
                                 std::int32_t top_3 = HitTestBounds.Top;
                                 std::int32_t left_3 = HitTestBounds.Left;
-                                GR_DX::DrawTexture(texture_2, left_3, top_3, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                                GR_DX::DrawTexture(texture_2, left_3, top_3, 255, GR_DX::RgbWhite,
+                                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                             }
                         } else {
                             auto characterText_2 = pas::borrow(CharacterText);
@@ -533,11 +573,17 @@ namespace GI_Edit {
                     }
                     if (HasFocus == true && CaretPosition == I && MessageLoop->CaretBlinkOn == true) {
                         if (GlobalsV::HardwareRenderingEnabled) {
-                            GR_DX::DrawAlphaLine(X, Y - (Font->AboveBaseline - 1), X, Y - (Font->AboveBaseline - 1) + Font->AboveBaseline + Font->BelowBaseline, GR_DX::Color565ToArgb(CaretColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
-                            GR_DX::DrawAlphaLine(X + 1, Y - (Font->AboveBaseline - 1), X + 1, Y - (Font->AboveBaseline - 1) + Font->AboveBaseline + Font->BelowBaseline, GR_DX::Color565ToArgb(CaretColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                            GR_DX::DrawAlphaLine(X, Y - (Font->AboveBaseline - 1), X,
+                                Y - (Font->AboveBaseline - 1) + Font->AboveBaseline + Font->BelowBaseline,
+                                GR_DX::Color565ToArgb(CaretColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                            GR_DX::DrawAlphaLine(X + 1, Y - (Font->AboveBaseline - 1), X + 1,
+                                Y - (Font->AboveBaseline - 1) + Font->AboveBaseline + Font->BelowBaseline,
+                                GR_DX::Color565ToArgb(CaretColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                         } else {
-                            GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(X, Y - (Font->AboveBaseline - 1), Font->AboveBaseline + Font->BelowBaseline, CaretColor, ClipRect);
-                            GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(X + 1, Y - (Font->AboveBaseline - 1), Font->AboveBaseline + Font->BelowBaseline, CaretColor, ClipRect);
+                            GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(X, Y - (Font->AboveBaseline - 1),
+                                Font->AboveBaseline + Font->BelowBaseline, CaretColor, ClipRect);
+                            GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(X + 1, Y - (Font->AboveBaseline - 1),
+                                Font->AboveBaseline + Font->BelowBaseline, CaretColor, ClipRect);
                         }
                     }
                     X += Advance;
@@ -547,15 +593,29 @@ namespace GI_Edit {
                 }
                 if (BorderEnabled) {
                     if (GlobalsV::HardwareRenderingEnabled) {
-                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Top, GR_DX::Color565ToArgb(BorderLightColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
-                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Left, HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderLightColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
-                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Bottom - 1, HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderDarkColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
-                        GR_DX::DrawAlphaLine(HitTestBounds.Right - 1, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderDarkColor), 255, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1,
+                            HitTestBounds.Top, GR_DX::Color565ToArgb(BorderLightColor), 255,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Left,
+                            HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderLightColor), 255,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Bottom - 1, HitTestBounds.Right - 1,
+                            HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderDarkColor), 255,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAlphaLine(HitTestBounds.Right - 1, HitTestBounds.Top, HitTestBounds.Right - 1,
+                            HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(BorderDarkColor), 255,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                     } else {
-                        GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - HitTestBounds.Left, BorderLightColor, ClipRect);
-                        GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Bottom - HitTestBounds.Top, BorderLightColor, ClipRect);
-                        GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left - 1), BorderDarkColor, ClipRect);
-                        GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top - 1), BorderDarkColor, ClipRect);
+                        GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                            HitTestBounds.Right - HitTestBounds.Left, BorderLightColor, ClipRect);
+                        GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                            HitTestBounds.Bottom - HitTestBounds.Top, BorderLightColor, ClipRect);
+                        GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1,
+                            HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left - 1), BorderDarkColor,
+                            ClipRect);
+                        GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1,
+                            HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top - 1), BorderDarkColor,
+                            ClipRect);
                     }
                 }
             } catch (...) {

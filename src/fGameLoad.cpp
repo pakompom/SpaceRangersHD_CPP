@@ -27,9 +27,9 @@
 #include "units/fPanelLoad.hpp"
 
 namespace fGameLoad {
-    void TThreadGameLoad_Execute(TThreadGameLoad* Self) {
-        Self->Succeeded = false;
-        Self->Succeeded = aSaveLoad::LoadGameFromFile(static_cast<pas::WideString>(GlobalsV::PendingLoadFileName));
+    void TThreadGameLoad::Execute() {
+        Succeeded = false;
+        Succeeded = aSaveLoad::LoadGameFromFile(static_cast<pas::WideString>(GlobalsV::PendingLoadFileName));
     }
 
     void TfGameLoad_Create(TfGameLoad* Self) {
@@ -48,8 +48,10 @@ namespace fGameLoad {
     void TfGameLoad::InitializeLayout() {
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
         GR_Main::AppendLogTextThreadSafe("fGameLoad... "_a);
-        ViewportRect = ClassesImports::Rect(GR_Main::ExtraScreenWidth / 2, GR_Main::ExtraScreenHeight / 2, ViewportRect.Left + GR_Main::ExtraScreenWidth / 2, ViewportRect.Top + GR_Main::ExtraScreenHeight / 2);
-        GetByName(u"PanelLoad"sv)->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        ViewportRect = ClassesImports::Rect(GR_Main::ExtraScreenWidth / 2, GR_Main::ExtraScreenHeight / 2,
+                ViewportRect.Left + GR_Main::ExtraScreenWidth / 2, ViewportRect.Top + GR_Main::ExtraScreenHeight / 2);
+        GetByName(u"PanelLoad"sv)->Parent->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         LoadPanel->InitializeLayout(this);
     }
@@ -97,15 +99,21 @@ namespace fGameLoad {
             } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                     if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                            aConst::OwnerInfo[
+                                aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                            u"Pirate"}));
                     } else {
                         GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                     }
                 } else {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
-                if (pas::in_range(aPlayer::GetPlayer()->DockedTo->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
+                if (pas::in_range(aPlayer::GetPlayer()->DockedTo->TypeId,
+                    static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter),
+                    static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                     Category = aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey;
                     if (Category != u"" && GR_Main::MainDataConfig->GetBlock(u"Music"sv)->CountBlocks(Category) > 0) {
                         GR_Main::MusicManager->PlayCategory(aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey);
@@ -113,9 +121,13 @@ namespace fGameLoad {
                         GR_Main::MusicManager->PlayCategory(aPlayer::GetPlayer()->DockedTo->GetTypeNameKey());
                     }
                 } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
                 }
             } else if (aPlayer::GetPlayer()->InNormalSpace()) {
                 if (GlobalsV::MusicInSpaceEnabled) {
@@ -145,15 +157,18 @@ namespace fGameLoad {
         EC_BlockPar::TBlockParEC* Block{};
         if (LoadThread->IsRunning()) {
             if (GlobalsV::LoadingFilmCount < 0 && Globals::ActiveLoadBuffer != nullptr) {
-                TargetProgress = pas::real_divide(Globals::ActiveLoadBuffer->Position, Globals::ActiveLoadBuffer->DataSize) * 0.5L;
+                TargetProgress = static_cast<float>(static_cast<float>(static_cast<double>(Globals::ActiveLoadBuffer->Position) /
+                        Globals::ActiveLoadBuffer->DataSize) * 0.5);
             }
         } else if (!LoadingComplete) {
             if (!LoadThread->Succeeded) {
                 if (GR_Main::SelectedMods != GR_Main::LoadedSaveModSet) {
                     if (([&] {
-                        const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormSaveManager.QueryReloadMods"_wref.get());
+                        const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(
+                            u"FormSaveManager.QueryReloadMods"_wref.get());
                         GI_MessageLoop::TMessageLoopGI* innermostScreenLoop = Globals::GetInnermostScreenLoop();
-                        return GI_MessageBox::ShowMessageBoxGI(innermostScreenLoop, paramByPathOrMarker, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
+                        return GI_MessageBox::ShowMessageBoxGI(innermostScreenLoop, paramByPathOrMarker,
+                            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                     }()) == GI_MessageBox::mbgResultOK) {
                         Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                         Block->AddParam(u"CurrentMod"_wref.get(), GR_Main::LoadedSaveModSet);
@@ -166,7 +181,9 @@ namespace fGameLoad {
                         return;
                     }
                 } else {
-                    GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormSaveManager.LoadError"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
+                    GI_MessageBox::ShowMessageBoxGI(this,
+                        GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormSaveManager.LoadError"_wref.get()),
+                        GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                 }
                 GlobalsV::RequestedScreenId = GlobalsV::screenMainMenu;
                 GR_Main::ApplyEditableSaveOnLoad = false;
@@ -192,14 +209,15 @@ namespace fGameLoad {
                 LoadingComplete = true;
                 TargetProgress = 1.0f;
             } else {
-                TargetProgress = pas::real_divide(Globals::CacheLoader->CompletedLoadCount, Globals::CacheLoader->TotalLoadCount) * 0.5L + 0.5L;
+                TargetProgress = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Globals::CacheLoader->CompletedLoadCount) /
+                        Globals::CacheLoader->TotalLoadCount) * 0.5) + 0.5);
             }
         }
         if (DisplayedProgress < TargetProgress) {
-            DisplayedProgress = pas::real_min<pas::Extended>(0.005L + DisplayedProgress, static_cast<pas::Extended>(TargetProgress));
+            DisplayedProgress = pas::real_min<double>(static_cast<float>(0.005 + DisplayedProgress), static_cast<double>(TargetProgress));
             LoadPanel->SetProgress(DisplayedProgress);
         }
-        if (LoadingComplete && DisplayedProgress >= 0.999L) {
+        if (LoadingComplete && DisplayedProgress >= 0.99899999999999999) {
             RequestClose(1);
         }
     }
@@ -209,10 +227,6 @@ namespace fGameLoad {
 
     void TfGameLoad::p_destroy() {
         fGameLoad::TfGameLoad_Destroy(this);
-    }
-
-    void TThreadGameLoad::virtual_TThreadEC_Execute() {
-        fGameLoad::TThreadGameLoad_Execute(this);
     }
 
 } // namespace fGameLoad

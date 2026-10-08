@@ -22,7 +22,8 @@ namespace EC_CacheTBitmap {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCTBitmapEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCTBitmapEC>()) ==
+            nullptr) {
             Control = pas::construct_call<TCTBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -52,7 +53,8 @@ namespace EC_CacheTBitmap {
 
     // Applies LoadOption image operations before building the transparent buffer.
     void TCTBitmapEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
-        GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+            GR_GraphBuf::TGraphBufGR_Create, false);
         Bitmap->LoadImage(SourceBuffer);
         Bitmap->ApplyOperations(LoadOption);
         std::int32_t height = Bitmap->Height;

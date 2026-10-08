@@ -77,8 +77,10 @@ namespace fPanelMain {
         std::uint8_t RemoveDismissibleMessages(pas::WideString Key);
         void MessageMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void MessageMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        void DeleteMessage(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point, std::uint8_t SkipLock);
-        void MessageRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void DeleteMessage(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point,
+            std::uint8_t SkipLock);
+        void MessageRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void AdvanceMessageDeletion(GI_MessageLoop::TObjectGI* Sender);
         void FinishMessageDeletion(GI_MessageLoop::TObjectGI* Sender);
         void SlideMessagesIn();

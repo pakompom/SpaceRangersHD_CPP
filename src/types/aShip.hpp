@@ -3,6 +3,7 @@
 #include "types/EC_Struct.hpp"
 #include "types/aConst.hpp"
 #include "types/aGalaxyStruct.hpp"
+#include "types/aItem.hpp"
 
 namespace EC_BlockPar {
     struct TBlockParEC;
@@ -37,37 +38,6 @@ namespace aGalaxy {
     struct TStar;
 
 } // namespace aGalaxy
-
-namespace aItem {
-    struct TArtefact;
-
-    struct TArtefactTransmitter;
-
-    struct TCargoHook;
-
-    struct TDefGenerator;
-
-    struct TEngine;
-
-    struct TEquipment;
-
-    struct TFuelTanks;
-
-    struct THull;
-
-    struct TItem;
-
-    struct TRadar;
-
-    struct TRepairRobot;
-
-    struct TSatellite;
-
-    struct TScaner;
-
-    struct TWeapon;
-
-} // namespace aItem
 
 namespace aMyFunction {
     struct TObjectList;
@@ -192,7 +162,9 @@ namespace aShip {
         std::uint8_t CountCargoGoodsTypes();
         std::int32_t GetCarriedNodeCount();
         // True for OrderAbsolute, AbsoluteScriptOrder, or a follow-ship order.
-        std::uint8_t HasLockedOrFollowOrder();
+        inline std::uint8_t HasLockedOrFollowOrder() {
+            return OrderAbsolute || AbsoluteScriptOrder > 0 || Order == soFollowShip;
+        }
         std::uint8_t HasHullDamageOrBrokenEquippedItems();
         std::uint8_t CanRefuel();
         void UpdateBestRangerRelativeRatings();
@@ -229,10 +201,18 @@ namespace aShip {
         std::uint8_t InNormalSpace();
         // True without a current star, while docked/in hyperspace, or with a saved player ruins docking target.
         std::uint8_t IsOutsideStarSpace();
-        std::uint8_t IsOnPlanet();
-        std::uint8_t IsDockedToShip();
-        std::uint8_t IsDocked();
-        std::uint8_t HasPositiveSpeed();
+        inline std::uint8_t IsOnPlanet() {
+            return CurrentPlanet != nullptr;
+        }
+        inline std::uint8_t IsDockedToShip() {
+            return DockedTo != nullptr;
+        }
+        inline std::uint8_t IsDocked() {
+            return DockedTo != nullptr || CurrentPlanet != nullptr;
+        }
+        inline std::uint8_t HasPositiveSpeed() {
+            return Speed > 0;
+        }
         // Checks only ships in star space; clears the player auto-follow target when cancelling.
         void CancelInvalidTravelOrder();
         void ClearPlanetQueue();
@@ -329,14 +309,30 @@ namespace aShip {
         void ProcessLiberationGroupRoute();
         // Requires a current liberation group.
         void LeaveLiberationGroup();
-        aItem::THull* GetHull();
-        aItem::TFuelTanks* GetFuelTanks();
-        aItem::TEngine* GetEngine();
-        aItem::TRadar* GetRadar();
-        aItem::TScaner* GetScanner();
-        aItem::TRepairRobot* GetRepairRobot();
-        aItem::TCargoHook* GetCargoHook();
-        aItem::TDefGenerator* GetDefGenerator();
+        inline aItem::THull* GetHull() {
+            return Hull;
+        }
+        inline aItem::TFuelTanks* GetFuelTanks() {
+            return FuelTanks;
+        }
+        inline aItem::TEngine* GetEngine() {
+            return Engine;
+        }
+        inline aItem::TRadar* GetRadar() {
+            return Radar;
+        }
+        inline aItem::TScaner* GetScanner() {
+            return Scanner;
+        }
+        inline aItem::TRepairRobot* GetRepairRobot() {
+            return RepairRobot;
+        }
+        inline aItem::TCargoHook* GetCargoHook() {
+            return CargoHook;
+        }
+        inline aItem::TDefGenerator* GetDefGenerator() {
+            return DefGenerator;
+        }
         // Pirate/science bases, licensed station names and the main pirate planet; follows DockedTo recursively.
         std::uint8_t CanRepairArtefactsAtLocation();
         // Does not add Item to the inventory.
@@ -409,7 +405,8 @@ namespace aShip {
         // Transfers ownership; a successful goods/countable merge frees Item.
         void MergeItemIntoPlayerStorage(aItem::TItem* Item, pas::Object* Location, std::int32_t Slot);
         // Positive quantities only; Cost is the total cost basis, not a unit price.
-        void AddGoodsToPlayerStorage(std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, pas::Object* Location, std::int32_t Slot);
+        void AddGoodsToPlayerStorage(std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, pas::Object* Location,
+            std::int32_t Slot);
         // Uses the player's storage filters. Returns true for an eligible location even if nothing was moved.
         std::uint8_t StoreLooseInventoryAt(pas::Object* Location);
         // Transfers matching player storage entries into Self; returns location eligibility, not whether items were retrieved.
@@ -428,7 +425,8 @@ namespace aShip {
         // Price modes: 1 negated item cost, 3 resale value, 4 item cost; other modes omit the price term. Mode 0 also omits weight/fragility penalties; the supplied effectiveness is recomputed.
         virtual float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness);
         virtual float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value);
-        virtual float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage);
+        virtual float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses,
+            float BaseDamage);
         // Evaluates a temporary clone; restores NextItemId but leaves LoadedSaveVersion set to CurrentSaveVersion. ModuleIndex is zero-based.
         virtual float EvaluateMicroModuleGain(aItem::TEquipment* Item, std::int32_t ModuleIndex);
         // Consumes beneficial carried modules, preferring installed equipment; refreshes derived stats after each application.
@@ -483,14 +481,19 @@ namespace aShip {
         void RestoreEssentialEquipment();
         // Normal ships use PilotRace rather than OwnerId; selects rarity 1..100 through the galaxy RNG.
         std::int32_t SelectRandomHullSeries();
-        aItem::TFuelTanks* CreateAndEquipFuelTanks(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+        aItem::TFuelTanks* CreateAndEquipFuelTanks(std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
         aItem::TEngine* CreateAndEquipEngine(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         aItem::TRadar* CreateAndEquipRadar(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
         aItem::TScaner* CreateAndEquipScanner(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
-        aItem::TRepairRobot* CreateAndEquipRepairRobot(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
-        aItem::TCargoHook* CreateAndEquipCargoHook(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
-        aItem::TDefGenerator* CreateAndEquipDefGenerator(std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
-        aItem::TWeapon* CreateAndEquipWeapon(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+        aItem::TRepairRobot* CreateAndEquipRepairRobot(std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
+        aItem::TCargoHook* CreateAndEquipCargoHook(std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
+        aItem::TDefGenerator* CreateAndEquipDefGenerator(std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
+        aItem::TWeapon* CreateAndEquipWeapon(aConst::TItemType ItemType, std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
         std::uint8_t ScanForCollectableItems();
         void QueueItemsWithinPickupRange();
         // May queue nearby pickups and issue/cancel a move order; true means a move order remains.
@@ -529,7 +532,8 @@ namespace aShip {
         void OrderJump(aGalaxy::TStar* Star, std::uint8_t Absolute);
         // Does not check AbsoluteScriptOrder.
         void OrderJumpHole(aGalaxy::THole* Hole, std::uint8_t Absolute);
-        void OrderTeleport(aGalaxy::TStar* Star, EC_Struct::TPointF Destination, std::int32_t TransitionData, std::uint8_t Absolute);
+        void OrderTeleport(aGalaxy::TStar* Star, EC_Struct::TPointF Destination, std::int32_t TransitionData,
+            std::uint8_t Absolute);
         // Location is a planet or dockable ship.
         void OrderLanding(pas::Object* Location, std::uint8_t Absolute);
         void OrderTakeoff();
@@ -597,7 +601,8 @@ namespace aShip {
         // Uses custom SharedUse and ConfigBlockName. Includes Item itself if equipped, and does not exclude broken items.
         std::uint8_t HasEquippedArtefactOfSameUseGroup(aItem::TItem* Item);
         // Item=nil checks cached installed equipment. A supplied item need not be equipped; eligible equipment types depend on ArtefactType.
-        std::uint8_t CanBoostArtefact(aConst::TItemType ArtefactType, aItem::TEquipment* Item, std::uint8_t IgnoreArtefactAvailability);
+        std::uint8_t CanBoostArtefact(aConst::TItemType ArtefactType, aItem::TEquipment* Item,
+            std::uint8_t IgnoreArtefactAvailability);
         // Prefers installed inventory equipment; selects at most one repairable item and may clear BrokenFlag.
         void ApplyNanoArtefactRepair();
         // Uses Self's radar with a 500-unit minimum and both NoTalk flags; does not test system membership.
@@ -717,7 +722,8 @@ namespace aShip {
         // 0 normal, 1 independent faction, 2 fixed standing. The SubFaction substring test accepts absence as mode one.
         aGalaxyStruct::TScriptStandingOverrideMode GetScriptStandingOverrideMode();
         // Returns Param after script handlers modify it; object slots may carry event-specific integer values.
-        std::int32_t ScriptItemsAct(aGalaxyStruct::TScriptActionType ActionType, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+        std::int32_t ScriptItemsAct(aGalaxyStruct::TScriptActionType ActionType, pas::Object* Object1,
+            pas::Object* Object2, std::int32_t Param);
         virtual std::uint8_t virtual_TShip_CanDock(TShip* Ship);
         // Base implementation clears Response and returns false.
         virtual std::uint8_t CheckDockingPermission(TShip* Ship, pas::WideString& Response);
@@ -747,12 +753,17 @@ namespace aShip {
         virtual std::uint8_t AcceptsAppealFrom(TShip* Ship) = 0;
         virtual void ProcessCombatDialogue() = 0;
         virtual void ReactToExtortionDemand(void* Ranger) = 0;
-        virtual std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(TShip* OtherShip, pas::WideString& Response,
+            std::int32_t DemandedAmount) = 0;
         virtual std::uint8_t virtual_TShip_BuildCargoExtortionResponse(TShip* OtherShip, pas::WideString& Response) = 0;
-        virtual std::uint8_t BuildTrucePaymentResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) = 0;
-        virtual std::uint8_t virtual_TShip_BuildAttackRequestResponse(TShip* Requester, pas::WideString& Response, TShip* Target) = 0;
-        virtual std::uint8_t virtual_TShip_AcceptPartnershipOffer(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
-        virtual std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) = 0;
+        virtual std::uint8_t BuildTrucePaymentResponse(TShip* OtherShip, pas::WideString& Response,
+            std::int32_t OfferedAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildAttackRequestResponse(TShip* Requester, pas::WideString& Response,
+            TShip* Target) = 0;
+        virtual std::uint8_t virtual_TShip_AcceptPartnershipOffer(TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) = 0;
+        virtual std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) = 0;
         std::int32_t Id;
         pas::WideString Name;
         pas::WideString TypeNameOverrideKey;

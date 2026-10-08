@@ -74,7 +74,9 @@ namespace SE_Planet {
         void SetCloud3MapOffset(std::int32_t Value);
         void SetLightAngle(std::uint8_t Value);
         void SetRotationTimerInterval(std::uint32_t Value);
-        void SetSurfaceMapStep(std::int32_t Value);
+        inline void SetSurfaceMapStep(std::int32_t Value) {
+            SurfaceMapStep = Value;
+        }
         // Does nothing for ruins; rebuilds rings when attached to space.
         void SetRingKind(std::uint8_t Kind);
         // Does nothing for ruins; rebuilds the animation when attached to space.
@@ -87,7 +89,8 @@ namespace SE_Planet {
         std::uint8_t HitTestCursor() override;
         void DrawMap() override;
         // SmallPreview affects detached normal planets only. Attached planets reuse their current surface renderer; ruins use their static image.
-        void RenderToBuffer(GI_MessageLoop::TMessageLoopGI* Screen, GR_GraphBuf::TGraphBufGR* Buffer, std::uint8_t SmallPreview);
+        void RenderToBuffer(GI_MessageLoop::TMessageLoopGI* Screen, GR_GraphBuf::TGraphBufGR* Buffer,
+            std::uint8_t SmallPreview);
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
         void ApplyConfig(EC_BlockPar::TBlockParEC* Block) override;
         void QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) override;

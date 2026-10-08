@@ -13,11 +13,13 @@
 namespace GI_CheckBox {
     void TCheckBoxGI_Create(TCheckBoxGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
-        Self->CheckedImage = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, Self);
+        Self->CheckedImage = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create,
+                Self);
         Self->CheckedImage->SetImageKindX(GI_Main::ikxCenter);
         Self->CheckedImage->SetImageKindY(GI_Main::ikyCenter);
         Self->CheckedImage->SetActive(false);
-        Self->UncheckedImage = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, Self);
+        Self->UncheckedImage = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create,
+                Self);
         Self->UncheckedImage->SetImageKindX(GI_Main::ikxCenter);
         Self->UncheckedImage->SetImageKindY(GI_Main::ikyCenter);
         Self->UncheckedImage->SetActive(true);
@@ -43,8 +45,10 @@ namespace GI_CheckBox {
 
     void TCheckBoxGI::SetSize(Types::TPoint Size) {
         GI_MessageLoop::TObjectGI::SetSize(Size);
-        CheckedImage->SetPosition(ClassesImports::Point(Size.X / 2 - CheckedImage->ClientSize.X / 2, Size.Y / 2 - CheckedImage->ClientSize.Y / 2));
-        UncheckedImage->SetPosition(ClassesImports::Point(Size.X / 2 - UncheckedImage->ClientSize.X / 2, Size.Y / 2 - UncheckedImage->ClientSize.Y / 2));
+        CheckedImage->SetPosition(ClassesImports::Point(Size.X / 2 - CheckedImage->ClientSize.X / 2,
+            Size.Y / 2 - CheckedImage->ClientSize.Y / 2));
+        UncheckedImage->SetPosition(ClassesImports::Point(Size.X / 2 - UncheckedImage->ClientSize.X / 2,
+            Size.Y / 2 - UncheckedImage->ClientSize.Y / 2));
     }
 
     void TCheckBoxGI::RefreshStateImages() {
@@ -60,8 +64,10 @@ namespace GI_CheckBox {
             GI_MessageLoop::TObjectGI* uncheckedImage = UncheckedImage;
             uncheckedImage->SetSize(contentSize_2);
         }
-        CheckedImage->SetPosition(ClassesImports::Point(ClientSize.X / 2 - CheckedImage->ClientSize.X / 2, ClientSize.Y / 2 - CheckedImage->ClientSize.Y / 2));
-        UncheckedImage->SetPosition(ClassesImports::Point(ClientSize.X / 2 - UncheckedImage->ClientSize.X / 2, ClientSize.Y / 2 - UncheckedImage->ClientSize.Y / 2));
+        CheckedImage->SetPosition(ClassesImports::Point(ClientSize.X / 2 - CheckedImage->ClientSize.X / 2,
+            ClientSize.Y / 2 - CheckedImage->ClientSize.Y / 2));
+        UncheckedImage->SetPosition(ClassesImports::Point(ClientSize.X / 2 - UncheckedImage->ClientSize.X / 2,
+            ClientSize.Y / 2 - UncheckedImage->ClientSize.Y / 2));
     }
 
     void TCheckBoxGI::ProcessLeftButtonDown(std::uint32_t KeyState, Types::TPoint Point) {

@@ -12,8 +12,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 #include "units/fPanelLoad.hpp"
@@ -40,7 +38,8 @@ namespace fPanelLoad {
             Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* BGImage = Panel->FindByNameRecursive(u"BGImage"sv);
-                BGImage->SetPosition(ClassesImports::Point(BGImage->LocalPosition.X, BGImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                BGImage->SetPosition(ClassesImports::Point(BGImage->LocalPosition.X,
+                    BGImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 BGImage->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, BGImage->ClientSize.Y));
             }
             {
@@ -48,17 +47,23 @@ namespace fPanelLoad {
                 ShipPanelImage->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             }
             {
-                GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Panel->FindByNameRecursive(u"LoadAnim"sv));
-                LoadAnim->SetPosition(ClassesImports::Point(LoadAnim->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, LoadAnim->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(
+                    Panel->FindByNameRecursive(u"LoadAnim"sv));
+                LoadAnim->SetPosition(ClassesImports::Point(LoadAnim->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    LoadAnim->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 LoadAnim->StopAutoPlayback();
             }
             {
                 GI_MessageLoop::TObjectGI* LoadAnimText = Panel->FindByNameRecursive(u"LoadAnimText"sv);
-                LoadAnimText->SetPosition(ClassesImports::Point(LoadAnimText->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, LoadAnimText->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                LoadAnimText->SetPosition(ClassesImports::Point(
+                    LoadAnimText->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    LoadAnimText->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* PLProgress = Panel->FindByNameRecursive(u"PLProgress"sv);
-                PLProgress->SetPosition(ClassesImports::Point(PLProgress->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PLProgress->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                PLProgress->SetPosition(ClassesImports::Point(
+                    PLProgress->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    PLProgress->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* PLBar = Panel->FindByNameRecursive(u"PLBar"sv);
@@ -67,8 +72,11 @@ namespace fPanelLoad {
             LayoutAdjusted = true;
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, TfPanelLoad::GetProgressSegmentCount() - 1); cpp_range.next(I); ) {
-            ProgressSegments[I] = pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"PLB", SysUtils::IntToStr(I + 1)})))));
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            TfPanelLoad::GetProgressSegmentCount() - 1); cpp_range.next(I); ) {
+            ProgressSegments[I] =
+                pas::checked_cast<GI_Image::TImageGI*>(this->Screen->GetByName(pas::view(pas::concat_wide({u"PLB",
+                    pas::wide_int_to_str(I + 1)}))));
             ProgressSegments[I]->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
         BackgroundImage = this->Screen->GetByName(u"BGImage"sv);
@@ -87,16 +95,21 @@ namespace fPanelLoad {
         LeftShutter = pas::checked_cast<GI_Panel::TPanelGI*>(this->Screen->FindControlByPath(u"PLLeft"_wref.get()));
         TopShutter = pas::checked_cast<GI_Panel::TPanelGI*>(this->Screen->FindControlByPath(u"PLTop"_wref.get()));
         BottomShutter = pas::checked_cast<GI_Panel::TPanelGI*>(this->Screen->FindControlByPath(u"PLBottom"_wref.get()));
-        HasShutters = RightShutter != nullptr && LeftShutter != nullptr && TopShutter != nullptr && BottomShutter != nullptr;
+        HasShutters = RightShutter != nullptr && LeftShutter != nullptr && TopShutter != nullptr && BottomShutter !=
+                    nullptr;
         if (HasShutters) {
             RightShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             LeftShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             TopShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             BottomShutter->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLRightImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLLeftImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLTopImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            this->Screen->GetByName(u"PLBottomImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLRightImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLLeftImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLTopImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            this->Screen->GetByName(u"PLBottomImage"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
         }
     }
 
@@ -109,7 +122,19 @@ namespace fPanelLoad {
         SetProgress(1.0f);
         ShutterOpenFraction = 0.0f;
         SetShutterOpenFraction(ShutterOpenFraction);
-        if (GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId != GlobalsV::screenMainMenu && GlobalsV::CurrentScreenId != GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoadQuest || GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu && Globals::SkipVideo || GlobalsV::PreviousScreenId == GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId != GlobalsV::screenLoad || pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo>(GlobalsV::CurrentScreenId) && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap && aPlayer::GetPlayer()->RuinsMode == 0 || pas::is_one_of<GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk>(GlobalsV::CurrentScreenId) && pas::is_one_of<GlobalsV::screenJump, GlobalsV::screenArcadeBattle>(GlobalsV::PreviousScreenId) || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle && GlobalsV::PreviousScreenId == GlobalsV::screenStarMap) {
+        if (GlobalsV::PreviousScreenId == GlobalsV::screenLoad && GlobalsV::CurrentScreenId !=
+                GlobalsV::screenMainMenu && GlobalsV::CurrentScreenId != GlobalsV::screenGameLoad &&
+            GlobalsV::CurrentScreenId != GlobalsV::screenLoadQuest || GlobalsV::PreviousScreenId ==
+                GlobalsV::screenLoad && GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu && Globals::SkipVideo ||
+            GlobalsV::PreviousScreenId == GlobalsV::screenGameLoad && GlobalsV::CurrentScreenId !=
+                    GlobalsV::screenLoad || pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet,
+                GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment,
+                GlobalsV::screenRuinsTalk, GlobalsV::screenInfo>(GlobalsV::CurrentScreenId) &&
+                GlobalsV::PreviousScreenId == GlobalsV::screenStarMap && aPlayer::GetPlayer()->RuinsMode == 0 ||
+            pas::is_one_of<GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk>(GlobalsV::CurrentScreenId) &&
+                pas::is_one_of<GlobalsV::screenJump, GlobalsV::screenArcadeBattle>(GlobalsV::PreviousScreenId) ||
+            GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle && GlobalsV::PreviousScreenId ==
+                    GlobalsV::screenStarMap) {
             GlobalsV::PreviousScreenId = GlobalsV::screenNone;
             StartOpeningShutters();
         }
@@ -164,32 +189,37 @@ namespace fPanelLoad {
     void TfPanelLoad::RefreshBackgroundImages() {
         pas::WideString Style{};
         if (!HasShutters) {
-            pas::WideString cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"GI,Bm.FormLoad2.Style", SysUtils::IntToStr(Globals::LoadScreen->BackgroundStyle)}));
+            pas::WideString cpp_arg = pas::concat_wide({u"GI,Bm.FormLoad2.Style",
+                pas::wide_int_to_str(Globals::LoadScreen->BackgroundStyle)});
             GI_Image::TImageGI* cpp_arg_2 = pas::checked_cast<GI_Image::TImageGI*>(BackgroundImage);
             cpp_arg_2->SetImagePath(std::move(cpp_arg));
         } else {
             if (Globals::LoadScreen->BackgroundStyle < 10) {
-                Style = static_cast<pas::WideString>(pas::concat_ansi({"0", SysUtils::IntToStr(Globals::LoadScreen->BackgroundStyle)}));
+                Style = pas::concat_wide({u"0", pas::wide_int_to_str(Globals::LoadScreen->BackgroundStyle)});
             } else {
                 Style = pas::wide_int_to_str(Globals::LoadScreen->BackgroundStyle);
             }
             {
-                GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLRightImage"sv));
+                GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(
+                    Screen->GetByName(u"PLRightImage"sv));
                 pas::WideString cpp_arg_4 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterRight", Style});
                 cpp_arg_3->SetImagePath(std::move(cpp_arg_4));
             }
             {
-                GI_Image::TImageGI* cpp_arg_5 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLLeftImage"sv));
+                GI_Image::TImageGI* cpp_arg_5 = pas::checked_cast<GI_Image::TImageGI*>(
+                    Screen->GetByName(u"PLLeftImage"sv));
                 pas::WideString cpp_arg_6 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterLeft", Style});
                 cpp_arg_5->SetImagePath(std::move(cpp_arg_6));
             }
             {
-                GI_Image::TImageGI* cpp_arg_7 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLTopImage"sv));
+                GI_Image::TImageGI* cpp_arg_7 = pas::checked_cast<GI_Image::TImageGI*>(
+                    Screen->GetByName(u"PLTopImage"sv));
                 pas::WideString cpp_arg_8 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterTop", Style});
                 cpp_arg_7->SetImagePath(std::move(cpp_arg_8));
             }
             {
-                GI_Image::TImageGI* cpp_arg_9 = pas::checked_cast<GI_Image::TImageGI*>(Screen->GetByName(u"PLBottomImage"sv));
+                GI_Image::TImageGI* cpp_arg_9 = pas::checked_cast<GI_Image::TImageGI*>(
+                    Screen->GetByName(u"PLBottomImage"sv));
                 pas::WideString cpp_arg_10 = pas::concat_wide({u"GI,Bm.FormLoad2.ShutterBottom", Style});
                 cpp_arg_9->SetImagePath(std::move(cpp_arg_10));
             }
@@ -199,17 +229,22 @@ namespace fPanelLoad {
     // Requires a fraction in 0..1; does not clamp the progress-segment index.
     void TfPanelLoad::SetProgress(float Fraction) {
         std::int32_t I{};
-        std::int32_t LastActive = System::Round(static_cast<long double>(TfPanelLoad::GetProgressSegmentCount()) * Fraction) - 1;
+        std::int32_t LastActive = pas::real_round(static_cast<float>(static_cast<double>(TfPanelLoad::GetProgressSegmentCount()) *
+            Fraction)) - 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LastActive); cpp_range.next(I); ) {
             ProgressSegments[I]->SetActive(true);
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(LastActive + 1, TfPanelLoad::GetProgressSegmentCount() - 1); cpp_range_2.next(I); ) {
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(LastActive + 1,
+            TfPanelLoad::GetProgressSegmentCount() - 1); cpp_range_2.next(I); ) {
             ProgressSegments[I]->SetActive(false);
         }
-        ProgressLabel->SetText(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(System::Round(Fraction * 1.0E+2L + 0.5L)), "%"})));
+        ProgressLabel->SetText(pas::concat_wide({pas::wide_int64_to_str(pas::real_round(static_cast<float>(static_cast<float>(Fraction * 1.0E+2) + 0.5))),
+            u"%"}));
         {
             GI_GAI::TgaiGI* LoadAnim = pas::checked_cast<GI_GAI::TgaiGI*>(Screen->GetByName(u"LoadAnim"sv));
-            LoadAnim->SetSequenceFrame(pas::imod(System::Round(static_cast<long double>(LoadAnim->SequenceFrameCount - 1) * Fraction * 2.0L + 3.0L), LoadAnim->SequenceFrameCount - 1));
+            LoadAnim->SetSequenceFrame(pas::imod(
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(LoadAnim->SequenceFrameCount - 1) * Fraction) * 2.0) + 3.0)),
+                LoadAnim->SequenceFrameCount - 1));
         }
     }
 
@@ -217,10 +252,18 @@ namespace fPanelLoad {
         if (!HasShutters) {
             return;
         }
-        LeftShutter->SetPosition(ClassesImports::Point(-System::Round(static_cast<long double>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth)) * Fraction * 0.34L), LeftShutter->LocalPosition.Y));
-        RightShutter->SetPosition(ClassesImports::Point(System::Round(static_cast<long double>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth)) * Fraction * 0.34L), RightShutter->LocalPosition.Y));
-        TopShutter->SetPosition(ClassesImports::Point(TopShutter->LocalPosition.X, -System::Round(static_cast<long double>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight)) * Fraction * 0.61L)));
-        BottomShutter->SetPosition(ClassesImports::Point(BottomShutter->LocalPosition.X, System::Round(static_cast<long double>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight)) * Fraction * 0.39L)));
+        LeftShutter->SetPosition(ClassesImports::Point(
+            -pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth)) * Fraction) *
+                0.34)), LeftShutter->LocalPosition.Y));
+        RightShutter->SetPosition(ClassesImports::Point(
+            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth)) * Fraction) *
+                0.34)), RightShutter->LocalPosition.Y));
+        TopShutter->SetPosition(ClassesImports::Point(TopShutter->LocalPosition.X,
+            -pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight)) * Fraction) *
+                0x1.3851eb851eb86p-1))));
+        BottomShutter->SetPosition(ClassesImports::Point(BottomShutter->LocalPosition.X,
+            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight)) * Fraction) *
+                0x1.8f5c28f5c28f4p-2))));
     }
 
     void TfPanelLoad::StartOpeningShutters() {
@@ -230,7 +273,8 @@ namespace fPanelLoad {
                 Screen->CancelCallbackTimer(ShutterTimer);
                 ShutterTimer = nullptr;
             }
-            ShutterTimer = Screen->ScheduleCallbackTimer(17, 17, pas::bind_method<&TfPanelLoad::UpdateOpeningShutters>(this), 0);
+            ShutterTimer = Screen->ScheduleCallbackTimer(17, 17,
+                    pas::bind_method<&TfPanelLoad::UpdateOpeningShutters>(this), 0);
             ShutterDirection = 1;
             return;
         }
@@ -248,7 +292,8 @@ namespace fPanelLoad {
                 Screen->CancelCallbackTimer(ShutterTimer);
                 ShutterTimer = nullptr;
             }
-            ShutterTimer = Screen->ScheduleCallbackTimer(17, 17, pas::bind_method<&TfPanelLoad::UpdateClosingShutters>(this), 0);
+            ShutterTimer = Screen->ScheduleCallbackTimer(17, 17,
+                    pas::bind_method<&TfPanelLoad::UpdateClosingShutters>(this), 0);
             ShutterDirection = -1;
             return;
         }
@@ -256,8 +301,8 @@ namespace fPanelLoad {
     }
 
     void TfPanelLoad::UpdateOpeningShutters(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
-        ShutterOpenFraction = 0.03L + ShutterOpenFraction;
-        if (ShutterOpenFraction >= 1.0L) {
+        ShutterOpenFraction = static_cast<float>(0.03 + ShutterOpenFraction);
+        if (ShutterOpenFraction >= 1.0) {
             ShutterOpenFraction = 1.0f;
             if (ShutterTimer != nullptr) {
                 Screen->CancelCallbackTimer(ShutterTimer);
@@ -272,8 +317,8 @@ namespace fPanelLoad {
     }
 
     void TfPanelLoad::UpdateClosingShutters(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
-        ShutterOpenFraction = ShutterOpenFraction - 0.03L;
-        if (ShutterOpenFraction <= -0.025L) {
+        ShutterOpenFraction = static_cast<float>(ShutterOpenFraction - 0.03);
+        if (ShutterOpenFraction <= -0.025) {
             ShutterOpenFraction = 0.0f;
             if (ShutterTimer != nullptr) {
                 Screen->CancelCallbackTimer(ShutterTimer);
@@ -282,15 +327,11 @@ namespace fPanelLoad {
             SetShutterOpenFraction(ShutterOpenFraction);
             Screen->Present();
             Screen->RequestClose(1);
-        } else if (ShutterOpenFraction <= 0.0L) {
+        } else if (ShutterOpenFraction <= 0.0) {
             SetShutterOpenFraction(0.0f);
         } else {
             SetShutterOpenFraction(ShutterOpenFraction);
         }
-    }
-
-    std::uint8_t TfPanelLoad::IsAnimatingShutters() {
-        return ShutterTimer != nullptr;
     }
 
     // Returns zero without an active timer.

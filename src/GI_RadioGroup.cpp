@@ -10,10 +10,6 @@
 #include "units/SysUtils.hpp"
 
 namespace GI_RadioGroup {
-    void TRadioGroupGI_Create(TRadioGroupGI* Self, GI_MessageLoop::TObjectGI* Owner) {
-        GI_MessageLoop::TObjectGI_Create(Self, Owner);
-    }
-
     void TRadioGroupGI_Destroy(TRadioGroupGI* Self) {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
@@ -33,7 +29,8 @@ namespace GI_RadioGroup {
     }
 
     void TRadioGroupGI_AddItem(TRadioGroupGI* Self, pas::WideString Name, Types::TPoint Position) {
-        GI_TransImage::TTransImageGI* Image = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, Self);
+        GI_TransImage::TTransImageGI* Image = pas::construct_call<GI_TransImage::TTransImageGI>(
+            GI_TransImage::TTransImageGI_Create, Self);
         Image->SetPosition(Position);
         Image->SetName(Name);
         Image->UserValue = 0;
@@ -119,8 +116,10 @@ namespace GI_RadioGroup {
                 Text = Items->GetParamValue(Index);
                 {
                     Types::TPoint point = ([&] {
-                        std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                        std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                        std::int32_t strToInt = SysUtils::StrToInt(
+                            static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+                        std::int32_t strToInt_2 = SysUtils::StrToInt(
+                            static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
                         return ClassesImports::Point(strToInt_2, strToInt);
                     }());
                     pas::WideString paramName = Items->GetParamName(Index);

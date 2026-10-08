@@ -44,31 +44,37 @@ namespace aKling {
 
     void TKling_Destroy(TKling* Self);
 
-    void TKling_ResolveLoadedReferences(TKling* Self, aGalaxy::TGalaxy* Galaxy);
+    inline void TKling_ResolveLoadedReferences(TKling* Self, aGalaxy::TGalaxy* Galaxy);
 
     void TKling_NextDay(TKling* Self);
 
     void TKling_NextDayLogic(TKling* Self);
 
     // AI ownership check only; does not test travel range.
-    std::uint8_t TKling_CanQueueReachablePlanet(TKling* Self, aPlanet::TPlanet* Planet);
+    inline std::uint8_t TKling_CanQueueReachablePlanet(TKling* Self, aPlanet::TPlanet* Planet);
 
-    std::uint8_t TKling_RecomputeFearState(TKling* Self);
+    inline std::uint8_t TKling_RecomputeFearState(TKling* Self);
 
-    std::uint8_t TKling_AcceptsRansomDemandFrom(TKling* Self, aShip::TShip* Ship);
+    inline std::uint8_t TKling_AcceptsRansomDemandFrom(TKling* Self, aShip::TShip* Ship);
 
-    std::uint8_t TKling_TrustsAttackRequester(TKling* Self, aShip::TShip* Ship);
+    inline std::uint8_t TKling_TrustsAttackRequester(TKling* Self, aShip::TShip* Ship);
 
-    std::uint8_t TKling_BuildMoneyExtortionResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
+    std::uint8_t TKling_BuildMoneyExtortionResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t DemandedAmount);
 
     std::uint8_t TKling_BuildCargoExtortionResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response);
 
-    std::uint8_t TKling_BuildAttackRequestResponse(TKling* Self, aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target);
+    std::uint8_t TKling_BuildAttackRequestResponse(TKling* Self, aShip::TShip* Requester, pas::WideString& Response,
+        aShip::TShip* Target);
 
-    std::uint8_t TKling_AcceptPartnershipOffer(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TKling_AcceptPartnershipOffer(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
-    std::uint8_t TKling_BuildPartnershipOfferResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TKling_BuildPartnershipOfferResponse(TKling* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
     void TKling_RefreshCurrentStanding(TKling* Self);
 
 } // namespace aKling
+
+#include "inline/aKling.hpp"

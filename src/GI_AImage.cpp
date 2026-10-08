@@ -89,13 +89,16 @@ namespace GI_AImage {
     }
 
     void TAImageGI::AdvanceFrame(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
-        GI_MessageLoop::TObjectGI* Previous = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(UserData)));
+        GI_MessageLoop::TObjectGI* Previous = reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(UserData)));
         GI_Image::TImageGI* Next = pas::checked_cast<GI_Image::TImageGI*>(Previous->NextSibling);
         if (Next == nullptr) {
             Next = pas::checked_cast<GI_Image::TImageGI*>(FirstChild);
         }
         MessageLoop->CancelCallbackTimer(FrameTimer);
-        FrameTimer = MessageLoop->ScheduleCallbackTimer(Next->UserValue, 0x00ffffff, pas::bind_method<&TAImageGI::AdvanceFrame>(this), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Next)));
+        FrameTimer = MessageLoop->ScheduleCallbackTimer(Next->UserValue, 0x00ffffff,
+                pas::bind_method<&TAImageGI::AdvanceFrame>(this),
+                static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Next)));
         Previous->SetActive(false);
         Next->SetActive(true);
         Next->SetOrigin(OriginPoint);
@@ -157,7 +160,9 @@ namespace GI_AImage {
         }
         GI_Image::TImageGI* First = pas::checked_cast<GI_Image::TImageGI*>(Self->FirstChild);
         if (First != nullptr) {
-            Self->FrameTimer = Self->MessageLoop->ScheduleCallbackTimer(First->UserValue, 0x00ffffff, pas::bind_method<&TAImageGI::AdvanceFrame>(Self), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(First)));
+            Self->FrameTimer = Self->MessageLoop->ScheduleCallbackTimer(First->UserValue, 0x00ffffff,
+                    pas::bind_method<&TAImageGI::AdvanceFrame>(Self),
+                    static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(First)));
             First->SetSize(Self->ClientSize);
             First->SetImageKindX(Self->ImageKindX);
             First->SetImageKindY(Self->ImageKindY);

@@ -62,43 +62,51 @@ namespace NoSteamAchievemens {
                     }
                     {
                         std::int32_t cpp_left_3 = Buffer->GetByteAt(6);
-                        std::int32_t cpp_left_2 = cpp_left_3 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(7)), 8);
-                        std::int32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(4)), 16);
+                        std::int32_t cpp_left_2 = cpp_left_3 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(7)),
+                                8);
+                        std::int32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(4)),
+                                16);
                         Seed = cpp_left | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(5)), 24);
                     }
-                    Cursor = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
+                    Cursor =
+                        reinterpret_cast<std::uint8_t*>(
+                            &static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
                     Size = Buffer->DataSize;
                     for (auto cpp_range = pas::for_to<std::int32_t>(8, Size - 1); cpp_range.next(Index); ) {
                         *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
-                        {
-                            std::int32_t cpp_left_4 = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
-                            Seed = cpp_left_4 - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
-                        }
+                        Seed = EC_Buf::SeedRngMultiplier * (Seed % EC_Buf::SeedRngQuotient) - EC_Buf::SeedRngRemainder *
+                                    (Seed / EC_Buf::SeedRngQuotient);
                         if (Seed <= 0) {
                             Seed += EC_Buf::SeedRngModulus;
                         }
-                        Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
+                        Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(
+                                reinterpret_cast<std::uint8_t*>(Cursor), 1));
                     }
                     Checksum = 0;
-                    Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(Index); ) {
+                    Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(static_cast<std::uint8_t*>(Buffer->Data),
+                            static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC))));
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(
+                        static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)),
+                        Size - 1); cpp_range_2.next(Index); ) {
                         Checksum += static_cast<std::uint8_t>(*Cursor ^ 0x000000ff);
-                        Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
+                        Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(
+                                reinterpret_cast<std::uint8_t*>(Cursor), 1));
                     }
                     if (Buffer->GetUInt32At(8) != static_cast<std::uint32_t>(Checksum)) {
                         pas::raise(pas::make_exception<pas::Abort>("Error unpacking achievements.dat"_a));
                     }
                     Buffer->SetPosition(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
-                    Count = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Count = Buffer->GetInt32();
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
                         Key = Buffer->ReadWideString();
                         Block = Achievements::AchievementDefinitions->FindBlock(pas::view(Key));
                         if (Block != nullptr) {
-                            if (EC_Buf::TBufEC_GetBoolean(Buffer)) {
+                            if (Buffer->GetBoolean()) {
                                 Block->SetOrAddParam(u"Achieved"_wref.get(), u"Yes"_wref.get());
                             }
-                            Block->SetOrAddParam(u"Date"_wref.get(), pas::wide_int64_to_str(static_cast<std::int64_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-                            Block->SetOrAddParam(u"Value"_wref.get(), pas::wide_int_to_str(EC_Buf::TBufEC_GetInt32(Buffer)));
+                            Block->SetOrAddParam(u"Date"_wref.get(),
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(Buffer->GetUInt32())));
+                            Block->SetOrAddParam(u"Value"_wref.get(), pas::wide_int_to_str(Buffer->GetInt32()));
                         }
                     }
                 } catch (...) {
@@ -113,9 +121,11 @@ namespace NoSteamAchievemens {
     // Returns true even if already unlocked; absent timestamps allow a fresh unlock.
     std::uint8_t UnlockLocalAchievement(EC_BlockPar::TBlockParEC* Block) {
         std::uint8_t Result = true;
-        if (static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) ^ 1) || Block->GetParam(u"Date"sv) == u"0") {
+        if (!GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) || Block->GetParam(u"Date"sv) ==
+                u"0") {
             Block->SetOrAddParam(u"Achieved"_wref.get(), u"Yes"_wref.get());
-            Block->SetOrAddParam(u"Date"_wref.get(), pas::wide_int64_to_str(DateUtils::DateTimeToUnix(SysUtilsImports::Now())));
+            Block->SetOrAddParam(u"Date"_wref.get(),
+                pas::wide_int64_to_str(DateUtils::DateTimeToUnix(SysUtilsImports::Now())));
             NoSteamAchievemens::NotifyLocalAchievement(Block);
             NoSteamAchievemens::SaveLocalAchievements();
         }
@@ -129,7 +139,8 @@ namespace NoSteamAchievemens {
         if (Amount <= 0) {
             return Result;
         }
-        if (GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) && Block->GetParam(u"Date"sv) != u"0") {
+        if (GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"Achieved"sv))) && Block->GetParam(u"Date"sv) !=
+                u"0") {
             return Result;
         }
         std::int32_t MaxValue = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"MaxValue"sv)));
@@ -145,7 +156,8 @@ namespace NoSteamAchievemens {
         Block->SetOrAddParam(u"Value"_wref.get(), pas::wide_int_to_str(NewValue));
         if (NewValue >= MaxValue) {
             Block->SetOrAddParam(u"Achieved"_wref.get(), u"Yes"_wref.get());
-            Block->SetOrAddParam(u"Date"_wref.get(), pas::wide_int64_to_str(DateUtils::DateTimeToUnix(SysUtilsImports::Now())));
+            Block->SetOrAddParam(u"Date"_wref.get(),
+                pas::wide_int64_to_str(DateUtils::DateTimeToUnix(SysUtilsImports::Now())));
             NoSteamAchievemens::NotifyLocalAchievement(Block);
         }
         NoSteamAchievemens::SaveLocalAchievements();
@@ -177,23 +189,24 @@ namespace NoSteamAchievemens {
         }
         std::int32_t Size = Buffer->DataSize;
         std::int32_t Checksum = 0;
-        std::uint8_t* Cursor = reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Buffer->Data) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)));
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(Index); ) {
+        std::uint8_t* Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(
+            static_cast<std::uint8_t*>(Buffer->Data),
+            static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC))));
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(
+            static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(Index); ) {
             Checksum += static_cast<std::uint8_t>(*Cursor ^ 0x000000ff);
-            Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
+            Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Cursor), 1));
         }
         Buffer->SetInt32At(8, Checksum);
         Cursor = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_3.next(Index); ) {
             *Cursor = *Cursor ^ static_cast<std::uint8_t>(Seed - 1);
-            {
-                std::int32_t cpp_left = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
-                Seed = cpp_left - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
-            }
+            Seed = EC_Buf::SeedRngMultiplier * (Seed % EC_Buf::SeedRngQuotient) - EC_Buf::SeedRngRemainder * (Seed /
+                        EC_Buf::SeedRngQuotient);
             if (Seed <= 0) {
                 Seed += EC_Buf::SeedRngModulus;
             }
-            Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
+            Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Cursor), 1));
         }
         Buffer->CompressZlibPayloadInPlace(false);
         EC_File::TFileEC* FileHandle = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -212,8 +225,10 @@ namespace NoSteamAchievemens {
             Text = aConst::LocalizedColorText(u"Achievements.AchievementReceived"_wref.get());
             {
                 auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
-                pas::WideString localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"Achievements.", Block->GetParam(u"Id"sv), u".Name"}));
-                aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, std::move(localizedColorText), brightBlueColorTag.get());
+                pas::WideString localizedColorText = aConst::LocalizedColorText(pas::concat_wide({u"Achievements.",
+                    Block->GetParam(u"Id"sv), u".Name"}));
+                aMyFunction::ReplaceTextToken(Text, u"<Achievement>"_w, std::move(localizedColorText),
+                    brightBlueColorTag.get());
             }
             ImagePath = pas::concat_wide({u"GI,Bm.FormAchievements.Img.", Block->GetParam(u"Id"sv)});
             PopUp::PopupController->QueueNotification(Text, ImagePath);

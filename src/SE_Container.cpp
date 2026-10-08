@@ -48,10 +48,13 @@ namespace SE_Container {
                 animation_2->SetSequenceFrame(randomIntRange);
             }
             Animation->RestartPlayback();
-            MinimapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+            MinimapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create,
+                    Globals::SpaceObjectUiLoop->ContentPanel);
             MinimapImage->SetPositionModeW(true);
             MinimapImage->SetDepthByName(DepthExpression);
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
             MinimapImage->SetImagePath(MinimapImagePath);
             {
                 WindowsSdk::TPoint contentSize_2 = MinimapImage->GetContentSize();
@@ -80,7 +83,9 @@ namespace SE_Container {
         SE_Space::TObjectSE::SetPosition(APosition);
         if (IsAttachedToSpace()) {
             Animation->SetPosition(EC_Struct::TruncatePointF(APosition));
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
         }
     }
 
@@ -101,8 +106,10 @@ namespace SE_Container {
 
     void TContainerSE::DrawMap() {
         SE_Process::TProcessSE* CurrentProcess = pas::checked_cast<SE_Process::TProcessSE*>(Space->Process);
-        if (static_cast<long double>(aMyFunction::PointDistanceSquared(Position, CurrentProcess->RadarCenter)) < pas::sqr(CurrentProcess->RadarRange)) {
-            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+        if (static_cast<double>(aMyFunction::PointDistanceSquared(Position, CurrentProcess->RadarCenter)) <
+            pas::sqr(CurrentProcess->RadarRange)) {
+            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
     }
 
@@ -117,7 +124,8 @@ namespace SE_Container {
         Image->SetImagePath(ImagePath);
         Image->QueueImageLoad(PendingLoads);
         pas::free(Image);
-        GI_AlphaImage::TAlphaImageGI* MapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Owner);
+        GI_AlphaImage::TAlphaImageGI* MapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(
+            GI_AlphaImage::TAlphaImageGI_Create, Owner);
         MapImage->SetImagePath(MinimapImagePath);
         MapImage->QueueImageLoad(PendingLoads);
         pas::free(MapImage);

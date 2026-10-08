@@ -25,8 +25,6 @@ namespace fLoad {
 
     void LoadPendingAssets(pas::List* PendingLoads);
 
-    void TCacheLoader_Execute(TCacheLoader* Self);
-
     void TfLoad_Create(TfLoad* Self);
 
     void TfLoad_Destroy(TfLoad* Self);

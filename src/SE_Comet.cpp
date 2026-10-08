@@ -102,16 +102,23 @@ namespace SE_Comet {
     void TCometSE::ResetTrajectory(float Angle) {
         if (SkipMoves >= 0) {
             if (pas::random(50, &System::RandSeed) < 25) {
-                Velocity.X = System::Sin(Angle) * Speed;
-                Velocity.Y = System::Cos(Angle) * -Speed;
+                Velocity.X = static_cast<float>(System::Sin(Angle) * Speed);
+                Velocity.Y = static_cast<float>(System::Cos(Angle) * -Speed);
             } else {
-                Velocity.X = System::Sin(Angle) * -Speed;
-                Velocity.Y = System::Cos(Angle) * Speed;
+                Velocity.X = static_cast<float>(System::Sin(Angle) * -Speed);
+                Velocity.Y = static_cast<float>(System::Cos(Angle) * Speed);
             }
             Position.X = aMyFunction::RandomIntRange(-4096, 4096);
             Position.Y = aMyFunction::RandomIntRange(-4096, 4096);
             SkipMoves = -1;
-            while (static_cast<long double>(Globals::SpaceViewPosition.X) - (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) < Position.X && static_cast<long double>(Globals::SpaceViewPosition.X) + (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) > Position.X && static_cast<long double>(Globals::SpaceViewPosition.Y) - (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) < Position.Y && static_cast<long double>(Globals::SpaceViewPosition.Y) + (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) > Position.Y) {
+            while (static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) -
+                (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) < Position.X &&
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) > Position.X &&
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) -
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) < Position.Y &&
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) > Position.Y) {
                 Position.X = aMyFunction::RandomIntRange(-4096, 4096);
                 Position.Y = aMyFunction::RandomIntRange(-4096, 4096);
             }
@@ -120,7 +127,8 @@ namespace SE_Comet {
 
     void TCometSE::StartMotionTimer() {
         StopMotionTimer();
-        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval, pas::bind_method<&TCometSE::AdvanceMotionTimer>(this), 0);
+        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval,
+                pas::bind_method<&TCometSE::AdvanceMotionTimer>(this), 0);
     }
 
     void TCometSE::StopMotionTimer() {
@@ -138,34 +146,35 @@ namespace SE_Comet {
         double Angle{};
         float Force{};
         EC_Struct::TPointF Delta{};
-        Delta = EC_Struct::MakePointF(static_cast<long double>(Position.X) - Center.X, static_cast<long double>(Position.Y) - Center.Y);
-        if (std::fabs(static_cast<pas::Extended>(Delta.X)) < 1.0L) {
-            Angle = Math::ArcTan2(Delta.Y, 1.0L);
+        Delta = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Position.X) - Center.X),
+                static_cast<float>(static_cast<double>(Position.Y) - Center.Y));
+        if (std::fabs(static_cast<double>(Delta.X)) < 1.0) {
+            Angle = Math::ArcTan2(Delta.Y, 1.0);
         } else {
             Angle = Math::ArcTan2(Delta.Y, Delta.X);
         }
-        if (std::fabs(static_cast<pas::Extended>(Delta.X)) + std::fabs(static_cast<pas::Extended>(Delta.Y)) < 64.0L) {
+        if (static_cast<float>(std::fabs(static_cast<double>(Delta.X)) + std::fabs(static_cast<double>(Delta.Y))) < 64.0) {
             Force = 0.0f;
         } else {
-            Force = pas::real_divide(Strength, static_cast<long double>(Delta.X) * Delta.X + static_cast<long double>(Delta.Y) * Delta.Y);
+            Force = static_cast<float>(Strength / (static_cast<float>(static_cast<float>(static_cast<double>(Delta.X) * Delta.X) + static_cast<float>(static_cast<double>(Delta.Y) * Delta.Y))));
         }
         Velocity = aMyFunction::OffsetPointByRadiusAngle(Velocity, -Force, Angle);
-        if (std::fabs(static_cast<pas::Extended>(Velocity.X)) > std::fabs(static_cast<pas::Extended>(Velocity.Y))) {
-            if (Velocity.X > 7.0L) {
-                Velocity.Y = pas::real_divide(Velocity.Y * 7.0L, Velocity.X);
+        if (std::fabs(static_cast<double>(Velocity.X)) > std::fabs(static_cast<double>(Velocity.Y))) {
+            if (Velocity.X > 7.0) {
+                Velocity.Y = static_cast<float>(static_cast<float>(Velocity.Y * 7.0) / Velocity.X);
                 Velocity.X = 7.0f;
             }
-            if (Velocity.X < -7.0L) {
-                Velocity.Y = pas::real_divide(Velocity.Y * 7.0L, -Velocity.X);
+            if (Velocity.X < -7.0) {
+                Velocity.Y = static_cast<float>(static_cast<float>(Velocity.Y * 7.0) / -Velocity.X);
                 Velocity.X = -7.0f;
             }
         } else {
-            if (Velocity.Y > 7.0L) {
-                Velocity.X = pas::real_divide(Velocity.X * 7.0L, Velocity.Y);
+            if (Velocity.Y > 7.0) {
+                Velocity.X = static_cast<float>(static_cast<float>(Velocity.X * 7.0) / Velocity.Y);
                 Velocity.Y = 7.0f;
             }
-            if (Velocity.Y < -7.0L) {
-                Velocity.X = pas::real_divide(Velocity.X * 7.0L, -Velocity.Y);
+            if (Velocity.Y < -7.0) {
+                Velocity.X = static_cast<float>(static_cast<float>(Velocity.X * 7.0) / -Velocity.Y);
                 Velocity.Y = -7.0f;
             }
         }
@@ -209,8 +218,10 @@ namespace SE_Comet {
     void TCometSE::ExplodeAndRespawn() {
         GI_GAI::TgaiGI* Control{};
         if (Space != nullptr) {
-            if (Globals::FilmSoundEffectsEnabled && GlobalsV::SoundInSpaceEnabled && Space->ContainsMapPoint(Position)) {
-                const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"Sound.expl", SysUtils::IntToStr(aMyFunction::RandomIntRange(3, 5))}));
+            if (Globals::FilmSoundEffectsEnabled && GlobalsV::SoundInSpaceEnabled &&
+                Space->ContainsMapPoint(Position)) {
+                const pas::WideString& cpp_arg = pas::concat_wide({u"Sound.expl",
+                    pas::wide_int_to_str(aMyFunction::RandomIntRange(3, 5))});
                 GR_Sound::TSoundControl* soundManager = GR_Main::SoundManager;
                 soundManager->PlaySound(cpp_arg);
             }
@@ -221,7 +232,7 @@ namespace SE_Comet {
             Control->SetSize(Control->GetContentSize());
             Control->SetOrigin(EC_Struct::HalfPoint(Control->ClientSize));
             Control->SetDepthByName(DepthExpression);
-            Control->SetDepth(Control->Depth - 1.0L);
+            Control->SetDepth(static_cast<float>(Control->Depth - 1.0));
             Control->SetPosition(EC_Struct::TruncatePointF(Position));
             Control->SetPositionModeW(true);
             Control->CycleCompleteCallback = pas::bind_method<&TCometSE::ExplosionFinished>(this);
@@ -253,9 +264,16 @@ namespace SE_Comet {
                         break;
                     }
                 }
-            } while (!(static_cast<long double>(Globals::SpaceViewPosition.X) - (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) > Position.X || static_cast<long double>(Globals::SpaceViewPosition.X) + (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) < Position.X || static_cast<long double>(Globals::SpaceViewPosition.Y) - (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) > Position.Y || static_cast<long double>(Globals::SpaceViewPosition.Y) + (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) < Position.Y));
-            Velocity.X = Velocity.X * 0.5L;
-            Velocity.Y = Velocity.Y * 0.5L;
+            } while (!(static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) -
+                (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) > Position.X ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) < Position.X ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) -
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) > Position.Y ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) < Position.Y));
+            Velocity.X = static_cast<float>(Velocity.X * 0.5);
+            Velocity.Y = static_cast<float>(Velocity.Y * 0.5);
         }
     }
 
@@ -275,9 +293,12 @@ namespace SE_Comet {
                 if (Entry->Finished) {
                     RemoveTrailEntry(Entry);
                 } else {
-                    pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position, EC_Struct::MakePointF(static_cast<long double>(Entry->Position.X) + Entry->Velocity.X, static_cast<long double>(Entry->Position.Y) + Entry->Velocity.Y));
+                    pas::store_unaligned<EC_Struct::TPointF>(&Entry->Position,
+                        EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Entry->Position.X) + Entry->Velocity.X),
+                            static_cast<float>(static_cast<double>(Entry->Position.Y) + Entry->Velocity.Y)));
                     if (CurrentExplosion != nullptr) {
-                        pas::store_unaligned<EC_Struct::TPointF>(&Entry->Velocity, EC_Struct::HalfPointF(Entry->Velocity));
+                        pas::store_unaligned<EC_Struct::TPointF>(&Entry->Velocity,
+                            EC_Struct::HalfPointF(Entry->Velocity));
                     }
                     if (Entry->Animation != nullptr) {
                         Entry->Animation->SetPosition(EC_Struct::TruncatePointF(Entry->Position));
@@ -285,33 +306,54 @@ namespace SE_Comet {
                 }
             }
             ApplyAttraction(EC_Struct::MakePointF(0.0f, 0.0f), StarAttraction);
-            if (std::fabs(static_cast<pas::Extended>(Position.X)) < 2.0E+2L && std::fabs(static_cast<pas::Extended>(Position.Y)) < 2.0E+2L && static_cast<long double>(Position.X) * Position.X + static_cast<long double>(Position.Y) * Position.Y < 4.0E+4L) {
+            if (std::fabs(static_cast<double>(Position.X)) < 2.0E+2 && std::fabs(static_cast<double>(Position.Y)) <
+                    2.0E+2 && static_cast<float>(static_cast<float>(static_cast<double>(Position.X) * Position.X) + static_cast<float>(static_cast<double>(Position.Y) *
+                        Position.Y)) < 4.0E+4) {
                 ExplodeAndRespawn();
             }
             Circle = SE_Planet::FirstPlanetCollisionCircle;
             while (Circle != nullptr) {
                 ApplyAttraction(EC_Struct::MakePointF(Circle->Position.X, Circle->Position.Y), ObjectAttraction);
-                if (std::fabs(static_cast<long double>(Circle->Position.X) - Position.X) < Circle->Radius && std::fabs(static_cast<long double>(Circle->Position.Y) - Position.Y) < Circle->Radius && (static_cast<long double>(Circle->Position.X) - Position.X) * (static_cast<long double>(Circle->Position.X) - Position.X) + (static_cast<long double>(Circle->Position.Y) - Position.Y) * (static_cast<long double>(Circle->Position.Y) - Position.Y) < Circle->RadiusSquared) {
+                if (std::fabs(static_cast<float>(static_cast<double>(Circle->Position.X) - Position.X)) < Circle->Radius &&
+                    std::fabs(static_cast<float>(static_cast<double>(Circle->Position.Y) - Position.Y)) < Circle->Radius &&
+                    static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Circle->Position.X) - Position.X)) * (static_cast<float>(static_cast<double>(Circle->Position.X) -
+                            Position.X))) + static_cast<float>((static_cast<float>(static_cast<double>(Circle->Position.Y) - Position.Y)) *
+                            (static_cast<float>(static_cast<double>(Circle->Position.Y) - Position.Y)))) < Circle->RadiusSquared) {
                     ExplodeAndRespawn();
                     break;
                 }
                 Circle = Circle->Next;
             }
-            Position = EC_Struct::MakePointF(static_cast<long double>(Position.X) + Velocity.X, static_cast<long double>(Position.Y) + Velocity.Y);
-            if (static_cast<long double>(Globals::SpaceViewPosition.X) - (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) > Position.X || static_cast<long double>(Globals::SpaceViewPosition.Y) - (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) > Position.Y || static_cast<long double>(Globals::SpaceViewPosition.X) + (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) < Position.X || static_cast<long double>(Globals::SpaceViewPosition.Y) + (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) < Position.Y) {
-                if (Position.X > 4096.0L && Velocity.X >= 0.0L) {
+            Position = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Position.X) + Velocity.X),
+                    static_cast<float>(static_cast<double>(Position.Y) + Velocity.Y));
+            if (static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) -
+                (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) > Position.X ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) -
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) > Position.Y ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) < Position.X ||
+                static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) +
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) < Position.Y) {
+                if (Position.X > 4096.0 && Velocity.X >= 0.0) {
                     Position.X = -4096.0f;
                 }
-                if (Position.X < -4096.0L && Velocity.X <= 0.0L) {
+                if (Position.X < -4096.0 && Velocity.X <= 0.0) {
                     Position.X = 4096.0f;
                 }
-                if (Position.Y > 4096.0L && Velocity.Y >= 0.0L) {
+                if (Position.Y > 4096.0 && Velocity.Y >= 0.0) {
                     Position.Y = -4096.0f;
                 }
-                if (Position.Y < -4096.0L && Velocity.Y <= 0.0L) {
+                if (Position.Y < -4096.0 && Velocity.Y <= 0.0) {
                     Position.Y = 4096.0f;
                 }
-                while (static_cast<long double>(Globals::SpaceViewPosition.X) - (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) < Position.X && static_cast<long double>(Globals::SpaceViewPosition.X) + (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1) > Position.X && static_cast<long double>(Globals::SpaceViewPosition.Y) - (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) < Position.Y && static_cast<long double>(Globals::SpaceViewPosition.Y) + (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1) > Position.Y) {
+                while (static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) -
+                    (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) < Position.X &&
+                    static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) +
+                        (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >> 1)) > Position.X &&
+                    static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) -
+                        (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) < Position.Y &&
+                    static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) +
+                        (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >> 1)) > Position.Y) {
                     Position.X = aMyFunction::RandomIntRange(-4096, 4096);
                     Position.Y = aMyFunction::RandomIntRange(-4096, 4096);
                 }
@@ -354,7 +396,7 @@ namespace SE_Comet {
         }
         if (Block->CountParams(u"MoveAngle"_wref.get()) > 0) {
             IntRange = GI_Main::GetPointGI(pas::view(Block->GetParam(u"MoveAngle"sv)));
-            MoveAngle = pas::real_divide(aMyFunction::RandomIntRange(IntRange.X, IntRange.Y) * SystemImports::Pi, 1.8E+2L);
+            MoveAngle = static_cast<float>(static_cast<float>(aMyFunction::RandomIntRange(IntRange.X, IntRange.Y) * SystemImports::Pi) / 1.8E+2);
         }
         ExplosionPath = Block->GetParam(u"Explore"sv);
         ExplosionFrames = Block->GetParam(u"ExploreFrame"sv);

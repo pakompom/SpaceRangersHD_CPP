@@ -12,11 +12,11 @@ namespace EC_Cache {
     // Requires an exact cache-data class match.
     void EvictBlockChildrenFromCache(pas::WideString BlockPath, TCacheDataClass CacheDataClass);
 
-    void TCacheControlEC_Create(TCacheControlEC* Self);
+    inline void TCacheControlEC_Create(TCacheControlEC* Self);
 
     void TCacheControlEC_Destroy(TCacheControlEC* Self);
 
-    void TCacheDataEC_Create(TCacheDataEC* Self);
+    inline void TCacheDataEC_Create(TCacheDataEC* Self);
 
     // Detaches all controls without freeing them.
     void TCacheDataEC_Destroy(TCacheDataEC* Self);
@@ -26,3 +26,5 @@ namespace EC_Cache {
     void TCacheEC_Destroy(TCacheEC* Self);
 
 } // namespace EC_Cache
+
+#include "inline/EC_Cache.hpp"

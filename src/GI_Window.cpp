@@ -87,7 +87,8 @@ namespace GI_Window {
             Result.X = BorderSize;
         } else {
             TileSize = TopImage->GetContentSize();
-            Result.X = MathImports::Ceil(pas::real_divide(Size.X - BorderSize, TileSize.X)) * TileSize.X + BorderSize;
+            Result.X = MathImports::Ceil(static_cast<float>(static_cast<double>(Size.X - BorderSize) / TileSize.X)) * TileSize.X +
+                    BorderSize;
         }
         TileSize = BottomLeftImage->GetContentSize();
         BorderSize = CornerSize.Y + TileSize.Y;
@@ -95,7 +96,8 @@ namespace GI_Window {
             Result.Y = BorderSize;
         } else {
             TileSize = LeftImage->GetContentSize();
-            Result.Y = MathImports::Ceil(pas::real_divide(Size.Y - BorderSize, TileSize.Y)) * TileSize.Y + BorderSize;
+            Result.Y = MathImports::Ceil(static_cast<float>(static_cast<double>(Size.Y - BorderSize) / TileSize.Y)) * TileSize.Y +
+                    BorderSize;
         }
         return Result;
     }
@@ -124,7 +126,8 @@ namespace GI_Window {
             GI_Image::TImageGI* bottomRightImage = BottomRightImage;
             bottomRightImage->SetSize(contentSize_4);
         }
-        BottomRightImage->SetPosition(ClassesImports::Point(ClientSize.X - BottomRightImage->ClientSize.X, ClientSize.Y - BottomRightImage->ClientSize.Y));
+        BottomRightImage->SetPosition(ClassesImports::Point(ClientSize.X - BottomRightImage->ClientSize.X,
+            ClientSize.Y - BottomRightImage->ClientSize.Y));
         std::int32_t First = TopLeftImage->ClientSize.X;
         std::int32_t Last = ClientSize.X - TopRightImage->ClientSize.X;
         if (Last - First <= 0) {

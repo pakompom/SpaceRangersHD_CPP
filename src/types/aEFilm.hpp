@@ -64,7 +64,8 @@ namespace aEFilm {
         void Clear();
         // Grows capacity and advances the used count without writing the new slot.
         void ReserveCameraEventSlot();
-        void AddCameraEvent(std::int32_t AStepIndex, EC_Struct::TPointF AStartPosition, EC_Struct::TPointF AEndPosition, std::int32_t APriority);
+        void AddCameraEvent(std::int32_t AStepIndex, EC_Struct::TPointF AStartPosition, EC_Struct::TPointF AEndPosition,
+            std::int32_t APriority);
         // Appends an object owned by this film.
         TEFilmObj* AllocateObject();
         void RemoveObject(TEFilmObj* Obj);
@@ -77,7 +78,8 @@ namespace aEFilm {
         TEFilmObj* NomToObj(std::int32_t Index);
         std::uint8_t ContainsObject(TEFilmObj* Obj);
         // Matches all three keys; returns a borrowed object or nil.
-        TEFilmObj* FindObject(const std::u16string_view& KindName, const std::u16string_view& GraphKey, std::uint32_t ObjectId);
+        TEFilmObj* FindObject(const std::u16string_view& KindName, const std::u16string_view& GraphKey,
+            std::uint32_t ObjectId);
         TEFilmObj* FindObjectById(const std::u16string_view& KindName, std::uint32_t ObjectId);
         void GrowCommandPool(std::int32_t Count);
         // Moves an inclusive linked range to the free list.
@@ -91,7 +93,8 @@ namespace aEFilm {
         PEFilmCommand AddCommand(std::int32_t StepIndex);
         std::int32_t CommandCount();
         // Retains SceneObject and copies its class name and graph key. Both stack arguments are unused.
-        TEFilmObj* AddObject(std::uint32_t ObjectId, SE_Space::TObjectSE* SceneObject, std::int32_t Unused1, std::int32_t Unused2);
+        TEFilmObj* AddObject(std::uint32_t ObjectId, SE_Space::TObjectSE* SceneObject, std::int32_t Unused1,
+            std::int32_t Unused2);
         void SetObjectPosition(std::int32_t StepIndex, TEFilmObj* Obj, EC_Struct::TPointF Position);
         void SetObjectOrbitCenter(std::int32_t StepIndex, TEFilmObj* Obj, EC_Struct::TPointF Position);
         void SetObjectAlpha(std::int32_t StepIndex, TEFilmObj* Obj, std::uint8_t Alpha);
@@ -100,10 +103,12 @@ namespace aEFilm {
         // Queues slot 0x40 on each retained scene object.
         void AdvanceObjects(std::int32_t StepIndex);
         // Scale is decoded as a signed 16-bit value divided by 1000 during playback.
-        void SetPlanetState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t RotationInterval, std::int32_t SurfaceMapStep, std::uint16_t ScaleThousandths, std::uint8_t RingKind, std::uint8_t Owner);
+        void SetPlanetState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t RotationInterval,
+            std::int32_t SurfaceMapStep, std::uint16_t ScaleThousandths, std::uint8_t RingKind, std::uint8_t Owner);
         void SetShipSizeAndTailMode(std::int32_t StepIndex, TEFilmObj* Obj, Types::TPoint Size, std::int32_t TailMode);
         void SetRuinsState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t State);
-        void SetWeaponHit(std::int32_t StepIndex, TEFilmObj* Obj, std::uint16_t Color, std::int32_t Damage, std::uint8_t Destroyed, std::uint8_t PlaySound);
+        void SetWeaponHit(std::int32_t StepIndex, TEFilmObj* Obj, std::uint16_t Color, std::int32_t Damage,
+            std::uint8_t Destroyed, std::uint8_t PlaySound);
         // Source and Target may be nil; Obj must exist.
         void SetWeaponEndpoints(std::int32_t StepIndex, TEFilmObj* Obj, TEFilmObj* Source, TEFilmObj* Target);
         // Playback selects TWeaponSE destruction effects: 1=bomb, 2=asteroid, 5=kamikaze; other modes include fades and immediate removal.

@@ -29,16 +29,14 @@ namespace SE_Sputnik {
         SE_Space::TObjectSE::AttachToSpace(ASpace);
         PlanetControl = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Space->MapPanel);
         PlanetControl->SetPositionModeW(true);
-        {
-            std::int32_t trunc = System::Trunc(Position.Y);
-            std::int32_t trunc_2 = System::Trunc(Position.X);
-            PlanetControl->SetPosition(ClassesImports::Point(trunc_2, trunc));
-        }
+        PlanetControl->SetPosition(ClassesImports::Point(pas::real_trunc(Position.X), pas::real_trunc(Position.Y)));
         PlanetControl->SetSurfaceMapOffset(SurfaceMapOffset);
         RebuildOrbitTransform();
         UpdateOrbitDisplay();
-        OrbitTimer = Space->Screen->ScheduleCallbackTimer(OrbitTimerInterval, OrbitTimerInterval, pas::bind_method<&TSputnikSE::AdvanceOrbitTimer>(this), 0);
-        RotationTimer = Space->Screen->ScheduleCallbackTimer(RotationTimerInterval, RotationTimerInterval, pas::bind_method<&TSputnikSE::AdvanceRotationTimer>(this), 0);
+        OrbitTimer = Space->Screen->ScheduleCallbackTimer(OrbitTimerInterval, OrbitTimerInterval,
+                pas::bind_method<&TSputnikSE::AdvanceOrbitTimer>(this), 0);
+        RotationTimer = Space->Screen->ScheduleCallbackTimer(RotationTimerInterval, RotationTimerInterval,
+                pas::bind_method<&TSputnikSE::AdvanceRotationTimer>(this), 0);
     }
 
     void TSputnikSE::DetachFromSpace() {
@@ -88,16 +86,16 @@ namespace SE_Sputnik {
     // Rewinds Buffer to zero and rebuilds the orbit transform and display position.
     void TSputnikSE::LoadStateBuffer(EC_Buf::TBufEC* Buffer) {
         Buffer->SetPosition(0);
-        DepthOrder = EC_Buf::TBufEC_GetByte(Buffer);
-        OrbitInclination = EC_Buf::TBufEC_GetSingle(Buffer);
-        OrbitRotation = EC_Buf::TBufEC_GetSingle(Buffer);
-        OrbitAngleStep = EC_Buf::TBufEC_GetSingle(Buffer);
-        OrbitTimerInterval = EC_Buf::TBufEC_GetUInt32(Buffer);
-        OrbitRadius = EC_Buf::TBufEC_GetSingle(Buffer);
-        MinDisplayRadius = EC_Buf::TBufEC_GetInt32(Buffer);
-        MaxDisplayRadius = EC_Buf::TBufEC_GetInt32(Buffer);
-        RotationTimerInterval = EC_Buf::TBufEC_GetUInt32(Buffer);
-        SurfaceMapStep = EC_Buf::TBufEC_GetInt32(Buffer);
+        DepthOrder = Buffer->GetByte();
+        OrbitInclination = Buffer->GetSingle();
+        OrbitRotation = Buffer->GetSingle();
+        OrbitAngleStep = Buffer->GetSingle();
+        OrbitTimerInterval = Buffer->GetUInt32();
+        OrbitRadius = Buffer->GetSingle();
+        MinDisplayRadius = Buffer->GetInt32();
+        MaxDisplayRadius = Buffer->GetInt32();
+        RotationTimerInterval = Buffer->GetUInt32();
+        SurfaceMapStep = Buffer->GetInt32();
         RebuildOrbitTransform();
         UpdateOrbitDisplay();
     }
@@ -109,7 +107,7 @@ namespace SE_Sputnik {
         Angle = aMyFunction::HeadingDegreesToRadians(OrbitInclination);
         InclinationCos = System::Cos(Angle);
         InclinationSin = System::Sin(Angle);
-        MaxOrbitDepth = std::fabs(static_cast<long double>(-InclinationSin) * OrbitRadius);
+        MaxOrbitDepth = std::fabs(static_cast<float>(static_cast<double>(-InclinationSin) * OrbitRadius));
         MinOrbitDepth = -MaxOrbitDepth;
     }
 
@@ -120,37 +118,41 @@ namespace SE_Sputnik {
             return;
         }
         float Angle = aMyFunction::HeadingDegreesToRadians(OrbitAngle);
-        float OrbitX = System::Sin(Angle) * OrbitRadius;
-        float OrbitY = System::Cos(Angle) * -OrbitRadius;
-        float X = static_cast<long double>(InclinationCos) * RotationCos * OrbitX + static_cast<long double>(-RotationSin) * OrbitY + OrbitCenter.X;
-        float Y = static_cast<long double>(InclinationCos) * RotationSin * OrbitX + static_cast<long double>(OrbitY) * RotationCos + OrbitCenter.Y;
-        float Z = static_cast<long double>(-InclinationSin) * OrbitX;
+        float OrbitX = static_cast<float>(System::Sin(Angle) * OrbitRadius);
+        float OrbitY = static_cast<float>(System::Cos(Angle) * -OrbitRadius);
+        float X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(InclinationCos) * RotationCos) * OrbitX) + static_cast<float>(static_cast<double>(-RotationSin) *
+                OrbitY)) + OrbitCenter.X);
+        float Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(InclinationCos) * RotationSin) * OrbitX) + static_cast<float>(static_cast<double>(OrbitY) *
+                RotationCos)) + OrbitCenter.Y);
+        float Z = static_cast<float>(static_cast<double>(-InclinationSin) * OrbitX);
         Position = EC_Struct::MakePointF(X, Y);
-        DisplayRadius = System::Round(pas::real_divide(static_cast<long double>(Z) - MinOrbitDepth, static_cast<long double>(MaxOrbitDepth) - MinOrbitDepth) * (MaxDisplayRadius - MinDisplayRadius) + MinDisplayRadius);
+        DisplayRadius = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Z) - MinOrbitDepth)) / (static_cast<float>(static_cast<double>(MaxOrbitDepth) -
+                    MinOrbitDepth))) * (MaxDisplayRadius - MinDisplayRadius)) + MinDisplayRadius));
         if (DisplayRadius < MinDisplayRadius) {
             DisplayRadius = MinDisplayRadius;
         } else if (DisplayRadius > MaxDisplayRadius) {
             DisplayRadius = MaxDisplayRadius;
         }
         if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) < 768) {
-            DisplayRadius = System::Round(pas::real_divide(DisplayRadius * 800, 1024.0L));
+            DisplayRadius = pas::real_round(static_cast<float>(DisplayRadius * 800 / 1024.0));
         }
-        LightAngle = System::Round(pas::real_divide(pas::real_divide(Math::ArcTan2(-Position.X, Position.Y) * 1.8E+2L, aMyFunction::GamePi) * 256.0L, 3.6E+2L));
+        LightAngle = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(Math::ArcTan2(-Position.X, Position.Y) * 1.8E+2) / aMyFunction::GamePi) * 256.0) /
+                3.6E+2));
         std::int32_t Index = DisplayRadius - GlobalsV::MinimumSatelliteTemplateRadius;
         Template = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates, Index);
         PlanetControl->SetImageFromTemplate(Template->MaskName, ImagePath, Template->Radius);
         PlanetControl->SetLightAngle(LightAngle);
         PlanetControl->SetPosition(EC_Struct::TruncatePointF(Position));
         PlanetControl->SetOrigin(ClassesImports::Point(Template->Radius, Template->Radius));
-        if (Z < 0.0L) {
-            PlanetControl->SetDepth(static_cast<long double>(DepthOrder) + GlobalsV::PlanetDepth + 1.0L);
+        if (Z < 0.0) {
+            PlanetControl->SetDepth(static_cast<float>(static_cast<float>(static_cast<double>(DepthOrder) + GlobalsV::PlanetDepth) + 1.0));
         } else {
-            PlanetControl->SetDepth(static_cast<long double>(GlobalsV::PlanetDepth) - DepthOrder - 1.0L);
+            PlanetControl->SetDepth(static_cast<float>(static_cast<float>(static_cast<double>(GlobalsV::PlanetDepth) - DepthOrder) - 1.0));
         }
     }
 
     void TSputnikSE::AdvanceOrbitTimer(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
-        OrbitAngle = aMyFunction::WrapHeadingDegrees(static_cast<long double>(OrbitAngle) + OrbitAngleStep);
+        OrbitAngle = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(OrbitAngle) + OrbitAngleStep));
         UpdateOrbitDisplay();
     }
 
@@ -172,7 +174,8 @@ namespace SE_Sputnik {
         Globals::TSputnikTempl* Template{};
         Template = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates, 0);
         {
-            GI_Planet::TPlanetGI* cpp_with = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Owner);
+            GI_Planet::TPlanetGI* cpp_with = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create,
+                Owner);
             cpp_with->SetImageFromTemplate(Template->MaskName, ImagePath, Template->Radius);
             cpp_with->QueueImageLoad(PendingLoads);
             pas::free(cpp_with);

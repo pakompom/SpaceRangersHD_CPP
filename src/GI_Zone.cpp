@@ -9,10 +9,6 @@
 #include "units/aMyFunction.hpp"
 
 namespace GI_Zone {
-    void TZoneGI_Create(TZoneGI* Self, GI_MessageLoop::TObjectGI* Owner) {
-        GI_MessageLoop::TObjectGI_Create(Self, Owner);
-    }
-
     void TZoneGI_Destroy(TZoneGI* Self) {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
@@ -39,7 +35,9 @@ namespace GI_Zone {
             } else {
                 Diameter = HitTestBounds.Bottom - HitTestBounds.Top;
             }
-            return pas::sqr(pas::real_divide(Diameter, 2.0L)) >= aMyFunction::PointDistanceSquared(EC_Struct::MakePointF((HitTestBounds.Left + HitTestBounds.Right) / 2, (HitTestBounds.Top + HitTestBounds.Bottom) / 2), EC_Struct::PointToPointF(Point));
+            return pas::sqr(static_cast<float>(Diameter / 2.0)) >= aMyFunction::PointDistanceSquared(
+                    EC_Struct::MakePointF((HitTestBounds.Left + HitTestBounds.Right) / 2,
+                        (HitTestBounds.Top + HitTestBounds.Bottom) / 2), EC_Struct::PointToPointF(Point));
         } else {
             return Result;
         }

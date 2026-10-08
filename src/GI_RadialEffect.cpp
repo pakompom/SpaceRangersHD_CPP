@@ -14,14 +14,13 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native expanding radiation field, hexagonal lattice and palette resources.
 namespace GI_RadialEffect {
-    std::uint32_t RadiationRingColor(std::int32_t Value, TPSRadEffectGI* Self);
+    static std::uint32_t RadiationRingColor(std::int32_t Value, TPSRadEffectGI* Self);
 
-    std::int32_t RadiationRingAlpha(float Distance, TPSRadEffectGI* Self);
+    static std::int32_t RadiationRingAlpha(float Distance, TPSRadEffectGI* Self);
 
     pas::DynArray<pas::WideString> AuraAnimationPaths{};
 
@@ -33,7 +32,13 @@ namespace GI_RadialEffect {
 
     pas::Array<Types::TPoint, 0, 23> RadiationEdgeEnds{};
 
-    pas::Array<EC_Struct::TPointF, 0, 5> RadiationHexagon = pas::Array<EC_Struct::TPointF, 0, 5>{{{.X = -0.8660254f, .Y = 0.5f}, {.X = 0.0f, .Y = 1.0f}, {.X = 0.8660254f, .Y = 0.5f}, {.X = 0.8660254f, .Y = -0.5f}, {.X = 0.0f, .Y = -1.0f}, {.X = -0.8660254f, .Y = -0.5f}}};
+    pas::Array<EC_Struct::TPointF, 0, 5> RadiationHexagon = pas::Array<EC_Struct::TPointF, 0, 5>{{
+        {.X = -0.8660254f, .Y = 0.5f},
+        {.X = 0.0f, .Y = 1.0f},
+        {.X = 0.8660254f, .Y = 0.5f},
+        {.X = 0.8660254f, .Y = -0.5f},
+        {.X = 0.0f, .Y = -1.0f},
+        {.X = -0.8660254f, .Y = -0.5f}}};
 
     void LoadRadiationPalettes() {
         EC_BlockPar::TBlockParEC* Block{};
@@ -46,7 +51,8 @@ namespace GI_RadialEffect {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         RadiationPalettes.set_length(Count);
         RadiationRadii.set_length(Count);
@@ -55,9 +61,12 @@ namespace GI_RadialEffect {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 1); cpp_range_3.next(ColorIndex); ) {
-                    Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                            pas::wide_int_to_str(ColorIndex)})));
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                        RadiationPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                        RadiationPalettes[Index][3 * ColorIndex + PartIndex] =
+                            EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex,
+                                u","sv));
                     }
                 }
                 if (PaletteBlock->CountParams(u"Radius"_wref.get()) > 0) {
@@ -69,8 +78,12 @@ namespace GI_RadialEffect {
         }
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, 5); cpp_range_5.next(Index); ) {
             for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, 3); cpp_range_6.next(ColorIndex); ) {
-                RadiationEdgeStarts[Index * 4 + ColorIndex].X = System::Round(pas::real_divide((static_cast<long double>(4 - ColorIndex) * RadiationHexagon[Index].X + static_cast<long double>(ColorIndex) * RadiationHexagon[(Index + 1) % 6].X) * 3.0E+1L, 4.0L));
-                RadiationEdgeStarts[Index * 4 + ColorIndex].Y = System::Round(pas::real_divide((static_cast<long double>(4 - ColorIndex) * RadiationHexagon[Index].Y + static_cast<long double>(ColorIndex) * RadiationHexagon[(Index + 1) % 6].Y) * 3.0E+1L, 4.0L));
+                RadiationEdgeStarts[Index * 4 + ColorIndex].X = pas::real_round(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(4 - ColorIndex) *
+                        RadiationHexagon[Index].X) + static_cast<float>(static_cast<double>(ColorIndex) * RadiationHexagon[(Index + 1) %
+                            6].X))) * 3.0E+1) / 4.0));
+                RadiationEdgeStarts[Index * 4 + ColorIndex].Y = pas::real_round(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(4 - ColorIndex) *
+                        RadiationHexagon[Index].Y) + static_cast<float>(static_cast<double>(ColorIndex) * RadiationHexagon[(Index + 1) %
+                            6].Y))) * 3.0E+1) / 4.0));
             }
         }
         for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, 23); cpp_range_7.next(Index); ) {
@@ -81,7 +94,8 @@ namespace GI_RadialEffect {
         ColorIndex = Block->GetBlockCount();
         Count = 0;
         for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range_8.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         AuraAnimationPaths.set_length(Count);
         for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(Index); ) {
@@ -102,7 +116,8 @@ namespace GI_RadialEffect {
         Self->UpdateProjectionBounds();
         Self->PositionInitialized = false;
         Self->PaletteIndex = APaletteIndex;
-        Self->SetColor(GR_Main::CurrentPixelFormat->PackNormalizedRgb(RadiationPalettes[APaletteIndex][0], RadiationPalettes[APaletteIndex][1], RadiationPalettes[APaletteIndex][2]));
+        Self->SetColor(GR_Main::CurrentPixelFormat->PackNormalizedRgb(RadiationPalettes[APaletteIndex][0],
+            RadiationPalettes[APaletteIndex][1], RadiationPalettes[APaletteIndex][2]));
     }
 
     void TPSRadEffectGI_Destroy(TPSRadEffectGI* Self) {
@@ -124,18 +139,20 @@ namespace GI_RadialEffect {
         if (!PositionInitialized) {
             GI_MessageLoop::TObjectGI::SetPosition(Position);
             PositionInitialized = true;
-            X1 = System::Round(pas::real_divide(LocalPosition.X, 51.96152424L)) * 2 * 0.866025404L * 3.0E+1L;
-            Y1 = System::Round(pas::real_divide(LocalPosition.Y, 9.0E+1L)) * 3 * 30;
-            X2 = (System::Round(pas::real_divide(LocalPosition.X, 51.96152424L) + 0.5L) - 0.5L) * 2.0L * 0.866025404L * 3.0E+1L;
-            Y2 = (System::Round(pas::real_divide(LocalPosition.Y, 9.0E+1L) + 0.5L) - 0.5L) * 3.0L * 3.0E+1L;
-            Distance1 = pas::sqr(static_cast<long double>(X1) - LocalPosition.X) + pas::sqr(static_cast<long double>(Y1) - LocalPosition.Y);
-            Distance2 = pas::sqr(static_cast<long double>(X2) - LocalPosition.X) + pas::sqr(static_cast<long double>(Y2) - LocalPosition.Y);
+            X1 = static_cast<float>(static_cast<float>(pas::real_round(static_cast<float>(LocalPosition.X / 51.96152424)) * 2 * 0.866025404) * 3.0E+1);
+            Y1 = pas::real_round(static_cast<float>(LocalPosition.Y / 9.0E+1)) * 3 * 30;
+            X2 = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(pas::real_round(static_cast<float>(static_cast<float>(LocalPosition.X / 51.96152424) + 0.5)) - 0.5)) * 2.0) * 0.866025404) * 3.0E+1);
+            Y2 = static_cast<float>(static_cast<float>((static_cast<float>(pas::real_round(static_cast<float>(static_cast<float>(LocalPosition.Y / 9.0E+1) + 0.5)) - 0.5)) * 3.0) * 3.0E+1);
+            Distance1 = static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(X1) - LocalPosition.X)) + pas::sqr(static_cast<float>(static_cast<double>(Y1) -
+                        LocalPosition.Y)));
+            Distance2 = static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(X2) - LocalPosition.X)) + pas::sqr(static_cast<float>(static_cast<double>(Y2) -
+                        LocalPosition.Y)));
             if (Distance1 < Distance2) {
-                LatticeOffset.X = static_cast<long double>(X1) - LocalPosition.X;
-                LatticeOffset.Y = static_cast<long double>(Y1) - LocalPosition.Y;
+                LatticeOffset.X = static_cast<float>(static_cast<double>(X1) - LocalPosition.X);
+                LatticeOffset.Y = static_cast<float>(static_cast<double>(Y1) - LocalPosition.Y);
             } else {
-                LatticeOffset.X = static_cast<long double>(X2) - LocalPosition.X;
-                LatticeOffset.Y = static_cast<long double>(Y2) - LocalPosition.Y;
+                LatticeOffset.X = static_cast<float>(static_cast<double>(X2) - LocalPosition.X);
+                LatticeOffset.Y = static_cast<float>(static_cast<double>(Y2) - LocalPosition.Y);
             }
         }
         UpdateProjectionBounds();
@@ -172,7 +189,8 @@ namespace GI_RadialEffect {
     }
 
     PRadiationParticle TPSRadEffectGI::AddParticle() {
-        PRadiationParticle Particle = static_cast<PRadiationParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TRadiationParticle))));
+        PRadiationParticle Particle = static_cast<PRadiationParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TRadiationParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -200,7 +218,8 @@ namespace GI_RadialEffect {
     void TPSRadEffectGI::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -226,38 +245,57 @@ namespace GI_RadialEffect {
         Invalidate();
         if (FirstParticle == nullptr && RemainingTicks >= 24) {
             Radius = 0;
-            Columns = MathImports::Ceil(pas::real_divide(RadiationRadii[PaletteIndex], 25.98076212L)) + 1;
-            Rows = MathImports::Ceil(pas::real_divide(RadiationRadii[PaletteIndex], 9.0E+1L)) + 1;
+            Columns = MathImports::Ceil(static_cast<float>(RadiationRadii[PaletteIndex] / 25.98076212)) + 1;
+            Rows = MathImports::Ceil(static_cast<float>(RadiationRadii[PaletteIndex] / 9.0E+1)) + 1;
             for (auto cpp_range = pas::for_to<std::int32_t>(-Columns, Columns); cpp_range.next(Column); ) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(-2 * Rows, 2 * Rows); cpp_range_2.next(Row); ) {
                     Particle = AddParticle();
                     Particle->Color = Color;
-                    Particle->Position.X = System::Round((Row % 2 * 0.5L + Column) * 3.0E+1L * 2.0L * 0.866025404L + LatticeOffset.X);
-                    Particle->Position.Y = System::Round(30 * Row * 1.5L + LatticeOffset.Y);
+                    Particle->Position.X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<float>(Row % 2 * 0.5) + Column)) * 3.0E+1) * 2.0) * 0.866025404) +
+                            LatticeOffset.X));
+                    Particle->Position.Y = pas::real_round(static_cast<float>(static_cast<float>(30 * Row * 1.5) + LatticeOffset.Y));
                     for (Edge = 0; Edge <= 11; ++Edge) {
-                        pas::store_unaligned<std::uint8_t>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t)), static_cast<std::uint8_t>(0));
+                        pas::store_unaligned<std::uint8_t>(
+                            pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t)),
+                            static_cast<std::uint8_t>(0));
                         X = Particle->Position.X + (RadiationEdgeStarts[Edge].X + RadiationEdgeEnds[Edge].X) / 2;
                         Y = Particle->Position.Y + (RadiationEdgeStarts[Edge].Y + RadiationEdgeEnds[Edge].Y) / 2;
-                        pas::store_unaligned<std::int32_t>(pas::byte_offset(&Particle->EdgeDistance, Edge * sizeof(std::int32_t)), static_cast<std::int32_t>(System::Round(System::Sqrt(X * X + Y * Y))));
+                        pas::store_unaligned<std::int32_t>(
+                            pas::byte_offset(&Particle->EdgeDistance, Edge * sizeof(std::int32_t)),
+                            static_cast<std::int32_t>(pas::real_round(System::Sqrt(X * X + Y * Y))));
                     }
                 }
             }
         } else {
-            Radius += std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(pas::real_divide(RadiationRadii[PaletteIndex] * 4, 5.0E+2L)));
-            Alpha = System::Round(255.0L - pas::sqr(pas::real_divide(Radius, RadiationRadii[PaletteIndex])) * 255.0L);
+            Radius += std::max<std::int64_t>(static_cast<std::int64_t>(1),
+                    pas::real_round(static_cast<float>(RadiationRadii[PaletteIndex] * 4 / 5.0E+2)));
+            Alpha = pas::real_round(static_cast<float>(255.0 - static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(Radius) / RadiationRadii[PaletteIndex])) *
+                        255.0)));
             RingOffset = Radius;
             FadeAlpha = Alpha;
-            RingOffset = System::Round(RingOffset - 3.0E+1L - 2.0L);
-            FadeAlpha = System::Round(FadeAlpha * 0.7L);
+            RingOffset = pas::real_round(static_cast<float>(static_cast<float>(RingOffset - 3.0E+1) - 2.0));
+            FadeAlpha = pas::real_round(static_cast<float>(FadeAlpha * 0x1.6666666666665p-1));
             Particle = FirstParticle;
             while (Particle != nullptr) {
                 Current = Particle;
                 Particle = Particle->Next;
                 for (Edge = 0; Edge <= 11; ++Edge) {
-                    if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&Current->EdgeDistance, Edge * sizeof(std::int32_t))) > RingOffset) {
-                        pas::store_unaligned<std::uint8_t>(pas::byte_offset(&Current->Alpha, Edge * sizeof(std::uint8_t)), static_cast<std::uint8_t>(std::max<std::int32_t>(0, FadeAlpha - pas::sqr((pas::load_unaligned<std::int32_t>(pas::byte_offset(&Current->EdgeDistance, Edge * sizeof(std::int32_t))) - RingOffset) / 2))));
+                    if (pas::load_unaligned<std::int32_t>(pas::byte_offset(&Current->EdgeDistance,
+                        Edge * sizeof(std::int32_t))) > RingOffset) {
+                        pas::store_unaligned<std::uint8_t>(
+                            pas::byte_offset(&Current->Alpha, Edge * sizeof(std::uint8_t)),
+                            static_cast<std::uint8_t>(std::max<std::int32_t>(0,
+                                FadeAlpha - pas::sqr((pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                                    &Current->EdgeDistance, Edge * sizeof(std::int32_t))) - RingOffset) / 2))));
                     } else {
-                        pas::store_unaligned<std::uint8_t>(pas::byte_offset(&Current->Alpha, Edge * sizeof(std::uint8_t)), static_cast<std::uint8_t>(System::Round(pas::real_max<pas::Extended>(0.0L, FadeAlpha - pas::abs(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Current->EdgeDistance, Edge * sizeof(std::int32_t))) - RingOffset) * pas::real_max<pas::Extended>(0.1L, 1.0L - pas::real_divide(std::max<std::int32_t>(RingOffset, 0), RadiationRadii[PaletteIndex]))))));
+                        pas::store_unaligned<std::uint8_t>(
+                            pas::byte_offset(&Current->Alpha, Edge * sizeof(std::uint8_t)),
+                            static_cast<std::uint8_t>(pas::real_round(pas::real_max<double>(0.0,
+                                static_cast<float>(FadeAlpha - static_cast<float>(pas::abs(pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                                    &Current->EdgeDistance, Edge * sizeof(std::int32_t))) - RingOffset) *
+                                    pas::real_max<double>(0.1,
+                                    static_cast<float>(1.0 - static_cast<float>(static_cast<double>(std::max<std::int32_t>(RingOffset, 0)) /
+                                    RadiationRadii[PaletteIndex])))))))));
                     }
                 }
             }
@@ -281,7 +319,8 @@ namespace GI_RadialEffect {
         auto QueueRadiationOctants = [&](std::int32_t X, std::int32_t Y) -> void {
             std::uint32_t PixelColor{};
             float Distance = System::Sqrt(DistanceSquared);
-            std::int32_t PixelAlpha = GI_RadialEffect::RadiationRingAlpha(static_cast<long double>(Distance) - FadeRadius, this);
+            std::int32_t PixelAlpha = GI_RadialEffect::RadiationRingAlpha(static_cast<float>(static_cast<double>(Distance) - FadeRadius),
+                this);
             if (PixelAlpha > 0) {
                 PixelColor = GR_DX::Color565ToArgb(GI_RadialEffect::RadiationRingColor(PixelAlpha, this));
                 GR_DX::QueueDrawPoint(X + CenterX, Y + CenterY, PixelColor, PixelAlpha);
@@ -309,7 +348,7 @@ namespace GI_RadialEffect {
                 }
             };
             float Distance = System::Sqrt(DistanceSquared);
-            PixelAlpha = GI_RadialEffect::RadiationRingAlpha(System::Round(Distance) - FadeRadius, this);
+            PixelAlpha = GI_RadialEffect::RadiationRingAlpha(pas::real_round(Distance) - FadeRadius, this);
             if (PixelAlpha > 0) {
                 PixelColor = GI_RadialEffect::RadiationRingColor(PixelAlpha, this);
                 Edge = 0;
@@ -340,8 +379,15 @@ namespace GI_RadialEffect {
             Particle = FirstParticle;
             while (Particle != nullptr) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 11); cpp_range.next(Edge); ) {
-                    if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) > 0) {
-                        GR_DX::DrawAlphaLine(AbsolutePosition.X + Particle->Position.X + RadiationEdgeStarts[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeStarts[Edge].Y, AbsolutePosition.X + Particle->Position.X + RadiationEdgeEnds[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeEnds[Edge].Y, GR_DX::Color565ToArgb(Particle->Color), *static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))), &ClipRect);
+                    if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) >
+                        0) {
+                        GR_DX::DrawAlphaLine(AbsolutePosition.X + Particle->Position.X + RadiationEdgeStarts[Edge].X,
+                            AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeStarts[Edge].Y,
+                            AbsolutePosition.X + Particle->Position.X + RadiationEdgeEnds[Edge].X,
+                            AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeEnds[Edge].Y,
+                            GR_DX::Color565ToArgb(Particle->Color),
+                            *static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha,
+                                Edge * sizeof(std::uint8_t))), &ClipRect);
                     }
                 }
                 Particle = Particle->Next;
@@ -371,10 +417,18 @@ namespace GI_RadialEffect {
             Particle = FirstParticle;
             while (Particle != nullptr) {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 11); cpp_range_2.next(Edge); ) {
-                    if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) > 0) {
+                    if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) >
+                        0) {
                         // The native software path retains this second, identical test.
-                        if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))) > 0) {
-                            GR_Main::ScreenRenderBuffer->DrawAntialiasedLine16(AbsolutePosition.X + Particle->Position.X + RadiationEdgeStarts[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeStarts[Edge].Y, AbsolutePosition.X + Particle->Position.X + RadiationEdgeEnds[Edge].X, AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeEnds[Edge].Y, Particle->Color, *static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha, Edge * sizeof(std::uint8_t))), ClipRect);
+                        if (*static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha,
+                            Edge * sizeof(std::uint8_t))) > 0) {
+                            GR_Main::ScreenRenderBuffer->DrawAntialiasedLine16(
+                                AbsolutePosition.X + Particle->Position.X + RadiationEdgeStarts[Edge].X,
+                                AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeStarts[Edge].Y,
+                                AbsolutePosition.X + Particle->Position.X + RadiationEdgeEnds[Edge].X,
+                                AbsolutePosition.Y + Particle->Position.Y + RadiationEdgeEnds[Edge].Y, Particle->Color,
+                                *static_cast<std::uint8_t*>(pas::byte_offset(&Particle->Alpha,
+                                    Edge * sizeof(std::uint8_t))), ClipRect);
                         }
                     }
                 }
@@ -403,17 +457,19 @@ namespace GI_RadialEffect {
         }
     }
 
-    std::uint32_t RadiationRingColor(std::int32_t Value, TPSRadEffectGI* Self) {
-        return GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(RadiationPalettes[Self->PaletteIndex]), pas::sqr(pas::real_divide(Value, 255.0L)));
+    static std::uint32_t RadiationRingColor(std::int32_t Value, TPSRadEffectGI* Self) {
+        return GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(RadiationPalettes[Self->PaletteIndex]),
+            pas::sqr(static_cast<float>(Value / 255.0)));
     }
 
-    std::int32_t RadiationRingAlpha(float Distance, TPSRadEffectGI* Self) {
-        if (Distance > 0.0L) {
-            return System::Round(pas::real_max<pas::Extended>(0.0L, Self->Alpha - pas::sqr(static_cast<pas::Extended>(Distance)) * 1.0E+1L));
-        } else if (Distance > -1.0E+1L) {
-            return System::Round(pas::real_max<pas::Extended>(0.0L, 1.0E+1L * Distance + Self->Alpha));
+    static std::int32_t RadiationRingAlpha(float Distance, TPSRadEffectGI* Self) {
+        if (Distance > 0.0) {
+            return pas::real_round(pas::real_max<double>(0.0,
+                static_cast<float>(Self->Alpha - static_cast<float>(pas::sqr(static_cast<double>(Distance)) * 1.0E+1))));
+        } else if (Distance > -1.0E+1) {
+            return pas::real_round(pas::real_max<double>(0.0, static_cast<float>(static_cast<float>(1.0E+1 * Distance) + Self->Alpha)));
         } else {
-            return System::Round(pas::real_max<pas::Extended>(0.0L, (Distance + 1.0E+1L) * 3.0L + (Self->Alpha - 100)));
+            return pas::real_round(pas::real_max<double>(0.0, static_cast<float>(static_cast<float>((static_cast<float>(Distance + 1.0E+1)) * 3.0) + (Self->Alpha - 100))));
         }
     }
 

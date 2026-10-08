@@ -76,7 +76,8 @@ namespace fRuinsTalk {
         void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback);
         static void ChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         // Clears the dialogue panel state and restarts its ten-millisecond presentation timer.
         void RestartTextPresentation();
@@ -84,7 +85,8 @@ namespace fRuinsTalk {
         void ResetPortraitCycle();
         void PortraitCycleComplete(GI_MessageLoop::TObjectGI* Sender);
         void SelectPortraitAnimation(std::uint8_t Alternate);
-        static GI_MessageLoop::TObjectGI* CreateChoiceBullet(GI_Label::TLabelGI* LabelControl, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateChoiceBullet(GI_Label::TLabelGI* LabelControl,
+            EC_CacheFont::PFontObjectEC Item);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void AddMessageClicked(GI_MessageLoop::TObjectGI* Sender);
@@ -287,7 +289,8 @@ namespace fRuinsTalk {
         void ShowDominionPirateLicenseDialog(std::int32_t Action);
         void BuyDominionPirateLicense(std::int32_t Action);
         void DeclineDominionPirateLicense(std::int32_t Action);
-        std::uint8_t CheckDominionServiceStanding(aGalaxyStruct::TShipRank RequiredRank, pas::WideString Prefix, float CreditCost);
+        std::uint8_t CheckDominionServiceStanding(aGalaxyStruct::TShipRank RequiredRank, pas::WideString Prefix,
+            float CreditCost);
         static void SpendDominionServiceCredit(float CreditCost);
         std::uint8_t CheckDominionAvailable();
         void ShowDominionTravelDialog(std::int32_t Action);

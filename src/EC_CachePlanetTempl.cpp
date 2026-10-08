@@ -22,7 +22,8 @@ namespace EC_CachePlanetTempl {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCPlanetTemplEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCPlanetTemplEC>()) ==
+            nullptr) {
             Control = pas::construct_call<TCPlanetTemplControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -54,16 +55,20 @@ namespace EC_CachePlanetTempl {
     }
 
     void TCPlanetTemplEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
-        GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        GR_GraphBuf::TGraphBufGR* Bitmap = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+            GR_GraphBuf::TGraphBufGR_Create, false);
         Bitmap->LoadImageRgba(SourceBuffer);
-        std::int32_t TextureWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(LoadOption), 0, u","sv)));
-        std::int32_t TextureHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(LoadOption), 1, u","sv)));
+        std::int32_t TextureWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+            pas::view(LoadOption), 0, u","sv)));
+        std::int32_t TextureHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+            pas::view(LoadOption), 1, u","sv)));
         {
             std::int32_t& residentBytes = ResidentBytes;
             void* pixels = Bitmap->GetPixels();
             std::int32_t height = Bitmap->Height;
             std::int32_t pitchBytes = Bitmap->PitchBytes;
-            TemplateData = GR_Main::Ex_OKGR_Planet2_TemplBuild(pixels, pitchBytes, height, TextureWidth, TextureHeight, residentBytes);
+            TemplateData = GR_Main::Ex_OKGR_Planet2_TemplBuild(pixels, pitchBytes, height, TextureWidth, TextureHeight,
+                    residentBytes);
         }
         if (TemplateData == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TCPlanetTemplEC.Load. Error create template planet."_a));

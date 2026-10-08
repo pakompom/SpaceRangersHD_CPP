@@ -65,14 +65,16 @@ namespace GI_PDTurretWeapon {
 
     void TPSPDWeaponGI::GrowParticles() {
         ParticleCapacity += 100;
-        Particles = static_cast<PPDWeaponParticle>(EC_Mem::ReAllocREC(Particles, ParticleCapacity * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
+        Particles = static_cast<PPDWeaponParticle>(EC_Mem::ReAllocREC(Particles,
+                ParticleCapacity * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
     }
 
     PPDWeaponParticle TPSPDWeaponGI::AddParticle() {
         if (ParticleCount >= ParticleCapacity) {
             GrowParticles();
         }
-        PPDWeaponParticle Result = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particles, ParticleCount * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
+        PPDWeaponParticle Result = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particles,
+            ParticleCount * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
         ++ParticleCount;
         return Result;
     }
@@ -84,8 +86,9 @@ namespace GI_PDTurretWeapon {
         std::int32_t K{};
         float Speed{};
         if (RemainingTicks == 25) {
-            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y));
-            Speed = pas::real_divide(OriginalLength + 288.0L, 25.0L);
+            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                        TargetPoint.Y));
+            Speed = static_cast<float>((static_cast<float>(OriginalLength + 288.0)) / 25.0);
             for (I = 0; I <= 7; ++I) {
                 for (J = 0; J <= 1; ++J) {
                     for (K = 0; K <= 5; ++K) {
@@ -117,12 +120,12 @@ namespace GI_PDTurretWeapon {
         UpdateHitTestBounds();
         while (I > 0) {
             if (Particle->Kind == 2) {
-                Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
+                Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
                 if (Particle->Position.Y >= OriginalLength) {
                     Particle->Kind = 0;
                 }
-                if (Particle->Position.Y > 0.0L) {
+                if (Particle->Position.Y > 0.0) {
                     if (Particle->Alpha < 219) {
                         Particle->Alpha += 36;
                     } else {
@@ -131,7 +134,8 @@ namespace GI_PDTurretWeapon {
                 }
             }
             ++K;
-            Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particles, K * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
+            Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particles,
+                    K * static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
             --I;
         }
         if (RemainingTicks > 0) {
@@ -143,9 +147,10 @@ namespace GI_PDTurretWeapon {
         std::int32_t X{};
         std::int32_t Y{};
         float PX{};
-        float Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+        float Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                TargetPoint.Y)) / OriginalLength);
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -157,12 +162,15 @@ namespace GI_PDTurretWeapon {
             while (Count > 0) {
                 if (Particle->Kind >= 2) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
-                Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
+                Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
@@ -170,14 +178,17 @@ namespace GI_PDTurretWeapon {
             while (Count > 0) {
                 if (Particle->Kind >= 2) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }
                 }
-                Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
+                Particle = static_cast<PPDWeaponParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TPDWeaponParticle))));
                 --Count;
             }
         }

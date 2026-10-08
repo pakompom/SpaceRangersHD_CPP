@@ -18,7 +18,8 @@ namespace EC_Mem {
             } else {
                 GR_Main::AppendLogLineThreadSafe("fail"_a);
                 GR_Main::LogMemoryUsage();
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocEC. size=", SysUtils::IntToStr(ByteCount)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocEC. size=",
+                    SysUtils::IntToStr(ByteCount)})));
             }
         }
         return Memory;
@@ -35,7 +36,8 @@ namespace EC_Mem {
             } else {
                 GR_Main::AppendLogLineThreadSafe("fail"_a);
                 GR_Main::LogMemoryUsage();
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocClearEC. size=", SysUtils::IntToStr(ByteCount)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocClearEC. size=",
+                    SysUtils::IntToStr(ByteCount)})));
             }
         }
         return Memory;
@@ -60,7 +62,8 @@ namespace EC_Mem {
                 } else {
                     GR_Main::AppendLogLineThreadSafe("fail"_a);
                     GR_Main::LogMemoryUsage();
-                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=", SysUtils::IntToStr(ByteCount)})));
+                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=",
+                        SysUtils::IntToStr(ByteCount)})));
                 }
             }
         } else {
@@ -74,19 +77,12 @@ namespace EC_Mem {
                 } else {
                     GR_Main::AppendLogLineThreadSafe("fail"_a);
                     GR_Main::LogMemoryUsage();
-                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=", SysUtils::IntToStr(ByteCount)})));
+                    pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=",
+                        SysUtils::IntToStr(ByteCount)})));
                 }
             }
         }
         return Memory;
-    }
-
-    void FreeEC(void* Data) {
-        WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Data);
-    }
-
-    void FreeFromHeapEC(std::uint32_t Heap, void* Data) {
-        WindowsSdk::HeapFree(Heap, 0u, Data);
     }
 
     // The diagnostics retain AllocEC/AllocClearEC/ReAllocREC for these explicit-heap variants.
@@ -94,7 +90,8 @@ namespace EC_Mem {
     void* AllocFromHeapEC(std::uint32_t Heap, std::int32_t ByteCount) {
         void* Memory = WindowsSdk::HeapAlloc(Heap, 0u, ByteCount);
         if (Memory == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocEC. size=", SysUtils::IntToStr(ByteCount)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocEC. size=",
+                SysUtils::IntToStr(ByteCount)})));
         }
         return Memory;
     }
@@ -103,7 +100,8 @@ namespace EC_Mem {
     void* AllocClearFromHeapEC(std::uint32_t Heap, std::int32_t ByteCount) {
         void* Memory = WindowsSdk::HeapAlloc(Heap, WindowsSdk::HEAP_ZERO_MEMORY, ByteCount);
         if (Memory == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocClearEC. size=", SysUtils::IntToStr(ByteCount)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"AllocClearEC. size=",
+                SysUtils::IntToStr(ByteCount)})));
         }
         return Memory;
     }
@@ -118,12 +116,14 @@ namespace EC_Mem {
         } else if (ByteCount > 0 && Data != nullptr) {
             Data = WindowsSdk::HeapReAlloc(Heap, 0u, Data, ByteCount);
             if (Data == nullptr) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=", SysUtils::IntToStr(ByteCount)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=",
+                    SysUtils::IntToStr(ByteCount)})));
             }
         } else {
             Data = WindowsSdk::HeapAlloc(Heap, 0u, ByteCount);
             if (Data == nullptr) {
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=", SysUtils::IntToStr(ByteCount)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"ReAllocREC. size=",
+                    SysUtils::IntToStr(ByteCount)})));
             }
         }
         return Data;

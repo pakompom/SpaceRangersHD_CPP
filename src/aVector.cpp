@@ -15,27 +15,29 @@ namespace aVector {
     }
 
     float DotProductF(EC_Struct::TPointF Left, EC_Struct::TPointF Right) {
-        return static_cast<long double>(Left.X) * Right.X + static_cast<long double>(Left.Y) * Right.Y;
+        return static_cast<float>(static_cast<float>(static_cast<double>(Left.X) * Right.X) + static_cast<float>(static_cast<double>(Left.Y) * Right.Y));
     }
 
     float VectorLengthF(EC_Struct::TPointF Point) {
         return System::Sqrt(aVector::DotProductF(Point, Point));
     }
 
-    std::uint8_t IsRightOfDirectedLine(EC_Struct::TPointF Point, EC_Struct::TPointF Origin, EC_Struct::TPointF Direction) {
+    std::uint8_t IsRightOfDirectedLine(EC_Struct::TPointF Point, EC_Struct::TPointF Origin,
+        EC_Struct::TPointF Direction) {
         EC_Struct::TPointF Normal{};
         EC_Struct::TPointF Offset{};
         Normal = aVector::PerpendicularVector(Direction);
-        Offset = aVector::MakeVectorF(static_cast<long double>(Point.X) - Origin.X, static_cast<long double>(Point.Y) - Origin.Y);
-        return aVector::DotProductF(Offset, Normal) < 0.0L;
+        Offset = aVector::MakeVectorF(static_cast<float>(static_cast<double>(Point.X) - Origin.X), static_cast<float>(static_cast<double>(Point.Y) - Origin.Y));
+        return aVector::DotProductF(Offset, Normal) < 0.0;
     }
 
-    std::uint8_t IsLeftOfDirectedLine(EC_Struct::TPointF Point, EC_Struct::TPointF Origin, EC_Struct::TPointF Direction) {
+    std::uint8_t IsLeftOfDirectedLine(EC_Struct::TPointF Point, EC_Struct::TPointF Origin,
+        EC_Struct::TPointF Direction) {
         EC_Struct::TPointF Normal{};
         EC_Struct::TPointF Offset{};
         Normal = aVector::PerpendicularVector(Direction);
-        Offset = aVector::MakeVectorF(static_cast<long double>(Point.X) - Origin.X, static_cast<long double>(Point.Y) - Origin.Y);
-        return aVector::DotProductF(Offset, Normal) > 0.0L;
+        Offset = aVector::MakeVectorF(static_cast<float>(static_cast<double>(Point.X) - Origin.X), static_cast<float>(static_cast<double>(Point.Y) - Origin.Y));
+        return aVector::DotProductF(Offset, Normal) > 0.0;
     }
 
     EC_Struct::TPointF MakeVectorF(float X, float Y) {
@@ -47,24 +49,25 @@ namespace aVector {
 
     EC_Struct::TPointF VectorBetweenPoints(EC_Struct::TPointF First, EC_Struct::TPointF Last) {
         EC_Struct::TPointF Result{};
-        Result.X = static_cast<long double>(Last.X) - First.X;
-        Result.Y = static_cast<long double>(Last.Y) - First.Y;
+        Result.X = static_cast<float>(static_cast<double>(Last.X) - First.X);
+        Result.Y = static_cast<float>(static_cast<double>(Last.Y) - First.Y);
         return Result;
     }
 
     void GetLineEquation(EC_Struct::TPointF First, EC_Struct::TPointF Last, float& A, float& B, float& C) {
-        if (std::fabs(static_cast<long double>(First.X) - Last.X) < std::fabs(static_cast<long double>(First.Y) - Last.Y)) {
+        if (std::fabs(static_cast<float>(static_cast<double>(First.X) - Last.X)) < std::fabs(static_cast<float>(static_cast<double>(First.Y) - Last.Y))) {
             A = 1.0f;
-            B = pas::real_divide((static_cast<long double>(First.X) - Last.X) * A, static_cast<long double>(Last.Y) - First.Y);
-            C = static_cast<long double>(-A) * First.X - static_cast<long double>(B) * First.Y;
+            B = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(First.X) - Last.X)) * A) / (static_cast<float>(static_cast<double>(Last.Y) - First.Y)));
+            C = static_cast<float>(static_cast<float>(static_cast<double>(-A) * First.X) - static_cast<float>(static_cast<double>(B) * First.Y));
         } else {
             B = 1.0f;
-            A = pas::real_divide((static_cast<long double>(First.Y) - Last.Y) * B, static_cast<long double>(Last.X) - First.X);
-            C = static_cast<long double>(-A) * First.X - static_cast<long double>(B) * First.Y;
+            A = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(First.Y) - Last.Y)) * B) / (static_cast<float>(static_cast<double>(Last.X) - First.X)));
+            C = static_cast<float>(static_cast<float>(static_cast<double>(-A) * First.X) - static_cast<float>(static_cast<double>(B) * First.Y));
         }
     }
 
-    EC_Struct::TPointF IntersectLinesF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2, EC_Struct::TPointF Last2) {
+    EC_Struct::TPointF IntersectLinesF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2,
+        EC_Struct::TPointF Last2) {
         EC_Struct::TPointF Result{};
         float A1{};
         float B1{};
@@ -74,51 +77,62 @@ namespace aVector {
         float C2{};
         aVector::GetLineEquation(First1, Last1, A1, B1, C1);
         aVector::GetLineEquation(First2, Last2, A2, B2, C2);
-        if (static_cast<long double>(A2) * B1 - static_cast<long double>(A1) * B2 == 0.0L) {
+        if (static_cast<float>(static_cast<float>(static_cast<double>(A2) * B1) - static_cast<float>(static_cast<double>(A1) * B2)) == 0.0) {
             Result.X = 1.0E+20f;
         } else {
-            Result.X = pas::real_divide(static_cast<long double>(B2) * C1 - static_cast<long double>(B1) * C2, static_cast<long double>(A2) * B1 - static_cast<long double>(A1) * B2);
+            Result.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(B2) * C1) - static_cast<float>(static_cast<double>(B1) * C2))) / (static_cast<float>(static_cast<float>(static_cast<double>(A2) * B1) -
+                        static_cast<float>(static_cast<double>(A1) * B2))));
         }
-        if (static_cast<long double>(A1) * B2 - static_cast<long double>(A2) * B1 == 0.0L) {
+        if (static_cast<float>(static_cast<float>(static_cast<double>(A1) * B2) - static_cast<float>(static_cast<double>(A2) * B1)) == 0.0) {
             Result.Y = 1.0E+20f;
         } else {
-            Result.Y = pas::real_divide(static_cast<long double>(A2) * C1 - static_cast<long double>(A1) * C2, static_cast<long double>(A1) * B2 - static_cast<long double>(A2) * B1);
+            Result.Y = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(A2) * C1) - static_cast<float>(static_cast<double>(A1) * C2))) / (static_cast<float>(static_cast<float>(static_cast<double>(A1) * B2) -
+                        static_cast<float>(static_cast<double>(A2) * B1))));
         }
         return Result;
     }
 
-    std::uint8_t IntersectSegmentWithLine(EC_Struct::TPointF First, EC_Struct::TPointF Last, float A, float B, float C, EC_Struct::TPointF& Intersection) {
+    std::uint8_t IntersectSegmentWithLine(EC_Struct::TPointF First, EC_Struct::TPointF Last, float A, float B, float C,
+        EC_Struct::TPointF& Intersection) {
         float LineA{};
         float LineB{};
         float LineC{};
         EC_Struct::TPointF Point{};
         aVector::GetLineEquation(First, Last, LineA, LineB, LineC);
         std::uint8_t Result = false;
-        if (std::fabs(static_cast<long double>(LineA) - A) < 1.0E-4L && std::fabs(static_cast<long double>(LineB) - B) < 1.0E-4L) {
+        if (std::fabs(static_cast<float>(static_cast<double>(LineA) - A)) < 1.0E-4 && std::fabs(static_cast<float>(static_cast<double>(LineB) - B)) < 1.0E-4) {
             return Result;
         }
-        Point.X = pas::real_divide(static_cast<long double>(B) * LineC - static_cast<long double>(LineB) * C, static_cast<long double>(A) * LineB - static_cast<long double>(LineA) * B);
-        Point.Y = pas::real_divide(static_cast<long double>(A) * LineC - static_cast<long double>(LineA) * C, static_cast<long double>(LineA) * B - static_cast<long double>(A) * LineB);
-        if (aVector::DotProductF(aVector::VectorBetweenPoints(Point, First), aVector::VectorBetweenPoints(Point, Last)) < 0.0L || aVector::PointsNearlyEqualF(Point, First) || aVector::PointsNearlyEqualF(Point, Last)) {
+        Point.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(B) * LineC) - static_cast<float>(static_cast<double>(LineB) * C))) / (static_cast<float>(static_cast<float>(static_cast<double>(A) * LineB) -
+                    static_cast<float>(static_cast<double>(LineA) * B))));
+        Point.Y = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(A) * LineC) - static_cast<float>(static_cast<double>(LineA) * C))) / (static_cast<float>(static_cast<float>(static_cast<double>(LineA) * B) -
+                    static_cast<float>(static_cast<double>(A) * LineB))));
+        if (aVector::DotProductF(aVector::VectorBetweenPoints(Point, First),
+            aVector::VectorBetweenPoints(Point, Last)) < 0.0 || aVector::PointsNearlyEqualF(Point, First) ||
+            aVector::PointsNearlyEqualF(Point, Last)) {
             Result = true;
             Intersection = Point;
         }
         return Result;
     }
 
-    std::uint8_t IntersectSegmentWithDirectedLine(EC_Struct::TPointF First, EC_Struct::TPointF Last, EC_Struct::TPointF LineFirst, EC_Struct::TPointF LineLast, EC_Struct::TPointF& Intersection) {
+    std::uint8_t IntersectSegmentWithDirectedLine(EC_Struct::TPointF First, EC_Struct::TPointF Last,
+        EC_Struct::TPointF LineFirst, EC_Struct::TPointF LineLast, EC_Struct::TPointF& Intersection) {
         EC_Struct::TPointF Direction{};
         Direction = aVector::VectorBetweenPoints(LineFirst, LineLast);
-        if (aVector::IsLeftOfDirectedLine(First, LineFirst, Direction) != aVector::IsLeftOfDirectedLine(Last, LineFirst, Direction)) {
+        if (aVector::IsLeftOfDirectedLine(First, LineFirst, Direction) != aVector::IsLeftOfDirectedLine(Last, LineFirst,
+                Direction)) {
             Intersection = aVector::IntersectLinesF(First, Last, LineFirst, LineLast);
             return true;
         }
         return false;
     }
 
-    std::uint8_t IntersectSegmentsF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2, EC_Struct::TPointF Last2, EC_Struct::TPointF& Intersection) {
+    std::uint8_t IntersectSegmentsF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2,
+        EC_Struct::TPointF Last2, EC_Struct::TPointF& Intersection) {
         std::uint8_t Result = true;
-        if (static_cast<std::uint8_t>(aVector::IntersectSegmentWithDirectedLine(First1, Last1, First2, Last2, Intersection) ^ 1) || static_cast<std::uint8_t>(aVector::IntersectSegmentWithDirectedLine(First2, Last2, First1, Last1, Intersection) ^ 1)) {
+        if (!aVector::IntersectSegmentWithDirectedLine(First1, Last1, First2, Last2, Intersection) ||
+            !aVector::IntersectSegmentWithDirectedLine(First2, Last2, First1, Last1, Intersection)) {
             return false;
         }
         return Result;
@@ -143,15 +157,18 @@ namespace aVector {
     }
 
     std::uint8_t PointsNearlyEqualF(EC_Struct::TPointF First, EC_Struct::TPointF Last) {
-        return std::fabs(static_cast<long double>(First.X) - Last.X) < 0.1L && std::fabs(static_cast<long double>(First.Y) - Last.Y) < 0.1L;
+        return std::fabs(static_cast<float>(static_cast<double>(First.X) - Last.X)) < 0.1 && std::fabs(static_cast<float>(static_cast<double>(First.Y) -
+                Last.Y)) < 0.1;
     }
 
-    std::uint8_t SegmentsNearlyEqualF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2, EC_Struct::TPointF Last2) {
-        return aVector::PointsNearlyEqualF(First1, First2) && aVector::PointsNearlyEqualF(Last1, Last2) || aVector::PointsNearlyEqualF(First1, Last2) && aVector::PointsNearlyEqualF(Last1, First2);
+    std::uint8_t SegmentsNearlyEqualF(EC_Struct::TPointF First1, EC_Struct::TPointF Last1, EC_Struct::TPointF First2,
+        EC_Struct::TPointF Last2) {
+        return aVector::PointsNearlyEqualF(First1, First2) && aVector::PointsNearlyEqualF(Last1, Last2) ||
+            aVector::PointsNearlyEqualF(First1, Last2) && aVector::PointsNearlyEqualF(Last1, First2);
     }
 
     std::uint8_t ScalarsNearlyEqualF(float First, float Last) {
-        return std::fabs(static_cast<long double>(First) - Last) < 0.1L;
+        return std::fabs(static_cast<float>(static_cast<double>(First) - Last)) < 0.1;
     }
 
     float PointDistanceF(EC_Struct::TPointF First, EC_Struct::TPointF Last) {
@@ -162,7 +179,9 @@ namespace aVector {
         EC_Struct::TPointF Normal{};
         EC_Struct::TPointF Intersection{};
         Normal = aVector::PerpendicularVector(aVector::VectorBetweenPoints(First, Last));
-        if (aVector::IntersectSegmentWithDirectedLine(First, Last, Point, EC_Struct::MakePointF(static_cast<long double>(Point.X) + Normal.X, static_cast<long double>(Point.Y) + Normal.Y), Intersection)) {
+        if (aVector::IntersectSegmentWithDirectedLine(First, Last, Point,
+            EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Point.X) + Normal.X), static_cast<float>(static_cast<double>(Point.Y) + Normal.Y)),
+            Intersection)) {
             return aVector::PointDistanceF(Point, Intersection);
         }
         float FirstDistance = aVector::PointDistanceF(First, Point);
@@ -176,26 +195,26 @@ namespace aVector {
     std::int32_t ClassifyPointToSegment(EC_Struct::TPointF First, EC_Struct::TPointF Last, EC_Struct::TPointF Point) {
         EC_Struct::TPointF Direction{};
         EC_Struct::TPointF Offset{};
-        Direction = EC_Struct::MakePointF(static_cast<long double>(Last.X) - First.X, static_cast<long double>(Last.Y) - First.Y);
-        Offset = EC_Struct::MakePointF(static_cast<long double>(Point.X) - First.X, static_cast<long double>(Point.Y) - First.Y);
-        float Cross = static_cast<long double>(Direction.X) * Offset.Y - static_cast<long double>(Direction.Y) * Offset.X;
-        if (Cross > 0.0L) {
+        Direction = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Last.X) - First.X), static_cast<float>(static_cast<double>(Last.Y) - First.Y));
+        Offset = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Point.X) - First.X), static_cast<float>(static_cast<double>(Point.Y) - First.Y));
+        float Cross = static_cast<float>(static_cast<float>(static_cast<double>(Direction.X) * Offset.Y) - static_cast<float>(static_cast<double>(Direction.Y) * Offset.X));
+        if (Cross > 0.0) {
             return 1;
-        } else if (Cross < 0.0L) {
+        } else if (Cross < 0.0) {
             return 2;
-        } else if (static_cast<long double>(Direction.X) * Offset.X < 0.0L || static_cast<long double>(Direction.Y) * Offset.Y < 0.0L) {
+        } else if (static_cast<float>(static_cast<double>(Direction.X) * Offset.X) < 0.0 || static_cast<float>(static_cast<double>(Direction.Y) * Offset.Y) <
+                0.0) {
             return 3;
+        } else if (System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Direction.X) * Direction.X) + static_cast<float>(static_cast<double>(Direction.Y) *
+                Direction.Y))) < System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Offset.X) * Offset.X) + static_cast<float>(static_cast<double>(Offset.Y) *
+                    Offset.Y)))) {
+            return 4;
+        } else if (First.X == Point.X && First.Y == Point.Y) {
+            return 6;
+        } else if (Last.X == Point.X && Last.Y == Point.Y) {
+            return 7;
         } else {
-            pas::Extended cpp_left = System::Sqrt(static_cast<long double>(Direction.X) * Direction.X + static_cast<long double>(Direction.Y) * Direction.Y);
-            if (cpp_left < System::Sqrt(static_cast<long double>(Offset.X) * Offset.X + static_cast<long double>(Offset.Y) * Offset.Y)) {
-                return 4;
-            } else if (First.X == Point.X && First.Y == Point.Y) {
-                return 6;
-            } else if (Last.X == Point.X && Last.Y == Point.Y) {
-                return 7;
-            } else {
-                return 5;
-            }
+            return 5;
         }
     }
 
@@ -237,9 +256,14 @@ namespace aVector {
     void TPolygon2D::Clear() {
         std::int32_t Index{};
         EC_Struct::PPointF Point{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-            Point = pas::list_at<EC_Struct::TPointF>(Points, Index);
-            pas::dispose(Point);
+        {
+            const std::int32_t cpp_last = pas::list_count(Points) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Point = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                    pas::dispose(Point);
+                }
+            }
         }
         pas::list_clear(Points);
         GroupId = -1;
@@ -311,23 +335,30 @@ namespace aVector {
             return;
         }
         EC_Struct::PPointF Point = pas::list_at<EC_Struct::TPointF>(Points, 0);
-        Bounds = aVector::RectFromPointsF(pas::load_unaligned<EC_Struct::TPointF>(Point), pas::load_unaligned<EC_Struct::TPointF>(Point));
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-            Point = pas::list_at<EC_Struct::TPointF>(Points, Index);
-            if (Point->X < Bounds.Left) {
-                Bounds.Left = Point->X;
-            }
-            if (Point->X > Bounds.Right) {
-                Bounds.Right = Point->X;
-            }
-            if (Point->Y < Bounds.Top) {
-                Bounds.Top = Point->Y;
-            }
-            if (Point->Y > Bounds.Bottom) {
-                Bounds.Bottom = Point->Y;
+        Bounds = aVector::RectFromPointsF(pas::load_unaligned<EC_Struct::TPointF>(Point),
+                pas::load_unaligned<EC_Struct::TPointF>(Point));
+        {
+            const std::int32_t cpp_last = pas::list_count(Points) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Point = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                    if (Point->X < Bounds.Left) {
+                        Bounds.Left = Point->X;
+                    }
+                    if (Point->X > Bounds.Right) {
+                        Bounds.Right = Point->X;
+                    }
+                    if (Point->Y < Bounds.Top) {
+                        Bounds.Top = Point->Y;
+                    }
+                    if (Point->Y > Bounds.Bottom) {
+                        Bounds.Bottom = Point->Y;
+                    }
+                }
             }
         }
-        Extent = EC_Struct::MakePointF(static_cast<long double>(Bounds.Right) - Bounds.Left, static_cast<long double>(Bounds.Bottom) - Bounds.Top);
+        Extent = EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Bounds.Right) - Bounds.Left),
+                static_cast<float>(static_cast<double>(Bounds.Bottom) - Bounds.Top));
         GetArea();
     }
 
@@ -372,30 +403,39 @@ namespace aVector {
         while (Current != nullptr) {
             FirstIndex = -1;
             LastIndex = -1;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Current->Points) - 1); cpp_range.next(Index); ) {
-                Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
-                if (Index == pas::list_count(Current->Points) - 1) {
-                    Last = pas::list_at<EC_Struct::TPointF>(Current->Points, 0);
-                } else {
-                    Last = pas::list_at<EC_Struct::TPointF>(Current->Points, Index + 1);
-                }
-                if (aVector::IntersectSegmentWithLine(pas::load_unaligned<EC_Struct::TPointF>(Point), pas::load_unaligned<EC_Struct::TPointF>(Last), A, B, C, Intersection) && static_cast<std::uint8_t>(aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(Last), Intersection) ^ 1)) {
-                    if (FirstIndex == -1) {
-                        FirstIndex = Index;
-                        FirstIntersection = Intersection;
-                    } else if (LastIndex == -1) {
-                        LastIndex = Index;
-                        LastIntersection = Intersection;
-                    } else {
-                        // Native is this ANSI literal, not the former IDA nullsub_13.
-                        pas::raise(pas::make_exception<pas::Exception>("\303\353\376\352! \313\350\355\350\377 \357\345\360\345\361\345\352\340\345\362 \357\356\353\350\343\356\355 \342 \362\360\345\365 \362\356\367\352\340\365"_a));
+            {
+                const std::int32_t cpp_last = pas::list_count(Current->Points) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
+                        if (Index == pas::list_count(Current->Points) - 1) {
+                            Last = pas::list_at<EC_Struct::TPointF>(Current->Points, 0);
+                        } else {
+                            Last = pas::list_at<EC_Struct::TPointF>(Current->Points, Index + 1);
+                        }
+                        if (aVector::IntersectSegmentWithLine(pas::load_unaligned<EC_Struct::TPointF>(Point),
+                            pas::load_unaligned<EC_Struct::TPointF>(Last), A, B, C, Intersection) &&
+                            !aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(Last), Intersection)) {
+                            if (FirstIndex == -1) {
+                                FirstIndex = Index;
+                                FirstIntersection = Intersection;
+                            } else if (LastIndex == -1) {
+                                LastIndex = Index;
+                                LastIntersection = Intersection;
+                            } else {
+                                // Native is this ANSI literal, not the former IDA nullsub_13.
+                                pas::raise(
+                                    pas::make_exception<pas::Exception>(
+                                        "\303\353\376\352! \313\350\355\350\377 \357\345\360\345\361\345\352\340\345\362 \357\356\353\350\343\356\355 \342 \362\360\345\365 \362\356\367\352\340\365"_a));
+                            }
+                        }
                     }
                 }
             }
             if (FirstIndex > -1 && LastIndex > -1) {
                 NewPolygon = pas::construct_call<TPolygon2D>(TPolygon2D_Create);
                 FirstPoints = pas::make_object<pas::List>();
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, FirstIndex); cpp_range_2.next(Index); ) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, FirstIndex); cpp_range.next(Index); ) {
                     Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
                     pas::list_add(FirstPoints, static_cast<void*>(Point));
                 }
@@ -410,9 +450,15 @@ namespace aVector {
                 Point->X = LastIntersection.X;
                 Point->Y = LastIntersection.Y;
                 pas::list_add(FirstPoints, static_cast<void*>(Point));
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(LastIndex + 1, pas::list_count(Current->Points) - 1); cpp_range_3.next(Index); ) {
-                    Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
-                    pas::list_add(FirstPoints, static_cast<void*>(Point));
+                {
+                    const std::int32_t cpp_first = LastIndex + 1;
+                    const std::int32_t cpp_last_2 = pas::list_count(Current->Points) - 1;
+                    if (cpp_first <= cpp_last_2) {
+                        for (Index = cpp_first; Index <= cpp_last_2; ++Index) {
+                            Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
+                            pas::list_add(FirstPoints, static_cast<void*>(Point));
+                        }
+                    }
                 }
                 LastPoints = pas::make_object<pas::List>();
                 Last = pas::list_at<EC_Struct::TPointF>(Current->Points, LastIndex);
@@ -426,7 +472,8 @@ namespace aVector {
                 Point->X = FirstIntersection.X;
                 Point->Y = FirstIntersection.Y;
                 pas::list_add(LastPoints, static_cast<void*>(Point));
-                for (auto cpp_range_4 = pas::for_to<std::int32_t>(FirstIndex + 1, LastIndex); cpp_range_4.next(Index); ) {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(FirstIndex + 1,
+                    LastIndex); cpp_range_2.next(Index); ) {
                     Point = pas::list_at<EC_Struct::TPointF>(Current->Points, Index);
                     pas::list_add(LastPoints, static_cast<void*>(Point));
                 }
@@ -491,15 +538,22 @@ namespace aVector {
         EC_Struct::PPointF Last{};
         std::uint8_t Result = false;
         if (Point.X >= Bounds.Left && Point.X <= Bounds.Right && Point.Y >= Bounds.Top && Point.Y <= Bounds.Bottom) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-                First = pas::list_at<EC_Struct::TPointF>(Points, Index);
-                if (Index == pas::list_count(Points) - 1) {
-                    Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
-                } else {
-                    Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
-                }
-                if (aVector::IsRightOfDirectedLine(Point, pas::load_unaligned<EC_Struct::TPointF>(First), aVector::VectorBetweenPoints(pas::load_unaligned<EC_Struct::TPointF>(First), pas::load_unaligned<EC_Struct::TPointF>(Last)))) {
-                    return Result;
+            {
+                const std::int32_t cpp_last = pas::list_count(Points) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        First = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                        if (Index == pas::list_count(Points) - 1) {
+                            Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
+                        } else {
+                            Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+                        }
+                        if (aVector::IsRightOfDirectedLine(Point, pas::load_unaligned<EC_Struct::TPointF>(First),
+                            aVector::VectorBetweenPoints(pas::load_unaligned<EC_Struct::TPointF>(First),
+                                pas::load_unaligned<EC_Struct::TPointF>(Last)))) {
+                            return Result;
+                        }
+                    }
                 }
             }
             return true;
@@ -565,47 +619,79 @@ namespace aVector {
         PPolygonEdge Edge{};
         std::uint8_t Found{};
         pas::List* Edges = pas::make_object<pas::List>();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(First) - 1); cpp_range.next(Index); ) {
-            Source = pas::list_at<TPolygonEdge>(First, Index);
-            Found = false;
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Second) - 1); cpp_range_2.next(OtherIndex); ) {
-                Edge = pas::list_at<TPolygonEdge>(Second, OtherIndex);
-                if (aVector::SegmentsNearlyEqualF(Source->First, Source->Last, Edge->First, Edge->Last)) {
-                    Found = true;
-                    break;
+        {
+            const std::int32_t cpp_last = pas::list_count(First) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Source = pas::list_at<TPolygonEdge>(First, Index);
+                    Found = false;
+                    {
+                        const std::int32_t cpp_last_2 = pas::list_count(Second) - 1;
+                        if (0 <= cpp_last_2) {
+                            for (OtherIndex = 0; OtherIndex <= cpp_last_2; ++OtherIndex) {
+                                Edge = pas::list_at<TPolygonEdge>(Second, OtherIndex);
+                                if (aVector::SegmentsNearlyEqualF(Source->First, Source->Last, Edge->First,
+                                    Edge->Last)) {
+                                    Found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!Found) {
+                        pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
+                        pas::store_unaligned<EC_Struct::TPointF>(&Edge->First, Source->First);
+                        pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last, Source->Last);
+                        pas::list_add(Edges, static_cast<void*>(Edge));
+                    }
                 }
             }
-            if (!Found) {
-                pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
-                pas::store_unaligned<EC_Struct::TPointF>(&Edge->First, Source->First);
-                pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last, Source->Last);
-                pas::list_add(Edges, static_cast<void*>(Edge));
-            }
         }
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Second) - 1); cpp_range_3.next(Index); ) {
-            Source = pas::list_at<TPolygonEdge>(Second, Index);
-            Found = false;
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(First) - 1); cpp_range_4.next(OtherIndex); ) {
-                Edge = pas::list_at<TPolygonEdge>(First, OtherIndex);
-                if (aVector::SegmentsNearlyEqualF(Source->First, Source->Last, Edge->First, Edge->Last)) {
-                    Found = true;
-                    break;
+        {
+            const std::int32_t cpp_last_3 = pas::list_count(Second) - 1;
+            if (0 <= cpp_last_3) {
+                for (Index = 0; Index <= cpp_last_3; ++Index) {
+                    Source = pas::list_at<TPolygonEdge>(Second, Index);
+                    Found = false;
+                    {
+                        const std::int32_t cpp_last_4 = pas::list_count(First) - 1;
+                        if (0 <= cpp_last_4) {
+                            for (OtherIndex = 0; OtherIndex <= cpp_last_4; ++OtherIndex) {
+                                Edge = pas::list_at<TPolygonEdge>(First, OtherIndex);
+                                if (aVector::SegmentsNearlyEqualF(Source->First, Source->Last, Edge->First,
+                                    Edge->Last)) {
+                                    Found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (!Found) {
+                        pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
+                        pas::store_unaligned<EC_Struct::TPointF>(&Edge->First, Source->First);
+                        pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last, Source->Last);
+                        pas::list_add(Edges, static_cast<void*>(Edge));
+                    }
                 }
             }
-            if (!Found) {
-                pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
-                pas::store_unaligned<EC_Struct::TPointF>(&Edge->First, Source->First);
-                pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last, Source->Last);
-                pas::list_add(Edges, static_cast<void*>(Edge));
+        }
+        {
+            const std::int32_t cpp_last_5 = pas::list_count(First) - 1;
+            if (0 <= cpp_last_5) {
+                for (Index = 0; Index <= cpp_last_5; ++Index) {
+                    Source = pas::list_at<TPolygonEdge>(First, Index);
+                    pas::dispose(Source);
+                }
             }
         }
-        for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(First) - 1); cpp_range_5.next(Index); ) {
-            Source = pas::list_at<TPolygonEdge>(First, Index);
-            pas::dispose(Source);
-        }
-        for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Second) - 1); cpp_range_6.next(Index); ) {
-            Source = pas::list_at<TPolygonEdge>(Second, Index);
-            pas::dispose(Source);
+        {
+            const std::int32_t cpp_last_6 = pas::list_count(Second) - 1;
+            if (0 <= cpp_last_6) {
+                for (Index = 0; Index <= cpp_last_6; ++Index) {
+                    Source = pas::list_at<TPolygonEdge>(Second, Index);
+                    pas::dispose(Source);
+                }
+            }
         }
         pas::free(First);
         pas::free(Second);
@@ -619,17 +705,24 @@ namespace aVector {
         EC_Struct::PPointF Last{};
         std::int32_t Index{};
         pas::List* Edges = pas::make_object<pas::List>();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-            First = pas::list_at<EC_Struct::TPointF>(Points, Index);
-            if (Index == pas::list_count(Points) - 1) {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
-            } else {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+        {
+            const std::int32_t cpp_last = pas::list_count(Points) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    First = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                    if (Index == pas::list_count(Points) - 1) {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
+                    } else {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+                    }
+                    pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
+                    pas::store_unaligned<EC_Struct::TPointF>(&Edge->First,
+                        pas::load_unaligned<EC_Struct::TPointF>(First));
+                    pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last,
+                        pas::load_unaligned<EC_Struct::TPointF>(Last));
+                    pas::list_add(Edges, static_cast<void*>(Edge));
+                }
             }
-            pas::get_mem_at(&Edge, static_cast<std::int32_t>(sizeof(TPolygonEdge)));
-            pas::store_unaligned<EC_Struct::TPointF>(&Edge->First, pas::load_unaligned<EC_Struct::TPointF>(First));
-            pas::store_unaligned<EC_Struct::TPointF>(&Edge->Last, pas::load_unaligned<EC_Struct::TPointF>(Last));
-            pas::list_add(Edges, static_cast<void*>(Edge));
         }
         return Edges;
     }
@@ -684,25 +777,33 @@ namespace aVector {
         CachedArea = 0.0f;
         if (pas::list_count(Points) >= 3) {
             TriangleFirst = pas::list_at<EC_Struct::TPointF>(Points, 0);
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(Points) - 2); cpp_range.next(Index); ) {
-                Middle = pas::list_at<EC_Struct::TPointF>(Points, Index);
-                Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
-                A = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst), pas::load_unaligned<EC_Struct::TPointF>(Middle));
-                B = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst), pas::load_unaligned<EC_Struct::TPointF>(Last));
-                C = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(Middle), pas::load_unaligned<EC_Struct::TPointF>(Last));
-                if (A == 0.0L) {
-                    A = 1.0f;
+            {
+                const std::int32_t cpp_last = pas::list_count(Points) - 2;
+                if (1 <= cpp_last) {
+                    for (Index = 1; Index <= cpp_last; ++Index) {
+                        Middle = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+                        A = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst),
+                                pas::load_unaligned<EC_Struct::TPointF>(Middle));
+                        B = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(TriangleFirst),
+                                pas::load_unaligned<EC_Struct::TPointF>(Last));
+                        C = aVector::PointDistanceF(pas::load_unaligned<EC_Struct::TPointF>(Middle),
+                                pas::load_unaligned<EC_Struct::TPointF>(Last));
+                        if (A == 0.0) {
+                            A = 1.0f;
+                        }
+                        Square = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(A) * A) + static_cast<float>(static_cast<double>(B) * B)) - static_cast<float>(static_cast<double>(C) * C));
+                        if (Square < 0.0) {
+                            Square = 0.01f;
+                        }
+                        Square = static_cast<float>(static_cast<float>(static_cast<double>(B) * B) - static_cast<float>(pas::sqr(static_cast<double>(Square)) / (static_cast<float>(static_cast<float>(4.0 * A) * A))));
+                        if (Square < 0.0) {
+                            Square = 0.01f;
+                        }
+                        Height = System::Sqrt(Square);
+                        CachedArea = static_cast<float>(static_cast<float>(static_cast<float>(0.5 * Height) * A) + CachedArea);
+                    }
                 }
-                Square = static_cast<long double>(A) * A + static_cast<long double>(B) * B - static_cast<long double>(C) * C;
-                if (Square < 0.0L) {
-                    Square = 0.01f;
-                }
-                Square = static_cast<long double>(B) * B - pas::real_divide(pas::sqr(static_cast<pas::Extended>(Square)), 4.0L * A * A);
-                if (Square < 0.0L) {
-                    Square = 0.01f;
-                }
-                Height = System::Sqrt(Square);
-                CachedArea = 0.5L * Height * A + CachedArea;
             }
             AreaValid = true;
         }
@@ -713,7 +814,7 @@ namespace aVector {
         float Result = 0.0f;
         TPolygon2D* Polygon = Self;
         while (Polygon != nullptr) {
-            Result = static_cast<long double>(Polygon->GetArea()) + Result;
+            Result = static_cast<float>(static_cast<double>(Polygon->GetArea()) + Result);
             Polygon = Polygon->Next;
         }
         return Result;
@@ -723,15 +824,21 @@ namespace aVector {
         std::int32_t Index{};
         EC_Struct::PPointF First{};
         EC_Struct::PPointF Last{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-            First = pas::list_at<EC_Struct::TPointF>(Points, Index);
-            if (Index == pas::list_count(Points) - 1) {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
-            } else {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
-            }
-            if (Polygon->IntersectsSegment(pas::load_unaligned<EC_Struct::TPointF>(First), pas::load_unaligned<EC_Struct::TPointF>(Last))) {
-                return true;
+        {
+            const std::int32_t cpp_last = pas::list_count(Points) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    First = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                    if (Index == pas::list_count(Points) - 1) {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
+                    } else {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+                    }
+                    if (Polygon->IntersectsSegment(pas::load_unaligned<EC_Struct::TPointF>(First),
+                        pas::load_unaligned<EC_Struct::TPointF>(Last))) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -742,15 +849,23 @@ namespace aVector {
         EC_Struct::PPointF First{};
         EC_Struct::PPointF Last{};
         EC_Struct::TPointF Intersection{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Points) - 1); cpp_range.next(Index); ) {
-            First = pas::list_at<EC_Struct::TPointF>(Points, Index);
-            if (Index == pas::list_count(Points) - 1) {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
-            } else {
-                Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
-            }
-            if (aVector::IntersectSegmentsF(pas::load_unaligned<EC_Struct::TPointF>(First), pas::load_unaligned<EC_Struct::TPointF>(Last), Edge->First, Edge->Last, Intersection) && static_cast<std::uint8_t>(aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(First), Intersection) ^ 1) && static_cast<std::uint8_t>(aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(Last), Intersection) ^ 1)) {
-                return true;
+        {
+            const std::int32_t cpp_last = pas::list_count(Points) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    First = pas::list_at<EC_Struct::TPointF>(Points, Index);
+                    if (Index == pas::list_count(Points) - 1) {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, 0);
+                    } else {
+                        Last = pas::list_at<EC_Struct::TPointF>(Points, Index + 1);
+                    }
+                    if (aVector::IntersectSegmentsF(pas::load_unaligned<EC_Struct::TPointF>(First),
+                        pas::load_unaligned<EC_Struct::TPointF>(Last), Edge->First, Edge->Last, Intersection) &&
+                        !aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(First), Intersection) &&
+                        !aVector::PointsNearlyEqualF(pas::load_unaligned<EC_Struct::TPointF>(Last), Intersection)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;

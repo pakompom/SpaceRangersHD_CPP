@@ -11,42 +11,48 @@ namespace System {
         pas::set_fpu_control(ControlWord);
     }
 
-    inline pas::Extended Frac(pas::Extended Value) {
+    inline double Frac(double Value) {
         return pas::real_frac(Value);
     }
 
-    inline pas::Extended Exp(pas::Extended Value) {
+    inline double Exp(double Value) {
         return pas::real_exp(Value);
     }
 
-    inline pas::Extended Cos(pas::Extended Value) {
+    inline double Cos(double Value) {
         return pas::real_cos(Value);
     }
 
-    inline pas::Extended Sin(pas::Extended Value) {
+    inline double Sin(double Value) {
         return pas::real_sin(Value);
     }
 
-    inline pas::Extended Ln(pas::Extended Value) {
+    inline double Ln(double Value) {
         return pas::real_ln(Value);
     }
 
-    inline pas::Extended ArcTan(pas::Extended Value) {
+    inline double ArcTan(double Value) {
         return pas::real_arctan(Value);
     }
 
-    inline pas::Extended Sqrt(pas::Extended Value) {
+    inline double Sqrt(double Value) {
         return pas::real_sqrt(Value);
     }
 
     // Uses the current x87 rounding mode, normally nearest with ties to even.
-    inline std::int64_t Round(pas::Extended Value) {
+    inline std::int64_t Round(double Value) {
         return pas::real_round(Value);
     }
 
     // Independent of the current x87 rounding mode; preserves it.
-    inline std::int64_t Trunc(pas::Extended Value) {
+    inline std::int64_t Trunc(double Value) {
         return pas::real_trunc(Value);
+    }
+
+    // Authored C++ runtime seam. Register this global slot before replacing the
+    // forwarding callback; recursive reporting is guarded per thread by the runtime.
+    inline void InstallRaiseExceptionHook(void*& Hook) {
+        pas::install_raise_exception_hook(Hook);
     }
 
     inline pas::AnsiString WideCharToString(char16_t* Source) {
@@ -58,7 +64,8 @@ namespace System {
         return pas::alloc_mem(Size);
     }
 
-    inline std::int32_t PAS_STDCALL IInterface_QueryInterface(pas::ComView<IInterface_Tag> Self, const TGUID& IID, void* Obj) {
+    inline std::int32_t PAS_STDCALL IInterface_QueryInterface(pas::ComView<IInterface_Tag> Self, const TGUID& IID,
+        void* Obj) {
         using CppMethod = std::int32_t (PAS_STDCALL *)(void*, const TGUID*, void*);
         return pas::com_method<CppMethod>(Self.get(), 0)(Self.get(), &IID, Obj);
     }

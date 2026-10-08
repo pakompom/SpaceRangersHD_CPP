@@ -52,6 +52,7 @@ namespace aPlanet {
     aItem::TEquipment* TPlanet_GenerateEquipmentOffer(TPlanet* Self, void* Ship, aConst::TItemType ItemType);
 
     // Returns a new owning list of generated equipment, using the race quota table. Caller forwards ForceGeneratedOffers in CL; this routine saves but never reads it.
-    aMyFunction::TObjectList* TPlanet_BuildEquipmentOfferBatch(TPlanet* Self, void* Ship, std::uint8_t UnusedForceGeneratedOffers);
+    aMyFunction::TObjectList* TPlanet_BuildEquipmentOfferBatch(TPlanet* Self, void* Ship,
+        std::uint8_t UnusedForceGeneratedOffers);
 
 } // namespace aPlanet

@@ -32,7 +32,6 @@
 #include "units/MMSystem.hpp"
 #include "units/SE_SoundRnd.hpp"
 #include "units/SE_Space.hpp"
-#include "units/System.hpp"
 #include "units/Windows.hpp"
 #include "units/WindowsImports.hpp"
 #include "units/aMyFunction.hpp"
@@ -58,15 +57,12 @@ namespace SE_Space {
         }
     }
 
-    void TObjectSE_CreateEmpty(TObjectSE* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     // UnusedPosition is copied but does not initialize Position.
     void TObjectSE_Create(TObjectSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition) {
         EC_Struct::TObjectEx_Create(Self);
         Self->GraphKey = AGraphKey;
-        Self->LoadTemplate(GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.", EC_Str::ExtractDelimitedPartW(pas::view(AGraphKey), 0, u","sv)})));
+        Self->LoadTemplate(GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"SE.",
+            EC_Str::ExtractDelimitedPartW(pas::view(AGraphKey), 0, u","sv)})));
     }
 
     void TObjectSE_Destroy(TObjectSE* Self) {
@@ -132,10 +128,6 @@ namespace SE_Space {
         }
     }
 
-    std::uint8_t TObjectSE::IsAttachedToSpace() {
-        return !(Space == nullptr);
-    }
-
     void TObjectSE::SetPosition(EC_Struct::TPointF APosition) {
         Position = APosition;
     }
@@ -193,14 +185,12 @@ namespace SE_Space {
         std::int32_t Delay{};
         if (IsAttachedToSpace()) {
             if (LoopSound != nullptr) {
-                {
-                    pas::Extended cpp_left = aMyFunction::PointDistance(Position, Globals::SpaceViewPosition);
-                    Distance = pas::real_divide(cpp_left, pas::real_divide(static_cast<std::uint32_t>(GR_Main::GameScreenHeight), 2.0L));
-                }
-                if (Distance > 1.0L) {
+                Distance = static_cast<float>(aMyFunction::PointDistance(Position, Globals::SpaceViewPosition) /
+                        (static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 2.0)));
+                if (Distance > 1.0) {
                     LoopSound->SetVolume(0.0f);
                 } else {
-                    LoopSound->SetVolume((1.0L - Distance) * 0.5L + 0.5L);
+                    LoopSound->SetVolume(static_cast<float>(static_cast<float>((static_cast<float>(1.0 - Distance)) * 0.5) + 0.5));
                 }
             }
             try {
@@ -208,7 +198,8 @@ namespace SE_Space {
                     if (RandomSoundGroup >= 0) {
                         Now = MMSystem::timeGetTime();
                         if (NextSoundTime < Now) {
-                            Delay = aMyFunction::RandomIntRange(RandomSound->Groups[RandomSoundGroup].NextTimeMin, RandomSound->Groups[RandomSoundGroup].NextTimeMax);
+                            Delay = aMyFunction::RandomIntRange(RandomSound->Groups[RandomSoundGroup].NextTimeMin,
+                                    RandomSound->Groups[RandomSoundGroup].NextTimeMax);
                             NextSoundTime = Now + Delay;
                             if (Space->ContainsMapPoint(Position)) {
                                 const pas::WideString& selectSound = RandomSound->SelectSound(RandomSoundGroup);
@@ -222,7 +213,8 @@ namespace SE_Space {
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                 } else {
                     throw;
                 }
@@ -256,7 +248,8 @@ namespace SE_Space {
                 Weight -= EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParamName(Index)));
                 if (Weight < 0) {
                     SoundLoopPath = Block->GetParamValue(Index);
-                    SoundGroup = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(SoundLoopPath), 0, u","sv)));
+                    SoundGroup = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                            pas::view(SoundLoopPath), 0, u","sv)));
                     SoundLoopPath = EC_Str::ExtractDelimitedPartW(pas::view(SoundLoopPath), 1, u","sv);
                     return;
                 }
@@ -269,10 +262,9 @@ namespace SE_Space {
     void TObjectSE::ConfigureRandomSound(const pas::WideString& Name) {
         RandomSound = SE_SoundRnd::FindRandomSound(Name, RandomSoundGroup);
         if (RandomSoundGroup >= 0) {
-            NextSoundTime = ([&] {
-                std::int32_t cpp_right = aMyFunction::RandomIntRange(RandomSound->Groups[RandomSoundGroup].NextTimeMin, RandomSound->Groups[RandomSoundGroup].NextTimeMax);
-                return MMSystem::timeGetTime() + cpp_right;
-            }());
+            std::int32_t cpp_right = aMyFunction::RandomIntRange(RandomSound->Groups[RandomSoundGroup].NextTimeMin,
+                RandomSound->Groups[RandomSoundGroup].NextTimeMax);
+            NextSoundTime = MMSystem::timeGetTime() + cpp_right;
         }
     }
 
@@ -293,8 +285,10 @@ namespace SE_Space {
         if (Block->CountParams(u"Pos"_wref.get()) > 0) {
             Text = Block->GetParam(u"Pos"sv);
             SetPosition(([&] {
-                float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv));
+                float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv));
                 return EC_Struct::MakePointF(extractDecimalToSingleW, extractDecimalToSingleW_2);
             }()));
         }
@@ -309,34 +303,49 @@ namespace SE_Space {
         Self->Screen = AScreen;
         Self->MinimapScale = 0.125;
         Self->MinimapViewportFrame = nullptr;
-        Self->MinimapRangeShade = pas::construct_call<GI_Circle::TCircleGI>(GI_Circle::TCircleGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+        Self->MinimapRangeShade = pas::construct_call<GI_Circle::TCircleGI>(GI_Circle::TCircleGI_Create,
+                Globals::SpaceObjectUiLoop->ContentPanel);
         {
             GI_Circle::TCircleGI* cpp_with = Self->MinimapRangeShade;
             cpp_with->SetKind(GI_Circle::ckShrLight);
-            cpp_with->SetPosition(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
-            cpp_with->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
-            cpp_with->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+            cpp_with->SetPosition(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+            cpp_with->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+            cpp_with->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
             cpp_with->SetShrLightInner(0);
             cpp_with->SetShrLightOuter(1);
         }
-        Self->MinimapRangeCircle = pas::construct_call<GI_Circle::TCircleGI>(GI_Circle::TCircleGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+        Self->MinimapRangeCircle = pas::construct_call<GI_Circle::TCircleGI>(GI_Circle::TCircleGI_Create,
+                Globals::SpaceObjectUiLoop->ContentPanel);
         {
             GI_Circle::TCircleGI* cpp_with_2 = Self->MinimapRangeCircle;
             cpp_with_2->SetKind(GI_Circle::ckCircle);
-            cpp_with_2->SetPosition(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
-            cpp_with_2->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1), pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
-            cpp_with_2->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+            cpp_with_2->SetPosition(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+            cpp_with_2->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::RenderScratchBuffer->Width, 1),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1)));
+            cpp_with_2->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
-        Self->MinimapBackground = pas::construct_call<GI_GI::TgiGI>(GI_GI::TgiGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+        Self->MinimapBackground = pas::construct_call<GI_GI::TgiGI>(GI_GI::TgiGI_Create,
+                Globals::SpaceObjectUiLoop->ContentPanel);
         {
             GI_GI::TgiGI* cpp_with_3 = Self->MinimapBackground;
             cpp_with_3->SetImagePath(pas::concat_wide({u"Bm.PanelSpace2.", GR_Main::GiResourceSuffix(), u"RadarT"}));
-            cpp_with_3->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+            cpp_with_3->SetSize(ClassesImports::Point(GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
-        Self->StarField = reinterpret_cast<GI_StarField::TStarFieldGI*>(Self->Screen->FindControlByPath(u"StarField"_wref.get()));
-        Self->StarFieldM = reinterpret_cast<GI_StarFieldM::TStarFieldMGI*>(Self->Screen->FindControlByPath(u"StarFieldM"_wref.get()));
-        Self->SpaceImages = reinterpret_cast<GI_SpaceImg::TSpaceImgGI*>(Self->Screen->FindControlByPath(u"SpaceImg"_wref.get()));
-        Self->StarFieldImages = reinterpret_cast<GI_StarFieldImg::TStarFieldImgGI*>(Self->Screen->FindControlByPath(u"StarFieldImg"_wref.get()));
+        Self->StarField =
+            reinterpret_cast<GI_StarField::TStarFieldGI*>(Self->Screen->FindControlByPath(u"StarField"_wref.get()));
+        Self->StarFieldM =
+            reinterpret_cast<GI_StarFieldM::TStarFieldMGI*>(Self->Screen->FindControlByPath(u"StarFieldM"_wref.get()));
+        Self->SpaceImages =
+            reinterpret_cast<GI_SpaceImg::TSpaceImgGI*>(Self->Screen->FindControlByPath(u"SpaceImg"_wref.get()));
+        Self->StarFieldImages =
+            reinterpret_cast<GI_StarFieldImg::TStarFieldImgGI*>(
+                Self->Screen->FindControlByPath(u"StarFieldImg"_wref.get()));
         Self->AlphaShift = 0;
     }
 
@@ -393,8 +402,10 @@ namespace SE_Space {
     }
 
     // Converts milliseconds to ticks by rounding division by 18. Callback receives Context, Timer, UserData in Delphi registers. Zero delay still waits for AdvanceTimers.
-    PSpaceTimerSE TSpaceSE::CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback, std::int32_t UserData) {
-        PSpaceTimerSE Timer = static_cast<PSpaceTimerSE>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TSpaceTimerSE))));
+    PSpaceTimerSE TSpaceSE::CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback,
+        std::int32_t UserData) {
+        PSpaceTimerSE Timer = static_cast<PSpaceTimerSE>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TSpaceTimerSE))));
         if (LastTimer != nullptr) {
             LastTimer->Next = Timer;
         }
@@ -404,8 +415,8 @@ namespace SE_Space {
         if (FirstTimer == nullptr) {
             FirstTimer = Timer;
         }
-        Timer->TicksRemaining = System::Round(pas::real_divide(DelayMs, 18.0L));
-        Timer->RepeatTicks = System::Round(pas::real_divide(RepeatMs, 18.0L));
+        Timer->TicksRemaining = pas::real_round(static_cast<float>(DelayMs / 18.0));
+        Timer->RepeatTicks = pas::real_round(static_cast<float>(RepeatMs / 18.0));
         Timer->Callback = Callback;
         Timer->UserData = UserData;
         return Timer;
@@ -470,7 +481,8 @@ namespace SE_Space {
             return;
         }
         PathPointCount = Count;
-        PathPoints = static_cast<EC_Struct::PPointF>(EC_Mem::AllocEC(Count * static_cast<std::int32_t>(sizeof(EC_Struct::TPointF))));
+        PathPoints = static_cast<EC_Struct::PPointF>(EC_Mem::AllocEC(Count *
+                static_cast<std::int32_t>(sizeof(EC_Struct::TPointF))));
         Windows::CopyMemory(PathPoints, Points, Count * static_cast<std::int32_t>(sizeof(EC_Struct::TPointF)));
     }
 
@@ -520,15 +532,21 @@ namespace SE_Space {
             CenterX = pas::shr(GR_Main::RenderScratchBuffer->Width, 1);
             CenterY = pas::shr(GR_Main::RenderScratchBuffer->Height, 1);
             Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(PathPoints));
-            X1 = CenterX + System::Round(static_cast<long double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale);
-            Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(Coordinate) + static_cast<std::int32_t>(sizeof(float))));
-            Y1 = CenterY + System::Round(static_cast<long double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale);
-            Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(Coordinate) + static_cast<std::int32_t>(sizeof(float))));
+            X1 = CenterX + pas::real_round(static_cast<float>(static_cast<double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale));
+            Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(pas::pointer_add(
+                    reinterpret_cast<std::uint8_t*>(Coordinate), static_cast<std::int32_t>(sizeof(float)))));
+            Y1 = CenterY + pas::real_round(static_cast<float>(static_cast<double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale));
+            Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(pas::pointer_add(
+                    reinterpret_cast<std::uint8_t*>(Coordinate), static_cast<std::int32_t>(sizeof(float)))));
             for (auto cpp_range = pas::for_to<std::int32_t>(1, PathPointCount - 1); cpp_range.next(Index); ) {
-                X2 = CenterX + System::Round(static_cast<long double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale);
-                Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(Coordinate) + static_cast<std::int32_t>(sizeof(float))));
-                Y2 = CenterY + System::Round(static_cast<long double>(pas::load_unaligned<float>(Coordinate)) * MinimapScale);
-                Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(Coordinate) + static_cast<std::int32_t>(sizeof(float))));
+                X2 = CenterX + pas::real_round(static_cast<float>(static_cast<double>(pas::load_unaligned<float>(Coordinate)) *
+                            MinimapScale));
+                Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(pas::pointer_add(
+                        reinterpret_cast<std::uint8_t*>(Coordinate), static_cast<std::int32_t>(sizeof(float)))));
+                Y2 = CenterY + pas::real_round(static_cast<float>(static_cast<double>(pas::load_unaligned<float>(Coordinate)) *
+                            MinimapScale));
+                Coordinate = static_cast<WindowsSdk::PSingle>(static_cast<void*>(pas::pointer_add(
+                        reinterpret_cast<std::uint8_t*>(Coordinate), static_cast<std::int32_t>(sizeof(float)))));
                 if (!((Index / 199 & 1) != 0)) {
                     Color = GR_Main::CurrentPixelFormat->PackRgbBytes(0x000000c3, 0x00000031, 0);
                 } else {
@@ -545,37 +563,45 @@ namespace SE_Space {
             }
         }
         if (CurrentProcess->RadarRange > 0) {
-            {
-                std::int32_t cpp_arg = pas::shr(GR_Main::RenderScratchBuffer->Height, 1) + System::Round(static_cast<long double>(CurrentProcess->RadarCenter.Y) * MinimapScale);
-                std::int32_t cpp_arg_2 = pas::shr(GR_Main::RenderScratchBuffer->Width, 1) + System::Round(static_cast<long double>(CurrentProcess->RadarCenter.X) * MinimapScale);
-                MinimapRangeShade->SetCenter(ClassesImports::Point(cpp_arg_2, cpp_arg));
-            }
-            MinimapRangeShade->SetRadius(System::Round(static_cast<long double>(CurrentProcess->ActionRange) * MinimapScale));
-            MinimapRangeShade->HitTestBounds = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height);
-            MinimapRangeShade->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
-            {
-                std::int32_t cpp_arg_3 = pas::shr(GR_Main::RenderScratchBuffer->Height, 1) + System::Round(static_cast<long double>(CurrentProcess->RadarCenter.Y) * MinimapScale);
-                std::int32_t cpp_arg_4 = pas::shr(GR_Main::RenderScratchBuffer->Width, 1) + System::Round(static_cast<long double>(CurrentProcess->RadarCenter.X) * MinimapScale);
-                MinimapRangeCircle->SetCenter(ClassesImports::Point(cpp_arg_4, cpp_arg_3));
-            }
-            MinimapRangeCircle->SetRadius(System::Round(static_cast<long double>(CurrentProcess->ActionRange) * MinimapScale));
+            MinimapRangeShade->SetCenter(ClassesImports::Point(
+                pas::shr(GR_Main::RenderScratchBuffer->Width, 1) +
+                    pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->RadarCenter.X) * MinimapScale)),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1) +
+                    pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->RadarCenter.Y) * MinimapScale))));
+            MinimapRangeShade->SetRadius(pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->ActionRange) *
+                MinimapScale)));
+            MinimapRangeShade->HitTestBounds = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                    GR_Main::RenderScratchBuffer->Height);
+            MinimapRangeShade->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
+            MinimapRangeCircle->SetCenter(ClassesImports::Point(
+                pas::shr(GR_Main::RenderScratchBuffer->Width, 1) +
+                    pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->RadarCenter.X) * MinimapScale)),
+                pas::shr(GR_Main::RenderScratchBuffer->Height, 1) +
+                    pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->RadarCenter.Y) * MinimapScale))));
+            MinimapRangeCircle->SetRadius(pas::real_round(static_cast<float>(static_cast<double>(CurrentProcess->ActionRange) *
+                MinimapScale)));
             MinimapRangeCircle->SetColor(CurrentProcess->ActionColor);
-            MinimapRangeCircle->HitTestBounds = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height);
-            MinimapRangeCircle->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+            MinimapRangeCircle->HitTestBounds = ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                    GR_Main::RenderScratchBuffer->Height);
+            MinimapRangeCircle->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
-        MinimapViewportFrame->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+        MinimapViewportFrame->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+            GR_Main::RenderScratchBuffer->Height));
         GlobalsV::HardwareRenderingEnabled = SavedHardware;
         GR_Main::ScreenRenderBuffer = SavedBuffer;
     }
 
     void TSpaceSE::CreateMinimapViewport() {
         FreeMinimapViewport();
-        MinimapViewportFrame = pas::construct_call<GI_Frame::TFrameGI>(GI_Frame::TFrameGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+        MinimapViewportFrame = pas::construct_call<GI_Frame::TFrameGI>(GI_Frame::TFrameGI_Create,
+                Globals::SpaceObjectUiLoop->ContentPanel);
         MinimapViewportFrame->SetDepth(-99999.0);
         MinimapViewportFrame->SetKind(GI_Frame::fkRect);
         MinimapViewportFrame->SetColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255));
-        std::int32_t Width = System::Round(static_cast<long double>(MapPanel->ClientSize.X) * MinimapScale);
-        std::int32_t Height = System::Round(static_cast<long double>(MapPanel->ClientSize.Y) * MinimapScale);
+        std::int32_t Width = pas::real_round(static_cast<float>(static_cast<double>(MapPanel->ClientSize.X) * MinimapScale));
+        std::int32_t Height = pas::real_round(static_cast<float>(static_cast<double>(MapPanel->ClientSize.Y) * MinimapScale));
         MinimapViewportFrame->SetSize(ClassesImports::Point(Width, Height));
         MinimapViewportFrame->SetOrigin(ClassesImports::Point(Width / 2, Height / 2));
         MapPanel->ScrollChangedCallback = pas::bind_method<&TSpaceSE::MapScrollChanged>(this);
@@ -594,9 +620,9 @@ namespace SE_Space {
             Globals::FilmCameraFollow = false;
         }
         if (MinimapViewportFrame != nullptr) {
-            std::int32_t round = System::Round(static_cast<long double>(MapPanel->ScrollOffset.Y) * MinimapScale);
-            std::int32_t round_2 = System::Round(static_cast<long double>(MapPanel->ScrollOffset.X) * MinimapScale);
-            MinimapViewportFrame->SetPosition(ClassesImports::Point(round_2, round));
+            MinimapViewportFrame->SetPosition(ClassesImports::Point(
+                pas::real_round(static_cast<float>(static_cast<double>(MapPanel->ScrollOffset.X) * MinimapScale)),
+                pas::real_round(static_cast<float>(static_cast<double>(MapPanel->ScrollOffset.Y) * MinimapScale))));
         }
         if (StarField != nullptr) {
             StarField->SetViewPosition(EC_Struct::PointToPointF(MapPanel->ScrollOffset));
@@ -621,7 +647,8 @@ namespace SE_Space {
         Globals::SpaceViewPosition = EC_Struct::PointToPointF(MapPanel->ScrollOffset);
     }
 
-    void TSpaceSE::MinimapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TSpaceSE::MinimapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         WindowsSdk::TPoint Local{};
         GI_MessageLoop::TObjectGI* Child{};
         MinimapDragging = false;
@@ -648,23 +675,18 @@ namespace SE_Space {
         MinimapDragging = true;
         Globals::FilmCameraFollow = false;
         Local = Sender->ToLocalPoint(Point);
-        {
-            std::int32_t round = System::Round(pas::real_divide(Local.Y, MinimapScale));
-            std::int32_t round_2 = System::Round(pas::real_divide(Local.X, MinimapScale));
-            MapPanel->SetScrollOffset(ClassesImports::Point(round_2, round));
-        }
+        MapPanel->SetScrollOffset(ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<double>(Local.X) / MinimapScale)),
+            pas::real_round(static_cast<float>(static_cast<double>(Local.Y) / MinimapScale))));
         MapScrollChanged(nullptr);
         Globals::MinimapFrameCounter = 0;
     }
 
-    void TSpaceSE::MinimapMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
-        MinimapDragging = false;
-    }
-
-    void TSpaceSE::MinimapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TSpaceSE::MinimapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         WindowsSdk::TPoint Local{};
         if (MinimapDragging) {
-            if (static_cast<std::int32_t>(KeyState & WindowsSdk::MK_LBUTTON) == WindowsSdk::MK_LBUTTON || (KeyState & WindowsSdk::MK_RBUTTON) == WindowsSdk::MK_RBUTTON) {
+            if (static_cast<std::int32_t>(KeyState & WindowsSdk::MK_LBUTTON) == WindowsSdk::MK_LBUTTON || (KeyState &
+                    WindowsSdk::MK_RBUTTON) == WindowsSdk::MK_RBUTTON) {
                 if (Sender->IsOccludedAtPoint(Point)) {
                     return;
                 }
@@ -679,11 +701,9 @@ namespace SE_Space {
                     }
                 }
                 Local = Sender->ToLocalPoint(Point);
-                {
-                    std::int32_t round = System::Round(pas::real_divide(Local.Y, MinimapScale));
-                    std::int32_t round_2 = System::Round(pas::real_divide(Local.X, MinimapScale));
-                    MapPanel->SetScrollOffset(ClassesImports::Point(round_2, round));
-                }
+                MapPanel->SetScrollOffset(ClassesImports::Point(
+                    pas::real_round(static_cast<float>(static_cast<double>(Local.X) / MinimapScale)),
+                    pas::real_round(static_cast<float>(static_cast<double>(Local.Y) / MinimapScale))));
                 MapScrollChanged(nullptr);
                 Globals::MinimapFrameCounter = 0;
             }

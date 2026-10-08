@@ -13,7 +13,8 @@ namespace GI_PSWeapon10AVision {
 
     void LoadAVisionPalettes();
 
-    void TPSWeapon10AVision_Create(TPSWeapon10AVision* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon10AVision_Create(TPSWeapon10AVision* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon10AVision_Destroy(TPSWeapon10AVision* Self);
 

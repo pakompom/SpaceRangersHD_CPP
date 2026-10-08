@@ -15,7 +15,6 @@
 #include "units/GR_DX.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 
@@ -31,19 +30,19 @@ namespace EC_Cache {
             Control = pas::construct_call<TCacheControlEC>(TCacheControlEC_Create);
             TCacheEC::ResetControl(Control);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, 3); cpp_range.next(i); ) {
-                Control->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.2ShipA", SysUtils::IntToStr(i)})));
+                Control->SetCacheKey(pas::concat_wide({u"Bm.FormMain3.2ShipA", pas::wide_int_to_str(i)}));
                 Control->EvictData(pas::class_ref<EC_CacheGAI::TCGaiEC>());
             }
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, 3); cpp_range_2.next(i); ) {
-                Control->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.2Ship", SysUtils::IntToStr(i)})));
+                Control->SetCacheKey(pas::concat_wide({u"Bm.FormMain3.2Ship", pas::wide_int_to_str(i)}));
                 Control->EvictData(pas::class_ref<EC_CacheGI::TCGiEC>());
             }
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, 3); cpp_range_3.next(i); ) {
-                Control->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.AnimGaalShip0", SysUtils::IntToStr(i), "A"})));
+                Control->SetCacheKey(pas::concat_wide({u"Bm.FormMain3.AnimGaalShip0", pas::wide_int_to_str(i), u"A"}));
                 Control->EvictData(pas::class_ref<EC_CacheGAI::TCGaiEC>());
             }
             for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, 3); cpp_range_4.next(i); ) {
-                Control->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.AnimGaalShip0", SysUtils::IntToStr(i)})));
+                Control->SetCacheKey(pas::concat_wide({u"Bm.FormMain3.AnimGaalShip0", pas::wide_int_to_str(i)}));
                 Control->EvictData(pas::class_ref<EC_CacheGI::TCGiEC>());
             }
             Control->SetCacheKey(u"Bm.FormMain3.2BG"_wref.get());
@@ -68,7 +67,8 @@ namespace EC_Cache {
         std::int32_t i{};
         EC_Data::TDataEC* Data{};
         Data = GR_Main::CacheDataRoot;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, EC_Str::CountDelimitedPartsW(pas::view(BlockPath), u"."sv) - 1); cpp_range.next(i); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            EC_Str::CountDelimitedPartsW(pas::view(BlockPath), u"."sv) - 1); cpp_range.next(i); ) {
             Data = Data->GetData(EC_Str::ExtractDelimitedPartW(pas::view(BlockPath), i, u"."sv));
         }
         TCacheControlEC* Control = pas::construct_call<TCacheControlEC>(TCacheControlEC_Create);
@@ -78,10 +78,6 @@ namespace EC_Cache {
             Control->EvictData(CacheDataClass);
         }
         pas::free(Control);
-    }
-
-    void TCacheControlEC_Create(TCacheControlEC* Self) {
-        EC_Struct::TObjectEx_Create(Self);
     }
 
     void TCacheControlEC_Destroy(TCacheControlEC* Self) {
@@ -151,7 +147,8 @@ namespace EC_Cache {
                     Data = CreateData();
                     Data->CacheKey = CacheKey;
                     if (GR_Main::CacheLoadLoggingEnabled) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Cache Add=", Data->CacheKey})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Cache Add=",
+                            Data->CacheKey})));
                     }
                     Data->LoadCompleteEvent = WindowsImports::CreateEvent(nullptr, -1, 0, nullptr);
                     Data->AppendControl(this);
@@ -222,7 +219,8 @@ namespace EC_Cache {
                     Data = CreateData();
                     Data->CacheKey = CacheKey;
                     if (GR_Main::CacheLoadLoggingEnabled) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Cache Add=", Data->CacheKey})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Cache Add=",
+                            Data->CacheKey})));
                     }
                     Data->AppendControl(this);
                     Data->LoadCompleteEvent = WindowsImports::CreateEvent(nullptr, -1, 0, nullptr);
@@ -296,10 +294,6 @@ namespace EC_Cache {
             BoundData = nullptr;
         }
         pas::critical_leave(GR_Main::GlobalCache->CacheLock);
-    }
-
-    void TCacheDataEC_Create(TCacheDataEC* Self) {
-        EC_Struct::TObjectEx_Create(Self);
     }
 
     // Detaches all controls without freeing them.
@@ -481,7 +475,8 @@ namespace EC_Cache {
     }
 
     // PendingLoads owns added controls; duplicate pending entries are possible.
-    void TCacheEC::QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind, const pas::WideString& Key) {
+    void TCacheEC::QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind,
+        const pas::WideString& Key) {
         EC_CacheAlphaBitmap::TCAlphaBitmapControlEC* AlphaBitmap{};
         EC_CacheBitmap::TCBitmapControlEC* Bitmap{};
         EC_CacheTBitmap::TCTBitmapControlEC* TBitmap{};
@@ -490,7 +485,8 @@ namespace EC_Cache {
         EC_CacheGI::TCGiControlEC* Gi{};
         EC_CachePlanetTempl::TCPlanetTemplControlEC* PlanetTempl{};
         if (CacheKind == u"Alpha"sv) {
-            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheAlphaBitmap::TCAlphaBitmapEC>()) == nullptr) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CacheAlphaBitmap::TCAlphaBitmapEC>()) ==
+                nullptr) {
                 AlphaBitmap = pas::construct_call<EC_CacheAlphaBitmap::TCAlphaBitmapControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(AlphaBitmap);
                 AlphaBitmap->SetCacheKey(Key);
@@ -532,7 +528,8 @@ namespace EC_Cache {
                 pas::list_add(PendingLoads, reinterpret_cast<void*>(Sound));
             }
         } else if (CacheKind == u"PlanetTempl"sv) {
-            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CachePlanetTempl::TCPlanetTemplEC>()) == nullptr) {
+            if (FindDataByKeyAndClass(pas::view(Key), pas::class_ref<EC_CachePlanetTempl::TCPlanetTemplEC>()) ==
+                nullptr) {
                 PlanetTempl = pas::construct_call<EC_CachePlanetTempl::TCPlanetTemplControlEC>(TCacheControlEC_Create);
                 TCacheEC::ResetControl(PlanetTempl);
                 PlanetTempl->SetCacheKey(Key);

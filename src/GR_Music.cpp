@@ -28,9 +28,10 @@ namespace GR_Music {
             Count = Block->GetParamCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
                 if (Block->GetParamValue(Index) != u"" && ([&] {
-                    pas::WideString cpp_string = EC_Str::TrimWideString(EC_Str::LowerCaseWideString(Block->GetParamValue(Index)));
-                    return cpp_string == CurrentFile;
-                }())) {
+                        pas::WideString cpp_string = EC_Str::TrimWideString(
+                            EC_Str::LowerCaseWideString(Block->GetParamValue(Index)));
+                        return cpp_string == CurrentFile;
+                    }())) {
                     return pas::WideString();
                 }
             }
@@ -64,13 +65,16 @@ namespace GR_Music {
         Self->BuiltinVorbis = false;
         Self->DecodeLock = pas::make_critical_section<pas::CriticalSection>();
         if (static_cast<pas::AnsiString>(LibraryName) == "vorbisfile.dll") {
-            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock, false);
+            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock,
+                    false);
             Self->BuiltinVorbis = true;
             Self->Buffer = GR_Main::SoundManager->AddBuffer();
         } else {
-            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock, true);
+            Self->Decoder = pas::construct_call<VorbisFile::TOggWorker>(VorbisFile::TOggWorker_Create, Self->DecodeLock,
+                    true);
             if (!Self->BuiltinVorbis) {
-                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({"Load ", static_cast<pas::AnsiString>(LibraryName), " .... "}));
+                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({"Load ", static_cast<pas::AnsiString>(LibraryName),
+                    " .... "}));
                 try {
                     Self->DecoderLibrary = WindowsSdk::LoadLibraryW(LibraryName);
                 } catch (...) {
@@ -78,8 +82,13 @@ namespace GR_Music {
                     throw;
                 }
                 if (Self->DecoderLibrary == 0) {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"fail GetLastError=", EC_Str::IntToWideString(WindowsImports::GetLastError())})));
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide_reverse({EC_Str::IntToWideString(WindowsImports::GetLastError()), static_cast<pas::WideString>(pas::concat_ansi({"Error load=", static_cast<pas::AnsiString>(LibraryName), "  GetLastError="}))}))));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"fail GetLastError=", EC_Str::IntToWideString(WindowsImports::GetLastError())})));
+                    pas::raise(
+                        pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide_reverse({
+                            EC_Str::IntToWideString(WindowsImports::GetLastError()),
+                            static_cast<pas::WideString>(pas::concat_ansi({"Error load=",
+                                static_cast<pas::AnsiString>(LibraryName), "  GetLastError="}))}))));
                 }
                 GR_Main::AppendLogLineThreadSafe("ok"_a);
             }
@@ -137,7 +146,8 @@ namespace GR_Music {
                 WaitForIdle(WindowsSdk::INFINITE);
             }
             Clear();
-            Stream = pas::construct_call<EC_FileStream::TFileStreamEC>(EC_FileStream::TFileStreamEC_Create, 0x000400ff, FileName);
+            Stream = pas::construct_call<EC_FileStream::TFileStreamEC>(EC_FileStream::TFileStreamEC_Create, 0x000400ff,
+                    FileName);
             if (Deferred) {
                 SetPriority(EC_Thread::ThreadPriorityLowest);
                 StartPlaybackEvent = WindowsImports::CreateEvent(nullptr, 0, 0, nullptr);
@@ -167,74 +177,75 @@ namespace GR_Music {
     }
 
     std::uint8_t TMusicUnit::IsIntroTrack() {
-        return GetFileName() == u"music\\1c.dat" || GetFileName() == u"music\\logo.dat" || GetFileName() == u"music\\intro.dat";
+        return GetFileName() == u"music\\1c.dat" || GetFileName() == u"music\\logo.dat" || GetFileName() ==
+                u"music\\intro.dat";
     }
 
-    void TMusicUnit_Execute(TMusicUnit* Self) {
+    void TMusicUnit::Execute() {
         std::uint8_t Ended{};
         DirectSound::TSoundWaveFormat Format{};
         std::int32_t Chunk{};
-        if (VorbisFile::OpenVorbisStream(Self->Decoder, Format, Self->Stream) == 0) {
-            Self->Clear();
-            WindowsSdk::SetEvent(Self->CompletionEvent);
+        if (VorbisFile::OpenVorbisStream(Decoder, Format, Stream) == 0) {
+            Clear();
+            WindowsSdk::SetEvent(CompletionEvent);
             return;
         }
         try {
-            Self->Buffer->InitStream(MusicChunkBytes, &Format);
-            if (!Self->Buffer->WriteStream(GR_Sound::SoundStreamPrimeAll, Self->Decoder)) {
-                Self->Clear();
-                WindowsSdk::SetEvent(Self->CompletionEvent);
+            Buffer->InitStream(MusicChunkBytes, &Format);
+            if (!Buffer->WriteStream(GR_Sound::SoundStreamPrimeAll, Decoder)) {
+                Clear();
+                WindowsSdk::SetEvent(CompletionEvent);
                 return;
             }
-            if (Self->StartPlaybackEvent != 0) {
-                WindowsSdk::WaitForSingleObject(Self->StartPlaybackEvent, WindowsSdk::INFINITE);
-                if (Self->IsStopRequested()) {
-                    Self->Clear();
-                    WindowsSdk::SetEvent(Self->CompletionEvent);
+            if (StartPlaybackEvent != 0) {
+                WindowsSdk::WaitForSingleObject(StartPlaybackEvent, WindowsSdk::INFINITE);
+                if (IsStopRequested()) {
+                    Clear();
+                    WindowsSdk::SetEvent(CompletionEvent);
                     return;
                 }
-                Self->SetPriority(EC_Thread::ThreadPriorityAboveNormal);
+                SetPriority(EC_Thread::ThreadPriorityAboveNormal);
                 SysUtilsImports::Sleep(100u);
                 SysUtilsImports::Sleep(100u);
             }
             Ended = false;
-            if (Self->IsIntroTrack()) {
-                Self->Buffer->SetVolumeScale(1.0f);
+            if (IsIntroTrack()) {
+                Buffer->SetVolumeScale(1.0f);
             } else {
-                Self->Buffer->SetVolumeScale(0.0f);
+                Buffer->SetVolumeScale(0.0f);
             }
-            if (!Self->IsIntroTrack()) {
-                Self->Buffer->StartVolumeRamp(100u, 0.1f);
+            if (!IsIntroTrack()) {
+                Buffer->StartVolumeRamp(100u, 0.1f);
             }
-            Self->Buffer->Play(false);
+            Buffer->Play(false);
             do {
-                Chunk = Self->Buffer->WaitForChunk();
+                Chunk = Buffer->WaitForChunk();
             } while (!(Chunk != 0));
             while (!Ended) {
-                if (Self->ImmediateStop) {
+                if (ImmediateStop) {
                     break;
                 }
-                if (Self->IsStopRequested()) {
-                    Self->SetStopRequested(false);
-                    if (!Self->IsIntroTrack()) {
-                        Self->Buffer->StartVolumeRamp(100u, -0.1f);
+                if (IsStopRequested()) {
+                    SetStopRequested(false);
+                    if (!IsIntroTrack()) {
+                        Buffer->StartVolumeRamp(100u, -0.1f);
                     }
                 }
-                Ended = static_cast<std::uint8_t>(Self->Buffer->WriteStream(Chunk, Self->Decoder) ^ 1);
-                if (Self->Stream->EndOfFile) {
-                    if (Self->Stream->FillAvailable + Self->Stream->ReadAvailable <= MusicEndFadeThresholdBytes) {
-                        Self->RequestStop();
+                Ended = static_cast<std::uint8_t>(Buffer->WriteStream(Chunk, Decoder) ^ 1);
+                if (Stream->EndOfFile) {
+                    if (Stream->FillAvailable + Stream->ReadAvailable <= MusicEndFadeThresholdBytes) {
+                        RequestStop();
                     }
                 }
-                Chunk = Self->Buffer->WaitForChunk();
+                Chunk = Buffer->WaitForChunk();
                 if (Chunk < 0) {
                     break;
                 }
             }
         } catch (...) {
         }
-        Self->Clear();
-        WindowsSdk::SetEvent(Self->CompletionEvent);
+        Clear();
+        WindowsSdk::SetEvent(CompletionEvent);
     }
 
     void TMusicControl_Create(TMusicControl* Self) {
@@ -244,8 +255,10 @@ namespace GR_Music {
         Self->ControlLock = pas::make_critical_section<pas::CriticalSection>();
         if (GlobalsV::MusicEnabled) {
             if (GlobalsV::MusicEnabled) {
-                Self->Current = pas::construct_call<TMusicUnit>(TMusicUnit_Create, pas::literal_pointer(u"vorbisfile.dll"));
-                Self->Queued = pas::construct_call<TMusicUnit>(TMusicUnit_Create, pas::literal_pointer(u"vorbisfile.dll"));
+                Self->Current = pas::construct_call<TMusicUnit>(TMusicUnit_Create,
+                        pas::literal_pointer(u"vorbisfile.dll"));
+                Self->Queued = pas::construct_call<TMusicUnit>(TMusicUnit_Create,
+                        pas::literal_pointer(u"vorbisfile.dll"));
                 // Native order: Current receives the still-zero handle before creation.
                 Self->Current->CompletionEvent = Self->CompletionEvent;
                 Self->Queued->CompletionEvent = 0u;
@@ -311,27 +324,27 @@ namespace GR_Music {
         }
     }
 
-    void TMusicControl_Execute(TMusicControl* Self) {
+    void TMusicControl::Execute() {
         TMusicUnit* Previous{};
-        while (!Self->IsStopRequested()) {
-            WindowsSdk::WaitForSingleObject(Self->CompletionEvent, WindowsSdk::INFINITE);
-            if (Self->IsStopRequested()) {
+        while (!IsStopRequested()) {
+            WindowsSdk::WaitForSingleObject(CompletionEvent, WindowsSdk::INFINITE);
+            if (IsStopRequested()) {
                 break;
             }
             SysUtilsImports::Sleep(10u);
-            pas::critical_enter(Self->ControlLock);
-            if (Self->Queued->IsRunning()) {
-                Previous = Self->Current;
-                Self->Current = Self->Queued;
-                Self->Queued = Previous;
-                Self->CurrentFileName = Self->Current->GetFileName();
-                Self->Current->CompletionEvent = Self->CompletionEvent;
-                Self->Queued->CompletionEvent = 0u;
-                if (Self->Current->StartPlaybackEvent != 0) {
-                    WindowsSdk::SetEvent(Self->Current->StartPlaybackEvent);
+            pas::critical_enter(ControlLock);
+            if (Queued->IsRunning()) {
+                Previous = Current;
+                Current = Queued;
+                Queued = Previous;
+                CurrentFileName = Current->GetFileName();
+                Current->CompletionEvent = CompletionEvent;
+                Queued->CompletionEvent = 0u;
+                if (Current->StartPlaybackEvent != 0) {
+                    WindowsSdk::SetEvent(Current->StartPlaybackEvent);
                 }
             }
-            pas::critical_leave(Self->ControlLock);
+            pas::critical_leave(ControlLock);
         }
     }
 
@@ -372,10 +385,10 @@ namespace GR_Music {
                 };
                 if (CategoryOverride == u"") {
                     Chosen = ([&] {
-                        const pas::WideString& fileName = Current->GetFileName();
-                        const pas::WideString& category = Category;
-                        return GR_Music::ChooseMusicFile(category, fileName);
-                    }());
+                            const pas::WideString& fileName = Current->GetFileName();
+                            const pas::WideString& category = Category;
+                            return GR_Music::ChooseMusicFile(category, fileName);
+                        }());
                     if (Chosen != u"" && Chosen == CurrentFileName) {
                         Chosen = GR_Music::ChooseMusicFile(u"All"_wref.get(), Current->GetFileName());
                     }
@@ -383,10 +396,10 @@ namespace GR_Music {
                     Attempts = 0;
                     do {
                         Chosen = ([&] {
-                            const pas::WideString& fileName_2 = Current->GetFileName();
-                            const pas::WideString& categoryOverride = CategoryOverride;
-                            return GR_Music::ChooseMusicFile(categoryOverride, fileName_2);
-                        }());
+                                const pas::WideString& fileName_2 = Current->GetFileName();
+                                const pas::WideString& categoryOverride = CategoryOverride;
+                                return GR_Music::ChooseMusicFile(categoryOverride, fileName_2);
+                            }());
                         ++Attempts;
                         if (Attempts > 20) {
                             break;
@@ -432,7 +445,8 @@ namespace GR_Music {
             pas::ScopeExit cpp_cleanup = [&]() noexcept {
                 pas::critical_leave(ControlLock);
             };
-            Result = Current != nullptr && Current->Buffer != nullptr && Current->Buffer->IsPlaying() || Queued != nullptr && Queued->Buffer != nullptr && Queued->Buffer->IsPlaying();
+            Result = Current != nullptr && Current->Buffer != nullptr && Current->Buffer->IsPlaying() || Queued !=
+                        nullptr && Queued->Buffer != nullptr && Queued->Buffer->IsPlaying();
         }
         return Result;
     }
@@ -443,14 +457,6 @@ namespace GR_Music {
 
     void TMusicControl::p_destroy() {
         GR_Music::TMusicControl_Destroy(this);
-    }
-
-    void TMusicUnit::virtual_TThreadEC_Execute() {
-        GR_Music::TMusicUnit_Execute(this);
-    }
-
-    void TMusicControl::virtual_TThreadEC_Execute() {
-        GR_Music::TMusicControl_Execute(this);
     }
 
 } // namespace GR_Music

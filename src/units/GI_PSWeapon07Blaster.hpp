@@ -17,7 +17,8 @@ namespace GI_PSWeapon07Blaster {
 
     void LoadBlasterPalettes();
 
-    void TPSWeapon07Blaster_Create(TPSWeapon07Blaster* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon07Blaster_Create(TPSWeapon07Blaster* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon07Blaster_Destroy(TPSWeapon07Blaster* Self);
 

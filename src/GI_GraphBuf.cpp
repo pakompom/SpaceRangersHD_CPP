@@ -15,7 +15,6 @@
 #include "units/GR_GraphBuf.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/System.hpp"
 #include "units/Windows.hpp"
 
 namespace GI_GraphBuf {
@@ -140,47 +139,57 @@ namespace GI_GraphBuf {
             std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
             void* pixels_2 = GraphBuf->GetPixels();
             std::int32_t pitchBytes_2 = GraphBuf->PitchBytes;
-            GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, BufferRect.Left, BufferRect.Top, pixels, pitchBytes, ScreenRect.Left, ScreenRect.Top, BufferRect.Right - BufferRect.Left, BufferRect.Bottom - BufferRect.Top);
+            GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, BufferRect.Left, BufferRect.Top, pixels,
+                pitchBytes, ScreenRect.Left, ScreenRect.Top, BufferRect.Right - BufferRect.Left,
+                BufferRect.Bottom - BufferRect.Top);
         }
     }
 
     void TGraphBufGI::LoadBitmapPathAsRgba(const pas::WideString& BitmapPath) {
-        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(
+            EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);
         Control->SetCacheKey(BitmapPath);
         EC_CacheBitmap::TCBitmapEC* Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(Control);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                GraphBuf->AllocateRgba(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height, Bitmap->Bitmap->PitchBytes);
+                {
+                    void* pixels = Bitmap->Bitmap->GetPixels();
+                    void* pixels_2 = GraphBuf->GetPixels();
+                    std::uint32_t cpp_arg = GraphBuf->PitchBytes * GraphBuf->Height;
+                    Windows::CopyMemory(pixels_2, pixels, cpp_arg);
+                }
+            } catch (...) {
                 Control->Release();
-            };
-            GraphBuf->AllocateRgba(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height, Bitmap->Bitmap->PitchBytes);
-            {
-                void* pixels = Bitmap->Bitmap->GetPixels();
-                void* pixels_2 = GraphBuf->GetPixels();
-                std::uint32_t cpp_arg = GraphBuf->PitchBytes * GraphBuf->Height;
-                Windows::CopyMemory(pixels_2, pixels, cpp_arg);
+                throw;
             }
+            Control->Release();
         }
         pas::free(Control);
         SourceHasPerPixelAlpha = true;
     }
 
     void TGraphBufGI::LoadBitmapPathAsRgb(const pas::WideString& BitmapPath) {
-        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(
+            EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);
         Control->SetCacheKey(BitmapPath);
         EC_CacheBitmap::TCBitmapEC* Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(Control);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                GraphBuf->AllocateRgb(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height, Bitmap->Bitmap->PitchBytes);
+                {
+                    void* pixels = Bitmap->Bitmap->GetPixels();
+                    void* pixels_2 = GraphBuf->GetPixels();
+                    std::uint32_t cpp_arg = GraphBuf->PitchBytes * GraphBuf->Height;
+                    Windows::CopyMemory(pixels_2, pixels, cpp_arg);
+                }
+            } catch (...) {
                 Control->Release();
-            };
-            GraphBuf->AllocateRgb(Bitmap->Bitmap->Width, Bitmap->Bitmap->Height, Bitmap->Bitmap->PitchBytes);
-            {
-                void* pixels = Bitmap->Bitmap->GetPixels();
-                void* pixels_2 = GraphBuf->GetPixels();
-                std::uint32_t cpp_arg = GraphBuf->PitchBytes * GraphBuf->Height;
-                Windows::CopyMemory(pixels_2, pixels, cpp_arg);
+                throw;
             }
+            Control->Release();
         }
         pas::free(Control);
         SourceHasPerPixelAlpha = false;
@@ -249,8 +258,11 @@ namespace GI_GraphBuf {
         } else {
             return false;
         }
-        void* Pixels = EC_Mem::AddPointerOffset(&Pixel, -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X * static_cast<std::int32_t>(sizeof(std::uint16_t))));
-        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        void* Pixels = EC_Mem::AddPointerOffset(&Pixel,
+            -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X *
+                    static_cast<std::int32_t>(sizeof(std::uint16_t))));
+        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+            GR_GraphBuf::TGraphBufGR_Create, false);
         Buffer->AttachPixels(1, 1, GR_Main::ScreenRenderBuffer->PitchBytes, Pixels);
         if (SourceHasPerPixelAlpha) {
             Y = Top;
@@ -277,7 +289,8 @@ namespace GI_GraphBuf {
                         std::uint8_t halfAlpha = HalfAlpha;
                         void* pixels_2 = Buffer->GetPixels();
                         std::int32_t pitchBytes_2 = Buffer->PitchBytes;
-                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, Clip, halfAlpha, false);
+                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, Clip, halfAlpha,
+                            false);
                     }
                     X += Width;
                 }
@@ -305,7 +318,8 @@ namespace GI_GraphBuf {
         HitTestBounds.Left = 0;
         HitTestBounds.Top = 0;
         Clip = HitTestBounds;
-        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        GR_GraphBuf::TGraphBufGR* Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+            GR_GraphBuf::TGraphBufGR_Create, false);
         Buffer->AllocateNative(HitTestBounds.Right, HitTestBounds.Bottom);
         std::int32_t Width = GraphBuf->Width;
         std::int32_t Height = GraphBuf->Height;
@@ -377,7 +391,8 @@ namespace GI_GraphBuf {
                         std::uint8_t halfAlpha = HalfAlpha;
                         void* pixels_2 = Buffer->GetPixels();
                         std::int32_t pitchBytes_2 = Buffer->PitchBytes;
-                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, Clip, halfAlpha, false);
+                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, Clip, halfAlpha,
+                            false);
                     }
                     X += Width;
                 }
@@ -433,29 +448,41 @@ namespace GI_GraphBuf {
     void TGraphBufGI::LoadScaledBitmapPathAsRgba(const pas::WideString& BitmapPath) {
         LoadBitmapPathAsRgba(BitmapPath);
         if (GraphBuf->Width * ClientSize.Y >= GraphBuf->Height * ClientSize.X) {
-            GraphBuf->RescaleBilinearRgba(ClientSize.X, System::Round(pas::real_divide(ClientSize.X, static_cast<std::uint32_t>(GraphBuf->Width)) * static_cast<std::uint32_t>(GraphBuf->Height)));
+            GraphBuf->RescaleBilinearRgba(ClientSize.X,
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(ClientSize.X) / static_cast<std::uint32_t>(GraphBuf->Width)) *
+                    static_cast<std::uint32_t>(GraphBuf->Height))));
         } else {
-            GraphBuf->RescaleBilinearRgba(System::Round(pas::real_divide(ClientSize.Y, static_cast<std::uint32_t>(GraphBuf->Height)) * static_cast<std::uint32_t>(GraphBuf->Width)), ClientSize.Y);
+            GraphBuf->RescaleBilinearRgba(
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(ClientSize.Y) / static_cast<std::uint32_t>(GraphBuf->Height)) *
+                    static_cast<std::uint32_t>(GraphBuf->Width))), ClientSize.Y);
         }
     }
 
     void TGraphBufGI::LoadScaledGiPath(const pas::WideString& GiPath) {
         SourceHasPerPixelAlpha = true;
-        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGI::TCGiControlEC>(EC_Cache::TCacheControlEC_Create);
+        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGI::TCGiControlEC>(
+            EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);
         Control->SetCacheKey(GiPath);
         EC_CacheGI::TCGiEC* Image = EC_CacheGI::AcquireCachedGi(Control);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                Image->Image->DecodeToGraphBuf(GraphBuf, false);
+            } catch (...) {
                 Control->Release();
-            };
-            Image->Image->DecodeToGraphBuf(GraphBuf, false);
+                throw;
+            }
+            Control->Release();
         }
         pas::free(Control);
         if (GraphBuf->Width * ClientSize.Y >= GraphBuf->Height * ClientSize.X) {
-            GraphBuf->RescaleRgba(ClientSize.X, System::Round(pas::real_divide(ClientSize.X, static_cast<std::uint32_t>(GraphBuf->Width)) * static_cast<std::uint32_t>(GraphBuf->Height)), 5);
+            GraphBuf->RescaleRgba(ClientSize.X,
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(ClientSize.X) / static_cast<std::uint32_t>(GraphBuf->Width)) *
+                    static_cast<std::uint32_t>(GraphBuf->Height))), 5);
         } else {
-            GraphBuf->RescaleRgba(System::Round(pas::real_divide(ClientSize.Y, static_cast<std::uint32_t>(GraphBuf->Height)) * static_cast<std::uint32_t>(GraphBuf->Width)), ClientSize.Y, 5);
+            GraphBuf->RescaleRgba(
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(ClientSize.Y) / static_cast<std::uint32_t>(GraphBuf->Height)) *
+                    static_cast<std::uint32_t>(GraphBuf->Width))), ClientSize.Y, 5);
         }
     }
 
@@ -521,8 +548,10 @@ namespace GI_GraphBuf {
                 while (X < Right) {
                     {
                         std::int32_t cpp_arg = 255 - pas::shl(static_cast<std::int32_t>(HalfAlpha), 7);
-                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (GraphBuf->GetTexture(cpp_result), cpp_result);
-                        GR_DX::DrawTexture(texture, X, Y, cpp_arg, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
+                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (GraphBuf->GetTexture(cpp_result),
+                            cpp_result);
+                        GR_DX::DrawTexture(texture, X, Y, cpp_arg, GR_DX::RgbWhite,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, false);
                     }
                     X += Width;
                 }
@@ -555,7 +584,8 @@ namespace GI_GraphBuf {
                         std::uint8_t halfAlpha = HalfAlpha;
                         void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                         std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, clipRect_2, halfAlpha, false);
+                        GR_Main::CopyGraphBuffer16Clipped(pixels_2, pitchBytes_2, X, Y, graphBuf_2, clipRect_2,
+                            halfAlpha, false);
                     }
                     X += Width;
                 }

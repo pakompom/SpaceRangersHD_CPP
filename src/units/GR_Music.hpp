@@ -8,12 +8,8 @@ namespace GR_Music {
 
     void TMusicUnit_Destroy(TMusicUnit* Self);
 
-    void TMusicUnit_Execute(TMusicUnit* Self);
-
     void TMusicControl_Create(TMusicControl* Self);
 
     void TMusicControl_Destroy(TMusicControl* Self);
-
-    void TMusicControl_Execute(TMusicControl* Self);
 
 } // namespace GR_Music

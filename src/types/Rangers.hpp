@@ -28,7 +28,7 @@ namespace Rangers {
     #endif
     struct TSteamCallbacksThread : EC_Thread::TThreadEC {
         PAS_CLASS_META(TSteamCallbacksThread, EC_Thread::TThreadEC, "TSteamCallbacksThread", 44)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)

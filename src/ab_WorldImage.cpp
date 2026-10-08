@@ -10,7 +10,6 @@
 #include "units/EC_Struct.hpp"
 #include "units/GI_Image.hpp"
 #include "units/Globals.hpp"
-#include "units/System.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/ab_Global.hpp"
@@ -42,7 +41,8 @@ namespace ab_WorldImage {
                 pas::raise(pas::make_exception<pas::Exception>("ab_WorldImage_Add.HeapCreate"_a));
             }
         }
-        PabWorldImage Entry = static_cast<PabWorldImage>(EC_Mem::AllocClearFromHeapEC(WorldImageHeap, static_cast<std::int32_t>(sizeof(TabWorldImage))));
+        PabWorldImage Entry = static_cast<PabWorldImage>(EC_Mem::AllocClearFromHeapEC(WorldImageHeap,
+            static_cast<std::int32_t>(sizeof(TabWorldImage))));
         if (LastWorldImage != nullptr) {
             LastWorldImage->Next = Entry;
         }
@@ -79,7 +79,8 @@ namespace ab_WorldImage {
         }
     }
 
-    PabWorldImage ab_WorldImage_Create(EC_Struct::TVector3D Position, const pas::WideString& FrontPath, const pas::WideString& BackPath, std::uint8_t StopAnimation) {
+    PabWorldImage ab_WorldImage_Create(EC_Struct::TVector3D Position, const pas::WideString& FrontPath,
+        const pas::WideString& BackPath, std::uint8_t StopAnimation) {
         PabWorldImage Entry = ab_WorldImage::ab_WorldImage_Add();
         pas::store_unaligned<EC_Struct::TVector3D>(&Entry->Position, Position);
         Entry->FrontImagePath = FrontPath;
@@ -94,7 +95,8 @@ namespace ab_WorldImage {
         return Entry;
     }
 
-    void ab_WorldImage_Set(PabWorldImage Entry, EC_Struct::TVector3D Position, const pas::WideString& FrontPath, const pas::WideString& BackPath) {
+    void ab_WorldImage_Set(PabWorldImage Entry, EC_Struct::TVector3D Position, const pas::WideString& FrontPath,
+        const pas::WideString& BackPath) {
         pas::store_unaligned<EC_Struct::TVector3D>(&Entry->Position, Position);
         Entry->FrontImagePath = FrontPath;
         Entry->BackImagePath = BackPath;
@@ -132,7 +134,8 @@ namespace ab_WorldImage {
         EC_Struct::TVector3D Position{};
         EC_Struct::TVector3D Center{};
         Center = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
-        Center = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Center));
+        Center = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                pas::ConstRef<EC_Struct::TVector3D>(&Center));
         Entry = FirstWorldImage;
         while (Entry != nullptr) {
             if (Entry->Finished) {
@@ -142,9 +145,11 @@ namespace ab_WorldImage {
                 Entry = Entry->Next;
                 continue;
             }
-            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Entry->Position));
+            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&Entry->Position));
             if (Entry->Image == nullptr) {
-                Entry->Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Globals::ArcadeBattleScreen->WorldPanel);
+                Entry->Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                        Globals::ArcadeBattleScreen->WorldPanel);
             }
             Frame = 0;
             if (Entry->Image->GaiImageControl != nullptr) {
@@ -161,17 +166,21 @@ namespace ab_WorldImage {
                             image->SetSize(contentSize);
                         }
                         Entry->Image->SetOrigin(EC_Struct::HalfPoint(Entry->Image->ClientSize));
-                        if (Entry->Image->GaiImageControl != nullptr && static_cast<std::uint8_t>(Entry->StopAnimation ^ 1)) {
-                            Entry->Image->GaiImageControl->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry));
+                        if (Entry->Image->GaiImageControl != nullptr && static_cast<std::uint8_t>(Entry->StopAnimation ^
+                                1)) {
+                            Entry->Image->GaiImageControl->UserValue =
+                                static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry));
                             if (!Entry->LoopAnimation) {
-                                Entry->Image->GaiImageControl->CycleCompleteCallback = pas::bind_static_method<&ab_MainForm::TfAB::WorldImageCycleComplete>(Globals::ArcadeBattleScreen);
+                                Entry->Image->GaiImageControl->CycleCompleteCallback = pas::bind_static_method<
+                                        &ab_MainForm::TfAB::WorldImageCycleComplete>(Globals::ArcadeBattleScreen);
                             } else {
                                 Entry->Image->GaiImageControl->CycleCompleteCallback = nullptr;
                             }
                             if (Entry->FrameMode == afmRestart && Entry->Dirty) {
                                 Entry->Image->GaiImageControl->SetSequenceFrame(0);
                             } else if (Entry->FrameMode == afmRandomStart && Entry->Dirty) {
-                                std::int32_t randomIntRange = aMyFunction::RandomIntRange(0, Entry->Image->GaiImageControl->SequenceFrameCount - 1);
+                                std::int32_t randomIntRange = aMyFunction::RandomIntRange(0,
+                                    Entry->Image->GaiImageControl->SequenceFrameCount - 1);
                                 GI_GAI::TgaiGI* gaiImageControl = Entry->Image->GaiImageControl;
                                 gaiImageControl->SetSequenceFrame(randomIntRange);
                             } else {
@@ -194,17 +203,21 @@ namespace ab_WorldImage {
                         image_2->SetSize(contentSize_2);
                     }
                     Entry->Image->SetOrigin(EC_Struct::HalfPoint(Entry->Image->ClientSize));
-                    if (Entry->Image->GaiImageControl != nullptr && static_cast<std::uint8_t>(Entry->StopAnimation ^ 1)) {
-                        Entry->Image->GaiImageControl->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry));
+                    if (Entry->Image->GaiImageControl != nullptr && static_cast<std::uint8_t>(Entry->StopAnimation ^
+                            1)) {
+                        Entry->Image->GaiImageControl->UserValue =
+                            static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Entry));
                         if (!Entry->LoopAnimation) {
-                            Entry->Image->GaiImageControl->CycleCompleteCallback = pas::bind_static_method<&ab_MainForm::TfAB::WorldImageCycleComplete>(Globals::ArcadeBattleScreen);
+                            Entry->Image->GaiImageControl->CycleCompleteCallback = pas::bind_static_method<
+                                    &ab_MainForm::TfAB::WorldImageCycleComplete>(Globals::ArcadeBattleScreen);
                         } else {
                             Entry->Image->GaiImageControl->CycleCompleteCallback = nullptr;
                         }
                         if (Entry->FrameMode == afmRestart && Entry->Dirty) {
                             Entry->Image->GaiImageControl->SetSequenceFrame(0);
                         } else if (Entry->FrameMode == afmRandomStart && Entry->Dirty) {
-                            std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(0, Entry->Image->GaiImageControl->SequenceFrameCount - 1);
+                            std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(0,
+                                Entry->Image->GaiImageControl->SequenceFrameCount - 1);
                             GI_GAI::TgaiGI* gaiImageControl_2 = Entry->Image->GaiImageControl;
                             gaiImageControl_2->SetSequenceFrame(randomIntRange_2);
                         } else {
@@ -218,11 +231,7 @@ namespace ab_WorldImage {
                 Entry->Image->SetDepth(Entry->FrontDepth);
             }
             Entry->Dirty = false;
-            {
-                std::int32_t round = System::Round(Position.Y);
-                std::int32_t round_2 = System::Round(Position.X);
-                Entry->Image->SetPosition(ClassesImports::Point(round_2, round));
-            }
+            Entry->Image->SetPosition(ClassesImports::Point(pas::real_round(Position.X), pas::real_round(Position.Y)));
             Entry = Entry->Next;
         }
     }

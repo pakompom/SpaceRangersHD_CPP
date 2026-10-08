@@ -1,8 +1,8 @@
 #include "layout/ab_StopLine.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/GI_PolyLine.hpp"
 #include "types/SystemImports.hpp"
 #include "types/ab_MainForm.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/Globals.hpp"
@@ -57,7 +57,8 @@ namespace ab_StopLine {
                 pas::raise(pas::make_exception<pas::Exception>("ab_StopPoint_Add.HeapCreate"_a));
             }
         }
-        PabStopPoint Entry = static_cast<PabStopPoint>(EC_Mem::AllocClearFromHeapEC(StopPointHeap, static_cast<std::int32_t>(sizeof(TabStopPoint))));
+        PabStopPoint Entry = static_cast<PabStopPoint>(EC_Mem::AllocClearFromHeapEC(StopPointHeap,
+            static_cast<std::int32_t>(sizeof(TabStopPoint))));
         Entry->Radius = ab_Global::SphereRadius;
         if (LastStopPoint != nullptr) {
             LastStopPoint->Next = Entry;
@@ -111,11 +112,15 @@ namespace ab_StopLine {
         if (Point == nullptr) {
             Point = FirstStopPoint;
             while (Point != nullptr) {
-                pas::store_unaligned<EC_Struct::TVector3D>(&Point->Position, ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Point->Longitude), aMyFunction::HeadingDegreesToRadians(Point->PolarAngle), Point->Radius));
+                pas::store_unaligned<EC_Struct::TVector3D>(&Point->Position,
+                    ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Point->Longitude),
+                        aMyFunction::HeadingDegreesToRadians(Point->PolarAngle), Point->Radius));
                 Point = Point->Next;
             }
         } else {
-            pas::store_unaligned<EC_Struct::TVector3D>(&Point->Position, ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Point->Longitude), aMyFunction::HeadingDegreesToRadians(Point->PolarAngle), Point->Radius));
+            pas::store_unaligned<EC_Struct::TVector3D>(&Point->Position,
+                ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Point->Longitude),
+                    aMyFunction::HeadingDegreesToRadians(Point->PolarAngle), Point->Radius));
         }
     }
 
@@ -133,9 +138,13 @@ namespace ab_StopLine {
     void ab_StopPoint_ClearSegments(PabStopPoint Point) {
         std::int32_t Index{};
         for (Index = 0; Index <= 3; ++Index) {
-            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Point->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
-                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Point->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
-                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Point->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
+            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Point->Segments,
+                Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
+                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(
+                    pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Point->Segments,
+                        Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
+                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(
+                    pas::byte_offset(&Point->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
             }
         }
     }
@@ -185,7 +194,8 @@ namespace ab_StopLine {
                 pas::raise(pas::make_exception<pas::Exception>("ab_StopLine_Add.HeapCreate"_a));
             }
         }
-        PabStopLine Entry = static_cast<PabStopLine>(EC_Mem::AllocClearFromHeapEC(StopLineHeap, static_cast<std::int32_t>(sizeof(TabStopLine))));
+        PabStopLine Entry = static_cast<PabStopLine>(EC_Mem::AllocClearFromHeapEC(StopLineHeap,
+            static_cast<std::int32_t>(sizeof(TabStopLine))));
         if (LastStopLine != nullptr) {
             LastStopLine->Next = Entry;
         }
@@ -237,7 +247,7 @@ namespace ab_StopLine {
         ab_StopLine::ab_StopPoint_UpdatePosition(First);
         PabStopPoint Previous = First;
         double Longitude = Step;
-        while (Longitude < 3.6E+2L) {
+        while (Longitude < 3.6E+2) {
             Point = ab_StopLine::ab_StopPoint_Add();
             Point->Longitude = Longitude;
             Point->PolarAngle = PolarAngle;
@@ -247,7 +257,7 @@ namespace ab_StopLine {
             Line->First = Previous;
             Line->Last = Point;
             Previous = Point;
-            Longitude = static_cast<long double>(Longitude) + Step;
+            Longitude = static_cast<float>(static_cast<double>(Longitude) + Step);
         }
         Line = ab_StopLine::ab_StopLine_Add();
         Line->First = Previous;
@@ -259,11 +269,13 @@ namespace ab_StopLine {
         while (Line != nullptr) {
             if (Line->Visible) {
                 if (Line->WorldLine == nullptr) {
-                    Line->WorldLine = ab_WorldLine::ab_WorldLine_Create(Line->First->Position, Line->Last->Position, 4, pas::load_unaligned<std::uint32_t>(Line->FirstColor), 0x80ffffffu, false);
+                    Line->WorldLine = ab_WorldLine::ab_WorldLine_Create(Line->First->Position, Line->Last->Position, 4,
+                            pas::load_unaligned<std::uint32_t>(Line->FirstColor), 0x80ffffffu, false);
                     Line->WorldLine->FrontEndColor = pas::load_unaligned<std::uint32_t>(Line->LastColor);
                     Line->WorldLine->BackEndColor = 0x80ffffffu;
                 } else {
-                    ab_WorldLine::ab_WorldLine_Set(Line->WorldLine, Line->First->Position, Line->Last->Position, 4, pas::load_unaligned<std::uint32_t>(Line->FirstColor), 0x80ffffffu, false);
+                    ab_WorldLine::ab_WorldLine_Set(Line->WorldLine, Line->First->Position, Line->Last->Position, 4,
+                        pas::load_unaligned<std::uint32_t>(Line->FirstColor), 0x80ffffffu, false);
                     Line->WorldLine->FrontEndColor = pas::load_unaligned<std::uint32_t>(Line->LastColor);
                     Line->WorldLine->BackEndColor = 0x80ffffffu;
                 }
@@ -286,9 +298,13 @@ namespace ab_StopLine {
     void ab_StopLine_ClearSegments(PabStopLine Line) {
         std::int32_t Index{};
         for (Index = 0; Index <= 1; ++Index) {
-            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Line->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
-                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Line->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
-                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Line->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
+            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Line->Segments,
+                Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
+                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(
+                    pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Line->Segments,
+                        Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
+                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(
+                    pas::byte_offset(&Line->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
             }
         }
     }
@@ -316,7 +332,8 @@ namespace ab_StopLine {
         }
     }
 
-    std::uint8_t ab_StopLine_ReflectMovement(ab_Global::TSphericalBearingState Source, ab_Global::TSphericalBearingState Target, double& HeadingDelta, double& Speed, double& UnusedResult) {
+    std::uint8_t ab_StopLine_ReflectMovement(ab_Global::TSphericalBearingState Source,
+        ab_Global::TSphericalBearingState Target, double& HeadingDelta, double& Speed, double& UnusedResult) {
         float InverseLengthSquared{};
         float LineLength{};
         PabStopLine Line{};
@@ -333,28 +350,38 @@ namespace ab_StopLine {
         EC_Struct::TVector3D B{};
         EC_Struct::TVector3D Direction{};
         EC_Struct::TVector3D Movement{};
-        auto IntersectCollisionParameters = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, double& FirstT, double& SecondT) -> std::uint8_t {
-            FirstT = (static_cast<long double>(B.X) - A.X) * (static_cast<long double>(D.Y) - C.Y) - (static_cast<long double>(B.Y) - A.Y) * (static_cast<long double>(D.X) - C.X);
-            if (FirstT == 0.0L) {
+        auto IntersectCollisionParameters = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C,
+            EC_Struct::TVector3D D, double& FirstT, double& SecondT) -> std::uint8_t {
+            FirstT = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(B.X) - A.X)) * (static_cast<float>(static_cast<double>(D.Y) - C.Y))) - static_cast<float>((static_cast<float>(static_cast<double>(B.Y) -
+                        A.Y)) * (static_cast<float>(static_cast<double>(D.X) - C.X))));
+            if (FirstT == 0.0) {
                 return false;
             }
-            FirstT = pas::real_divide(1.0L, FirstT);
-            SecondT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(B.Y) - A.Y)) * FirstT;
-            FirstT = ((static_cast<long double>(A.Y) - C.Y) * (static_cast<long double>(D.X) - C.X) - (static_cast<long double>(A.X) - C.X) * (static_cast<long double>(D.Y) - C.Y)) * FirstT;
+            FirstT = static_cast<float>(1.0 / FirstT);
+            SecondT = static_cast<float>((static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(A.Y) - C.Y)) * (static_cast<float>(static_cast<double>(B.X) - A.X))) - static_cast<float>((static_cast<float>(static_cast<double>(A.X) -
+                        C.X)) * (static_cast<float>(static_cast<double>(B.Y) - A.Y))))) * FirstT);
+            FirstT = static_cast<float>((static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(A.Y) - C.Y)) * (static_cast<float>(static_cast<double>(D.X) - C.X))) - static_cast<float>((static_cast<float>(static_cast<double>(A.X) -
+                        C.X)) * (static_cast<float>(static_cast<double>(D.Y) - C.Y))))) * FirstT);
             return true;
         };
-        auto CollisionLineDistance = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D Point) -> double {
-            double Cross = (static_cast<long double>(A.Y) - Point.Y) * (static_cast<long double>(B.X) - A.X) - (static_cast<long double>(A.X) - Point.X) * (static_cast<long double>(B.Y) - A.Y);
-            return static_cast<long double>(Cross) * InverseLengthSquared * LineLength;
+        auto CollisionLineDistance = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B,
+            EC_Struct::TVector3D Point) -> double {
+            double Cross = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(A.Y) - Point.Y)) * (static_cast<float>(static_cast<double>(B.X) - A.X))) -
+                static_cast<float>((static_cast<float>(static_cast<double>(A.X) - Point.X)) * (static_cast<float>(static_cast<double>(B.Y) - A.Y))));
+            return static_cast<float>(static_cast<float>(static_cast<double>(Cross) * InverseLengthSquared) * LineLength);
         };
         std::uint8_t Result = false;
         if (FirstStopLine != nullptr) {
             UnusedResult = 0.0;
-            A = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees), ab_Global::SphereCameraDistance);
+            A = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees), ab_Global::SphereCameraDistance);
             B = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
-            Direction = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Source.PolarAngleDegrees + 9.0E+1L)), ab_Global::SphereCameraDistance);
+            Direction = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<float>(Source.PolarAngleDegrees +
+                        9.0E+1))), ab_Global::SphereCameraDistance);
             Matrix = ab_Global::BuildLookAtMatrix(A, B, Direction);
-            Movement = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Target.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(Target.PolarAngleDegrees), ab_Global::SphereRadius);
+            Movement = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Target.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(Target.PolarAngleDegrees), ab_Global::SphereRadius);
             Movement = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Movement));
             OriginalHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(Movement.X, -Movement.Y));
             A = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
@@ -362,54 +389,60 @@ namespace ab_StopLine {
             CenterDepth = A.Z;
             Line = FirstCollisionLine;
             while (Line != nullptr) {
-                A = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->First->Position));
+                A = ab_Global::ProjectPointByMatrix(Matrix,
+                        pas::ConstRef<EC_Struct::TVector3D>(&Line->First->Position));
                 B = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->Last->Position));
                 if (!(A.Z < CenterDepth && B.Z < CenterDepth)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                Direction.X = static_cast<long double>(B.X) - A.X;
-                Direction.Y = static_cast<long double>(B.Y) - A.Y;
-                LengthSquared = pas::sqr(static_cast<pas::Extended>(Direction.X)) + pas::sqr(static_cast<pas::Extended>(Direction.Y));
+                Direction.X = static_cast<float>(static_cast<double>(B.X) - A.X);
+                Direction.Y = static_cast<float>(static_cast<double>(B.Y) - A.Y);
+                LengthSquared = static_cast<float>(pas::sqr(static_cast<double>(Direction.X)) + pas::sqr(static_cast<double>(Direction.Y)));
                 LineLength = System::Sqrt(LengthSquared);
-                InverseLengthSquared = pas::real_divide(1.0L, LengthSquared);
-                Distance = std::fabs(static_cast<pas::Extended>(CollisionLineDistance(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0))));
-                if (!(Distance <= 11.0L)) {
+                InverseLengthSquared = static_cast<float>(1.0 / LengthSquared);
+                Distance = std::fabs(static_cast<double>(CollisionLineDistance(A, B,
+                        EC_Struct::MakeVector3D(0.0, 0.0, 0.0))));
+                if (!(Distance <= 11.0)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                Factor = pas::real_divide(1.0L, LineLength);
-                Direction.X = static_cast<long double>(Direction.X) * Factor;
-                Direction.Y = static_cast<long double>(Direction.Y) * Factor;
-                if (!IntersectCollisionParameters(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), Movement, FirstT, SecondT)) {
+                Factor = static_cast<float>(1.0 / LineLength);
+                Direction.X = static_cast<float>(static_cast<double>(Direction.X) * Factor);
+                Direction.Y = static_cast<float>(static_cast<double>(Direction.Y) * Factor);
+                if (!IntersectCollisionParameters(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), Movement, FirstT,
+                    SecondT)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (!(FirstT >= -1.0E-4L && FirstT <= 1.0001L)) {
+                if (!(FirstT >= -1.0E-4 && FirstT <= 1.0001)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (!(SecondT >= 0.0L)) {
+                if (!(SecondT >= 0.0)) {
                     Line = Line->NextCollision;
                     continue;
                 }
                 Normal.X = -Direction.Y;
                 Normal.Y = Direction.X;
-                Factor = static_cast<long double>(-Movement.X) * Normal.X + static_cast<long double>(-Movement.Y) * Normal.Y;
-                Movement.X = (static_cast<long double>(Normal.X) * Factor * 2.0L + Movement.X) * 0.8L;
-                Movement.Y = (static_cast<long double>(Normal.Y) * Factor * 2.0L + Movement.Y) * 0.8L;
+                Factor = static_cast<float>(static_cast<float>(static_cast<double>(-Movement.X) * Normal.X) + static_cast<float>(static_cast<double>(-Movement.Y) * Normal.Y));
+                Movement.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Normal.X) * Factor) * 2.0) + Movement.X)) * 0x1.999999999999bp-1);
+                Movement.Y = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Normal.Y) * Factor) * 2.0) + Movement.Y)) * 0x1.999999999999bp-1);
                 Result = true;
                 break;
             }
             if (Result) {
-                HeadingDelta = aMyFunction::HeadingDifferenceDegrees(OriginalHeading, aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(Movement.X, -Movement.Y)));
-                Speed = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Movement.X)) + pas::sqr(static_cast<pas::Extended>(Movement.Y)));
+                HeadingDelta = aMyFunction::HeadingDifferenceDegrees(OriginalHeading,
+                        aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(Movement.X, -Movement.Y)));
+                Speed = System::Sqrt(static_cast<float>(pas::sqr(static_cast<double>(Movement.X)) +
+                        pas::sqr(static_cast<double>(Movement.Y))));
             }
         }
         return Result;
     }
 
-    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, pas::Var<double> ForwardDistance, pas::Var<double> BackwardDistance) {
+    void ab_StopLine_GetDistances(ab_Global::TSphericalBearingState Source, pas::Var<double> ForwardDistance,
+        pas::Var<double> BackwardDistance) {
         double CenterDepth{};
         PabStopLine Line{};
         ab_Global::TMatrix4D Matrix{};
@@ -418,29 +451,34 @@ namespace ab_StopLine {
         EC_Struct::TVector3D A{};
         EC_Struct::TVector3D B{};
         EC_Struct::TVector3D Hit{};
-        auto IntersectCollisionLines = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C, EC_Struct::TVector3D D, EC_Struct::TVector3D& Hit) -> std::uint8_t {
-            double DX1 = static_cast<long double>(B.X) - A.X;
-            double DY1 = static_cast<long double>(B.Y) - A.Y;
-            double DX2 = static_cast<long double>(D.X) - C.X;
-            double DY2 = static_cast<long double>(D.Y) - C.Y;
-            double Denominator = static_cast<long double>(DY1) * DX2 - static_cast<long double>(DY2) * DX1;
-            if (Denominator == 0.0L) {
+        auto IntersectCollisionLines = [&](EC_Struct::TVector3D A, EC_Struct::TVector3D B, EC_Struct::TVector3D C,
+            EC_Struct::TVector3D D, EC_Struct::TVector3D& Hit) -> std::uint8_t {
+            double DX1 = static_cast<float>(static_cast<double>(B.X) - A.X);
+            double DY1 = static_cast<float>(static_cast<double>(B.Y) - A.Y);
+            double DX2 = static_cast<float>(static_cast<double>(D.X) - C.X);
+            double DY2 = static_cast<float>(static_cast<double>(D.Y) - C.Y);
+            double Denominator = static_cast<float>(static_cast<float>(static_cast<double>(DY1) * DX2) - static_cast<float>(static_cast<double>(DY2) * DX1));
+            if (Denominator == 0.0) {
                 return false;
             }
-            Hit.X = pas::real_divide((static_cast<long double>(C.Y) - A.Y) * DX1 * DX2 + static_cast<long double>(DY1) * DX2 * A.X - static_cast<long double>(DY2) * DX1 * C.X, Denominator);
-            if (DX1 != 0.0L) {
-                Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - A.X) * DY1, DX1) + A.Y;
+            Hit.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(C.Y) - A.Y)) * DX1) * DX2) + static_cast<float>(static_cast<float>(static_cast<double>(DY1) * DX2) * A.X)) -
+                    static_cast<float>(static_cast<float>(static_cast<double>(DY2) * DX1) * C.X))) / Denominator);
+            if (DX1 != 0.0) {
+                Hit.Y = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Hit.X) - A.X)) * DY1) / DX1) + A.Y);
             } else {
-                Hit.Y = pas::real_divide((static_cast<long double>(Hit.X) - C.X) * DY2, DX2) + C.Y;
+                Hit.Y = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Hit.X) - C.X)) * DY2) / DX2) + C.Y);
             }
             return true;
         };
         pas::store_unaligned<double>(ForwardDistance.address, 1.0E+20);
         pas::store_unaligned<double>(BackwardDistance.address, 1.0E+20);
         if (FirstStopLine != nullptr) {
-            A = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees), ab_Global::SphereCameraDistance);
+            A = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees), ab_Global::SphereCameraDistance);
             B = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
-            Hit = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(Source.PolarAngleDegrees + 9.0E+1L), ab_Global::SphereCameraDistance);
+            Hit = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Source.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(static_cast<float>(Source.PolarAngleDegrees + 9.0E+1)),
+                    ab_Global::SphereCameraDistance);
             View = ab_Global::BuildLookAtMatrix(A, B, Hit);
             Rotation = ab_Global::BuildZAxisRotationMatrix(aMyFunction::HeadingDegreesToRadians(Source.BearingDegrees));
             Matrix = ab_Global::MultiplyMatrix4D(Rotation, View);
@@ -449,50 +487,62 @@ namespace ab_StopLine {
             CenterDepth = A.Z;
             Line = FirstCollisionLine;
             while (Line != nullptr) {
-                A = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->First->Position));
+                A = ab_Global::ProjectPointByMatrix(Matrix,
+                        pas::ConstRef<EC_Struct::TVector3D>(&Line->First->Position));
                 B = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->Last->Position));
                 if (!(A.Z < CenterDepth && B.Z < CenterDepth)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (!((A.X >= 0.0L || B.X >= 0.0L) && (A.X <= 0.0L || B.X <= 0.0L))) {
+                if (!((A.X >= 0.0 || B.X >= 0.0) && (A.X <= 0.0 || B.X <= 0.0))) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (!IntersectCollisionLines(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0), EC_Struct::MakeVector3D(0.0, 1.0, 0.0), Hit)) {
+                if (!IntersectCollisionLines(A, B, EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                    EC_Struct::MakeVector3D(0.0, 1.0, 0.0), Hit)) {
                     Line = Line->NextCollision;
                     continue;
                 }
-                if (Hit.Y <= 0.0L && -Hit.Y < pas::load_unaligned<double>(ForwardDistance.address)) {
+                if (Hit.Y <= 0.0 && -Hit.Y < pas::load_unaligned<double>(ForwardDistance.address)) {
                     pas::store_unaligned<double>(ForwardDistance.address, -Hit.Y);
                 }
-                if (Hit.Y >= 0.0L && pas::load_unaligned<double>(BackwardDistance.address) > Hit.Y) {
+                if (Hit.Y >= 0.0 && pas::load_unaligned<double>(BackwardDistance.address) > Hit.Y) {
                     pas::store_unaligned<double>(BackwardDistance.address, Hit.Y);
                 }
                 Line = Line->NextCollision;
             }
-            if (pas::load_unaligned<double>(ForwardDistance.address) < 1.0E+15L && pas::load_unaligned<double>(ForwardDistance.address) != 0.0L) {
-                pas::store_unaligned<double>(ForwardDistance.address, static_cast<double>(([&] {
-                    pas::Extended cpp_left = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(pas::load_unaligned<double>(ForwardDistance.address), ab_Global::SphereRadius)));
-                    return cpp_left * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
-                }())));
+            if (pas::load_unaligned<double>(ForwardDistance.address) < 1.0E+15 &&
+                pas::load_unaligned<double>(ForwardDistance.address) != 0.0) {
+                pas::store_unaligned<double>(ForwardDistance.address,
+                    static_cast<double>(
+                        static_cast<float>(aMyFunction::RadiansToHeadingDegrees(
+                            MathImports::ArcSin(
+                            static_cast<float>(static_cast<double>(pas::load_unaligned<double>(ForwardDistance.address)) /
+                            ab_Global::SphereRadius))) * (static_cast<float>(static_cast<float>(SystemImports::Pi * ab_Global::SphereRadius) / 1.8E+2)))));
             }
-            if (pas::load_unaligned<double>(BackwardDistance.address) < 1.0E+15L && pas::load_unaligned<double>(BackwardDistance.address) != 0.0L) {
-                pas::store_unaligned<double>(BackwardDistance.address, static_cast<double>(([&] {
-                    pas::Extended cpp_left_2 = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(pas::load_unaligned<double>(BackwardDistance.address), ab_Global::SphereRadius)));
-                    return cpp_left_2 * pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius, 1.8E+2L);
-                }())));
+            if (pas::load_unaligned<double>(BackwardDistance.address) < 1.0E+15 &&
+                pas::load_unaligned<double>(BackwardDistance.address) != 0.0) {
+                pas::store_unaligned<double>(BackwardDistance.address,
+                    static_cast<double>(
+                        static_cast<float>(aMyFunction::RadiansToHeadingDegrees(
+                            MathImports::ArcSin(
+                            static_cast<float>(static_cast<double>(pas::load_unaligned<double>(BackwardDistance.address)) /
+                            ab_Global::SphereRadius))) * (static_cast<float>(static_cast<float>(SystemImports::Pi * ab_Global::SphereRadius) / 1.8E+2)))));
             }
         }
     }
 
-    std::uint8_t ab_StopLine_IsBlocked(double SourceLongitude, double SourcePolarAngle, double TargetLongitude, double TargetPolarAngle) {
+    std::uint8_t ab_StopLine_IsBlocked(double SourceLongitude, double SourcePolarAngle, double TargetLongitude,
+        double TargetPolarAngle) {
         double BearingDelta{};
         double Distance{};
         double ForwardDistance{};
         double BackwardDistance{};
-        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDelta), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
-        ab_StopLine::ab_StopLine_GetDistances(ab_Global::MakeSphericalBearingState(SourceLongitude, SourcePolarAngle, BearingDelta), pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDelta), pas::Var<double>(&Distance),
+            SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
+        ab_StopLine::ab_StopLine_GetDistances(
+            ab_Global::MakeSphericalBearingState(SourceLongitude, SourcePolarAngle, BearingDelta),
+            pas::Var<double>(&ForwardDistance), pas::Var<double>(&BackwardDistance));
         return ForwardDistance < Distance;
     }
 
@@ -504,32 +554,34 @@ namespace ab_StopLine {
         PabStopLine Line{};
         ab_StopLine::ab_StopLine_Clear();
         ab_StopLine::ab_StopPoint_Clear();
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t Count = Buffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Point = ab_StopLine::ab_StopPoint_Add();
-            Point->Longitude = EC_Buf::TBufEC_GetSingle(Buffer);
-            Point->PolarAngle = EC_Buf::TBufEC_GetSingle(Buffer);
-            Point->Radius = EC_Buf::TBufEC_GetSingle(Buffer);
+            Point->Longitude = Buffer->GetSingle();
+            Point->PolarAngle = Buffer->GetSingle();
+            Point->Radius = Buffer->GetSingle();
             ab_StopLine::ab_StopPoint_UpdatePosition(Point);
         }
         ab_StopLine::ab_StopPoint_BuildIndex();
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
             Line = ab_StopLine::ab_StopLine_Add();
-            FirstIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-            LastIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            FirstIndex = Buffer->GetInt32();
+            LastIndex = Buffer->GetInt32();
             Line->First = StopPointIndex[FirstIndex];
             Line->Last = StopPointIndex[LastIndex];
-            Line->Visible = EC_Buf::TBufEC_GetBoolean(Buffer);
-            Line->Collidable = EC_Buf::TBufEC_GetBoolean(Buffer);
+            Line->Visible = Buffer->GetBoolean();
+            Line->Collidable = Buffer->GetBoolean();
             if (Line->Visible) {
                 {
-                    std::int32_t cpp_right = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Line->FirstColor = reinterpret_cast<System::PCardinal>(static_cast<std::uint8_t*>(ab_Global::ArcadeMapColorBuffer->Data) + cpp_right);
+                    std::int32_t cpp_right = Buffer->GetInt32();
+                    Line->FirstColor = reinterpret_cast<System::PCardinal>(pas::pointer_add(
+                            static_cast<std::uint8_t*>(ab_Global::ArcadeMapColorBuffer->Data), cpp_right));
                 }
                 {
-                    std::int32_t cpp_right_2 = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Line->LastColor = reinterpret_cast<System::PCardinal>(static_cast<std::uint8_t*>(ab_Global::ArcadeMapColorBuffer->Data) + cpp_right_2);
+                    std::int32_t cpp_right_2 = Buffer->GetInt32();
+                    Line->LastColor = reinterpret_cast<System::PCardinal>(pas::pointer_add(
+                            static_cast<std::uint8_t*>(ab_Global::ArcadeMapColorBuffer->Data), cpp_right_2));
                 }
             }
         }

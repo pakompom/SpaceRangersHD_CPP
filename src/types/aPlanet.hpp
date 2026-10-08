@@ -74,7 +74,8 @@ namespace aPlanet {
         PAS_CLASS_META(TPlanet, EC_Struct::TObjectEx, "TPlanet", 360)
         void p_destroy() override;
         // Fourth argument: 0 selects the Solar System, 1..3 limit inhabited planets, 10/11 select special systems. Caller inserts Self into the star's planet list.
-        void InitGenerated(aGalaxy::TStar* Star, std::int32_t TotalPlanetCount, std::int32_t InhabitedCountOrSpecialMode);
+        void InitGenerated(aGalaxy::TStar* Star, std::int32_t TotalPlanetCount,
+            std::int32_t InhabitedCountOrSpecialMode);
         // Only sets CurrentStar, OwnerId=5 and all invention levels to 8; used by the separate Dominator spawn planet.
         void InitDominatorSpawnProxy(aGalaxy::TStar* Star);
         // Creates graphics, surface terrain, loot and initial market/research state; caller owns planet registration.
@@ -127,7 +128,9 @@ namespace aPlanet {
         TPlanet* FindNearestPlanetByOwnerMask(aGalaxyStruct::TOwnerMask OwnerMask);
         // Sorts by SurfaceTileIndex and moves overlapping markers to free cells of the 14-by-7 display grid.
         void NormalizeSurfaceLootEntries();
-        std::int32_t GetTotalSurfaceTileCount();
+        inline std::int32_t GetTotalSurfaceTileCount() {
+            return WaterTiles + LandTiles + HillTiles;
+        }
         // Returns zero unless OwnerId=6.
         std::int32_t GetUnexploredSurfaceTileCount();
         // Takes item ownership, allocates a 12-byte entry and always returns true on completion. Requires positive surface area; resets exploration if fully explored.

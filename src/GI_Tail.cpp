@@ -14,7 +14,6 @@
 #include "units/GR_DX.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
 // Native GI_Tail metadata starts; methods end.
@@ -134,10 +133,10 @@ namespace GI_Tail {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCapacity - 1); cpp_range.next(I); ) {
             Segment = &Segments[I];
             if (Segment->Active) {
-                Segment->Position.X = static_cast<long double>(Segment->Position.X) + Segment->Velocity.X;
-                Segment->Position.Y = static_cast<long double>(Segment->Position.Y) + Segment->Velocity.Y;
-                Segment->PixelPosition.X = System::Round(Segment->Position.X);
-                Segment->PixelPosition.Y = System::Round(Segment->Position.Y);
+                Segment->Position.X = static_cast<float>(static_cast<double>(Segment->Position.X) + Segment->Velocity.X);
+                Segment->Position.Y = static_cast<float>(static_cast<double>(Segment->Position.Y) + Segment->Velocity.Y);
+                Segment->PixelPosition.X = pas::real_round(Segment->Position.X);
+                Segment->PixelPosition.Y = pas::real_round(Segment->Position.Y);
             }
         }
     }
@@ -145,10 +144,10 @@ namespace GI_Tail {
     // Suppresses emission within squared distance 0.001 of the last live segment.
     void TTailGI::EmitSegment(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         EC_Struct::TPointF Position{};
-        Position.X = SegmentVelocity.X * 1.0L + EmitterPosition.X;
-        Position.Y = SegmentVelocity.Y * 1.0L + EmitterPosition.Y;
+        Position.X = static_cast<float>(static_cast<float>(SegmentVelocity.X * 1.0) + EmitterPosition.X);
+        Position.Y = static_cast<float>(static_cast<float>(SegmentVelocity.Y * 1.0) + EmitterPosition.Y);
         if (LastSegmentIndex >= 0) {
-            if (aMyFunction::PointDistanceSquared(Position, Segments[LastSegmentIndex].Position) < 0.001L) {
+            if (aMyFunction::PointDistanceSquared(Position, Segments[LastSegmentIndex].Position) < 0.001) {
                 return;
             }
         }
@@ -156,8 +155,8 @@ namespace GI_Tail {
         Segment->FrameIndex = 0;
         pas::store_unaligned<EC_Struct::TPointF>(&Segment->Position, Position);
         pas::store_unaligned<EC_Struct::TPointF>(&Segment->Velocity, SegmentVelocity);
-        Segment->PixelPosition.X = System::Round(Segment->Position.X);
-        Segment->PixelPosition.Y = System::Round(Segment->Position.Y);
+        Segment->PixelPosition.X = pas::real_round(Segment->Position.X);
+        Segment->PixelPosition.Y = pas::real_round(Segment->Position.Y);
     }
 
     void TTailGI::OffsetSegments(EC_Struct::TPointF Delta) {
@@ -166,10 +165,10 @@ namespace GI_Tail {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCapacity - 1); cpp_range.next(I); ) {
             Segment = &Segments[I];
             if (Segment->Active) {
-                Segment->Position.X = static_cast<long double>(Segment->Position.X) + Delta.X;
-                Segment->Position.Y = static_cast<long double>(Segment->Position.Y) + Delta.Y;
-                Segment->PixelPosition.X = System::Round(Segment->Position.X);
-                Segment->PixelPosition.Y = System::Round(Segment->Position.Y);
+                Segment->Position.X = static_cast<float>(static_cast<double>(Segment->Position.X) + Delta.X);
+                Segment->Position.Y = static_cast<float>(static_cast<double>(Segment->Position.Y) + Delta.Y);
+                Segment->PixelPosition.X = pas::real_round(Segment->Position.X);
+                Segment->PixelPosition.Y = pas::real_round(Segment->Position.Y);
             }
         }
     }
@@ -217,9 +216,12 @@ namespace GI_Tail {
                     MessageLoop->CancelCallbackTimer(EmitTimer);
                     EmitTimer = nullptr;
                 }
-                FrameTimer = MessageLoop->ScheduleCallbackTimer(20, 20, pas::bind_method<&TTailGI::AdvanceSegmentFrames>(this), 0);
-                MoveTimer = MessageLoop->ScheduleCallbackTimer(20, 20, pas::bind_method<&TTailGI::MoveSegments>(this), 0);
-                EmitTimer = MessageLoop->ScheduleCallbackTimer(EmitIntervalMs, EmitIntervalMs, pas::bind_method<&TTailGI::EmitSegment>(this), 0);
+                FrameTimer = MessageLoop->ScheduleCallbackTimer(20, 20,
+                        pas::bind_method<&TTailGI::AdvanceSegmentFrames>(this), 0);
+                MoveTimer = MessageLoop->ScheduleCallbackTimer(20, 20, pas::bind_method<&TTailGI::MoveSegments>(this),
+                        0);
+                EmitTimer = MessageLoop->ScheduleCallbackTimer(EmitIntervalMs, EmitIntervalMs,
+                        pas::bind_method<&TTailGI::EmitSegment>(this), 0);
             }
         }
     }
@@ -288,14 +290,18 @@ namespace GI_Tail {
                             if (GlobalsV::HardwareRenderingEnabled) {
                                 Origin = Data->GetFrameOrigin(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));
                                 {
-                                    pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result), cpp_result);
+                                    pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(
+                                        Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result), cpp_result);
                                     std::int32_t cpp_arg = Origin.Y + Bounds.Top;
                                     std::int32_t cpp_arg_2 = Origin.X + Bounds.Left;
-                                    GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, &ClipRect, false, false);
+                                    GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite,
+                                        &ClipRect, false, false);
                                 }
                             } else {
                                 Gi = Data->LoadFrameGi(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));
-                                Gi->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Gi->GetBoundsRect().Left + Bounds.Left - Data->GetBoundsRect().Left, Gi->GetBoundsRect().Top + Bounds.Top - Data->GetBoundsRect().Top, ClipRect, 0, 255);
+                                Gi->DrawToGraphBuf(GR_Main::ScreenRenderBuffer,
+                                    Gi->GetBoundsRect().Left + Bounds.Left - Data->GetBoundsRect().Left,
+                                    Gi->GetBoundsRect().Top + Bounds.Top - Data->GetBoundsRect().Top, ClipRect, 0, 255);
                             }
                         }
                     }
@@ -346,14 +352,20 @@ namespace GI_Tail {
                                 if (GlobalsV::HardwareRenderingEnabled) {
                                     Origin = Data->GetFrameOrigin(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));
                                     {
-                                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result), cpp_result);
+                                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(
+                                            Data->GetSequenceFrameIndex(0, Segment->FrameIndex), cpp_result),
+                                            cpp_result);
                                         std::int32_t cpp_arg = Origin.Y + Bounds.Top;
                                         std::int32_t cpp_arg_2 = Origin.X + Bounds.Left;
-                                        GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255, GR_DX::RgbWhite, &Intersection, false, false);
+                                        GR_DX::DrawTexture(orCreateFrameSurface, cpp_arg_2, cpp_arg, 255,
+                                            GR_DX::RgbWhite, &Intersection, false, false);
                                     }
                                 } else {
                                     Gi = Data->LoadFrameGi(Data->GetSequenceFrameIndex(0, Segment->FrameIndex));
-                                    Gi->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Gi->GetBoundsRect().Left + Bounds.Left - Data->GetBoundsRect().Left, Gi->GetBoundsRect().Top + Bounds.Top - Data->GetBoundsRect().Top, Intersection, 0, 255);
+                                    Gi->DrawToGraphBuf(GR_Main::ScreenRenderBuffer,
+                                        Gi->GetBoundsRect().Left + Bounds.Left - Data->GetBoundsRect().Left,
+                                        Gi->GetBoundsRect().Top + Bounds.Top - Data->GetBoundsRect().Top, Intersection,
+                                        0, 255);
                                 }
                             }
                             RectNode = RectNode->Next;

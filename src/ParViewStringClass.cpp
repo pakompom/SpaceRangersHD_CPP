@@ -1,6 +1,6 @@
 #include "layout/ParViewStringClass.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/TextFieldClass.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/ParViewStringClass.hpp"
 
@@ -18,8 +18,8 @@ namespace ParViewStringClass {
     }
 
     void TParViewString::LoadFromReader(EC_Buf::TBufEC* Reader) {
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
         Text->LoadTextLinesFromReader(Reader);
     }
 

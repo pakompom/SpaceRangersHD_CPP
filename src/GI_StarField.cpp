@@ -16,7 +16,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/Windows.hpp"
 
 namespace GI_StarField {
@@ -43,9 +42,11 @@ namespace GI_StarField {
         ++Count;
         if (Count >= Capacity) {
             Capacity += 100;
-            Points = static_cast<PStarFieldPoint>(EC_Mem::ReAllocREC(Points, Capacity * static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
+            Points = static_cast<PStarFieldPoint>(EC_Mem::ReAllocREC(Points,
+                    Capacity * static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
         }
-        return static_cast<PStarFieldPoint>(EC_Mem::AddPointerOffset(Points, (Count - 1) * static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
+        return static_cast<PStarFieldPoint>(EC_Mem::AddPointerOffset(Points,
+            (Count - 1) * static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
     }
 
     // Depth must be nonzero; retains the low 16 bits of Color.
@@ -54,7 +55,7 @@ namespace GI_StarField {
         Point->X = X;
         Point->Y = Y;
         Point->Depth = Depth;
-        Point->InverseDepth = pas::real_divide(1.0L, Depth);
+        Point->InverseDepth = static_cast<float>(1.0 / Depth);
         Point->Color = Color;
     }
 
@@ -99,8 +100,10 @@ namespace GI_StarField {
 
     void TStarFieldGI::GrowPixelBuffers() {
         PixelCapacity += 64;
-        Pixels = static_cast<PStarFieldPixel>(EC_Mem::ReAllocREC(Pixels, PixelCapacity * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
-        PreviousPixels = static_cast<PStarFieldPixel>(EC_Mem::ReAllocREC(PreviousPixels, PixelCapacity * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+        Pixels = static_cast<PStarFieldPixel>(EC_Mem::ReAllocREC(Pixels,
+                PixelCapacity * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+        PreviousPixels = static_cast<PStarFieldPixel>(EC_Mem::ReAllocREC(PreviousPixels,
+                PixelCapacity * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
     }
 
     void TStarFieldGI::RebuildProjectedPixels() {
@@ -115,19 +118,23 @@ namespace GI_StarField {
         std::int32_t Bottom = HitTestBounds.Bottom;
         PStarFieldPoint Point = Stars->Points;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Stars->Count - 1); cpp_range.next(I); ) {
-            Position.X = static_cast<std::int32_t>(System::Round((static_cast<long double>(Point->X) - ViewPosition.X) * Point->InverseDepth)) + AbsolutePosition.X;
-            Position.Y = static_cast<std::int32_t>(System::Round((static_cast<long double>(Point->Y) - ViewPosition.Y) * Point->InverseDepth)) + AbsolutePosition.Y;
+            Position.X = static_cast<std::int32_t>(pas::real_round(static_cast<float>((static_cast<float>(static_cast<double>(Point->X) - ViewPosition.X)) *
+                    Point->InverseDepth))) + AbsolutePosition.X;
+            Position.Y = static_cast<std::int32_t>(pas::real_round(static_cast<float>((static_cast<float>(static_cast<double>(Point->Y) - ViewPosition.Y)) *
+                    Point->InverseDepth))) + AbsolutePosition.Y;
             if (Position.X >= Left && Position.X < Right && Position.Y >= Top && Position.Y < Bottom) {
                 ++PixelCount;
                 if (PixelCount > PixelCapacity) {
                     GrowPixelBuffers();
                 }
-                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixels, (PixelCount - 1) * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixels,
+                        (PixelCount - 1) * static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                 Pixel->ByteOffset = Position.X * 2 + Position.Y * Pitch;
                 pas::store_unaligned<WindowsSdk::TPoint>(&Pixel->Position, Position);
                 Pixel->Color = Point->Color;
             }
-            Point = static_cast<PStarFieldPoint>(EC_Mem::AddPointerOffset(Point, static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
+            Point = static_cast<PStarFieldPoint>(EC_Mem::AddPointerOffset(Point,
+                    static_cast<std::int32_t>(sizeof(TStarFieldPoint))));
         }
     }
 
@@ -145,10 +152,6 @@ namespace GI_StarField {
             GI_MessageLoop::TObjectGI::SetSize(Size);
             ViewDirty = true;
         }
-    }
-
-    void TStarFieldGI::MarkViewDirty() {
-        ViewDirty = true;
     }
 
     void TStarFieldGI_LoadFromConfigPath(TStarFieldGI* Self, const pas::WideString& Path) {
@@ -190,14 +193,17 @@ namespace GI_StarField {
                 }
                 Width = Bounds.Right - Bounds.Left;
                 Height = Bounds.Bottom - Bounds.Top;
-                X = static_cast<std::int32_t>(System::Round(pas::real_divide(0.0L - ViewPosition.X, BackgroundScale))) + AbsolutePosition.X - Width / 2;
-                Y = static_cast<std::int32_t>(System::Round(pas::real_divide(0.0L - ViewPosition.Y, BackgroundScale))) + AbsolutePosition.Y - Height / 2;
+                X = static_cast<std::int32_t>(pas::real_round(static_cast<float>((static_cast<float>(0.0 - ViewPosition.X)) / BackgroundScale))) +
+                        AbsolutePosition.X - Width / 2;
+                Y = static_cast<std::int32_t>(pas::real_round(static_cast<float>((static_cast<float>(0.0 - ViewPosition.Y)) / BackgroundScale))) +
+                        AbsolutePosition.Y - Height / 2;
                 Bounds.Left = X;
                 Bounds.Top = Y;
                 Bounds.Right = X + Width;
                 Bounds.Bottom = Y + Height;
                 BackgroundBounds = Bounds;
-                GlobalsV::SkipSavedPixelRestore = static_cast<std::uint8_t>(SysUtils::CompareMem(&BackgroundBounds, &PreviousBackgroundBounds, static_cast<std::int32_t>(sizeof(WindowsSdk::TRect))) ^ 1);
+                GlobalsV::SkipSavedPixelRestore = static_cast<std::uint8_t>(SysUtils::CompareMem(&BackgroundBounds,
+                        &PreviousBackgroundBounds, static_cast<std::int32_t>(sizeof(WindowsSdk::TRect))) ^ 1);
             }
         }
     }
@@ -217,13 +223,16 @@ namespace GI_StarField {
                     Pixel = PreviousPixels;
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, PreviousPixelCount - 1); cpp_range.next(I); ) {
                         EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Pixel->ByteOffset), 0);
-                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel,
+                                static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                     }
                 } else {
                     Pixel = PreviousPixels;
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, PreviousPixelCount - 1); cpp_range_2.next(I); ) {
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                        PreviousPixelCount - 1); cpp_range_2.next(I); ) {
                         EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Pixel->ByteOffset), Pixel->SavedPixel);
-                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel,
+                                static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                     }
                 }
             }
@@ -241,13 +250,16 @@ namespace GI_StarField {
         GR_gi::TgiGR* Frame{};
         WindowsSdk::TRect Intersection{};
         WindowsSdk::TRect Bounds{};
-        if (static_cast<std::uint8_t>(GlobalsV::BGImage ^ 1) || BackgroundCache->CacheKey == u"" || BackgroundBounds.Top >= ClipRect.Bottom || BackgroundBounds.Bottom <= ClipRect.Top || BackgroundBounds.Left >= ClipRect.Right || BackgroundBounds.Right <= ClipRect.Left) {
+        if (static_cast<std::uint8_t>(GlobalsV::BGImage ^ 1) || BackgroundCache->CacheKey == u"" ||
+            BackgroundBounds.Top >= ClipRect.Bottom || BackgroundBounds.Bottom <= ClipRect.Top ||
+            BackgroundBounds.Left >= ClipRect.Right || BackgroundBounds.Right <= ClipRect.Left) {
             X = ClipRect.Left;
             Y = ClipRect.Top;
             Width = ClipRect.Right - X;
             Height = ClipRect.Bottom - Y;
             if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true,
+                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
             } else {
                 std::int32_t cpp_arg = GR_Main::ScreenRenderBuffer->PitchBytes * Y + X * 2;
                 void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
@@ -262,7 +274,8 @@ namespace GI_StarField {
                 Width = ClipRect.Right - ClipRect.Left;
                 Height = BackgroundBounds.Top - ClipRect.Top;
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true,
+                        reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                 } else {
                     std::int32_t cpp_arg_2 = GR_Main::ScreenRenderBuffer->PitchBytes * Y + X * 2;
                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
@@ -277,7 +290,8 @@ namespace GI_StarField {
                 Width = ClipRect.Right - ClipRect.Left;
                 Height = ClipRect.Bottom - BackgroundBounds.Bottom;
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true,
+                        reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                 } else {
                     std::int32_t cpp_arg_3 = GR_Main::ScreenRenderBuffer->PitchBytes * Y + X * 2;
                     void* pixels_3 = GR_Main::ScreenRenderBuffer->GetPixels();
@@ -299,7 +313,8 @@ namespace GI_StarField {
                 }
                 Height -= Y;
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true,
+                        reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                 } else {
                     std::int32_t cpp_arg_4 = GR_Main::ScreenRenderBuffer->PitchBytes * Y + X * 2;
                     void* pixels_4 = GR_Main::ScreenRenderBuffer->GetPixels();
@@ -321,7 +336,8 @@ namespace GI_StarField {
                 }
                 Height -= Y;
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                    GR_DX::DrawColoredRect(X, Y, Width, Height, 0u, 255, true,
+                        reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                 } else {
                     std::int32_t cpp_arg_5 = GR_Main::ScreenRenderBuffer->PitchBytes * Y + X * 2;
                     void* pixels_5 = GR_Main::ScreenRenderBuffer->GetPixels();
@@ -332,27 +348,34 @@ namespace GI_StarField {
             }
             Data = EC_CacheGAI::AcquireCachedGai(BackgroundCache);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                    BackgroundCache->Release();
-                };
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, Data->GetFrameCount() - 1); cpp_range.next(I); ) {
-                    Frame = Data->LoadFrameGi(I);
-                    Bounds = Frame->GetBoundsRect();
-                    Bounds.Left += BackgroundBounds.Left;
-                    Bounds.Top += BackgroundBounds.Top;
-                    Bounds.Right += BackgroundBounds.Left;
-                    Bounds.Bottom += BackgroundBounds.Top;
-                    if (EC_Struct::IntersectRects(Intersection, ClipRect, Bounds)) {
-                        if (GlobalsV::HardwareRenderingEnabled) {
-                            pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(I, cpp_result), cpp_result);
-                            std::int32_t top = Bounds.Top;
-                            std::int32_t left = Bounds.Left;
-                            GR_DX::DrawTexture(orCreateFrameSurface, left, top, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&Intersection), false, false);
-                        } else {
-                            Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left, Bounds.Top, Intersection, 0, 255);
+                try {
+                    for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                        Data->GetFrameCount() - 1); cpp_range.next(I); ) {
+                        Frame = Data->LoadFrameGi(I);
+                        Bounds = Frame->GetBoundsRect();
+                        Bounds.Left += BackgroundBounds.Left;
+                        Bounds.Top += BackgroundBounds.Top;
+                        Bounds.Right += BackgroundBounds.Left;
+                        Bounds.Bottom += BackgroundBounds.Top;
+                        if (EC_Struct::IntersectRects(Intersection, ClipRect, Bounds)) {
+                            if (GlobalsV::HardwareRenderingEnabled) {
+                                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateFrameSurface = (Data->GetOrCreateFrameSurface(
+                                    I, cpp_result), cpp_result);
+                                std::int32_t top = Bounds.Top;
+                                std::int32_t left = Bounds.Left;
+                                GR_DX::DrawTexture(orCreateFrameSurface, left, top, 255, GR_DX::RgbWhite,
+                                    reinterpret_cast<WindowsSdk::PRect>(&Intersection), false, false);
+                            } else {
+                                Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left, Bounds.Top,
+                                    Intersection, 0, 255);
+                            }
                         }
                     }
+                } catch (...) {
+                    BackgroundCache->Release();
+                    throw;
                 }
+                BackgroundCache->Release();
             }
         }
     }
@@ -368,7 +391,8 @@ namespace GI_StarField {
                     Pixel = Pixels;
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, PixelCount - 1); cpp_range.next(I); ) {
                         Pixel->SavedPixel = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(Buffer, Pixel->ByteOffset));
-                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                        Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel,
+                                static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                     }
                 }
             }
@@ -387,7 +411,8 @@ namespace GI_StarField {
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Count > 0) {
                 GR_DX::QueueDrawPoint(Pixel->Position.X, Pixel->Position.Y, GR_DX::Color565ToArgb(Pixel->Color), 255);
-                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel,
+                        static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(nullptr);
@@ -395,7 +420,8 @@ namespace GI_StarField {
             Buffer = GR_Main::ScreenRenderBuffer->GetPixels();
             while (Count > 0) {
                 EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Pixel->ByteOffset), Pixel->Color);
-                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
+                Pixel = static_cast<PStarFieldPixel>(EC_Mem::AddPointerOffset(Pixel,
+                        static_cast<std::int32_t>(sizeof(TStarFieldPixel))));
                 --Count;
             }
         }
@@ -404,7 +430,8 @@ namespace GI_StarField {
     void TStarFieldGI::CommitFrameDraw() {
         if (!GlobalsV::HardwareRenderingEnabled) {
             PreviousPixelCount = PixelCount;
-            Windows::CopyMemory(PreviousPixels, Pixels, PreviousPixelCount * static_cast<std::int32_t>(sizeof(TStarFieldPixel)));
+            Windows::CopyMemory(PreviousPixels, Pixels,
+                PreviousPixelCount * static_cast<std::int32_t>(sizeof(TStarFieldPixel)));
             PreviousBackgroundBounds = BackgroundBounds;
         }
     }

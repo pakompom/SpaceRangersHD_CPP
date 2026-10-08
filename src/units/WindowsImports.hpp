@@ -4,15 +4,22 @@
 #include "types/Windows_group.hpp"
 
 namespace WindowsImports {
-    std::uint32_t PAS_STDCALL CreateFileA(std::uint8_t* FileName, std::uint32_t DesiredAccess, std::uint32_t ShareMode, void* SecurityAttributes, std::uint32_t CreationDisposition, std::uint32_t FlagsAndAttributes, std::uint32_t TemplateFile);
+    std::uint32_t PAS_STDCALL CreateFileA(std::uint8_t* FileName, std::uint32_t DesiredAccess, std::uint32_t ShareMode,
+        void* SecurityAttributes, std::uint32_t CreationDisposition, std::uint32_t FlagsAndAttributes,
+        std::uint32_t TemplateFile);
 
-    std::uint32_t PAS_STDCALL CreateFileW(char16_t* FileName, std::uint32_t DesiredAccess, std::uint32_t ShareMode, void* SecurityAttributes, std::uint32_t CreationDisposition, std::uint32_t FlagsAndAttributes, std::uint32_t TemplateFile);
+    std::uint32_t PAS_STDCALL CreateFileW(char16_t* FileName, std::uint32_t DesiredAccess, std::uint32_t ShareMode,
+        void* SecurityAttributes, std::uint32_t CreationDisposition, std::uint32_t FlagsAndAttributes,
+        std::uint32_t TemplateFile);
 
-    std::int32_t PAS_STDCALL ReadFile(std::uint32_t Handle, void* Buffer, std::uint32_t Count, std::uint32_t& BytesRead, void* Overlapped);
+    std::int32_t PAS_STDCALL ReadFile(std::uint32_t Handle, void* Buffer, std::uint32_t Count, std::uint32_t& BytesRead,
+        void* Overlapped);
 
-    std::int32_t PAS_STDCALL WriteFile(std::uint32_t Handle, const void* Buffer, std::uint32_t Count, std::uint32_t& BytesWritten, void* Overlapped);
+    std::int32_t PAS_STDCALL WriteFile(std::uint32_t Handle, const void* Buffer, std::uint32_t Count,
+        std::uint32_t& BytesWritten, void* Overlapped);
 
-    std::uint32_t PAS_STDCALL SetFilePointer(std::uint32_t Handle, std::int32_t Distance, WindowsSdk::PInteger DistanceHigh, std::uint32_t Origin);
+    std::uint32_t PAS_STDCALL SetFilePointer(std::uint32_t Handle, std::int32_t Distance,
+        WindowsSdk::PInteger DistanceHigh, std::uint32_t Origin);
 
     std::int32_t PAS_STDCALL CloseHandle(std::uint32_t Handle);
 
@@ -38,9 +45,11 @@ namespace WindowsImports {
 
     std::uint32_t PAS_STDCALL OpenEvent(std::uint32_t DesiredAccess, std::int32_t InheritHandle, std::uint8_t* Name);
 
-    std::uint32_t PAS_STDCALL CreateEvent(void* Attributes, std::int32_t ManualReset, std::int32_t InitialState, std::uint8_t* Name);
+    std::uint32_t PAS_STDCALL CreateEvent(void* Attributes, std::int32_t ManualReset, std::int32_t InitialState,
+        std::uint8_t* Name);
 
-    std::int32_t PAS_STDCALL MessageBox(std::uint32_t Window, std::uint8_t* Text, std::uint8_t* Caption, std::uint32_t Flags);
+    std::int32_t PAS_STDCALL MessageBox(std::uint32_t Window, std::uint8_t* Text, std::uint8_t* Caption,
+        std::uint32_t Flags);
 
     std::uint8_t* PAS_STDCALL GetCommandLineA();
 
@@ -58,9 +67,11 @@ namespace WindowsImports {
 
     std::int32_t PAS_STDCALL FindNextFileA(std::uint32_t Handle, Windows::TWin32FindDataA& Data);
 
-    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime> FileTime, Windows::TFileTime& LocalTime);
+    std::int32_t PAS_STDCALL FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime> FileTime,
+        Windows::TFileTime& LocalTime);
 
-    std::int32_t PAS_STDCALL FileTimeToDosDateTime(const Windows::TFileTime& FileTime, std::uint16_t& DatePart, std::uint16_t& TimePart);
+    std::int32_t PAS_STDCALL FileTimeToDosDateTime(const Windows::TFileTime& FileTime, std::uint16_t& DatePart,
+        std::uint16_t& TimePart);
 
     std::uint32_t PAS_STDCALL GetCurrentDirectoryA(std::uint32_t Capacity, std::uint8_t* Buffer);
 
@@ -68,10 +79,16 @@ namespace WindowsImports {
 
     std::uint32_t PAS_STDCALL CharLowerBuffA(std::uint8_t* Buffer, std::uint32_t Length);
 
-    void ZeroMemory(void* Destination, std::uint32_t Length);
+    inline void ZeroMemory(void* Destination, std::uint32_t Length);
 
-    std::uint32_t CreateWindowExW(std::uint32_t ExStyle, char16_t* ClassName, char16_t* WindowName, std::uint32_t Style, std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, std::uint32_t Parent, std::uint32_t Menu, std::uint32_t Instance, void* Parameter);
+    std::uint32_t CreateWindowExW(std::uint32_t ExStyle, char16_t* ClassName, char16_t* WindowName, std::uint32_t Style,
+        std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, std::uint32_t Parent,
+        std::uint32_t Menu, std::uint32_t Instance, void* Parameter);
 
-    std::uint32_t PAS_STDCALL RawCreateWindowExW(std::uint32_t ExStyle, char16_t* ClassName, char16_t* WindowName, std::uint32_t Style, std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height, std::uint32_t Parent, std::uint32_t Menu, std::uint32_t Instance, void* Parameter);
+    std::uint32_t PAS_STDCALL RawCreateWindowExW(std::uint32_t ExStyle, char16_t* ClassName, char16_t* WindowName,
+        std::uint32_t Style, std::int32_t X, std::int32_t Y, std::int32_t Width, std::int32_t Height,
+        std::uint32_t Parent, std::uint32_t Menu, std::uint32_t Instance, void* Parameter);
 
 } // namespace WindowsImports
+
+#include "inline/WindowsImports.hpp"

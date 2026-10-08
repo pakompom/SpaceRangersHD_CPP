@@ -31,20 +31,21 @@
 #include "units/SE_Ship2.hpp"
 #include "units/SE_Space.hpp"
 #include "units/SE_Weapon.hpp"
-#include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/aGalaxy.hpp"
 #include "units/aMyFunction.hpp"
 
 namespace SE_Process {
     // Film-tag factory; copies the eight-byte point and forwards it to the selected constructor. Returns nil for an unknown case-sensitive tag.
-    SE_Space::TObjectSE* CreateSpaceObjectByName(const std::u16string_view& ClassName, const pas::WideString& GraphKey, WindowsSdk::TPoint UnusedPosition) {
+    SE_Space::TObjectSE* CreateSpaceObjectByName(const std::u16string_view& ClassName, const pas::WideString& GraphKey,
+        WindowsSdk::TPoint UnusedPosition) {
         if (ClassName == u"Star"sv) {
             return pas::construct_call<SE_Star::TStarSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"StarsField"sv) {
-            return pas::construct_call<SE_StarsField::TStarsFieldSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
+            return pas::construct_call<SE_StarsField::TStarsFieldSE>(SE_Space::TObjectSE_Create, GraphKey,
+                UnusedPosition);
         } else if (ClassName == u"Planet"sv) {
-            return pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_CreateFromGraph, GraphKey, UnusedPosition);
+            return pas::construct_call<SE_Planet::TPlanetSE>(SE_Planet::TPlanetSE_CreateFromGraph, GraphKey,
+                UnusedPosition);
         } else if (ClassName == u"Sputnik"sv) {
             return pas::construct_call<SE_Sputnik::TSputnikSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"Asteroid"sv) {
@@ -56,7 +57,8 @@ namespace SE_Process {
         } else if (ClassName == u"Ship2"sv || ClassName == u"Ship"sv) {
             return pas::construct_call<SE_Ship2::TShip2SE>(SE_Ship2::TShip2SE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"Container"sv) {
-            return pas::construct_call<SE_Container::TContainerSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
+            return pas::construct_call<SE_Container::TContainerSE>(SE_Space::TObjectSE_Create, GraphKey,
+                UnusedPosition);
         } else if (ClassName == u"Laser"sv) {
             return pas::construct_call<SE_Laser::TLaserSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"Anim"sv) {
@@ -64,9 +66,11 @@ namespace SE_Process {
         } else if (ClassName == u"BGObj"sv) {
             return pas::construct_call<SE_BGObj::TBGObjSE>(SE_Space::TObjectSE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"Weapon"sv) {
-            return pas::construct_call<SE_Weapon::TWeaponSE>(SE_Weapon::TWeaponSE_Create, GraphKey, UnusedPosition, 0, -1);
+            return pas::construct_call<SE_Weapon::TWeaponSE>(SE_Weapon::TWeaponSE_Create, GraphKey, UnusedPosition, 0,
+                -1);
         } else if (ClassName == u"Effect"sv) {
-            return pas::construct_call<SE_GAIEffect::TGAIEffectSE>(SE_GAIEffect::TGAIEffectSE_Create, GraphKey, UnusedPosition);
+            return pas::construct_call<SE_GAIEffect::TGAIEffectSE>(SE_GAIEffect::TGAIEffectSE_Create, GraphKey,
+                UnusedPosition);
         } else if (ClassName == u"Gate"sv) {
             return pas::construct_call<SE_Gate::TGateSE>(SE_Gate::TGateSE_Create, GraphKey, UnusedPosition);
         } else if (ClassName == u"GateEffect"sv) {
@@ -132,9 +136,14 @@ namespace SE_Process {
             Self->RemoveObject(Obj);
         }
         if (Self->RetainedObjects != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->RetainedObjects) - 1); cpp_range.next(Index); ) {
-                Obj = pas::list_at<SE_Space::TObjectSE>(Self->RetainedObjects, Index);
-                SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj));
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->RetainedObjects) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Obj = pas::list_at<SE_Space::TObjectSE>(Self->RetainedObjects, Index);
+                        SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj));
+                    }
+                }
             }
             pas::free(Self->RetainedObjects);
             Self->RetainedObjects = nullptr;
@@ -189,8 +198,10 @@ namespace SE_Process {
     void TProcessSE::BindMinimap(GI_MessageLoop::TObjectGI* Control) {
         if (IsSpaceOpen()) {
             Space->MinimapControl = Control;
-            Space->MinimapControl->LeftButtonDownCallback = pas::bind_method<&SE_Space::TSpaceSE::MinimapMouseDown>(Space);
-            Space->MinimapControl->RightButtonDownCallback = pas::bind_method<&SE_Space::TSpaceSE::MinimapMouseDown>(Space);
+            Space->MinimapControl->LeftButtonDownCallback = pas::bind_method<
+                    &SE_Space::TSpaceSE::MinimapMouseDown>(Space);
+            Space->MinimapControl->RightButtonDownCallback = pas::bind_method<
+                    &SE_Space::TSpaceSE::MinimapMouseDown>(Space);
             Space->MinimapControl->MouseEnterCallback = pas::bind_method<&SE_Space::TSpaceSE::MinimapMouseEnter>(Space);
             Space->MinimapControl->MouseMoveCallback = pas::bind_method<&SE_Space::TSpaceSE::MinimapMouseMove>(Space);
             Space->CreateMinimapViewport();
@@ -204,10 +215,6 @@ namespace SE_Process {
             pas::free(Space);
             Space = nullptr;
         }
-    }
-
-    std::uint8_t TProcessSE::IsSpaceOpen() {
-        return !(Space == nullptr);
     }
 
     void TProcessSE::PopulateAmbientObjects(std::int32_t Radius, std::int32_t BackgroundImage, std::uint32_t Seed) {
@@ -227,14 +234,17 @@ namespace SE_Process {
         while (NextObj != nullptr) {
             Obj = NextObj;
             NextObj = NextObj->ProcessNext;
-            if (pas::class_cast_if<SE_Comet::TCometSE*>(Obj) != nullptr || pas::class_cast_if<SE_Angel::TAngelSE*>(Obj) != nullptr || pas::class_cast_if<SE_Meteorite::TMeteoriteSE*>(Obj) != nullptr) {
+            if (pas::class_cast_if<SE_Comet::TCometSE*>(Obj) != nullptr ||
+                pas::class_cast_if<SE_Angel::TAngelSE*>(Obj) != nullptr ||
+                pas::class_cast_if<SE_Meteorite::TMeteoriteSE*>(Obj) != nullptr) {
                 Obj->DetachFromSpace();
                 RemoveObject(Obj);
             }
         }
         std::int32_t MinRadius = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, 0)->MapDiameter;
         std::int32_t MaxRadius = MinRadius;
-        for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(Index); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(1,
+            pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(Index); ) {
             Diameter = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, Index)->MapDiameter;
             MinRadius = std::min<std::int32_t>(MinRadius, Diameter);
             MaxRadius = std::max<std::int32_t>(MaxRadius, Diameter);
@@ -245,19 +255,24 @@ namespace SE_Process {
         if (GlobalsV::Comet > 0) {
             if (BackgroundImage < 10) {
                 Text = ([&] {
-                    const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"0", SysUtils::IntToStr(BackgroundImage)}));
-                    EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(u"StyleComet"_wref.get());
-                    return blockByPath->GetParam(pas::view(cpp_arg));
-                }());
+                        const pas::WideString& cpp_arg = pas::concat_wide({u"0",
+                            pas::wide_int_to_str(BackgroundImage)});
+                        EC_BlockPar::TBlockParEC* blockByPath = GR_Main::GameDataConfig->GetBlockByPath(
+                            u"StyleComet"_wref.get());
+                        return blockByPath->GetParam(pas::view(cpp_arg));
+                    }());
             } else {
                 Text = ([&] {
-                    const pas::WideString& intToStr = pas::wide_int_to_str(BackgroundImage);
-                    EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(u"StyleComet"_wref.get());
-                    return blockByPath_2->GetParam(pas::view(intToStr));
-                }());
+                        const pas::WideString& intToStr = pas::wide_int_to_str(BackgroundImage);
+                        EC_BlockPar::TBlockParEC* blockByPath_2 = GR_Main::GameDataConfig->GetBlockByPath(
+                            u"StyleComet"_wref.get());
+                        return blockByPath_2->GetParam(pas::view(intToStr));
+                    }());
             }
-            Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) / 2 - 1, Seed) * 2;
-            VariantCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), Index + 1, u","sv)));
+            Index = aMyFunction::NextRandomIntRange(0, EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv) / 2 - 1,
+                    Seed) * 2;
+            VariantCount = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                    Index + 1, u","sv)));
             Text = EC_Str::ExtractDelimitedPartW(pas::view(Text), Index, u","sv);
             CountRange.X = 15;
             CountRange.Y = 30;
@@ -269,12 +284,15 @@ namespace SE_Process {
             } else {
                 Count = CountRange.Y;
             }
-            Count = System::Round(static_cast<long double>(aMyFunction::RemapClamped(Radius, MinRadius, MaxRadius, 0.5, 2.0)) * Count);
+            Count = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(Radius, MinRadius, MaxRadius, 0.5,
+                    2.0)) * Count));
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Count); cpp_range_2.next(Index); ) {
-                CometObj = pas::construct_call<SE_Comet::TCometSE>(SE_Comet::TCometSE_Create, u"Anim.BGO_HS.Comet"_w, ClassesImports::Point(0, 0));
+                CometObj = pas::construct_call<SE_Comet::TCometSE>(SE_Comet::TCometSE_Create, u"Anim.BGO_HS.Comet"_w,
+                        ClassesImports::Point(0, 0));
                 VariantIndex = aMyFunction::NextRandomIntRange(0, VariantCount - 1, Seed);
                 if (VariantIndex < 10) {
-                    CometObj->ImagePath = pas::concat_wide({u"Bm.Comet.", Text, u"0", pas::wide_int_to_str(VariantIndex)});
+                    CometObj->ImagePath = pas::concat_wide({u"Bm.Comet.", Text, u"0",
+                            pas::wide_int_to_str(VariantIndex)});
                 } else {
                     CometObj->ImagePath = pas::concat_wide({u"Bm.Comet.", Text, pas::wide_int_to_str(VariantIndex)});
                 }
@@ -287,16 +305,23 @@ namespace SE_Process {
             Count = aMyFunction::RandomIntRange(CountRange.X, CountRange.Y);
         }
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Count); cpp_range_3.next(Index); ) {
-            AngelObj = pas::construct_call<SE_Angel::TAngelSE>(SE_Space::TObjectSE_Create, u"Anim.BGO_HS.Angel"_wref.get(), ClassesImports::Point(0, 0));
+            AngelObj = pas::construct_call<SE_Angel::TAngelSE>(SE_Space::TObjectSE_Create,
+                    u"Anim.BGO_HS.Angel"_wref.get(), ClassesImports::Point(0, 0));
             AddObject(AngelObj);
         }
-        CountRange = GI_Main::GetPointGI(pas::view(GR_Main::GameDataConfig->GetParamByPathOrMarker(u"SE.Anim.BGO_HS.Objects.MeteoriteCount"_wref.get())));
+        CountRange =
+            GI_Main::GetPointGI(
+                pas::view(
+                    GR_Main::GameDataConfig->GetParamByPathOrMarker(
+                    u"SE.Anim.BGO_HS.Objects.MeteoriteCount"_wref.get())));
         Count = aMyFunction::RandomIntRange(CountRange.X, CountRange.Y);
         Block = GR_Main::GameDataConfig->GetBlockByPath(u"SE.Meteorite"_wref.get());
         std::int32_t BlockCount = Block->GetBlockCount();
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(Index); ) {
             BlockIndex = aMyFunction::RandomIntRange(0, BlockCount - 1);
-            MeteoriteObj = pas::construct_call<SE_Meteorite::TMeteoriteSE>(SE_Meteorite::TMeteoriteSE_Create, pas::concat_wide({u"Meteorite.", Block->GetBlockNameByIndex(BlockIndex)}), ClassesImports::Point(0, 0));
+            MeteoriteObj = pas::construct_call<SE_Meteorite::TMeteoriteSE>(SE_Meteorite::TMeteoriteSE_Create,
+                    pas::concat_wide({u"Meteorite.", Block->GetBlockNameByIndex(BlockIndex)}),
+                    ClassesImports::Point(0, 0));
             AddObject(MeteoriteObj);
         }
     }
@@ -306,7 +331,8 @@ namespace SE_Process {
         if (IsSpaceOpen()) {
             ViewRect = ClassesImports::Rect(-100001, -100001, -100000, -100000);
             UpdateViewRect();
-            BackgroundTimer = Space->CreateTimer(GlobalsV::BGOTime, GlobalsV::BGOTime, pas::bind_method<&TProcessSE::AdvanceBackgroundEffects>(this), 0);
+            BackgroundTimer = Space->CreateTimer(GlobalsV::BGOTime, GlobalsV::BGOTime,
+                    pas::bind_method<&TProcessSE::AdvanceBackgroundEffects>(this), 0);
         }
     }
 
@@ -314,9 +340,14 @@ namespace SE_Process {
         SE_Space::TObjectSE* Obj{};
         std::int32_t Index{};
         if (IsSpaceOpen()) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(RetainedObjects) - 1); cpp_range.next(Index); ) {
-                Obj = pas::list_at<SE_Space::TObjectSE>(RetainedObjects, Index);
-                SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj));
+            {
+                const std::int32_t cpp_last = pas::list_count(RetainedObjects) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Obj = pas::list_at<SE_Space::TObjectSE>(RetainedObjects, Index);
+                        SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj));
+                    }
+                }
             }
             pas::list_clear(RetainedObjects);
             if (BackgroundTimer != nullptr) {
@@ -342,7 +373,9 @@ namespace SE_Process {
         if (GlobalsV::BGOCount > pas::list_count(RetainedObjects)) {
             std::int32_t cpp_left = aMyFunction::RandomIntRange(0, GlobalsV::BGOCount - 1);
             if (cpp_left >= pas::list_count(RetainedObjects) - 1) {
-                SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj), pas::construct_call<SE_Anim::TAnimSE>(SE_Space::TObjectSE_Create, TProcessSE::SelectBackgroundAnimation(), ClassesImports::Point(0, 0)));
+                SE_Space::RetainSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj),
+                    pas::construct_call<SE_Anim::TAnimSE>(SE_Space::TObjectSE_Create,
+                        TProcessSE::SelectBackgroundAnimation(), ClassesImports::Point(0, 0)));
                 Position.X = aMyFunction::RandomIntRange(ViewRect.Left, ViewRect.Right);
                 Position.Y = aMyFunction::RandomIntRange(ViewRect.Top, ViewRect.Bottom);
                 Obj->SetPosition(Position);
@@ -384,11 +417,12 @@ namespace SE_Process {
         std::int32_t Count = Objects->GetBlockCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Obj = ([&] {
-                WindowsSdk::TPoint pointGI = GI_Main::GetPointGI(pas::view(Objects->GetBlockByIndex(Index)->GetParam(u"Size"sv)));
-                const pas::WideString& param = Objects->GetBlockByIndex(Index)->GetParam(u"Type"sv);
-                const pas::WideString& blockNameByIndex = Objects->GetBlockNameByIndex(Index);
-                return SE_Process::CreateSpaceObjectByName(pas::view(blockNameByIndex), param, pointGI);
-            }());
+                    WindowsSdk::TPoint pointGI = GI_Main::GetPointGI(
+                        pas::view(Objects->GetBlockByIndex(Index)->GetParam(u"Size"sv)));
+                    const pas::WideString& param = Objects->GetBlockByIndex(Index)->GetParam(u"Type"sv);
+                    const pas::WideString& blockNameByIndex = Objects->GetBlockNameByIndex(Index);
+                    return SE_Process::CreateSpaceObjectByName(pas::view(blockNameByIndex), param, pointGI);
+                }());
             if (Obj != nullptr) {
                 AddObject(Obj);
                 Obj->ApplyConfig(Objects->GetBlockByIndex(Index));

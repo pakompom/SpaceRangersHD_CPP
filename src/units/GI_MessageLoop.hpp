@@ -27,7 +27,8 @@ namespace GI_MessageLoop {
     void TObjectGI_Destroy(TObjectGI* Self);
 
     // Walks active panel subtrees until StartControl, then invalidates affected controls by moving them out and back. Rect is passed through but unused.
-    TObjectGI* TObjectGI_InvalidateScrollOverlap(TObjectGI* Self, WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta, TObjectGI* StartControl);
+    TObjectGI* TObjectGI_InvalidateScrollOverlap(TObjectGI* Self, WindowsSdk::TRect Rect, WindowsSdk::TPoint Delta,
+        TObjectGI* StartControl);
 
     void TObjectGI_LoadFromConfigPath(TObjectGI* Self, const pas::WideString& Path);
 
@@ -40,11 +41,9 @@ namespace GI_MessageLoop {
 
     void TMessageLoopGI_Destroy(TMessageLoopGI* Self);
 
-    // Contains a native handwritten PUSHAD/POPAD loop.
-    void TMessageLoopGI_RestoreSavedPixels16(TMessageLoopGI* Self);
-
     // Dispatches mouse/keyboard messages, deferred UI code and layout-inspector keys. Button coordinates are unsigned words; move and wheel coordinates are signed.
-    inline void TMessageLoopGI_ProcessWindowMessage(GI_MessageLoop::TMessageLoopGI* Self, std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam);
+    inline void TMessageLoopGI_ProcessWindowMessage(GI_MessageLoop::TMessageLoopGI* Self, std::uint32_t Message,
+        std::uint32_t WParam, std::int32_t LParam);
 
 } // namespace GI_MessageLoop
 

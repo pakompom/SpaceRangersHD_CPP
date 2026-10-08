@@ -46,16 +46,18 @@ namespace ab_W15 {
         SourceObject = Owner;
         Damage = Amount;
         State = Owner->State;
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Angle);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + Angle));
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 1500;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w15_f"_wref.get(), u"GAI,Bm.AB.w15_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w15_f"_wref.get(), u"GAI,Bm.AB.w15_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
     void TabW15::Explode() {
         Phase = 2;
-        ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w15a_f"_wref.get(), u"GAI,Bm.AB.w15a_s"_wref.get());
+        ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w15a_f"_wref.get(),
+            u"GAI,Bm.AB.w15a_s"_wref.get());
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
         ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
     }
@@ -74,7 +76,9 @@ namespace ab_W15 {
         ab_Object::TabObject* Collision = nullptr;
         if (Phase != 2) {
             Collision = FindCollision();
-            if (Collision != nullptr && SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) != nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies, reinterpret_cast<void*>(Collision)) < 0) {
+            if (Collision != nullptr && SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) !=
+                    nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies,
+                    reinterpret_cast<void*>(Collision)) < 0) {
                 Collision = nullptr;
             }
             if (Collision == SourceObject) {
@@ -86,10 +90,11 @@ namespace ab_W15 {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Phase = 2;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w15a_f"_wref.get(), u"GAI,Bm.AB.w15a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w15a_f"_wref.get(),
+                u"GAI,Bm.AB.w15a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
-        } else if (Phase == 0 && DistanceTravelled > 4.0E+2L) {
+        } else if (Phase == 0 && DistanceTravelled > 4.0E+2) {
             MaxSpeed = 5.0;
             Phase = 1;
         } else if (Phase == 1) {
@@ -98,13 +103,13 @@ namespace ab_W15 {
                 Enemy = Enemy->FindNearestEnemy(this);
                 if (Enemy != nullptr) {
                     cpp_with = BearingAndDistanceTo(Enemy);
-                    cpp_with.BearingDeltaDegrees = static_cast<long double>(cpp_with.BearingDeltaDegrees) + TurnBias;
+                    cpp_with.BearingDeltaDegrees = static_cast<float>(static_cast<double>(cpp_with.BearingDeltaDegrees) + TurnBias);
                     if (cpp_with.BearingDeltaDegrees < -TurnSpeed) {
                         cpp_with.BearingDeltaDegrees = -TurnSpeed;
                     } else if (cpp_with.BearingDeltaDegrees > TurnSpeed) {
                         cpp_with.BearingDeltaDegrees = TurnSpeed;
                     }
-                    State.BearingDegrees = static_cast<long double>(State.BearingDegrees) + cpp_with.BearingDeltaDegrees;
+                    State.BearingDegrees = static_cast<float>(static_cast<double>(State.BearingDegrees) + cpp_with.BearingDeltaDegrees);
                 }
             }
         } else if (Phase == 2) {

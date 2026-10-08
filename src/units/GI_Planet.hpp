@@ -11,8 +11,6 @@ namespace GI_Planet {
 
     void TPlanetGI_Destroy(TPlanetGI* Self);
 
-    void TPlanetGI_RebuildAtmosphereImage(TPlanetGI* Self);
-
     void TPlanetGI_LoadFromConfigPath(TPlanetGI* Self, const pas::WideString& Path);
 
 } // namespace GI_Planet

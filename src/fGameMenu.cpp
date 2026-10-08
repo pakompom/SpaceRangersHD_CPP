@@ -39,44 +39,55 @@ namespace fGameMenu {
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* Resume_Parent = MainPanel->FindByNameRecursive(u"Resume"sv)->Parent;
-                Resume_Parent->SetPosition(ClassesImports::Point(Resume_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Resume_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Resume_Parent->SetPosition(ClassesImports::Point(
+                    Resume_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Resume_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->LeftButtonUpCallback = pas::bind_method<&TfGameMenu::BackgroundMouseUp>(this);
         {
-            GI_GraphButton::TGraphButtonGI* Resume = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Resume"sv));
+            GI_GraphButton::TGraphButtonGI* Resume = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Resume"sv));
             Resume->UpCallback = pas::bind_method<&TfGameMenu::ResumeClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Save = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Save"sv));
+            GI_GraphButton::TGraphButtonGI* Save = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Save"sv));
             Save->UpCallback = pas::bind_method<&TfGameMenu::SaveClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Load = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Load"sv));
+            GI_GraphButton::TGraphButtonGI* Load = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Load"sv));
             Load->UpCallback = pas::bind_method<&TfGameMenu::LoadClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Settings = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Settings"sv));
+            GI_GraphButton::TGraphButtonGI* Settings = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Settings"sv));
             Settings->UpCallback = pas::bind_method<&TfGameMenu::SettingsClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Help = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Help"sv));
+            GI_GraphButton::TGraphButtonGI* Help = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Help"sv));
             Help->UpCallback = pas::bind_static_method<&TfGameMenu::HelpClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Exit = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Exit"sv));
+            GI_GraphButton::TGraphButtonGI* Exit = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Exit"sv));
             Exit->UpCallback = pas::bind_method<&TfGameMenu::ExitClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Close = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv));
+            GI_GraphButton::TGraphButtonGI* Close = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Close"sv));
             Close->UpCallback = pas::bind_method<&TfGameMenu::ResumeClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* with_Achievements = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Achievements"sv));
+            GI_GraphButton::TGraphButtonGI* with_Achievements = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Achievements"sv));
             with_Achievements->UpCallback = pas::bind_method<&TfGameMenu::AchievementsClicked>(this);
         }
     }
@@ -85,7 +96,8 @@ namespace fGameMenu {
         if (GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         ContentPanel->KeyDownCallback = pas::bind_method<&TfGameMenu::MainPanelKeyDown>(this);
     }
 
@@ -102,7 +114,8 @@ namespace fGameMenu {
 
     void TfGameMenu::SaveClicked(GI_MessageLoop::TObjectGI* Sender) {
         if (aGalaxy::Galaxy->IronWill) {
-            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"FormGameSet2.IronWillText"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"FormGameSet2.IronWillText"_wref.get()),
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
         } else if (aGalaxy::Galaxy->SpecialSimulationMode == 0) {
             GlobalsV::SaveManagerReturnScreenId = GlobalsV::GameMenuReturnScreenId;
             Globals::SaveManagerMode = fSaveManager::smmSave;
@@ -128,11 +141,16 @@ namespace fGameMenu {
         pas::AnsiString cpp_text{};
         WindowsSdk::ShowWindow(GR_Main::MainWindowHandle, WindowsSdk::SW_MINIMIZE);
         // Native and are the empty and 'open' PAnsiChar literals.
-        ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
+        ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"),
+            (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())),
+                cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
     }
 
     void TfGameMenu::ExitClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGameMenu.QExit"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+        if (GI_MessageBox::ShowMessageBoxGI(this,
+            GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGameMenu.QExit"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+            GI_MessageBox::mbgResultOK) {
             if (aSaveLoad::MemorySnapshotBuffer != nullptr) {
                 pas::free(aSaveLoad::MemorySnapshotBuffer);
             }
@@ -158,16 +176,23 @@ namespace fGameMenu {
         RequestClose(1);
     }
 
-    void TfGameMenu::BackgroundMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfGameMenu::BackgroundMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (!pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageBG"sv))->HitTestPixel(Point)) {
             if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Resume"sv))->ContainsPoint(Point)) {
                 if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Save"sv))->ContainsPoint(Point)) {
-                    if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Load"sv))->ContainsPoint(Point)) {
-                        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Settings"sv))->ContainsPoint(Point)) {
-                            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Help"sv))->ContainsPoint(Point)) {
-                                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Exit"sv))->ContainsPoint(Point)) {
-                                    if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Close"sv))->ContainsPoint(Point)) {
-                                        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Achievements"sv))->ContainsPoint(Point)) {
+                    if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                        GetByName(u"Load"sv))->ContainsPoint(Point)) {
+                        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                            GetByName(u"Settings"sv))->ContainsPoint(Point)) {
+                            if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                                GetByName(u"Help"sv))->ContainsPoint(Point)) {
+                                if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                                    GetByName(u"Exit"sv))->ContainsPoint(Point)) {
+                                    if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                                        GetByName(u"Close"sv))->ContainsPoint(Point)) {
+                                        if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                                            GetByName(u"Achievements"sv))->ContainsPoint(Point)) {
                                             ResumeClicked(nullptr);
                                         }
                                     }
@@ -181,7 +206,8 @@ namespace fGameMenu {
     }
 
     void TfGameMenu::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
+        if (!GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+            !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             if (Key == WindowsSdk::VK_ESCAPE) {
                 ResumeClicked(nullptr);
             } else if (Key == 'S' || Key == WindowsSdk::VK_F2) {
@@ -216,20 +242,28 @@ namespace fGameMenu {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {

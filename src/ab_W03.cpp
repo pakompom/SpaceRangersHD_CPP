@@ -21,7 +21,8 @@ namespace ab_W03 {
         if (ProjectileCount > 30) {
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (TabW03* abW03 = pas::class_cast_if<TabW03*>(Obj); abW03 != nullptr && static_cast<std::uint8_t>(abW03->Exploding ^ 1)) {
+                if (TabW03* abW03 = pas::class_cast_if<TabW03*>(Obj); abW03 != nullptr &&
+                    static_cast<std::uint8_t>(abW03->Exploding ^ 1)) {
                     abW03->Explode();
                     break;
                 }
@@ -44,17 +45,19 @@ namespace ab_W03 {
         Damage = Amount;
         State = Owner->State;
         Velocity = Owner->Velocity;
-        if (Offset != 0.0L) {
+        if (Offset != 0.0) {
             State = ab_Global::AdvanceSphericalStateOnCurrentSphere(State, Offset);
         }
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w03_f"_wref.get(), u"GAI,Bm.AB.w03_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w03_f"_wref.get(), u"GAI,Bm.AB.w03_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetFrameMode(Image, ab_WorldImage::afmRandomStart);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
     void TabW03::Explode() {
         Exploding = true;
-        ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w03a_f"_wref.get(), u"GAI,Bm.AB.w03a_s"_wref.get());
+        ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w03a_f"_wref.get(),
+            u"GAI,Bm.AB.w03a_s"_wref.get());
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
         ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
     }
@@ -64,23 +67,19 @@ namespace ab_W03 {
         if (!Exploding) {
             ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
-        if (DistanceTravelled > 5.0E+2L) {
+        if (DistanceTravelled > 5.0E+2) {
             MaxSpeed = 8.0;
         }
         ab_Object::TabObject* Collision = nullptr;
         if (!Exploding) {
             Collision = FindCollision();
-            if (DistanceTravelled < 5.0E+2L && Collision == SourceObject) {
+            if (DistanceTravelled < 5.0E+2 && Collision == SourceObject) {
                 Collision = nullptr;
             }
         }
         if (Collision != nullptr && static_cast<std::uint8_t>(Exploding ^ 1)) {
             if (Collision != nullptr) {
-                {
-                    float cpp_arg = pas::real_divide(Velocity.X, 2.0L);
-                    float cpp_arg_2 = pas::real_divide(Velocity.Y, 2.0L);
-                    Collision->Velocity = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-                }
+                Collision->Velocity = EC_Struct::MakePointF(static_cast<float>(Velocity.X / 2.0), static_cast<float>(Velocity.Y / 2.0));
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Explode();

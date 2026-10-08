@@ -16,9 +16,11 @@ namespace ab_WorldImage {
 
     void ab_WorldImage_Delete(PabWorldImage Entry);
 
-    PabWorldImage ab_WorldImage_Create(EC_Struct::TVector3D Position, const pas::WideString& FrontPath, const pas::WideString& BackPath, std::uint8_t StopAnimation);
+    PabWorldImage ab_WorldImage_Create(EC_Struct::TVector3D Position, const pas::WideString& FrontPath,
+        const pas::WideString& BackPath, std::uint8_t StopAnimation);
 
-    void ab_WorldImage_Set(PabWorldImage Entry, EC_Struct::TVector3D Position, const pas::WideString& FrontPath, const pas::WideString& BackPath);
+    void ab_WorldImage_Set(PabWorldImage Entry, EC_Struct::TVector3D Position, const pas::WideString& FrontPath,
+        const pas::WideString& BackPath);
 
     void ab_WorldImage_SetPosition(PabWorldImage Entry, EC_Struct::TVector3D Position);
 

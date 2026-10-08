@@ -144,13 +144,17 @@ namespace aShip {
     void TShip_NotifyCompanionDeath(TShip* Self);
 
     // Source may be nil, ship or missile. HitRange=-1 selects direct-hit rules; other values select area-hit rules. Returns adjusted damage, zero for rejection, or negative damage for an impulse-shield block; not actual hull loss. May run death handling without freeing Self.
-    std::int32_t TShip_ApplyDamage(TShip* Self, pas::Object* Source, std::int32_t Damage, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet DamageFlags);
+    std::int32_t TShip_ApplyDamage(TShip* Self, pas::Object* Source, std::int32_t Damage, float HitRange,
+        std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet DamageFlags);
 
     // Returns ApplyDamage's signed result. Positive FixedDamage bypasses the initial roll/armor stage unless weapon flag 0x800 is already set; later effects still apply.
-    std::int32_t TShip_ApplyWeaponHit(TShip* Self, TShip* Source, aItem::TWeapon* Weapon, float HitRange, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet& DamageFlags, float DamageScale, std::int32_t FixedDamage);
+    std::int32_t TShip_ApplyWeaponHit(TShip* Self, TShip* Source, aItem::TWeapon* Weapon, float HitRange,
+        std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet& DamageFlags, float DamageScale,
+        std::int32_t FixedDamage);
 
     // Requires a TMissile; returns ApplyDamage's signed result.
-    std::int32_t TShip_ApplyMissileHit(TShip* Self, pas::Object* Missile, std::uint32_t& DamageColor, aGalaxyStruct::TDamageFlagSet& DamageFlags);
+    std::int32_t TShip_ApplyMissileHit(TShip* Self, pas::Object* Missile, std::uint32_t& DamageColor,
+        aGalaxyStruct::TDamageFlagSet& DamageFlags);
 
     // Ignores non-missile targets; can free the target and nearby missiles.
     void TShip_FireWeaponAtMissile(TShip* Self, aItem::TWeapon* Weapon, pas::Object* Target, std::uint8_t RecordFilm);
@@ -159,14 +163,15 @@ namespace aShip {
     void TShip_FireWeaponAtShip(TShip* Self, aItem::TWeapon* Weapon, TShip* Target, std::uint8_t RecordFilm);
 
     // ExplodingObject may be an item or ship; SourceShip and Missile may be nil. Returns script-adjusted damage, not actual hull loss; can trigger death handling without freeing Self.
-    std::int32_t TShip_ApplyExplosionDamage(TShip* Self, TShip* SourceShip, pas::Object* ExplodingObject, std::int32_t ExtraDamage, pas::Object* Missile);
+    std::int32_t TShip_ApplyExplosionDamage(TShip* Self, TShip* SourceShip, pas::Object* ExplodingObject,
+        std::int32_t ExtraDamage, pas::Object* Missile);
 
     pas::WideString TShip_GetWeaponDamageSummary(TShip* Self);
 
     pas::WideString TShip_GetRepairPointsSummary(TShip* Self);
 
     // Same result as GetWeaponRange in this binary.
-    std::int32_t TShip_GetWeaponActionRange(TShip* Self, aItem::TWeapon* Weapon);
+    inline std::int32_t TShip_GetWeaponActionRange(TShip* Self, aItem::TWeapon* Weapon);
 
     // Returns a combat strength ratio, not a probability.
     double TShip_ChanceToWin(TShip* Self, TShip* Target);
@@ -199,7 +204,8 @@ namespace aShip {
     // Zero-based template index; true means disallowed. Includes custom faction, Dominator series and pilot-race restrictions.
     std::uint8_t TShip_IsMicroModuleRaciallyRestricted(TShip* Self, std::int32_t ModuleIndex);
 
-    std::int32_t TShip_GetEquipmentStatBonus(TShip* Self, aConst::TEquipmentBonusKind BonusKind, aItem::TEquipment* Item);
+    std::int32_t TShip_GetEquipmentStatBonus(TShip* Self, aConst::TEquipmentBonusKind BonusKind,
+        aItem::TEquipment* Item);
 
     std::int32_t TShip_GetWeaponRange(TShip* Self, aItem::TWeapon* Weapon);
 
@@ -241,7 +247,8 @@ namespace aShip {
     void TShip_LiquidateInventoryItem(TShip* Self, aItem::TItem* Item);
 
     // True only when the item becomes newly broken. Nil is accepted; script actions 36..39 can modify the damage.
-    std::uint8_t TShip_ApplyItemDegradation(TShip* Self, aItem::TEquipment* Item, TItemDegradationKind Kind, double DurabilityDamage);
+    std::uint8_t TShip_ApplyItemDegradation(TShip* Self, aItem::TEquipment* Item, TItemDegradationKind Kind,
+        double DurabilityDamage);
 
     // Selects up to three qualifying candidates within 51 attempts, applies the best positive gain, then auto-equips. Nil Item is accepted.
     void TShip_GenerateAndApplyMicroModule(TShip* Self, aItem::TEquipment* Item, std::uint8_t ResolveOverload);
@@ -251,7 +258,8 @@ namespace aShip {
 
     void TShip_BuyEquipmentAtLocation(TShip* Self, std::uint8_t ForceGeneratedOffers);
 
-    aItem::THull* TShip_CreateAndEquipHull(TShip* Self, std::uint16_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, std::int32_t Series, std::uint8_t PirateBuilt);
+    aItem::THull* TShip_CreateAndEquipHull(TShip* Self, std::uint16_t Capacity, std::uint8_t Level,
+        aGalaxyStruct::TOwnerId Owner, std::int32_t Series, std::uint8_t PirateBuilt);
 
     // Also checks hook eligibility.
     std::uint8_t TShip_IsItemInPickupRange(TShip* Self, aItem::TItem* Item);
@@ -263,7 +271,8 @@ namespace aShip {
     std::uint8_t TShip_OpenPlayerConversation(TShip* Self, std::uint8_t RespectChameleon);
 
     // Returns the global dialogue response, or zero when conversation cannot open. Amount only replaces the global amount when positive.
-    std::uint8_t TShip_ShowPlayerDialogue(TShip* Self, aGalaxyStruct::TTalkKind Kind, const pas::WideString& Text, std::int32_t Amount);
+    std::uint8_t TShip_ShowPlayerDialogue(TShip* Self, aGalaxyStruct::TTalkKind Kind, const pas::WideString& Text,
+        std::int32_t Amount);
 
     pas::WideString TShip_GetGreetingText(TShip* Self);
 
@@ -272,8 +281,10 @@ namespace aShip {
     void TShip_RefreshCurrentStanding(TShip* Self);
 
     // Base implementation always returns false.
-    std::uint8_t TShip_CanDock(TShip* Self, TShip* Ship);
+    inline std::uint8_t TShip_CanDock(TShip* Self, TShip* Ship);
 
     aGalaxyStruct::TPercent TShip_RelationToShip(TShip* Self, TShip* Ship);
 
 } // namespace aShip
+
+#include "inline/aShip.hpp"

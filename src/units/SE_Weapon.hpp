@@ -12,7 +12,8 @@ namespace SE_Weapon {
     void InitializeWeaponVisualResources();
 
     // Stores visual/variant and appends them to GraphKey. Position is passed through the base constructor.
-    void TWeaponSE_Create(TWeaponSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition, std::int32_t ShotVisual, std::int32_t Variant);
+    void TWeaponSE_Create(TWeaponSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition,
+        std::int32_t ShotVisual, std::int32_t Variant);
 
     void TWeaponSE_Destroy(TWeaponSE* Self);
 

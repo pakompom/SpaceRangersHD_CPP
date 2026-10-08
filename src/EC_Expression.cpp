@@ -1,5 +1,5 @@
 #include "layout/EC_Expression.hpp"
-#include "units/EC_Buf.hpp"
+#include "types/EC_Buf.hpp"
 #include "units/EC_Expression.hpp"
 #include "units/Math.hpp"
 #include "units/ScriptPorts.hpp"
@@ -12,10 +12,37 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Expression {
-    // Nested in ResizeScriptArray; collects dimensions by following each first child.
-    void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions);
 
-    void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self);
+namespace {
+// Literal conversion is cold and admits exponents far outside hardware Single.
+// Normalize binary64 subnormals before rounding their significand to 24 bits.
+double script_literal_round24(double value) {
+    if (std::fpclassify(value) == FP_SUBNORMAL) {
+        int exponent;
+        const double significand = std::frexp(value, &exponent);
+        return std::ldexp(double(float(significand)), exponent);
+    }
+    return pas::legacy_numeric::round24(value);
+}
+double script_literal_power(double base, double exponent) {
+    if (std::abs(exponent) > 2147483647.0 || std::trunc(exponent) != exponent)
+        return std::pow(base, exponent);
+    const auto power = std::int32_t(exponent);
+    auto remaining = power < 0 ? 0u - std::uint32_t(power) : std::uint32_t(power);
+    double result = 1;
+    while (remaining) {
+        if (remaining & 1) result = script_literal_round24(result * base);
+        remaining >>= 1;
+        if (remaining) base = script_literal_round24(base * base);
+    }
+    return power < 0 ? script_literal_round24(1.0 / result) : result;
+}
+}
+
+    // Nested in ResizeScriptArray; collects dimensions by following each first child.
+    static void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions);
+
+    static void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self);
 
     pas::Array<EC_Expression::TVarEC*, 0, 19> ScriptCallTrace{};
 
@@ -23,10 +50,8 @@ namespace EC_Expression {
 
     std::int32_t ScriptCallTraceCount = 0;
 
-    const pas::Array<char16_t, 0, 15> ScriptHexDigits = pas::Array<char16_t, 0, 15>{{
-        u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7',
-        u'8', u'9', u'a', u'b', u'c', u'd', u'e', u'f',
-    }};
+    const pas::Array<char16_t, 0, 15> ScriptHexDigits = pas::Array<char16_t, 0, 15>{{u'0', u'1', u'2', u'3', u'4', u'5',
+        u'6', u'7', u'8', u'9', u'a', u'b', u'c', u'd', u'e', u'f'}};
 
     std::int32_t ScriptStepInterval = 0;
 
@@ -44,7 +69,7 @@ namespace EC_Expression {
         TVarEC* Item{};
         std::int32_t Count = Values->Count;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            Item = EC_Expression::TVarArrayEC_GetItem(Values, i);
+            Item = Values->GetItem(i);
             if (Item->Kind == vkArray && Item->GetArray() != nullptr) {
                 EC_Expression::FreeScriptArrayTree(Item->GetArray());
                 Item->SetArray(nullptr);
@@ -84,7 +109,7 @@ namespace EC_Expression {
         }
         if (Count < OldCount) {
             for (auto cpp_range = pas::for_to<std::int32_t>(Count, OldCount - 1); cpp_range.next(i); ) {
-                Item = EC_Expression::TVarArrayEC_GetItem(Values, i);
+                Item = Values->GetItem(i);
                 if (Item->Kind == vkArray && Item->GetArray() != nullptr) {
                     EC_Expression::FreeScriptArrayTree(Item->GetArray());
                 }
@@ -102,40 +127,130 @@ namespace EC_Expression {
 
     void RegisterExpressionBuiltins(TVarArrayEC* Scope) {
         Scope->Add(u"pi"_wref.get(), vkFloat)->SetFloat(pas::constant(static_cast<double>(SystemImports::Pi)));
-        Scope->Add(u"min"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Min))));
-        Scope->Add(u"max"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Max))));
-        Scope->Add(u"newarray"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_NewArray))));
-        Scope->Add(u"arraychange"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_ArrayChange))));
-        Scope->Add(u"free"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Free))));
-        Scope->Add(u"count"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Count))));
-        Scope->Add(u"copy"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Copy))));
-        Scope->Add(u"abs"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Abs))));
-        Scope->Add(u"arctan"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_ArcTan))));
-        Scope->Add(u"exp"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Exp))));
-        Scope->Add(u"ln"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Ln))));
-        Scope->Add(u"round"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Round))));
-        Scope->Add(u"sin"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Sin))));
-        Scope->Add(u"cos"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Cos))));
-        Scope->Add(u"sqr"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Sqr))));
-        Scope->Add(u"sqrt"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Sqrt))));
-        Scope->Add(u"frac"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Frac))));
-        Scope->Add(u"int"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Int))));
-        Scope->Add(u"ord"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Ord))));
-        Scope->Add(u"rnd"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Rnd))));
-        Scope->Add(u"randomize"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Randomize))));
-        Scope->Add(u"randseed"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_RandSeed))));
-        Scope->Add(u"substr"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_SubStr))));
-        Scope->Add(u"findsubstr"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_FindSubStr))));
-        Scope->Add(u"trim"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Trim))));
-        Scope->Add(u"toansi"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_ToAnsi))));
-        Scope->Add(u"tounicode"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_ToUnicode))));
-        Scope->Add(u"lowercase"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_LowerCase))));
-        Scope->Add(u"uppercase"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_UpperCase))));
-        Scope->Add(u"loadlibrary"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_LoadLibrary))));
-        Scope->Add(u"freelibrary"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_FreeLibrary))));
-        Scope->Add(u"libraryfunction"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_LibraryFunction))));
-        Scope->Add(u"new"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_New))));
-        Scope->Add(u"delete"_wref.get(), vkExternFun)->SetExternFun(reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Delete))));
+        Scope->Add(u"min"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Min))));
+        Scope->Add(u"max"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Max))));
+        Scope->Add(u"newarray"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_NewArray))));
+        Scope->Add(u"arraychange"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_ArrayChange))));
+        Scope->Add(u"free"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Free))));
+        Scope->Add(u"count"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Count))));
+        Scope->Add(u"copy"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Copy))));
+        Scope->Add(u"abs"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Abs))));
+        Scope->Add(u"arctan"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_ArcTan))));
+        Scope->Add(u"exp"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Exp))));
+        Scope->Add(u"ln"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Ln))));
+        Scope->Add(u"round"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Round))));
+        Scope->Add(u"sin"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Sin))));
+        Scope->Add(u"cos"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Cos))));
+        Scope->Add(u"sqr"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Sqr))));
+        Scope->Add(u"sqrt"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Sqrt))));
+        Scope->Add(u"frac"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Frac))));
+        Scope->Add(u"int"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Int))));
+        Scope->Add(u"ord"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Ord))));
+        Scope->Add(u"rnd"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_Rnd))));
+        Scope->Add(u"randomize"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Randomize))));
+        Scope->Add(u"randseed"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_RandSeed))));
+        Scope->Add(u"substr"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_SubStr))));
+        Scope->Add(u"findsubstr"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_FindSubStr))));
+        Scope->Add(u"trim"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Trim))));
+        Scope->Add(u"toansi"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_ToAnsi))));
+        Scope->Add(u"tounicode"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_ToUnicode))));
+        Scope->Add(u"lowercase"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_LowerCase))));
+        Scope->Add(u"uppercase"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_UpperCase))));
+        Scope->Add(u"loadlibrary"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_LoadLibrary))));
+        Scope->Add(u"freelibrary"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_FreeLibrary))));
+        Scope->Add(u"libraryfunction"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_LibraryFunction))));
+        Scope->Add(u"new"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(EF_New))));
+        Scope->Add(u"delete"_wref.get(),
+            vkExternFun)->SetExternFun(
+            reinterpret_cast<void*>(pas::callback_address(pas::Proc<void(pas::OpenArray<TVarEC*>, TCodeEC*)>(
+                EF_Delete))));
     }
 
     pas::WideString TrimScriptString(pas::WideString Text) {
@@ -191,7 +306,8 @@ namespace EC_Expression {
         pas::WideString Result{};
         std::uint8_t SavedSeparator = SysUtils::DecimalSeparator;
         SysUtils::DecimalSeparator = '.';
-        Result = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(Value), SysUtils::DecimalSeparator));
+        Result = static_cast<pas::WideString>(pas::float_to_str(static_cast<double>(Value),
+                SysUtils::DecimalSeparator));
         SysUtils::DecimalSeparator = SavedSeparator;
         return Result;
     }
@@ -220,7 +336,7 @@ namespace EC_Expression {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
             C = Text[i + 1 - 1];
             if (C >= '0' && C <= '9') {
-                Value = Value * 1.0E+1L + (C - '0');
+                Value = script_literal_round24(script_literal_round24(Value * 1.0E+1) + (C - '0'));
             } else if (C == '.') {
                 break;
             }
@@ -230,8 +346,8 @@ namespace EC_Expression {
         while (i < Count) {
             C = Text[i + 1 - 1];
             if (C >= '0' && C <= '9') {
-                Value = pas::real_divide(C - '0', Divisor) + Value;
-                Divisor = Divisor * 1.0E+1L;
+                Value = script_literal_round24(script_literal_round24(static_cast<double>(C - '0') / Divisor) + Value);
+                Divisor = script_literal_round24(Divisor * 1.0E+1);
             }
             ++i;
         }
@@ -257,7 +373,7 @@ namespace EC_Expression {
     }
 
     std::uint8_t IsNonIntegerScriptText(const std::u16string_view& Text) {
-        return static_cast<std::uint8_t>(EC_Expression::IsScriptIntegerText(Text) ^ 1);
+        return !EC_Expression::IsScriptIntegerText(Text);
     }
 
     // Requires a decimal point and fractional digits; supports an exponent suffix. Token advances only on success; Value may change on failure.
@@ -304,7 +420,7 @@ namespace EC_Expression {
         while (i < Count) {
             C = Current->Text.read(i + 1);
             if (C >= u'0' && C <= u'9') {
-                Fraction = Fraction * 1.0E+1L + (C - '0');
+                Fraction = script_literal_round24(script_literal_round24(Fraction * 1.0E+1) + (C - '0'));
             } else if (C == u'e' || C == u'E') {
                 break;
             } else {
@@ -315,7 +431,12 @@ namespace EC_Expression {
         if (i < 1) {
             return Result;
         }
-        Value = pas::real_divide(Fraction, Math::Power(1.0E+1L, i)) + Value;
+        // Native Real is binary64 even when the host long double is wider.
+        if ((SRHD_NATIVE_REALS || LDBL_MANT_DIG == 53) && i > 308) {
+            Value = script_literal_round24(pas::scale_decimal(Fraction, -i) + Value);
+        } else {
+            Value = script_literal_round24(script_literal_round24(Fraction / script_literal_power(1.0E+1, i)) + Value);
+        }
         double Exponent = 0.0;
         if (Count - 1 > i) {
             ExponentText = pas::copy(Current->Text, i + 2, Count - i - 1);
@@ -349,12 +470,16 @@ namespace EC_Expression {
         } else {
             Current = Current->Next;
         }
-        if (Exponent > 0.0L) {
-            Value = Math::Power(1.0E+1L, Exponent) * Value;
-        } else if (Exponent < 0.0L) {
-            Value = pas::real_divide(Value, Math::Power(1.0E+1L, -Exponent));
+        if ((SRHD_NATIVE_REALS || LDBL_MANT_DIG == 53) && (Exponent > 308 || Exponent < -308)) {
+            // Avoid constructing an overflowing reciprocal power when the
+            // scaled literal itself still fits in native binary64.
+            Value = pas::scale_decimal(Value, static_cast<std::int32_t>(Exponent));
+        } else if (Exponent > 0.0) {
+            Value = script_literal_round24(script_literal_power(1.0E+1, Exponent) * Value);
+        } else if (Exponent < 0.0) {
+            Value = script_literal_round24(Value / script_literal_power(1.0E+1, -Exponent));
         }
-        Value = static_cast<long double>(Value) * Sign;
+        Value = script_literal_round24(static_cast<double>(Value) * Sign);
         Token = Current;
         return true;
     }
@@ -459,7 +584,8 @@ namespace EC_Expression {
             }
             Name = pas::concat_wide({Name, u"."});
             Token = Token->Next;
-            if (Token == nullptr || Token->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Text)) ^ 1)) {
+            if (Token == nullptr || Token->TokenKind != ctText ||
+                !EC_Expression::IsNonIntegerScriptText(pas::view(Token->Text))) {
                 Name = pas::WideString();
                 break;
             }
@@ -478,7 +604,8 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
+            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword,
+                    vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
                 av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
             } else if (EC_Expression::TVarEC_RealVType(av[i]) == vkFloat) {
                 if (pas::is_one_of<vkInt, vkDword>(EC_Expression::TVarEC_RealVType(av[0]))) {
@@ -501,7 +628,8 @@ namespace EC_Expression {
         }
         av[0]->Assume(av[1], false);
         for (auto cpp_range = pas::for_to<std::int32_t>(2, Count - 1); cpp_range.next(i); ) {
-            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword, vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
+            if (EC_Expression::TVarEC_RealVType(av[0]) == vkString && pas::is_one_of<vkInt, vkDword,
+                    vkFloat>(EC_Expression::TVarEC_RealVType(av[i]))) {
                 av[0]->ConvertToKind(EC_Expression::TVarEC_RealVType(av[i]));
             } else if (EC_Expression::TVarEC_RealVType(av[i]) == vkFloat) {
                 if (pas::is_one_of<vkInt, vkDword>(EC_Expression::TVarEC_RealVType(av[0]))) {
@@ -606,7 +734,7 @@ namespace EC_Expression {
         if (EC_Expression::TVarEC_RealVType(av[1]) == vkInt) {
             av[0]->SetInt(pas::abs(av[1]->GetInt()));
         } else {
-            av[0]->SetFloat(std::fabs(static_cast<pas::Extended>(av[1]->GetFloat())));
+            av[0]->SetFloat(std::fabs(static_cast<double>(av[1]->GetFloat())));
         }
     }
 
@@ -658,9 +786,11 @@ namespace EC_Expression {
             Step = 1;
         }
         if (EC_Expression::TVarEC_RealVType(av[1]) == vkFloat) {
-            av[0]->SetInt(static_cast<std::int32_t>(System::Round(pas::real_divide(av[1]->GetFloat(), Step))) * Step);
+            av[0]->SetInt(static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<double>(av[1]->GetFloat()) / Step))) *
+                Step);
         } else {
-            av[0]->SetInt(static_cast<std::int32_t>(System::Round(pas::real_divide(av[1]->GetInt(), Step))) * Step);
+            av[0]->SetInt(static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<double>(av[1]->GetInt()) / Step))) *
+                Step);
         }
     }
 
@@ -698,7 +828,7 @@ namespace EC_Expression {
             std::int32_t cpp_left = av[1]->GetInt();
             av[0]->SetInt(cpp_left * av[1]->GetInt());
         } else {
-            av[0]->SetFloat(pas::sqr(static_cast<pas::Extended>(av[1]->GetFloat())));
+            av[0]->SetFloat(pas::sqr(static_cast<double>(av[1]->GetFloat())));
         }
     }
 
@@ -732,7 +862,7 @@ namespace EC_Expression {
         if (Count < 2) {
             return;
         }
-        av[0]->SetInt(System::Trunc(av[1]->GetFloat()));
+        av[0]->SetInt(pas::real_trunc(av[1]->GetFloat()));
     }
 
     void EF_Ord(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
@@ -783,8 +913,9 @@ namespace EC_Expression {
     }
 
     void EF_SubStr(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 4> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 4), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Start{};
         std::int32_t Size{};
         std::int32_t Count = av.length() - 1 + 1;
@@ -843,7 +974,9 @@ namespace EC_Expression {
             return;
         }
         while (Start <= TextLength - SearchLength) {
-            if (SysUtils::CompareMem(static_cast<std::uint8_t*>(static_cast<void*>(Text.data())) + Start * static_cast<std::int32_t>(sizeof(char16_t)), Search.pchar(), SearchLength * 2)) {
+            if (SysUtils::CompareMem(
+                pas::pointer_add(static_cast<std::uint8_t*>(static_cast<void*>(Text.data())),
+                    Start * static_cast<std::int32_t>(sizeof(char16_t))), Search.pchar(), SearchLength * 2)) {
                 av[0]->SetInt(Start);
                 return;
             }
@@ -853,8 +986,9 @@ namespace EC_Expression {
     }
 
     void EF_Trim(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -867,8 +1001,9 @@ namespace EC_Expression {
     }
 
     void EF_ToAnsi(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -882,8 +1017,9 @@ namespace EC_Expression {
     }
 
     void EF_ToUnicode(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         std::int32_t Count = av.length() - 1 + 1;
         if (Count < 2) {
             return;
@@ -921,11 +1057,11 @@ namespace EC_Expression {
             return;
         }
         if (WindowsSdk::GetVersion() < 0x80000000u) {
-            WindowsSdk::CharLowerBuffW(Text.pchar() + Start, Count);
+            WindowsSdk::CharLowerBuffW(pas::pointer_add(Text.pchar(), Start), Count);
             av[0]->SetString(Text);
         } else {
             AnsiText = static_cast<pas::AnsiString>(Text);
-            WindowsImports::CharLowerBuffA(AnsiText.pchar() + Start, Count);
+            WindowsImports::CharLowerBuffA(pas::pointer_add(AnsiText.pchar(), Start), Count);
             av[0]->SetString(static_cast<pas::WideString>(AnsiText));
         }
     }
@@ -955,12 +1091,12 @@ namespace EC_Expression {
             return;
         }
         if (WindowsSdk::GetVersion() < 0x80000000u) {
-            WindowsSdk::CharUpperBuffW(Text.pchar() + Start, Count);
+            WindowsSdk::CharUpperBuffW(pas::pointer_add(Text.pchar(), Start), Count);
             av[0]->SetString(Text);
         } else {
             AnsiText = static_cast<pas::AnsiString>(Text);
             // Native ANSI fallback lowercases even for UpperCase.
-            WindowsImports::CharLowerBuffA(AnsiText.pchar() + Start, Count);
+            WindowsImports::CharLowerBuffA(pas::pointer_add(AnsiText.pchar(), Start), Count);
             av[0]->SetString(static_cast<pas::WideString>(AnsiText));
         }
     }
@@ -1054,8 +1190,9 @@ namespace EC_Expression {
 
     // Looks up class definitions in the root scope; the instance shares their expression instructions.
     void EF_New(pas::OpenArray<TVarEC*> av, TCodeEC* code) {
-        auto cpp_array_copy = pas::copy_open_array(av);
-        av = pas::open_array(cpp_array_copy);
+        std::array<TVarEC*, 2> cpp_array_copy;
+        std::copy_n(av.data(), std::min(av.length(), 2), cpp_array_copy.data());
+        av.elements = cpp_array_copy.data();
         TCodeEC* Definition{};
         TCodeEC* Instance{};
         if (av.length() - 1 != 1) {
@@ -1146,26 +1283,30 @@ namespace EC_Expression {
 
     // Encodes error code and source position as a comma-separated decimal pair.
     void FormatScriptError(std::int32_t Code, std::int32_t Position, pas::WideString& Text) {
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Code), ",", SysUtils::IntToStr(Position)}));
+        Text = pas::concat_wide({pas::wide_int_to_str(Code), u",", pas::wide_int_to_str(Position)});
     }
 
     // Reference parameters avoid copies of Self and RunStart in composed inline calls.
-    void FlushTokenRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength) {
+    void FlushTokenRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart,
+        std::int32_t RunLength) {
         if (RunStart >= 0 && RunLength > 0) {
             Analyzer->Last->Text = pas::concat_wide({Analyzer->Last->Text, pas::copy(Text, RunStart + 1, RunLength)});
             Analyzer->Last->SourceLength += RunLength;
         }
     }
 
-    void FlushQuotedRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t RunStart, std::int32_t RunLength) {
+    void FlushQuotedRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t RunStart,
+        std::int32_t RunLength) {
         if (RunStart >= 0 && RunLength > 0) {
-            Analyzer->Last->Text = pas::concat_wide({Analyzer->Last->Text, pas::copy(Text, RunStart + 1, RunLength - 1)});
+            Analyzer->Last->Text = pas::concat_wide({Analyzer->Last->Text,
+                    pas::copy(Text, RunStart + 1, RunLength - 1)});
             Analyzer->Last->SourceLength += RunLength - 1;
         }
     }
 
     // Reference parameters preserve caller storage when DCC32 expands these helpers.
-    void EmitSourceToken(TCodeAnalyzerEC*& Analyzer, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength) {
+    void EmitSourceToken(TCodeAnalyzerEC*& Analyzer, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind,
+        std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength) {
         Token = Analyzer->AddToken();
         Token->TokenKind = Kind;
         Token->SourceStart = Index + SourceOffset;
@@ -1173,7 +1314,9 @@ namespace EC_Expression {
     }
 
     // Finish the pending text before beginning a punctuation or newline token.
-    void EmitToken(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength) {
+    void EmitToken(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart,
+        std::int32_t RunLength, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index,
+        std::int32_t& SourceOffset, std::int32_t SourceLength) {
         EC_Expression::FlushTokenRun(Analyzer, Text, RunStart, RunLength);
         RunStart = -1;
         EC_Expression::EmitSourceToken(Analyzer, Token, Kind, Index, SourceOffset, SourceLength);
@@ -1207,7 +1350,7 @@ namespace EC_Expression {
                 if (Kind == vkDword) {
                     IntValue = DwordValue;
                 } else if (Kind == vkFloat) {
-                    IntValue = System::Trunc(FloatValue);
+                    IntValue = pas::real_trunc(FloatValue);
                 } else if (Kind == vkString) {
                     IntValue = EC_Expression::ScriptStringToInt(pas::view(StringValue));
                 } else {
@@ -1228,7 +1371,7 @@ namespace EC_Expression {
                 DwordValue = IntValue;
             } else if (Kind != vkDword) {
                 if (Kind == vkFloat) {
-                    DwordValue = System::Trunc(FloatValue);
+                    DwordValue = pas::real_trunc(FloatValue);
                 } else if (Kind == vkString) {
                     DwordValue = EC_Expression::ScriptStringToInt(pas::view(StringValue));
                 } else {
@@ -1472,7 +1615,7 @@ namespace EC_Expression {
         } else if (Kind == vkDword) {
             return DwordValue;
         } else if (Kind == vkFloat) {
-            return System::Trunc(FloatValue);
+            return pas::real_trunc(FloatValue);
         } else if (Kind == vkString) {
             return EC_Expression::ScriptStringToInt(pas::view(StringValue));
         } else if (Kind == vkExternFun) {
@@ -1504,7 +1647,7 @@ namespace EC_Expression {
         } else if (Kind == vkDword) {
             return DwordValue;
         } else if (Kind == vkFloat) {
-            return System::Trunc(FloatValue);
+            return pas::real_trunc(FloatValue);
         } else if (Kind == vkString) {
             return EC_Expression::ScriptStringToInt(pas::view(StringValue));
         } else if (Kind == vkExternFun) {
@@ -1783,9 +1926,9 @@ namespace EC_Expression {
             ResetKind(vkFloat);
             FloatValue = Value;
         } else if (Kind == vkInt) {
-            IntValue = System::Trunc(Value);
+            IntValue = pas::real_trunc(Value);
         } else if (Kind == vkDword) {
-            DwordValue = System::Trunc(Value);
+            DwordValue = pas::real_trunc(Value);
         } else if (Kind == vkFloat) {
             FloatValue = Value;
         } else if (Kind == vkString) {
@@ -2017,7 +2160,7 @@ namespace EC_Expression {
             Dest = reinterpret_cast<std::uint8_t*>(StringValue.pchar());
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1 + 1); cpp_range.next(i); ) {
                 *Dest = Text.read(i + 1);
-                ++Dest;
+                pas::inc(Dest);
             }
             if ((Count & 1) != 0) {
                 StringValue.set_length(pas::shr(Count, 1) + 1);
@@ -2042,11 +2185,11 @@ namespace EC_Expression {
         }
     }
 
-    void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions) {
+    static void CollectScriptArrayDimensions(TVarArrayEC* Values, pas::DynArray<std::int32_t>& Dimensions) {
         Dimensions.set_length(Dimensions.length() - 1 + 1 + 1);
         Dimensions[Dimensions.length() - 1] = Values->Count;
-        if (Values->Count > 0 && EC_Expression::TVarEC_RealVType(EC_Expression::TVarArrayEC_GetItem(Values, 0)) == vkArray) {
-            EC_Expression::CollectScriptArrayDimensions(EC_Expression::TVarArrayEC_GetItem(Values, 0)->GetArray(), Dimensions);
+        if (Values->Count > 0 && EC_Expression::TVarEC_RealVType(Values->GetItem(0)) == vkArray) {
+            EC_Expression::CollectScriptArrayDimensions(Values->GetItem(0)->GetArray(), Dimensions);
         }
     }
 
@@ -2101,8 +2244,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
-                    Self->SetFloat(cpp_left_3 + Right->GetFloat());
+                    double cpp_left_3 = Left->GetFloat();
+                    Self->SetFloat(static_cast<float>(cpp_left_3 + Right->GetFloat()));
                     break;
                 }
                 case vkString: {
@@ -2135,8 +2278,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
-                    Self->SetFloat(cpp_left_3 - Right->GetFloat());
+                    double cpp_left_3 = Left->GetFloat();
+                    Self->SetFloat(static_cast<float>(cpp_left_3 - Right->GetFloat()));
                     break;
                 }
                 case vkString: {
@@ -2169,8 +2312,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
-                    Self->SetFloat(cpp_left_3 * Right->GetFloat());
+                    double cpp_left_3 = Left->GetFloat();
+                    Self->SetFloat(static_cast<float>(cpp_left_3 * Right->GetFloat()));
                     break;
                 }
                 case vkString: {
@@ -2203,8 +2346,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
-                    Self->SetFloat(pas::real_divide(cpp_left_3, Right->GetFloat()));
+                    double cpp_left_3 = Left->GetFloat();
+                    Self->SetFloat(static_cast<float>(cpp_left_3 / Right->GetFloat()));
                     break;
                 }
                 case vkString: {
@@ -2237,8 +2380,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_right = System::Trunc(Right->GetFloat());
-                    Self->SetFloat(pas::imod(System::Trunc(Left->GetFloat()), cpp_right));
+                    std::int64_t cpp_right = pas::real_trunc(Right->GetFloat());
+                    Self->SetFloat(pas::imod(pas::real_trunc(Left->GetFloat()), cpp_right));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2268,8 +2411,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    Self->SetFloat(cpp_left_3 & System::Trunc(Right->GetFloat()));
+                    std::int64_t cpp_left_3 = pas::real_trunc(Left->GetFloat());
+                    Self->SetFloat(cpp_left_3 & pas::real_trunc(Right->GetFloat()));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2299,8 +2442,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    Self->SetFloat(cpp_left_3 | System::Trunc(Right->GetFloat()));
+                    std::int64_t cpp_left_3 = pas::real_trunc(Left->GetFloat());
+                    Self->SetFloat(cpp_left_3 | pas::real_trunc(Right->GetFloat()));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2330,8 +2473,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_left_3 = System::Trunc(Left->GetFloat());
-                    Self->SetFloat(cpp_left_3 ^ System::Trunc(Right->GetFloat()));
+                    std::int64_t cpp_left_3 = pas::real_trunc(Left->GetFloat());
+                    Self->SetFloat(cpp_left_3 ^ pas::real_trunc(Right->GetFloat()));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2353,7 +2496,7 @@ namespace EC_Expression {
                 case vkInt: Self->SetInt(Left->GetInt() != 0 && Right->GetInt() != 0); break;
                 case vkDword: Self->SetDword(Left->GetDword() != 0 && Right->GetDword() != 0); break;
                 case vkFloat: {
-                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L && Right->GetFloat() != 0.0L));
+                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0 && Right->GetFloat() != 0.0));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2375,7 +2518,7 @@ namespace EC_Expression {
                 case vkInt: Self->SetInt(Left->GetInt() != 0 || Right->GetInt() != 0); break;
                 case vkDword: Self->SetDword(Left->GetDword() != 0 || Right->GetDword() != 0); break;
                 case vkFloat: {
-                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0L || Right->GetFloat() != 0.0L));
+                    Self->SetFloat(static_cast<std::int32_t>(Left->GetFloat() != 0.0 || Right->GetFloat() != 0.0));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2405,8 +2548,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_right_3 = System::Trunc(Right->GetFloat());
-                    Self->SetFloat(pas::shl(System::Trunc(Left->GetFloat()), cpp_right_3));
+                    std::int64_t cpp_right_3 = pas::real_trunc(Right->GetFloat());
+                    Self->SetFloat(pas::shl(pas::real_trunc(Left->GetFloat()), cpp_right_3));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2436,8 +2579,8 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    std::int64_t cpp_right_3 = System::Trunc(Right->GetFloat());
-                    Self->SetFloat(pas::shr(System::Trunc(Left->GetFloat()), cpp_right_3));
+                    std::int64_t cpp_right_3 = pas::real_trunc(Right->GetFloat());
+                    Self->SetFloat(pas::shr(pas::real_trunc(Left->GetFloat()), cpp_right_3));
                     break;
                 }
                 case vkString: Self->SetString(u""_wref.get()); break;
@@ -2467,7 +2610,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 == Right->GetFloat()));
                     break;
                 }
@@ -2505,7 +2648,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 != Right->GetFloat()));
                     break;
                 }
@@ -2543,7 +2686,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 < Right->GetFloat()));
                     break;
                 }
@@ -2581,7 +2724,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 > Right->GetFloat()));
                     break;
                 }
@@ -2619,7 +2762,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 <= Right->GetFloat()));
                     break;
                 }
@@ -2657,7 +2800,7 @@ namespace EC_Expression {
                     break;
                 }
                 case vkFloat: {
-                    pas::Extended cpp_left_3 = Left->GetFloat();
+                    double cpp_left_3 = Left->GetFloat();
                     Self->SetFloat(static_cast<std::int32_t>(cpp_left_3 >= Right->GetFloat()));
                     break;
                 }
@@ -2724,7 +2867,7 @@ namespace EC_Expression {
             switch (EC_Expression::TVarEC_RealVType(Value)) {
                 case vkInt: Self->SetInt(Value->GetInt() == 0); break;
                 case vkDword: Self->SetDword(Value->GetInt() == 0); break;
-                case vkFloat: Self->SetFloat(static_cast<std::int32_t>(Value->GetFloat() == 0.0L)); break;
+                case vkFloat: Self->SetFloat(static_cast<std::int32_t>(Value->GetFloat() == 0.0)); break;
                 case vkString: Self->SetString(u""_wref.get()); break;
                 case vkExternFun: Self->SetExternFun(nullptr); break;
                 case vkFunction: Self->SetFunction(nullptr); break;
@@ -2746,7 +2889,8 @@ namespace EC_Expression {
             }
         }
         if (Dest->Kind == vkExternFun && Source->Kind != vkExternFun) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error assigning to function ", Dest->Name}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Error assigning to function ", Dest->Name}))));
         }
         if (Dest->Kind == vkEmpty) {
             Dest->ResetKind(EC_Expression::TVarEC_RealVType(Source));
@@ -2814,7 +2958,7 @@ namespace EC_Expression {
                 return cpp_left_2 == Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = Self->GetFloat();
+                double cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 == Other->GetFloat();
             }
             case vkString: {
@@ -2845,7 +2989,7 @@ namespace EC_Expression {
                 return cpp_left_2 < Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = Self->GetFloat();
+                double cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 < Other->GetFloat();
             }
             case vkString: {
@@ -2873,7 +3017,7 @@ namespace EC_Expression {
                 return cpp_left_2 > Other->GetDword();
             }
             case vkFloat: {
-                pas::Extended cpp_left_3 = Self->GetFloat();
+                double cpp_left_3 = Self->GetFloat();
                 return cpp_left_3 > Other->GetFloat();
             }
             case vkString: {
@@ -2894,7 +3038,7 @@ namespace EC_Expression {
             case vkEmpty: return false;
             case vkInt: return Self->GetInt() != 0;
             case vkDword: return Self->GetDword() != 0;
-            case vkFloat: return Self->GetFloat() != 0.0L;
+            case vkFloat: return Self->GetFloat() != 0.0;
             case vkString: return Self->GetString() != u"";
             case vkExternFun: return false;
             case vkLibraryFun: return EC_Expression::TVarEC_Resolve(Self)->LibraryFunData != nullptr;
@@ -2936,12 +3080,12 @@ namespace EC_Expression {
 
     void TVarEC::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         Name = Buffer->ReadWideString();
-        ResetKind(static_cast<TVarKind>(EC_Buf::TBufEC_GetByte(Buffer)));
+        ResetKind(static_cast<TVarKind>(Buffer->GetByte()));
         if (!(Kind == vkEmpty)) {
             if (Kind == vkInt) {
-                IntValue = EC_Buf::TBufEC_GetInt32(Buffer);
+                IntValue = Buffer->GetInt32();
             } else if (Kind == vkDword) {
-                DwordValue = EC_Buf::TBufEC_GetUInt32(Buffer);
+                DwordValue = Buffer->GetUInt32();
             } else if (Kind == vkFloat) {
                 FloatValue = Buffer->GetDouble();
             } else if (Kind == vkString) {
@@ -2961,10 +3105,6 @@ namespace EC_Expression {
                 }
             }
         }
-    }
-
-    void TVarArrayEC_Create(TVarArrayEC* Self) {
-        pas::object_create(Self);
     }
 
     void TVarArrayEC_Destroy(TVarArrayEC* Self) {
@@ -2988,10 +3128,10 @@ namespace EC_Expression {
     void TVarArrayEC::Clear() {
         std::int32_t i{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            if (EC_Expression::TVarArrayEC_GetItem(this, i)->Kind == vkArray && EC_Expression::TVarArrayEC_GetItem(this, i)->GetArray() != nullptr) {
-                EC_Expression::TVarArrayEC_GetItem(this, i)->GetArray()->Clear();
+            if (GetItem(i)->Kind == vkArray && GetItem(i)->GetArray() != nullptr) {
+                GetItem(i)->GetArray()->Clear();
             }
-            pas::free(EC_Expression::TVarArrayEC_GetItem(this, i));
+            pas::free(GetItem(i));
         }
         ClearStorage();
     }
@@ -3005,13 +3145,15 @@ namespace EC_Expression {
         if (Count < 1) {
             return;
         }
-        Data = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, Count * static_cast<std::int32_t>(sizeof(TVarEC*))));
-        NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        Data = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                Count * static_cast<std::int32_t>(sizeof(TVarEC*))));
+        NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
         Windows::CopyMemory(NameOrder, Source->NameOrder, Count * static_cast<std::int32_t>(sizeof(std::int32_t)));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            SourceItem = EC_Expression::TVarArrayEC_GetItem(Source, i);
+            SourceItem = Source->GetItem(i);
             Item = pas::construct_call<TVarEC>(TVarEC_Create, vkEmpty);
-            EC_Expression::TVarArrayEC_SetItem(this, i, Item);
+            SetItem(i, Item);
             Item->Name = SourceItem->Name;
             Item->AssignFrom(SourceItem, CopyArrays);
         }
@@ -3029,7 +3171,7 @@ namespace EC_Expression {
         std::int32_t High = Count - 1;
         do {
             Middle = (High - Low) / 2 + Low;
-            Item = EC_Expression::TVarArrayEC_GetItemByNameOrder(this, Middle);
+            Item = GetItemByNameOrder(Middle);
             Comparison = EC_Expression::CompareScriptNames(Name.pchar(), Item->Name.pchar());
             if (Comparison == 0) {
                 return Middle;
@@ -3054,7 +3196,7 @@ namespace EC_Expression {
         std::int32_t High = Count - 1;
         do {
             Middle = (High - Low) / 2 + Low;
-            Item = EC_Expression::TVarArrayEC_GetItemByNameOrder(this, Middle);
+            Item = GetItemByNameOrder(Middle);
             Comparison = EC_Expression::CompareScriptNames(Name.pchar(), Item->Name.pchar());
             if (Comparison == 0) {
                 return Middle;
@@ -3071,18 +3213,68 @@ namespace EC_Expression {
         return Middle + 1;
     }
 
+    // Does not validate either index.
+    void TVarArrayEC::SetNameOrderIndex(std::int32_t Index, std::int32_t DataIndex) {
+        std::int32_t* Slot = NameOrder;
+        pas::inc(Slot, Index);
+        pas::store_unaligned<std::int32_t>(Slot, DataIndex);
+    }
+
+    std::int32_t TVarArrayEC::GetNameOrderIndex(std::int32_t Index) {
+        std::int32_t* Slot = NameOrder;
+        pas::inc(Slot, Index);
+        return pas::load_unaligned<std::int32_t>(Slot);
+    }
+
+    TVarEC* TVarArrayEC::GetItemByNameOrder(std::int32_t Index) {
+        std::int32_t* OrderSlot = NameOrder;
+        pas::inc(OrderSlot, Index);
+        PVarEC DataSlot = Data;
+        pas::inc(DataSlot, pas::load_unaligned<std::int32_t>(OrderSlot));
+        return pas::load_unaligned<TVarEC*>(DataSlot);
+    }
+
+    std::int32_t TVarArrayEC::FindNameOrderForDataIndex(std::int32_t DataIndex) {
+        std::int32_t* Slot = NameOrder;
+        std::uint32_t Limit = Count;
+        std::uint32_t Index = 0u;
+        while (Index < Limit) {
+            if (pas::load_unaligned<std::int32_t>(Slot) == DataIndex) {
+                return Index;
+            }
+            pas::inc(Slot);
+            ++Index;
+        }
+        return -1;
+    }
+
     // Returns nil for an out-of-range index.
     TVarEC* TVarArrayEC::GetItemNE(std::int32_t Index) {
         if (Index < 0 || Index >= Count) {
             return nullptr;
         }
-        return EC_Expression::TVarArrayEC_GetItem(this, Index);
+        return GetItem(Index);
+    }
+
+    std::int32_t TVarArrayEC::IndexOf(TVarEC* Value) {
+        PVarEC Slot = Data;
+        std::uint32_t Limit = Count;
+        std::uint32_t Index = 0u;
+        while (Index < Limit) {
+            if (pas::load_unaligned<TVarEC*>(Slot) == Value) {
+                return Index;
+            }
+            pas::inc(Slot);
+            ++Index;
+        }
+        return -1;
     }
 
     TVarEC* TVarArrayEC::GetVar(const pas::WideString& Name) {
         TVarEC* Result = GetVarNE(Name);
         if (Result == nullptr) {
-            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Var not found:", Name}))));
+            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Var not found:", Name}))));
         }
         return Result;
     }
@@ -3099,10 +3291,10 @@ namespace EC_Expression {
         std::int32_t High = Count - 1;
         do {
             Middle = (High - Low) / 2 + Low;
-            Item = EC_Expression::TVarArrayEC_GetItemByNameOrder(this, Middle);
+            Item = GetItemByNameOrder(Middle);
             Comparison = EC_Expression::CompareScriptNames(Name.pchar(), Item->Name.pchar());
             if (Comparison == 0) {
-                return EC_Expression::TVarArrayEC_GetItem(this, EC_Expression::TVarArrayEC_GetNameOrderIndex(this, Middle));
+                return GetItem(GetNameOrderIndex(Middle));
             }
             if (Comparison < 0) {
                 High = Middle - 1;
@@ -3123,22 +3315,22 @@ namespace EC_Expression {
         if (Index >= Count) {
             return;
         }
-        TVarEC* Item = EC_Expression::TVarArrayEC_GetItem(this, Index);
+        TVarEC* Item = GetItem(Index);
         if (Item != nullptr) {
             pas::free(Item);
         }
-        std::int32_t NameIndex = EC_Expression::TVarArrayEC_FindNameOrderForDataIndex(this, Index);
+        std::int32_t NameIndex = FindNameOrderForDataIndex(Index);
         for (auto cpp_range = pas::for_to<std::int32_t>(NameIndex, Count - 2); cpp_range.next(i); ) {
-            EC_Expression::TVarArrayEC_SetNameOrderIndex(this, i, EC_Expression::TVarArrayEC_GetNameOrderIndex(this, i + 1));
+            SetNameOrderIndex(i, GetNameOrderIndex(i + 1));
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(Index, Count - 2); cpp_range_2.next(i); ) {
-            EC_Expression::TVarArrayEC_SetItem(this, i, EC_Expression::TVarArrayEC_GetItem(this, i + 1));
+            SetItem(i, GetItem(i + 1));
         }
         --Count;
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(i); ) {
-            DataIndex = EC_Expression::TVarArrayEC_GetNameOrderIndex(this, i);
+            DataIndex = GetNameOrderIndex(i);
             if (DataIndex > Index) {
-                EC_Expression::TVarArrayEC_SetNameOrderIndex(this, i, DataIndex - 1);
+                SetNameOrderIndex(i, DataIndex - 1);
             }
         }
         if (Count < 1) {
@@ -3147,7 +3339,7 @@ namespace EC_Expression {
     }
 
     void TVarArrayEC::Remove(TVarEC* Value) {
-        Delete(EC_Expression::TVarArrayEC_IndexOf(this, Value));
+        Delete(IndexOf(Value));
     }
 
     void TVarArrayEC::DeleteByName(const pas::WideString& Name) {
@@ -3157,22 +3349,22 @@ namespace EC_Expression {
         if (NameIndex < 0) {
             return;
         }
-        std::int32_t Index = EC_Expression::TVarArrayEC_GetNameOrderIndex(this, NameIndex);
-        TVarEC* Item = EC_Expression::TVarArrayEC_GetItem(this, Index);
+        std::int32_t Index = GetNameOrderIndex(NameIndex);
+        TVarEC* Item = GetItem(Index);
         if (Item != nullptr) {
             pas::free(Item);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(NameIndex, Count - 2); cpp_range.next(i); ) {
-            EC_Expression::TVarArrayEC_SetNameOrderIndex(this, i, EC_Expression::TVarArrayEC_GetNameOrderIndex(this, i + 1));
+            SetNameOrderIndex(i, GetNameOrderIndex(i + 1));
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(Index, Count - 2); cpp_range_2.next(i); ) {
-            EC_Expression::TVarArrayEC_SetItem(this, i, EC_Expression::TVarArrayEC_GetItem(this, i + 1));
+            SetItem(i, GetItem(i + 1));
         }
         --Count;
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(i); ) {
-            DataIndex = EC_Expression::TVarArrayEC_GetNameOrderIndex(this, i);
+            DataIndex = GetNameOrderIndex(i);
             if (DataIndex > Index) {
-                EC_Expression::TVarArrayEC_SetNameOrderIndex(this, i, DataIndex - 1);
+                SetNameOrderIndex(i, DataIndex - 1);
             }
         }
         if (Count < 1) {
@@ -3184,27 +3376,32 @@ namespace EC_Expression {
     void TVarArrayEC::AddItem(TVarEC* Value) {
         std::int32_t i{};
         if (Data == nullptr) {
-            Data = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, (Count + 1) * static_cast<std::int32_t>(sizeof(TVarEC*))));
+            Data = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                    (Count + 1) * static_cast<std::int32_t>(sizeof(TVarEC*))));
         } else {
-            Data = static_cast<PVarEC>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, Data, (Count + 1) * static_cast<std::int32_t>(sizeof(TVarEC*))));
+            Data = static_cast<PVarEC>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, Data,
+                    (Count + 1) * static_cast<std::int32_t>(sizeof(TVarEC*))));
         }
-        EC_Expression::TVarArrayEC_SetItem(this, Count, Value);
+        SetItem(Count, Value);
         std::int32_t InsertionIndex = FindNameInsertionIndex(Value->Name);
         if (InsertionIndex >= Count) {
             ++Count;
             if (NameOrder == nullptr) {
-                NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                        Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
             } else {
-                NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, NameOrder, Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                        NameOrder, Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
             }
-            EC_Expression::TVarArrayEC_SetNameOrderIndex(this, Count - 1, Count - 1);
+            SetNameOrderIndex(Count - 1, Count - 1);
         } else {
             ++Count;
-            NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, NameOrder, Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
+            NameOrder = static_cast<std::int32_t*>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, NameOrder,
+                    Count * static_cast<std::int32_t>(sizeof(std::int32_t))));
             for (auto cpp_range = pas::for_downto<std::int32_t>(Count - 1, InsertionIndex + 1); cpp_range.next(i); ) {
-                EC_Expression::TVarArrayEC_SetNameOrderIndex(this, i, EC_Expression::TVarArrayEC_GetNameOrderIndex(this, i - 1));
+                SetNameOrderIndex(i, GetNameOrderIndex(i - 1));
             }
-            EC_Expression::TVarArrayEC_SetNameOrderIndex(this, InsertionIndex, Count - 1);
+            SetNameOrderIndex(InsertionIndex, Count - 1);
         }
     }
 
@@ -3224,7 +3421,7 @@ namespace EC_Expression {
         std::int32_t i{};
         Buffer->AddIntegerValue(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
-            EC_Expression::TVarArrayEC_GetItem(this, i)->SaveToBuffer(Buffer);
+            GetItem(i)->SaveToBuffer(Buffer);
         }
     }
 
@@ -3233,7 +3430,7 @@ namespace EC_Expression {
         std::int32_t i{};
         TVarEC* Item{};
         Clear();
-        std::int32_t ItemCount = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t ItemCount = Buffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ItemCount - 1); cpp_range.next(i); ) {
             Item = pas::construct_call<TVarEC>(TVarEC_Create, vkEmpty);
             Item->LoadFromBuffer(Buffer);
@@ -3244,16 +3441,12 @@ namespace EC_Expression {
     void TVarArrayEC::AppendFromBuffer(EC_Buf::TBufEC* Buffer) {
         std::int32_t i{};
         TVarEC* Item{};
-        std::int32_t ItemCount = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t ItemCount = Buffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ItemCount - 1); cpp_range.next(i); ) {
             Item = pas::construct_call<TVarEC>(TVarEC_Create, vkEmpty);
             Item->LoadFromBuffer(Buffer);
             AddItem(Item);
         }
-    }
-
-    void TCodeAnalyzerEC_Create(TCodeAnalyzerEC* Self) {
-        pas::object_create(Self);
     }
 
     void TCodeAnalyzerEC_Destroy(TCodeAnalyzerEC* Self) {
@@ -3369,7 +3562,8 @@ namespace EC_Expression {
     }
 
     // NewlineOffset is added to the source-position base at each newline.
-    void TCodeAnalyzerEC_AppendText(TCodeAnalyzerEC* Self, pas::WideString Text, std::int32_t SourceOffset, std::int32_t NewlineOffset) {
+    void TCodeAnalyzerEC_AppendText(TCodeAnalyzerEC* Self, pas::WideString Text, std::int32_t SourceOffset,
+        std::int32_t NewlineOffset) {
         char16_t C{};
         std::int32_t Index{};
         TCodeAnalyzerUnitEC* Token{};
@@ -3385,25 +3579,34 @@ namespace EC_Expression {
             C = Text.read(Index + 1);
             if (QuoteStart == -1) {
                 if (C == u'(') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenParen, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenParen, Index, SourceOffset,
+                        1);
                 } else if (C == u')') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseParen, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseParen, Index, SourceOffset,
+                        1);
                 } else if (C == u'{') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenBrace, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenBrace, Index, SourceOffset,
+                        1);
                 } else if (C == u'}') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseBrace, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseBrace, Index, SourceOffset,
+                        1);
                 } else if (C == u'[') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenBracket, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctOpenBracket, Index, SourceOffset,
+                        1);
                 } else if (C == u']') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseBracket, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctCloseBracket, Index,
+                        SourceOffset, 1);
                 } else if (C == u'/' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'*') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctBlockCommentStart, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctBlockCommentStart, Index,
+                        SourceOffset, 2);
                     ++Index;
                 } else if (C == u'*' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'/') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctBlockCommentEnd, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctBlockCommentEnd, Index,
+                        SourceOffset, 2);
                     ++Index;
                 } else if (C == u'/' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'/') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLineComment, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLineComment, Index, SourceOffset,
+                        2);
                     ++Index;
                 } else if (C == u'.') {
                     // The native tokenizer counts a dot as two source characters.
@@ -3420,9 +3623,11 @@ namespace EC_Expression {
                 } else if (C == u'+') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctAdd, Index, SourceOffset, 1);
                 } else if (C == u'-') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctSubtract, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctSubtract, Index, SourceOffset,
+                        1);
                 } else if (C == u'*') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctMultiply, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctMultiply, Index, SourceOffset,
+                        1);
                 } else if (C == u'/') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctDivide, Index, SourceOffset, 1);
                 } else if (C == u'%') {
@@ -3436,15 +3641,18 @@ namespace EC_Expression {
                 } else if (C == u'~') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctBitNot, Index, SourceOffset, 1);
                 } else if (C == u'!' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'=') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctNotEqual, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctNotEqual, Index, SourceOffset,
+                        2);
                     ++Index;
                 } else if (C == u'!') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctNot, Index, SourceOffset, 1);
                 } else if (C == u'<' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'<') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctShiftLeft, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctShiftLeft, Index, SourceOffset,
+                        2);
                     ++Index;
                 } else if (C == u'>' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'>') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctShiftRight, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctShiftRight, Index, SourceOffset,
+                        2);
                     ++Index;
                 } else if (C == u'=' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'=') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctEqual, Index, SourceOffset, 2);
@@ -3452,17 +3660,20 @@ namespace EC_Expression {
                 } else if (C == u'=') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctAssign, Index, SourceOffset, 1);
                 } else if (C == u'<' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'=') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLessEqual, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLessEqual, Index, SourceOffset,
+                        2);
                     ++Index;
                 } else if (C == u'>' && Index + 1 < TextLength && Text.read(Index + 1 + 1) == u'=') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctGreaterEqual, Index, SourceOffset, 2);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctGreaterEqual, Index,
+                        SourceOffset, 2);
                     ++Index;
                 } else if (C == u'<') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctLess, Index, SourceOffset, 1);
                 } else if (C == u'>') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctGreater, Index, SourceOffset, 1);
                 } else if (C == u';') {
-                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctSemicolon, Index, SourceOffset, 1);
+                    EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctSemicolon, Index, SourceOffset,
+                        1);
                 } else if (C == u':') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctColon, Index, SourceOffset, 1);
                 } else if (C == u',') {
@@ -3478,7 +3689,8 @@ namespace EC_Expression {
                 } else if (C == u'\r' || C == u'\n') {
                     EC_Expression::EmitToken(Self, Text, RunStart, RunLength, Token, ctNewline, Index, SourceOffset, 1);
                     SourceOffset += NewlineOffset;
-                    if (Index + 1 < TextLength && (Text.read(Index + 1 + 1) == u'\r' || Text.read(Index + 1 + 1) == u'\n')) {
+                    if (Index + 1 < TextLength && (Text.read(Index + 1 + 1) == u'\r' || Text.read(Index + 1 + 1) ==
+                                u'\n')) {
                         ++Index;
                         ++Token->SourceLength;
                     }
@@ -3591,10 +3803,12 @@ namespace EC_Expression {
         std::int32_t CloseCount = 0;
         TCodeAnalyzerUnitEC* Token = First;
         while (Token != nullptr) {
-            if (Token->TokenKind == ctOpenParen || Token->TokenKind == ctOpenBrace || Token->TokenKind == ctOpenBracket || Token->TokenKind == ctBlockCommentStart) {
+            if (Token->TokenKind == ctOpenParen || Token->TokenKind == ctOpenBrace || Token->TokenKind ==
+                    ctOpenBracket || Token->TokenKind == ctBlockCommentStart) {
                 ++OpenCount;
             }
-            if (Token->TokenKind == ctCloseParen || Token->TokenKind == ctCloseBrace || Token->TokenKind == ctCloseBracket || Token->TokenKind == ctBlockCommentEnd) {
+            if (Token->TokenKind == ctCloseParen || Token->TokenKind == ctCloseBrace || Token->TokenKind ==
+                    ctCloseBracket || Token->TokenKind == ctBlockCommentEnd) {
                 ++CloseCount;
             }
             Token = Token->Next;
@@ -3845,10 +4059,14 @@ namespace EC_Expression {
                 } else if (EC_Expression::TVarEC_RealVType(Result) == vkFunction) {
                     Result = Result->GetFunction()->FindVar(MemberPath[i]);
                 } else {
-                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not link var :", GetFullName()}))));
+                    pas::raise(
+                        pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Not link var :", GetFullName()}))));
                 }
                 if (Result == nullptr) {
-                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not link var :", GetFullName()}))));
+                    pas::raise(
+                        pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Not link var :", GetFullName()}))));
                 }
                 ++i;
             }
@@ -3857,7 +4075,8 @@ namespace EC_Expression {
         if (Kind == evOwned) {
             Value = pas::construct_call<TVarEC>(TVarEC_Create, InitialKind);
         } else {
-            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not link var :", GetFullName()}))));
+            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Not link var :", GetFullName()}))));
         }
         return Value;
     }
@@ -3919,9 +4138,11 @@ namespace EC_Expression {
     std::int32_t TExpressionEC::AddVariable() {
         ++VariableCount;
         if (Variables == nullptr) {
-            Variables = static_cast<TExpressionVarEC**>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, VariableCount * static_cast<std::int32_t>(sizeof(TExpressionVarEC*))));
+            Variables = static_cast<TExpressionVarEC**>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                    VariableCount * static_cast<std::int32_t>(sizeof(TExpressionVarEC*))));
         } else {
-            Variables = static_cast<TExpressionVarEC**>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, Variables, VariableCount * static_cast<std::int32_t>(sizeof(TExpressionVarEC*))));
+            Variables = static_cast<TExpressionVarEC**>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                    Variables, VariableCount * static_cast<std::int32_t>(sizeof(TExpressionVarEC*))));
         }
         EC_Expression::TExpressionEC_SetVariable(this, VariableCount - 1, pas::make_object<TExpressionVarEC>());
         return VariableCount - 1;
@@ -3943,12 +4164,26 @@ namespace EC_Expression {
         }
     }
 
+    TExpressionVarEC* TExpressionEC_GetVariable(TExpressionEC* Self, std::int32_t Index) {
+        TExpressionVarEC** Slot = Self->Variables;
+        pas::inc(Slot, Index);
+        return pas::load_unaligned<TExpressionVarEC*>(Slot);
+    }
+
+    void TExpressionEC_SetVariable(TExpressionEC* Self, std::int32_t Index, TExpressionVarEC* Value) {
+        TExpressionVarEC** Slot = Self->Variables;
+        pas::inc(Slot, Index);
+        pas::store_unaligned<TExpressionVarEC*>(Slot, Value);
+    }
+
     std::int32_t TExpressionEC::AddInstruction() {
         ++InstructionCount;
         if (Instructions == nullptr) {
-            Instructions = static_cast<TExpressionInstrEC**>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, InstructionCount * static_cast<std::int32_t>(sizeof(TExpressionInstrEC*))));
+            Instructions = static_cast<TExpressionInstrEC**>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                    InstructionCount * static_cast<std::int32_t>(sizeof(TExpressionInstrEC*))));
         } else {
-            Instructions = static_cast<TExpressionInstrEC**>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u, Instructions, InstructionCount * static_cast<std::int32_t>(sizeof(TExpressionInstrEC*))));
+            Instructions = static_cast<TExpressionInstrEC**>(WindowsSdk::HeapReAlloc(WindowsSdk::GetProcessHeap(), 0u,
+                    Instructions, InstructionCount * static_cast<std::int32_t>(sizeof(TExpressionInstrEC*))));
         }
         EC_Expression::TExpressionEC_SetInstruction(this, InstructionCount - 1, pas::make_object<TExpressionInstrEC>());
         return InstructionCount - 1;
@@ -3961,7 +4196,8 @@ namespace EC_Expression {
         }
         pas::free(EC_Expression::TExpressionEC_GetInstruction(this, Index));
         for (auto cpp_range = pas::for_to<std::int32_t>(Index, InstructionCount - 2); cpp_range.next(i); ) {
-            EC_Expression::TExpressionEC_SetInstruction(this, i, EC_Expression::TExpressionEC_GetInstruction(this, i + 1));
+            EC_Expression::TExpressionEC_SetInstruction(this, i,
+                EC_Expression::TExpressionEC_GetInstruction(this, i + 1));
         }
         --InstructionCount;
         if (InstructionCount <= 0) {
@@ -3970,26 +4206,59 @@ namespace EC_Expression {
         }
     }
 
+    TExpressionInstrEC* TExpressionEC_GetInstruction(TExpressionEC* Self, std::int32_t Index) {
+        TExpressionInstrEC** Slot = Self->Instructions;
+        pas::inc(Slot, Index);
+        return pas::load_unaligned<TExpressionInstrEC*>(Slot);
+    }
+
+    void TExpressionEC_SetInstruction(TExpressionEC* Self, std::int32_t Index, TExpressionInstrEC* Value) {
+        TExpressionInstrEC** Slot = Self->Instructions;
+        pas::inc(Slot, Index);
+        pas::store_unaligned<TExpressionInstrEC*>(Slot, Value);
+    }
+
     // Extract whole conditions: a helper inside an and/or chain adds DCC32 temporaries.
     std::uint8_t IsBinaryToken(TCodeAnalyzerUnitEC* Token) {
         // The native test includes ctSubtract twice.
-        return Token->TokenKind == ctAdd || Token->TokenKind == ctSubtract || Token->TokenKind == ctMultiply || Token->TokenKind == ctDivide || Token->TokenKind == ctModulo || Token->TokenKind == ctSubtract || Token->TokenKind == ctBitAnd || Token->TokenKind == ctBitOr || Token->TokenKind == ctBitXor || Token->TokenKind == ctAnd || Token->TokenKind == ctOr || Token->TokenKind == ctShiftLeft || Token->TokenKind == ctShiftRight || Token->TokenKind == ctEqual || Token->TokenKind == ctNotEqual || Token->TokenKind == ctLess || Token->TokenKind == ctGreater || Token->TokenKind == ctLessEqual || Token->TokenKind == ctGreaterEqual;
+        return Token->TokenKind == ctAdd || Token->TokenKind == ctSubtract || Token->TokenKind == ctMultiply ||
+            Token->TokenKind == ctDivide || Token->TokenKind == ctModulo || Token->TokenKind == ctSubtract ||
+            Token->TokenKind == ctBitAnd || Token->TokenKind == ctBitOr || Token->TokenKind == ctBitXor ||
+            Token->TokenKind == ctAnd || Token->TokenKind == ctOr || Token->TokenKind == ctShiftLeft ||
+            Token->TokenKind == ctShiftRight || Token->TokenKind == ctEqual || Token->TokenKind == ctNotEqual ||
+            Token->TokenKind == ctLess || Token->TokenKind == ctGreater || Token->TokenKind == ctLessEqual ||
+            Token->TokenKind == ctGreaterEqual;
     }
 
     std::uint8_t IsUnaryMinusPosition(TCompilerUnitEC* Item) {
-        return Item->Prev == nullptr || Item->Prev->Kind != cuIntLiteral && Item->Prev->Kind != cuDwordLiteral && Item->Prev->Kind != cuFloatLiteral && Item->Prev->Kind != cuCloseParen && Item->Prev->Kind != cuCloseBracket && Item->Prev->Kind != cuName;
+        return Item->Prev == nullptr || Item->Prev->Kind != cuIntLiteral && Item->Prev->Kind != cuDwordLiteral &&
+                Item->Prev->Kind != cuFloatLiteral && Item->Prev->Kind != cuCloseParen && Item->Prev->Kind !=
+                    cuCloseBracket && Item->Prev->Kind != cuName;
     }
 
     std::uint8_t InvalidBinaryOperands(TCompilerUnitEC* Item) {
-        return Item->Prev == nullptr || Item->Next == nullptr || !(Item->Prev->Kind == cuName || Item->Prev->Kind == cuIntLiteral || Item->Prev->Kind == cuDwordLiteral || Item->Prev->Kind == cuFloatLiteral || Item->Prev->Kind == cuStringLiteral || Item->Prev->Kind == cuCloseParen || Item->Prev->Kind == cuCloseBracket) || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind == cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator);
+        return Item->Prev == nullptr || Item->Next == nullptr || !(Item->Prev->Kind == cuName || Item->Prev->Kind ==
+                    cuIntLiteral || Item->Prev->Kind == cuDwordLiteral || Item->Prev->Kind == cuFloatLiteral ||
+                Item->Prev->Kind == cuStringLiteral || Item->Prev->Kind == cuCloseParen || Item->Prev->Kind ==
+                    cuCloseBracket) || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral ||
+                Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind ==
+                    cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall ||
+                Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator);
     }
 
     std::uint8_t InvalidAssignmentOperands(TCompilerUnitEC* Item) {
-        return Item->Prev == nullptr || Item->Next == nullptr || !(Item->Prev->Kind == cuName || Item->Prev->Kind == cuCloseBracket) || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind == cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator);
+        return Item->Prev == nullptr || Item->Next == nullptr || !(Item->Prev->Kind == cuName || Item->Prev->Kind ==
+                    cuCloseBracket) || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral ||
+                Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind ==
+                    cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall ||
+                Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator);
     }
 
     std::uint8_t InvalidUnaryOperand(TCompilerUnitEC* Item) {
-        return Item->Kind == cuUnaryOperator && (Item->Next == nullptr || !(Item->Next->Kind == cuName || Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind == cuStringLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator));
+        return Item->Kind == cuUnaryOperator && (Item->Next == nullptr || !(Item->Next->Kind == cuName ||
+                    Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind ==
+                    cuFloatLiteral || Item->Next->Kind == cuStringLiteral || Item->Next->Kind == cuOpenParen ||
+                    Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuUnaryOperator));
     }
 
     // Callers exit immediately after this; Compiler has been freed.
@@ -3999,7 +4268,8 @@ namespace EC_Expression {
     }
 
     // EndToken is exclusive; nil FirstToken starts at Analyzer.First. NextToken may be nil. Clears the previous expression before compiling.
-    void TExpressionEC::Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken, TCodeAnalyzerUnitEC* EndToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
+    void TExpressionEC::Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken,
+        TCodeAnalyzerUnitEC* EndToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
         TCodeAnalyzerUnitEC* Next{};
         TCompilerEC* Compiler{};
         TCompilerUnitEC* Item{};
@@ -4100,9 +4370,11 @@ namespace EC_Expression {
                         Item = Compiler->AddUnit();
                         Item->SourceStart = Token->SourceStart;
                         if (Next == nullptr) {
-                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength -
+                                    Token->SourceStart;
                         } else {
-                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength -
+                                    Token->SourceStart;
                         }
                         Item->Kind = cuFloatLiteral;
                         Item->FloatValue = FloatValue;
@@ -4112,9 +4384,11 @@ namespace EC_Expression {
                         Item = Compiler->AddUnit();
                         Item->SourceStart = Token->SourceStart;
                         if (Next == nullptr) {
-                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength -
+                                    Token->SourceStart;
                         } else {
-                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength -
+                                    Token->SourceStart;
                         }
                         Item->Kind = cuDwordLiteral;
                         Item->DwordValue = DwordValue;
@@ -4124,9 +4398,11 @@ namespace EC_Expression {
                         Item = Compiler->AddUnit();
                         Item->SourceStart = Token->SourceStart;
                         if (Next == nullptr) {
-                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength -
+                                    Token->SourceStart;
                         } else {
-                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength -
+                                    Token->SourceStart;
                         }
                         Item->Kind = cuIntLiteral;
                         Item->IntValue = IntValue;
@@ -4136,9 +4412,11 @@ namespace EC_Expression {
                         Item = Compiler->AddUnit();
                         Item->SourceStart = Token->SourceStart;
                         if (Next == nullptr) {
-                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength -
+                                    Token->SourceStart;
                         } else {
-                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength -
+                                    Token->SourceStart;
                         }
                         Item->Kind = cuStringLiteral;
                         Item->Text = Text;
@@ -4148,9 +4426,11 @@ namespace EC_Expression {
                         Item = Compiler->AddUnit();
                         Item->SourceStart = Token->SourceStart;
                         if (Next == nullptr) {
-                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Analyzer->Last->SourceStart + Analyzer->Last->SourceLength -
+                                    Token->SourceStart;
                         } else {
-                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength - Token->SourceStart;
+                            Item->SourceLength = Next->Prev->SourceStart + Next->Prev->SourceLength -
+                                    Token->SourceStart;
                         }
                         Item->Kind = cuName;
                         Item->Text = Text;
@@ -4211,14 +4491,18 @@ namespace EC_Expression {
         }
         Item = Compiler->First;
         while (Item != nullptr) {
-            if (Item->Kind == cuBinaryOperator && Item->OperatorToken == ctSubtract && Item->Next != nullptr && (Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuFloatLiteral)) {
+            if (Item->Kind == cuBinaryOperator && Item->OperatorToken == ctSubtract && Item->Next != nullptr &&
+                (Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuFloatLiteral)) {
                 if (EC_Expression::IsUnaryMinusPosition(Item)) {
                     Item = Item->Next;
                     Compiler->DeleteUnit(Item->Prev);
                     Item->IntValue = -Item->IntValue;
                     Item->FloatValue = -Item->FloatValue;
                 }
-            } else if (Item->Kind == cuBinaryOperator && Item->OperatorToken == ctSubtract && Item->Next != nullptr && (Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind == cuFloatLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall || Item->Next->Kind == cuIndex || Item->Next->Kind == cuName)) {
+            } else if (Item->Kind == cuBinaryOperator && Item->OperatorToken == ctSubtract && Item->Next != nullptr &&
+                (Item->Next->Kind == cuIntLiteral || Item->Next->Kind == cuDwordLiteral || Item->Next->Kind ==
+                        cuFloatLiteral || Item->Next->Kind == cuOpenParen || Item->Next->Kind == cuCall ||
+                    Item->Next->Kind == cuIndex || Item->Next->Kind == cuName)) {
                 if (EC_Expression::IsUnaryMinusPosition(Item)) {
                     Item->Kind = cuUnaryOperator;
                 }
@@ -4419,7 +4703,8 @@ namespace EC_Expression {
                 Compiler->DeleteUnit(Item->Next);
                 Compiler->DeleteUnit(Item);
             }
-            while (Reduced != nullptr && Reduced->Prev != nullptr && Reduced->Prev->Kind == cuOpenParen && Reduced->Next != nullptr && Reduced->Next->Kind == cuCloseParen) {
+            while (Reduced != nullptr && Reduced->Prev != nullptr && Reduced->Prev->Kind == cuOpenParen &&
+                Reduced->Next != nullptr && Reduced->Next->Kind == cuCloseParen) {
                 Compiler->DeleteUnit(Reduced->Prev);
                 Compiler->DeleteUnit(Reduced->Next);
             }
@@ -4445,8 +4730,7 @@ namespace EC_Expression {
         }
     }
 
-    void TExpressionEC_Evaluate(TExpressionEC* Self, TCodeProcessEC* Process, TCodeEC* Code, TScriptDebugState* DebugContext) {
-        pas::DynArray<std::uint32_t> LibraryArguments{};
+    void TExpressionEC::Evaluate(TCodeProcessEC* Process, TCodeEC* Code, TScriptDebugState* DebugContext) {
         std::uint32_t LibraryWord{};
         std::int32_t j{};
         TExpressionInstrEC* Instruction{};
@@ -4454,6 +4738,7 @@ namespace EC_Expression {
         TExpressionVarEC* Left{};
         TExpressionVarEC* Right{};
         pas::DynArray<TVarEC*> Arguments{};
+        pas::DynArray<std::uint32_t> LibraryArguments{};
         TVarEC* Value{};
         TVarEC* IndexValue{};
         TVarEC* Callee{};
@@ -4462,19 +4747,19 @@ namespace EC_Expression {
         TVarKind ResultKind{};
         float SingleValue{};
         std::int32_t i = 0;
-        while (i < Self->VariableCount) {
-            Dest = EC_Expression::TExpressionEC_GetVariable(Self, i);
+        while (i < VariableCount) {
+            Dest = EC_Expression::TExpressionEC_GetVariable(this, i);
             if (Dest->Kind == evIndexed) {
                 Dest->Value = nullptr;
             }
             ++i;
         }
         i = 0;
-        while (i < Self->InstructionCount) {
-            Instruction = EC_Expression::TExpressionEC_GetInstruction(Self, i);
+        while (i < InstructionCount) {
+            Instruction = EC_Expression::TExpressionEC_GetInstruction(this, i);
             if (Instruction->Opcode == eoNegate || Instruction->Opcode == eoBitNot || Instruction->Opcode == eoNot) {
-                Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
-                Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
+                Dest = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[0]);
+                Left = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[1]);
                 switch (Instruction->Opcode) {
                     case eoNegate: {
                         TVarEC* resolve = Left->Resolve(vkEmpty);
@@ -4495,13 +4780,15 @@ namespace EC_Expression {
                         break;
                     }
                 }
-            } else if (Instruction->Opcode != eoCall && Instruction->Opcode != eoAssign && Instruction->Opcode != eoIndex) {
-                Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
-                Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
-                Right = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[2]);
+            } else if (Instruction->Opcode != eoCall && Instruction->Opcode != eoAssign && Instruction->Opcode !=
+                    eoIndex) {
+                Dest = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[0]);
+                Left = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[1]);
+                Right = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[2]);
                 ResultKind = vkEmpty;
                 if (Dest->Value == nullptr && Dest->Kind == evOwned) {
-                    if (Instruction->Opcode == eoAdd || Instruction->Opcode == eoSubtract || Instruction->Opcode == eoMultiply || Instruction->Opcode == eoDivide) {
+                    if (Instruction->Opcode == eoAdd || Instruction->Opcode == eoSubtract || Instruction->Opcode ==
+                            eoMultiply || Instruction->Opcode == eoDivide) {
                         ResultKind = EC_Expression::TVarEC_RealVType(Left->Resolve(vkEmpty));
                     } else {
                         ResultKind = vkInt;
@@ -4636,31 +4923,38 @@ namespace EC_Expression {
                     }
                 }
             } else if (Instruction->Opcode == eoAssign) {
-                Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
-                Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
+                Dest = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[0]);
+                Left = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[1]);
                 {
                     TVarEC* resolve_61 = Left->Resolve(vkEmpty);
                     TVarEC* resolve_62 = Dest->Resolve(vkEmpty);
                     resolve_62->Assume(resolve_61, false);
                 }
             } else if (Instruction->Opcode == eoIndex) {
-                Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
-                Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
+                Dest = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[0]);
+                Left = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[1]);
                 Value = Left->Resolve(vkEmpty);
                 if (EC_Expression::TVarEC_RealVType(Value) != vkArray) {
-                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not array:", Left->Name}))));
+                    pas::raise(
+                        pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Not array:", Left->Name}))));
                 }
-                for (auto cpp_range = pas::for_to<std::int32_t>(2, Instruction->OperandCount - 1); cpp_range.next(j); ) {
-                    Right = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[j]);
+                for (auto cpp_range = pas::for_to<std::int32_t>(2,
+                    Instruction->OperandCount - 1); cpp_range.next(j); ) {
+                    Right = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[j]);
                     IndexValue = Right->Resolve(vkEmpty);
                     if (EC_Expression::TVarEC_RealVType(IndexValue) == vkString) {
                         Value = ([&] {
-                            const pas::WideString& string = IndexValue->GetString();
-                            TVarArrayEC* array = Value->GetArray();
-                            return array->GetVarNE(string);
-                        }());
+                                const pas::WideString& string = IndexValue->GetString();
+                                TVarArrayEC* array = Value->GetArray();
+                                return array->GetVarNE(string);
+                            }());
                         if (Value == nullptr) {
-                            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error array. name=", Left->Resolve(vkEmpty)->Name, u" index=", Right->Value->GetString(), u" level=", pas::wide_int_to_str(j - 1)}))));
+                            pas::raise(
+                                pas::make_exception<ExceptionExpressionEC>(
+                                    static_cast<pas::AnsiString>(pas::concat_wide({u"Error array. name=",
+                                        Left->Resolve(vkEmpty)->Name, u" index=", Right->Value->GetString(), u" level=",
+                                        pas::wide_int_to_str(j - 1)}))));
                         }
                     } else {
                         {
@@ -4669,61 +4963,79 @@ namespace EC_Expression {
                             Value = array_2->GetItemNE(pasint);
                         }
                         if (Value == nullptr) {
-                            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error array. name=", Left->Resolve(vkEmpty)->Name, u" index=", pas::wide_int_to_str(Right->Value->GetInt()), u" level=", pas::wide_int_to_str(j - 1)}))));
+                            pas::raise(
+                                pas::make_exception<ExceptionExpressionEC>(
+                                    static_cast<pas::AnsiString>(pas::concat_wide({u"Error array. name=",
+                                        Left->Resolve(vkEmpty)->Name, u" index=",
+                                        pas::wide_int_to_str(Right->Value->GetInt()), u" level=",
+                                        pas::wide_int_to_str(j - 1)}))));
                         }
                     }
                     if (j != Instruction->OperandCount - 1 && EC_Expression::TVarEC_RealVType(Value) != vkArray) {
-                        pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error array:", Left->Name}))));
+                        pas::raise(
+                            pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                                u"Error array:", Left->Name}))));
                     }
                 }
                 Dest->Value = Value;
             } else {
-                Dest = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[0]);
-                Left = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[1]);
+                Dest = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[0]);
+                Left = EC_Expression::TExpressionEC_GetVariable(this, Instruction->Operands[1]);
                 Dest->Resolve(vkEmpty);
                 Callee = Left->Resolve(vkEmpty);
                 if (EC_Expression::TVarEC_RealVType(Callee) == vkLibraryFun) {
                     Value = EC_Expression::TVarEC_Resolve(Callee);
                     if (Value->LibraryFunData.length() - 1 + 1 - 2 != Instruction->OperandCount - 2) {
-                        pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Count variable : ", Left->Name}))));
+                        pas::raise(
+                            pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                                u"Count variable : ", Left->Name}))));
                     }
                     LibraryArguments.set_length(Instruction->OperandCount - 2);
                     {
                         const std::int32_t cpp_first = Instruction->OperandCount - 2 - 1;
                         if (cpp_first >= 0) {
                             for (j = cpp_first; j >= 0; --j) {
-                                Argument = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[j + 2])->Resolve(vkEmpty);
+                                Argument = EC_Expression::TExpressionEC_GetVariable(this,
+                                        Instruction->Operands[j + 2])->Resolve(vkEmpty);
                                 switch (static_cast<TLibraryValueKind>(Value->LibraryFunData[2 + j])) {
                                     case lvInt: LibraryWord = Argument->GetInt(); break;
                                     case lvDword: LibraryWord = Argument->GetDword(); break;
                                     case lvFloat: {
                                         SingleValue = Argument->GetFloat();
-                                        LibraryWord = pas::load_unaligned<std::uint32_t>(reinterpret_cast<WindowsSdk::PDWORD>(&SingleValue));
+                                        LibraryWord =
+                                            pas::load_unaligned<std::uint32_t>(
+                                                reinterpret_cast<WindowsSdk::PDWORD>(&SingleValue));
                                         break;
                                     }
                                     case lvString: {
                                         IndexValue = EC_Expression::TVarEC_Resolve(Argument);
                                         if (IndexValue->Kind != vkString) {
-                                            pas::raise(pas::make_exception<ExceptionExpressionEC>("Variable not string"_a));
+                                            pas::raise(
+                                                pas::make_exception<ExceptionExpressionEC>("Variable not string"_a));
                                         }
                                         if (IndexValue->StringValue.length() <= 0) {
                                             LibraryWord = 0u;
                                         } else {
-                                            LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(IndexValue->StringValue.pchar()));
+                                            LibraryWord =
+                                                static_cast<std::uint32_t>(
+                                                    reinterpret_cast<std::uintptr_t>(IndexValue->StringValue.pchar()));
                                         }
                                         break;
                                     }
                                     case lvRef: {
-                                        LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Argument));
+                                        LibraryWord =
+                                            static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Argument));
                                         break;
                                     }
                                     case lvCode: {
-                                        LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Code));
+                                        LibraryWord =
+                                            static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Code));
                                         break;
                                     }
                                     default: LibraryWord = 0u; break;
                                 }
-                                // The imported function consumes its dynamically constructed argument stack.
+                                // Preserve right-to-left argument preparation; the Win32 adapter
+                                // dispatches these raw words in their original parameter order.
                                 LibraryArguments[j] = LibraryWord;
                             }
                         }
@@ -4738,16 +5050,22 @@ namespace EC_Expression {
                     } else if (Value->LibraryFunData[0] == 2) {
                         Dest->Value->SetDword(LibraryWord);
                     } else if (Value->LibraryFunData[0] == 3) {
-                        Dest->Value->SetFloat(pas::load_unaligned<float>(reinterpret_cast<WindowsSdk::PSingle>(&LibraryWord)));
+                        Dest->Value->SetFloat(
+                            pas::load_unaligned<float>(reinterpret_cast<WindowsSdk::PSingle>(&LibraryWord)));
                     } else if (Value->LibraryFunData[0] == 4) {
-                        Dest->Value->SetString(pas::concat_wide({u"", static_cast<pas::WideString>(reinterpret_cast<char16_t*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(LibraryWord))))}));
+                        Dest->Value->SetString(pas::concat_wide({u"",
+                            static_cast<pas::WideString>(
+                                reinterpret_cast<char16_t*>(
+                                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(LibraryWord))))}));
                     }
                 } else if (EC_Expression::TVarEC_RealVType(Callee) == vkExternFun) {
                     Arguments.set_length(Instruction->OperandCount - 1);
                     Arguments[0] = Dest->Value;
                     Dest->Value->ResetKind(vkEmpty);
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(2, Instruction->OperandCount - 1); cpp_range_2.next(j); ) {
-                        Argument = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[j])->Resolve(vkEmpty);
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(2,
+                        Instruction->OperandCount - 1); cpp_range_2.next(j); ) {
+                        Argument = EC_Expression::TExpressionEC_GetVariable(this,
+                                Instruction->Operands[j])->Resolve(vkEmpty);
                         Arguments[j - 1] = Argument;
                     }
                     if (Code != nullptr) {
@@ -4757,23 +5075,29 @@ namespace EC_Expression {
                     ScriptCallTrace[ScriptCallTracePosition] = Callee;
                     ScriptCallTraceCount = std::min<std::int32_t>(20, ScriptCallTraceCount + 1);
                     ScriptCallTracePosition = (ScriptCallTracePosition + 1) % 20;
-                    pas::callback_from_address<TExpressionCallback>(Callee->GetExternFun())(pas::open_array(Arguments), Code);
+                    pas::callback_from_address<TExpressionCallback>(Callee->GetExternFun())(pas::open_array(Arguments),
+                        Code);
                 } else if (EC_Expression::TVarEC_RealVType(Callee) == vkFunction) {
                     if (([&] {
-                        std::int32_t cpp_left = Callee->GetFunction()->LocalVar->GetVar(u"funBaseVarCount"_wref.get())->GetInt();
+                        std::int32_t cpp_left = Callee->GetFunction()->LocalVar->GetVar(
+                            u"funBaseVarCount"_wref.get())->GetInt();
                         return cpp_left < Instruction->OperandCount - 2;
                     }())) {
-                        pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Count var error. fun:", Left->Name}))));
+                        pas::raise(
+                            pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                                u"Count var error. fun:", Left->Name}))));
                     }
                     Invocation = pas::construct_call<TCodeEC>(TCodeEC_Create);
                     Invocation->Parent = Callee->GetFunction();
                     Invocation->CopyFromFast(Callee->GetFunction());
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(2, Instruction->OperandCount - 1); cpp_range_3.next(j); ) {
-                        Argument = EC_Expression::TExpressionEC_GetVariable(Self, Instruction->Operands[j])->Resolve(vkEmpty);
-                        if (EC_Expression::TVarArrayEC_GetItem(Invocation->LocalVar, j - 2)->Kind == vkRef) {
-                            EC_Expression::TVarArrayEC_GetItem(Invocation->LocalVar, j - 2)->SetRef(Argument);
+                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(2,
+                        Instruction->OperandCount - 1); cpp_range_3.next(j); ) {
+                        Argument = EC_Expression::TExpressionEC_GetVariable(this,
+                                Instruction->Operands[j])->Resolve(vkEmpty);
+                        if (Invocation->LocalVar->GetItem(j - 2)->Kind == vkRef) {
+                            Invocation->LocalVar->GetItem(j - 2)->SetRef(Argument);
                         } else {
-                            EC_Expression::TVarArrayEC_GetItem(Invocation->LocalVar, j - 2)->Assume(Argument, false);
+                            Invocation->LocalVar->GetItem(j - 2)->Assume(Argument, false);
                         }
                     }
                     try {
@@ -4794,20 +5118,27 @@ namespace EC_Expression {
                         auto cpp_exception = pas::caught_object();
                         if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                             pas::free(Invocation);
-                            if (static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))) == "EBreakMessageGI") {
+                            if (static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))) ==
+                                "EBreakMessageGI") {
                                 throw;
                             }
                             ScriptCallTrace[ScriptCallTracePosition] = Callee;
                             ScriptCallTraceCount = std::min<std::int32_t>(20, ScriptCallTraceCount + 1);
                             ScriptCallTracePosition = (ScriptCallTracePosition + 1) % 20;
-                            pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in function ", Callee->Name, u" (", static_cast<pas::WideString>(pas::class_name(pas::class_type(E))), u" ", static_cast<pas::WideString>(E->message), u")"}))));
+                            pas::raise(
+                                pas::make_exception<ExceptionExpressionEC>(
+                                    static_cast<pas::AnsiString>(pas::concat_wide({u"Error in function ", Callee->Name,
+                                        u" (", static_cast<pas::WideString>(pas::class_name(pas::class_type(E))), u" ",
+                                        static_cast<pas::WideString>(E->message), u")"}))));
                         } else {
                             throw;
                         }
                     }
                     pas::free(Invocation);
                 } else {
-                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not fun:", Left->Name}))));
+                    pas::raise(
+                        pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Not fun:", Left->Name}))));
                 }
             }
             ++i;
@@ -4884,13 +5215,16 @@ namespace EC_Expression {
                 if (Item->Prev->Kind == cuVariable && Item->Next->Kind == cuVariable) {
                     Following = Item->Next->Next;
                     while (Following != nullptr) {
-                        if (Following->Kind == cuOpenParen || Following->Kind == cuOpenBracket || Following->Kind == cuCall || Following->Kind == cuCloseParen || Following->Kind == cuCloseBracket) {
+                        if (Following->Kind == cuOpenParen || Following->Kind == cuOpenBracket || Following->Kind ==
+                                cuCall || Following->Kind == cuCloseParen || Following->Kind == cuCloseBracket) {
                             break;
                         }
                         Following = Following->Next;
                     }
-                    if (Following == nullptr || Following->Kind != cuOpenParen && Following->Kind != cuOpenBracket && Following->Kind != cuCall) {
-                        if (Item->OperatorToken == ctMultiply || Item->OperatorToken == ctDivide || Item->OperatorToken == ctModulo) {
+                    if (Following == nullptr || Following->Kind != cuOpenParen && Following->Kind != cuOpenBracket &&
+                            Following->Kind != cuCall) {
+                        if (Item->OperatorToken == ctMultiply || Item->OperatorToken == ctDivide ||
+                            Item->OperatorToken == ctModulo) {
                             if (Candidates[1] == nullptr) {
                                 Candidates[1] = Item;
                             }
@@ -4902,7 +5236,9 @@ namespace EC_Expression {
                             if (Candidates[3] == nullptr) {
                                 Candidates[3] = Item;
                             }
-                        } else if (Item->OperatorToken == ctEqual || Item->OperatorToken == ctNotEqual || Item->OperatorToken == ctLess || Item->OperatorToken == ctGreater || Item->OperatorToken == ctLessEqual || Item->OperatorToken == ctGreaterEqual) {
+                        } else if (Item->OperatorToken == ctEqual || Item->OperatorToken == ctNotEqual ||
+                            Item->OperatorToken == ctLess || Item->OperatorToken == ctGreater || Item->OperatorToken ==
+                                ctLessEqual || Item->OperatorToken == ctGreaterEqual) {
                             if (Candidates[4] == nullptr) {
                                 Candidates[4] = Item;
                             }
@@ -5013,24 +5349,35 @@ namespace EC_Expression {
         PCodeExceptionHandler Handler{};
         PVarEC Value{};
         std::int32_t i{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Handlers) - 1); cpp_range.next(i); ) {
-            Handler = pas::list_at<TCodeExceptionHandler>(Handlers, i);
-            WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Handler);
+        {
+            const std::int32_t cpp_last = pas::list_count(Handlers) - 1;
+            if (0 <= cpp_last) {
+                for (i = 0; i <= cpp_last; ++i) {
+                    Handler = pas::list_at<TCodeExceptionHandler>(Handlers, i);
+                    WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Handler);
+                }
+            }
         }
         pas::list_clear(Handlers);
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Exceptions) - 1); cpp_range_2.next(i); ) {
-            Value = pas::list_at<TVarEC*>(Exceptions, i);
-            if (pas::load_unaligned<TVarEC*>(Value) != nullptr) {
-                pas::free(pas::load_unaligned<TVarEC*>(Value));
-                pas::store_unaligned<TVarEC*>(Value, nullptr);
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Exceptions) - 1;
+            if (0 <= cpp_last_2) {
+                for (i = 0; i <= cpp_last_2; ++i) {
+                    Value = pas::list_at<TVarEC*>(Exceptions, i);
+                    if (pas::load_unaligned<TVarEC*>(Value) != nullptr) {
+                        pas::free(pas::load_unaligned<TVarEC*>(Value));
+                        pas::store_unaligned<TVarEC*>(Value, nullptr);
+                    }
+                    WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Value);
+                }
             }
-            WindowsSdk::HeapFree(WindowsSdk::GetProcessHeap(), 0u, Value);
         }
         pas::list_clear(Exceptions);
     }
 
     void TCodeProcessEC::PushHandler(TCodeEC* Code, TCodeUnitEC* Handler) {
-        PCodeExceptionHandler Entry = static_cast<PCodeExceptionHandler>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, static_cast<std::int32_t>(sizeof(TCodeExceptionHandler))));
+        PCodeExceptionHandler Entry = static_cast<PCodeExceptionHandler>(WindowsSdk::HeapAlloc(
+            WindowsSdk::GetProcessHeap(), 0u, static_cast<std::int32_t>(sizeof(TCodeExceptionHandler))));
         Entry->Code = Code;
         Entry->Handler = Handler;
         pas::list_add(Handlers, static_cast<void*>(Entry));
@@ -5055,8 +5402,10 @@ namespace EC_Expression {
     }
 
     void TCodeProcessEC::PushException(TVarEC* Value) {
-        PVarEC Entry = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u, static_cast<std::int32_t>(sizeof(TVarEC*))));
-        pas::store_unaligned<TVarEC*>(Entry, pas::construct_call<TVarEC>(TVarEC_Create, EC_Expression::TVarEC_RealVType(Value)));
+        PVarEC Entry = static_cast<PVarEC>(WindowsSdk::HeapAlloc(WindowsSdk::GetProcessHeap(), 0u,
+            static_cast<std::int32_t>(sizeof(TVarEC*))));
+        pas::store_unaligned<TVarEC*>(Entry,
+            pas::construct_call<TVarEC>(TVarEC_Create, EC_Expression::TVarEC_RealVType(Value)));
         pas::load_unaligned<TVarEC*>(Entry)->Assume(Value, false);
         pas::list_add(Exceptions, static_cast<void*>(Entry));
     }
@@ -5084,12 +5433,17 @@ namespace EC_Expression {
         PVarEC Entry{};
         pas::WideString Text{};
         std::int32_t i{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Exceptions) - 1); cpp_range.next(i); ) {
-            Entry = pas::list_at<TVarEC*>(Exceptions, i);
-            if (i > 0) {
-                Text = pas::concat_wide({Text, u"\r\n"});
+        {
+            const std::int32_t cpp_last = pas::list_count(Exceptions) - 1;
+            if (0 <= cpp_last) {
+                for (i = 0; i <= cpp_last; ++i) {
+                    Entry = pas::list_at<TVarEC*>(Exceptions, i);
+                    if (i > 0) {
+                        Text = pas::concat_wide({Text, u"\r\n"});
+                    }
+                    Text = pas::concat_wide({Text, u"Exception: ", pas::load_unaligned<TVarEC*>(Entry)->GetString()});
+                }
             }
-            Text = pas::concat_wide({Text, u"Exception: ", pas::load_unaligned<TVarEC*>(Entry)->GetString()});
         }
         if (Text != u"") {
             pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(Text)));
@@ -5222,7 +5576,7 @@ namespace EC_Expression {
             return Result;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LocalVar->Count - 1); cpp_range.next(i); ) {
-            Item = EC_Expression::TVarArrayEC_GetItem(LocalVar, i);
+            Item = LocalVar->GetItem(i);
             if (Item->Kind == vkFunction && Item->FunctionValue->IsClassDefinition) {
                 Result = Item->FunctionValue->FindVar(Name);
                 if (Result != nullptr) {
@@ -5282,15 +5636,20 @@ namespace EC_Expression {
     }
 
     // NextToken may be nil.
-    void TCodeEC::Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
+    void TCodeEC::Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver,
+        TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText) {
         ErrorText = pas::WideString();
         if (FirstToken == nullptr) {
             FirstToken = Analyzer->First;
         }
-        CompileBlock(Analyzer, SourceContext, IncludeResolver, FirstToken, nullptr, NextToken, nullptr, nullptr, nullptr, ErrorText);
+        CompileBlock(Analyzer, SourceContext, IncludeResolver, FirstToken, nullptr, NextToken, nullptr, nullptr,
+            nullptr, ErrorText);
     }
 
-    void TCodeEC::CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken, PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget, pas::WideString& ErrorText) {
+    void TCodeEC::CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver,
+        TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken,
+        PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget,
+        pas::WideString& ErrorText) {
         TCodeAnalyzerEC* Included{};
         void* IncludedContext{};
         TCodeAnalyzerUnitEC* Next{};
@@ -5310,7 +5669,10 @@ namespace EC_Expression {
         pas::WideString Text{};
         std::uint8_t InsertSource{};
         auto IsScriptLocalDeclaration = [&](TCodeAnalyzerUnitEC* Token) -> std::uint8_t {
-            return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind == ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" || Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text == u"array") && EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text));
+            return Token != nullptr && Token->Next != nullptr && Token->Next->TokenKind == ctText && Token->TokenKind ==
+                    ctText && (Token->Text == u"unknown" || Token->Text == u"int" || Token->Text == u"dword" ||
+                    Token->Text == u"float" || Token->Text == u"str" || Token->Text == u"ref" || Token->Text ==
+                        u"array") && EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text));
         };
         auto CompileScriptLocals = [&](TCodeAnalyzerUnitEC*& Token) -> pas::WideString {
             pas::WideString Result{};
@@ -5359,7 +5721,8 @@ namespace EC_Expression {
         std::int32_t Depth = 0;
         while (Token != nullptr) {
             if (Token->TokenKind == ctText) {
-                Keyword = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Text)));
+                Keyword =
+                    static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Text)));
                 if (IsScriptLocalDeclaration(Token)) {
                     ErrorText = CompileScriptLocals(Token);
                     if (ErrorText != u"") {
@@ -5413,7 +5776,8 @@ namespace EC_Expression {
                         Item->SourceLength = Next->SourceStart - Item->SourceStart + Next->SourceLength;
                         Branch = Item;
                         if (Token == nullptr) {
-                            pas::raise(pas::make_exception<ExceptionExpressionEC>("Compiler error, code ends abruptly"_a));
+                            pas::raise(
+                                pas::make_exception<ExceptionExpressionEC>("Compiler error, code ends abruptly"_a));
                         }
                         Item = InsertCodeUnitBefore(EndLabel);
                         Item->Opcode = coJump;
@@ -5425,7 +5789,8 @@ namespace EC_Expression {
                         if (Token->TokenKind == ctSemicolon) {
                             Token = Token->Next;
                         } else {
-                            CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, LoopStart, NextToken, &Token, BreakTarget, ContinueTarget, ErrorText);
+                            CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, LoopStart, NextToken, &Token,
+                                BreakTarget, ContinueTarget, ErrorText);
                             if (ErrorText != u"") {
                                 return;
                             }
@@ -5436,7 +5801,9 @@ namespace EC_Expression {
                         if (Token->TokenKind != ctText) {
                             break;
                         }
-                        Keyword = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Text)));
+                        Keyword =
+                            static_cast<pas::WideString>(
+                                SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Text)));
                         if (Keyword != u"else") {
                             break;
                         }
@@ -5446,7 +5813,8 @@ namespace EC_Expression {
                         Item->SourceLength = 0;
                         Item->SourceContext = SourceContext;
                         Branch->Target = Item;
-                        if (Token->Next != nullptr && Token->Next->TokenKind == ctText && SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Next->Text)) == "if") {
+                        if (Token->Next != nullptr && Token->Next->TokenKind == ctText &&
+                            SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Token->Next->Text)) == "if") {
                             Token = Token->Next;
                             continue;
                         }
@@ -5457,7 +5825,8 @@ namespace EC_Expression {
                         if (Token->Next->TokenKind == ctSemicolon) {
                             continue;
                         }
-                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token->Next, EndLabel, NextToken, &Token, BreakTarget, ContinueTarget, ErrorText);
+                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token->Next, EndLabel, NextToken, &Token,
+                            BreakTarget, ContinueTarget, ErrorText);
                         if (ErrorText != u"") {
                             return;
                         }
@@ -5513,7 +5882,8 @@ namespace EC_Expression {
                     if (Token->TokenKind == ctSemicolon) {
                         Token = Token->Next;
                     } else {
-                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, EndLabel, LoopStart, ErrorText);
+                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, EndLabel,
+                            LoopStart, ErrorText);
                         if (ErrorText != u"") {
                             return;
                         }
@@ -5533,7 +5903,8 @@ namespace EC_Expression {
                         return;
                     }
                     if (Token->Next->Next == nullptr) {
-                        EC_Expression::FormatScriptError(0, Token->Next->SourceStart + Token->Next->SourceLength, ErrorText);
+                        EC_Expression::FormatScriptError(0, Token->Next->SourceStart + Token->Next->SourceLength,
+                            ErrorText);
                         return;
                     }
                     Token = Token->Next->Next;
@@ -5676,7 +6047,8 @@ namespace EC_Expression {
                     if (Token->TokenKind == ctSemicolon) {
                         Token = Token->Next;
                     } else {
-                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, EndLabel, StepStart, ErrorText);
+                        CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, EndLabel,
+                            StepStart, ErrorText);
                         if (ErrorText != u"") {
                             return;
                         }
@@ -5763,7 +6135,8 @@ namespace EC_Expression {
                     }
                     InsertSource = Keyword == u"#insert";
                     Included = pas::construct_call<TCodeAnalyzerEC>(TCodeAnalyzerEC_Create);
-                    IntValue = IncludeResolver(SourceContext, Token->Next->Text, InsertSource, IncludedContext, Included);
+                    IntValue = IncludeResolver(SourceContext, Token->Next->Text, InsertSource, IncludedContext,
+                            Included);
                     if (IntValue == 2 || IntValue == 3) {
                         pas::free(Included);
                         EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
@@ -5776,7 +6149,8 @@ namespace EC_Expression {
                             EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
                             return;
                         }
-                        CompileBlock(Included, IncludedContext, IncludeResolver, Included->First, BeforeUnit, nullptr, nullptr, nullptr, nullptr, ErrorText);
+                        CompileBlock(Included, IncludedContext, IncludeResolver, Included->First, BeforeUnit, nullptr,
+                            nullptr, nullptr, nullptr, ErrorText);
                         if (ErrorText != u"") {
                             pas::free(Included);
                             return;
@@ -5790,7 +6164,9 @@ namespace EC_Expression {
                         EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, ErrorText);
                         return;
                     }
-                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text)) ^ 1) || Token->Next->Next == nullptr) {
+                    if (Token->Next->TokenKind != ctText ||
+                        !EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text)) || Token->Next->Next ==
+                            nullptr) {
                         EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
                         return;
                     }
@@ -5802,14 +6178,19 @@ namespace EC_Expression {
                     Definition = Value->GetFunction();
                     Definition->Parent = this;
                     Next = Token->Next->Next->Next;
-                    while (Next != nullptr && Next->TokenKind == ctText && EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text))) {
-                        Keyword = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Next->Text)));
-                        if (Keyword == u"unknown" || Keyword == u"int" || Keyword == u"dword" || Keyword == u"float" || Keyword == u"str" || Keyword == u"ref" || Keyword == u"array") {
+                    while (Next != nullptr && Next->TokenKind == ctText &&
+                        EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text))) {
+                        Keyword =
+                            static_cast<pas::WideString>(
+                                SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Next->Text)));
+                        if (Keyword == u"unknown" || Keyword == u"int" || Keyword == u"dword" || Keyword == u"float" ||
+                            Keyword == u"str" || Keyword == u"ref" || Keyword == u"array") {
                             Next = Next->Next;
                         } else {
                             Keyword = u"unknown"_w;
                         }
-                        if (Next == nullptr || Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text)) ^ 1)) {
+                        if (Next == nullptr || Next->TokenKind != ctText ||
+                            !EC_Expression::IsNonIntegerScriptText(pas::view(Next->Text))) {
                             break;
                         }
                         Value = nullptr;
@@ -5830,12 +6211,14 @@ namespace EC_Expression {
                         }
                         Next = Next->Next;
                         if (Next == nullptr) {
-                            EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
+                            EC_Expression::FormatScriptError(0,
+                                Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
                             return;
                         }
                         if (Keyword != u"ref" && Next->TokenKind == ctAssign) {
                             if (Next->Next == nullptr) {
-                                EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
+                                EC_Expression::FormatScriptError(0,
+                                    Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
                                 return;
                             }
                             Next = Next->Next;
@@ -5879,7 +6262,8 @@ namespace EC_Expression {
                         return;
                     }
                     if (Next == nullptr) {
-                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
+                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength,
+                            ErrorText);
                         return;
                     }
                     if (Next->TokenKind != ctCloseBrace) {
@@ -5893,12 +6277,14 @@ namespace EC_Expression {
                         EC_Expression::FormatScriptError(0, Token->SourceStart + Token->SourceLength, ErrorText);
                         return;
                     }
-                    if (Token->Next->TokenKind != ctText || static_cast<std::uint8_t>(EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text)) ^ 1)) {
+                    if (Token->Next->TokenKind != ctText ||
+                        !EC_Expression::IsNonIntegerScriptText(pas::view(Token->Next->Text))) {
                         EC_Expression::FormatScriptError(0, Token->Next->SourceStart, ErrorText);
                         return;
                     }
                     if (Token->Next->Next == nullptr) {
-                        EC_Expression::FormatScriptError(0, Token->Next->SourceStart + Token->Next->SourceLength, ErrorText);
+                        EC_Expression::FormatScriptError(0, Token->Next->SourceStart + Token->Next->SourceLength,
+                            ErrorText);
                         return;
                     }
                     Value = LocalVar->Add(Token->Next->Text, vkFunction);
@@ -5940,7 +6326,8 @@ namespace EC_Expression {
                         return;
                     }
                     if (Next == nullptr) {
-                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
+                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength,
+                            ErrorText);
                         return;
                     }
                     if (Next->TokenKind != ctCloseBrace) {
@@ -5963,7 +6350,8 @@ namespace EC_Expression {
                     LoopStart->SourceStart = Token->SourceStart;
                     LoopStart->SourceLength = 0;
                     LoopStart->SourceContext = SourceContext;
-                    CompileBlock(Analyzer, SourceContext, IncludeResolver, Token->Next, BeforeUnit, NextToken, &Token, nullptr, nullptr, ErrorText);
+                    CompileBlock(Analyzer, SourceContext, IncludeResolver, Token->Next, BeforeUnit, NextToken, &Token,
+                        nullptr, nullptr, ErrorText);
                     if (ErrorText != u"") {
                         return;
                     }
@@ -6053,7 +6441,8 @@ namespace EC_Expression {
                         Item->SourceLength = 0;
                         Item->SourceContext = SourceContext;
                     }
-                    CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, nullptr, nullptr, ErrorText);
+                    CompileBlock(Analyzer, SourceContext, IncludeResolver, Token, Item, NextToken, &Token, nullptr,
+                        nullptr, ErrorText);
                     if (ErrorText != u"") {
                         return;
                     }
@@ -6113,7 +6502,8 @@ namespace EC_Expression {
                         return;
                     }
                     if (Next == nullptr) {
-                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength, ErrorText);
+                        EC_Expression::FormatScriptError(0, Analyzer->Last->SourceStart + Analyzer->Last->SourceLength,
+                            ErrorText);
                         return;
                     }
                     if (Next->TokenKind != ctSemicolon) {
@@ -6153,7 +6543,7 @@ namespace EC_Expression {
         }
     }
 
-    void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self) {
+    static void AddScriptLocal(const std::u16string_view& TypeName, pas::WideString Name, TCodeEC* Self) {
         if (TypeName == u"unknown"sv) {
             Self->LocalVar->Add(Name, vkEmpty);
         } else if (TypeName == u"int"sv) {
@@ -6181,7 +6571,7 @@ namespace EC_Expression {
             Item = Item->Next;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LocalVar->Count - 1); cpp_range.next(i); ) {
-            TVarEC* cpp_with = EC_Expression::TVarArrayEC_GetItem(LocalVar, i);
+            TVarEC* cpp_with = LocalVar->GetItem(i);
             if (cpp_with->Kind == vkFunction && cpp_with->GetFunction() != nullptr) {
                 cpp_with->GetFunction()->LinkAll(Scope, OnlyUnlinked);
             } else if (cpp_with->Kind == vkClass) {
@@ -6195,7 +6585,7 @@ namespace EC_Expression {
     void TCodeEC::LinkLocalScopes() {
         std::int32_t i{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LocalVar->Count - 1); cpp_range.next(i); ) {
-            TVarEC* cpp_with = EC_Expression::TVarArrayEC_GetItem(LocalVar, i);
+            TVarEC* cpp_with = LocalVar->GetItem(i);
             if (cpp_with->Kind == vkFunction) {
                 if (cpp_with->FunctionValue != nullptr) {
                     if (cpp_with->FunctionValue->IsClassDefinition) {
@@ -6228,7 +6618,7 @@ namespace EC_Expression {
             }
             if (Item->Opcode == coExpression) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
+                    Item->Expression->Evaluate(Process, Self, nullptr);
                 } catch (...) {
                     throw;
                 }
@@ -6237,7 +6627,7 @@ namespace EC_Expression {
                 continue;
             } else if (Item->Opcode == coBranchFalse) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
+                    Item->Expression->Evaluate(Process, Self, nullptr);
                 } catch (...) {
                     throw;
                 }
@@ -6260,7 +6650,7 @@ namespace EC_Expression {
                 Process->PopHandler();
             } else if (Item->Opcode == coThrow) {
                 if (Item->Expression != nullptr) {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
+                    Item->Expression->Evaluate(Process, Self, nullptr);
                     Process->PushException(Item->Expression->GetResult());
                 } else if (Caught != nullptr) {
                     Process->PushException(Caught);
@@ -6310,14 +6700,17 @@ namespace EC_Expression {
         TCodeUnitEC* Item = Self->First;
         while (Item != nullptr) {
             WaitResult = WindowsSdk::WaitForSingleObject(DebugContext->StopEvent, 0u);
-            if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult == WindowsSdk::WAIT_ABANDONED_0) {
+            if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult ==
+                    WindowsSdk::WAIT_ABANDONED_0) {
                 break;
             }
             if (DebugContext->Paused && Item->SourceLength > 0 || Item->Breakpoint) {
                 DebugContext->CurrentUnit = Item;
                 WindowsSdk::ResetEvent(DebugContext->ResumeEvent);
-                WaitResult = WindowsSdk::WaitForMultipleObjects(2u, reinterpret_cast<WindowsSdk::PWOHandleArray>(&Events), 0, WindowsSdk::INFINITE);
-                if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult >= WindowsSdk::WAIT_ABANDONED_0 && WaitResult < WindowsSdk::WAIT_ABANDONED_0 + 2) {
+                WaitResult = WindowsSdk::WaitForMultipleObjects(2u,
+                        reinterpret_cast<WindowsSdk::PWOHandleArray>(&Events), 0, WindowsSdk::INFINITE);
+                if (WaitResult == WindowsSdk::WAIT_FAILED || WaitResult == WindowsSdk::WAIT_OBJECT_0 || WaitResult >=
+                        WindowsSdk::WAIT_ABANDONED_0 && WaitResult < WindowsSdk::WAIT_ABANDONED_0 + 2) {
                     break;
                 }
                 DebugContext->CurrentCode = Self;
@@ -6327,7 +6720,7 @@ namespace EC_Expression {
             }
             if (Item->Opcode == coExpression) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, DebugContext);
+                    Item->Expression->Evaluate(Process, Self, DebugContext);
                 } catch (...) {
                     throw;
                 }
@@ -6336,7 +6729,7 @@ namespace EC_Expression {
                 continue;
             } else if (Item->Opcode == coBranchFalse) {
                 try {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, DebugContext);
+                    Item->Expression->Evaluate(Process, Self, DebugContext);
                 } catch (...) {
                     throw;
                 }
@@ -6359,7 +6752,7 @@ namespace EC_Expression {
                 Process->PopHandler();
             } else if (Item->Opcode == coThrow) {
                 if (Item->Expression != nullptr) {
-                    EC_Expression::TExpressionEC_Evaluate(Item->Expression, Process, Self, nullptr);
+                    Item->Expression->Evaluate(Process, Self, nullptr);
                     Process->PushException(Item->Expression->GetResult());
                 } else if (Caught != nullptr) {
                     Process->PushException(Caught);

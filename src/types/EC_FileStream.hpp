@@ -17,7 +17,7 @@ namespace EC_FileStream {
         PAS_CLASS_META(TFileStreamEC, EC_Thread::TThreadEC, "TFileStreamEC", 88)
         void p_destroy() override;
         void SwapBuffers();
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         std::int32_t Read(void* Destination, std::int32_t ByteCount);
         std::int32_t BlockSize;
         std::int32_t BufferCapacity;

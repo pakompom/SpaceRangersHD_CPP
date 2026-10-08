@@ -6,9 +6,9 @@ namespace EC_Struct {
     // Freed on both startup shutdown paths; concrete class unresolved.
     extern pas::Object* StartupCleanupObject;
 
-    TVector3D MakeVector3D(double X, double Y, double Z);
+    inline TVector3D MakeVector3D(double X, double Y, double Z);
 
-    TPointF MakePointF(float X, float Y);
+    inline TPointF MakePointF(float X, float Y);
 
     // Truncates each coordinate toward zero.
     Types::TPoint TruncatePointF(TPointF Point);
@@ -18,11 +18,11 @@ namespace EC_Struct {
     TPointF PointToPointF(Types::TPoint Point);
 
     // Integer division rounds toward zero.
-    Types::TPoint HalfPoint(Types::TPoint Point);
+    inline Types::TPoint HalfPoint(Types::TPoint Point);
 
-    Types::TPoint AddPoints(Types::TPoint Left, Types::TPoint Right);
+    inline Types::TPoint AddPoints(Types::TPoint Left, Types::TPoint Right);
 
-    Types::TPoint SubtractPoints(Types::TPoint Left, Types::TPoint Right);
+    inline Types::TPoint SubtractPoints(Types::TPoint Left, Types::TPoint Right);
 
     TPointF HalfPointF(TPointF Point);
 
@@ -30,14 +30,14 @@ namespace EC_Struct {
 
     TPointF SubtractPointsF(TPointF Left, TPointF Right);
 
-    std::int32_t SquaredDistanceToPoint(const Types::TPoint& Point, std::int32_t X, std::int32_t Y);
+    inline std::int32_t SquaredDistanceToPoint(const Types::TPoint& Point, std::int32_t X, std::int32_t Y);
 
     // Returns false without writing Intersection when the rectangles do not overlap.
-    inline std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second);
+    std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second);
 
-    void TObjectEx_Create(TObjectEx* Self);
+    inline void TObjectEx_Create(TObjectEx* Self);
 
-    void TObjectEx_Destroy(TObjectEx* Self);
+    inline void TObjectEx_Destroy(TObjectEx* Self);
 
 } // namespace EC_Struct
 

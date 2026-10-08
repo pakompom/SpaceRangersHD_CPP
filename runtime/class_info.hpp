@@ -1,5 +1,6 @@
 #pragma once
 // Semantic class identities and factories. This is not a Delphi VMT image.
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
@@ -11,8 +12,26 @@ struct ClassInfo {
   const ClassInfo *parent;
   const char *name;
   std::uint32_t size;
+  std::uint32_t depth;
+  const ClassInfo *const *ancestors;
   Object *(*allocate)() = nullptr;
 };
+template <class T> extern ClassInfo class_info_storage;
+// Delphi classes have one parent. Index ancestry by its depth, with Object at
+// zero and the class itself last. Every entry is a link-time identity address;
+// neither lookup nor construction needs a registry or mutable cast cache.
+template <class T> inline constexpr auto class_ancestors = [] {
+  if constexpr (std::is_void_v<typename T::pas_parent>) {
+    return std::array<const ClassInfo *, 1>{&class_info_storage<T>};
+  } else {
+    constexpr auto &parent = class_ancestors<typename T::pas_parent>;
+    std::array<const ClassInfo *, parent.size() + 1> result{};
+    for (std::size_t i = 0; i < parent.size(); ++i)
+      result[i] = parent[i];
+    result.back() = &class_info_storage<T>;
+    return result;
+  }
+}();
 // Identity and ancestry are static data. Only the factory is installed lazily
 // by register_class; metadata lookups need no local-static initialization guards.
 template <class T> inline constinit ClassInfo class_info_storage{
@@ -22,8 +41,18 @@ template <class T> inline constinit ClassInfo class_info_storage{
       else
         return &class_info_storage<typename T::pas_parent>;
     }(),
-    T::pas_name, sizeof(T)};
+    T::pas_name, sizeof(T), std::uint32_t(class_ancestors<T>.size() - 1),
+    class_ancestors<T>.data()};
 template <class T> ClassInfo &class_info() { return class_info_storage<T>; }
+inline bool class_inherits(const ClassInfo *type, const ClassInfo *parent) {
+  return type && parent && type->depth >= parent->depth &&
+         type->ancestors[parent->depth] == parent;
+}
+template <class T> bool class_inherits(const ClassInfo *type) {
+  constexpr auto depth = class_ancestors<T>.size() - 1;
+  return type && type->depth >= depth &&
+         type->ancestors[depth] == &class_info_storage<T>;
+}
 template <class T> void register_class() {
   static const bool ready = [] {
     if constexpr (!std::is_void_v<typename T::pas_parent>)
@@ -66,10 +95,7 @@ template <class T> ClassRef<Object> class_identity(ClassRef<T> value) {
 }
 template <class T, class U>
 bool inherits_from(ClassRef<T> value, ClassRef<U> parent) {
-  for (auto *p = value.info; p; p = p->parent)
-    if (p == parent.info)
-      return true;
-  return false;
+  return class_inherits(value.info, parent.info);
 }
 template <class T> ClassRef<Object> class_parent(ClassRef<T> value) {
   if (!value.info)

@@ -2,11 +2,11 @@
 #include "runtime_support.hpp"
 
 namespace Math {
-    inline pas::Extended IntPower(pas::Extended Base, std::int32_t Exponent);
+    inline double IntPower(double Base, std::int32_t Exponent);
 
-    inline pas::Extended ArcTan2(pas::Extended Y, pas::Extended X);
+    inline double ArcTan2(double Y, double X);
 
-    inline pas::Extended Power(pas::Extended Base, pas::Extended Exponent);
+    inline double Power(double Base, double Exponent);
 
 } // namespace Math
 

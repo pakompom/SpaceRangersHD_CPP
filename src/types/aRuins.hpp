@@ -141,12 +141,18 @@ namespace aRuins {
         std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
-        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip,
+            pas::WideString& Response) override;
+        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t OfferedAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response,
+            aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
         // Script.GoodsRuinsForBuy. Restocks selected goods and sets prices near the global minimum.
         void ForceGoodsForSale(aGalaxyStruct::TItemTypeMask GoodsMask);
         // Sets base Accuracy and Maneuverability to 0..5 using galaxy technology and war state.
@@ -157,7 +163,8 @@ namespace aRuins {
         EC_Struct::TPointF SelectTeleportArrivalPoint(aGalaxy::TStar* Star);
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses,
+            float BaseDamage) override;
         void virtual_TShip_RefreshCurrentStanding() override;
         // Type-13 fallback through the planet's hull generator; may apply a special module.
         aItem::THull* GeneratePlanetHullOffer(pas::Object* Ship, aPlanet::TPlanet* Planet);

@@ -32,9 +32,11 @@ namespace aKling {
         void InitBlazer(aGalaxy::TStar* Star);
         void InitKeller(aGalaxy::TStar* Star);
         void InitTerron(aGalaxy::TStar* Star);
-        void InitializeDominator(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet, aGalaxyStruct::TDominatorSeries Series);
+        void InitializeDominator(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet,
+            aGalaxyStruct::TDominatorSeries Series);
         // Initializes type/series and location through, then builds the generated loadout. Series occupies one four-byte stack slot.
-        void InitGenerated(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet, aGalaxyStruct::TDominatorSeries Series);
+        void InitGenerated(aGalaxyStruct::TKlingType Kind, aPlanet::TPlanet* Planet,
+            aGalaxyStruct::TDominatorSeries Series);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void virtual_TShip_ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
@@ -73,7 +75,9 @@ namespace aKling {
         aGalaxyStruct::TPercent GetStrengthScaledPirateStatus() override;
         std::int32_t GetDesiredCargoFreeSpace() override;
         // Checks the stored active flag and ID; expiration is handled by the daily ship update.
-        std::uint8_t IsProgramActive(aGalaxyStruct::TProgramIndex ProgramId);
+        inline std::uint8_t IsProgramActive(aGalaxyStruct::TProgramIndex ProgramId) {
+            return ActiveProgramAppliedTurn > 0 && ProgramId == ActiveProgramId;
+        }
         // Fills installed fuel tanks without charging Money.
         void RefuelAtLocation() override;
         void SetInventoryDominatorOwner();
@@ -96,12 +100,18 @@ namespace aKling {
         void UpdateAfterburnerState() override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
-        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip,
+            pas::WideString& Response) override;
+        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t OfferedAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response,
+            aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
         void RefreshCombatSkills();
         // Bosses have a minimum calculated speed of 350.
         std::int32_t CalculateSpeed() override;

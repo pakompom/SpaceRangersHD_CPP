@@ -56,8 +56,11 @@ namespace aMissile {
         PAS_CLASS_META(TMissile, EC_Struct::TObjectEx, "TMissile", 116)
         void p_destroy() override;
         // Registers the missile in Star, copies weapon data and initializes position, heading and speed.
-        void InitializeShot(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target, std::int32_t ShotIndex);
-        void InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, aConst::TItemType ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
+        void InitializeShot(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target,
+            std::int32_t ShotIndex);
+        void InitializeUnownedShot(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y,
+            float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed,
+            aConst::TItemType ItemType, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
         virtual void SaveToBuffer(EC_Buf::TBufEC* Buffer);
         virtual void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* World);
         void ResolveLoadedReferences(aGalaxy::TGalaxy* World);
@@ -66,7 +69,8 @@ namespace aMissile {
         void PrepareTurnMovement(std::int32_t StepIndex, std::uint8_t RecordFilm, std::uint8_t PlayShotSound);
         // Returns a hit ship, item or asteroid, or nil when no object was hit.
         pas::Object* StepDay(std::int32_t StepIndex, std::uint8_t RecordFilm);
-        std::uint8_t TryReturnToOwner(std::int32_t StepIndex, std::uint8_t RecordFilm, EC_Struct::TPointF PreviousPosition, aShip::TShip* Ship);
+        std::uint8_t TryReturnToOwner(std::int32_t StepIndex, std::uint8_t RecordFilm,
+            EC_Struct::TPointF PreviousPosition, aShip::TShip* Ship);
         void RetargetTorpedo();
         pas::WideString GetDisplayName();
         pas::WideString GetInfoText();
@@ -124,8 +128,11 @@ namespace aMissile {
     struct TCustomMissile : aMissile::TMissile {
         PAS_CLASS_META(TCustomMissile, aMissile::TMissile, "TCustomMissile", 120)
         // Caches Weapon.GetWeaponInfo before the base initializer.
-        void InitializeShot_2(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon, pas::Object* Target, std::int32_t ShotIndex);
-        void InitializeUnownedShot_2(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y, float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed, pas::WideString WeaponName, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
+        void InitializeShot_2(aGalaxy::TStar* Star, aShip::TShip* OwnerShip, aItem::TWeapon* Weapon,
+            pas::Object* Target, std::int32_t ShotIndex);
+        void InitializeUnownedShot_2(aGalaxy::TStar* Star, pas::Object* Target, std::int32_t X, std::int32_t Y,
+            float Direction, std::int32_t MinDamage, std::int32_t MaxDamage, float MaximumSpeed,
+            pas::WideString WeaponName, std::int32_t ModuleIndex, std::int32_t SpecialIndex);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* World) override;
         pas::WideString GetGraphSuffix() override;

@@ -90,7 +90,7 @@ namespace GI_GAIFile {
     #endif
     struct TGAIFileThreadGI : EC_Thread::TThreadEC {
         PAS_CLASS_META(TGAIFileThreadGI, EC_Thread::TThreadEC, "TGAIFileThreadGI", 48)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         TGAIFileGI* Owner;
     };
     #if INTPTR_MAX == INT32_MAX

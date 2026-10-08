@@ -31,8 +31,6 @@
 #include "units/GR_Sound.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/aCalc.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -52,7 +50,11 @@
 
 namespace fGoodsShop2 {
     // Native unit-local copy of the goods presentation order.
-    const aGalaxyStruct::TGoodsTextOrder ShopGoodsOrder = aGalaxyStruct::TGoodsTextOrder{{static_cast<aGalaxyStruct::TGoodsIndex>(0), static_cast<aGalaxyStruct::TGoodsIndex>(1), static_cast<aGalaxyStruct::TGoodsIndex>(5), static_cast<aGalaxyStruct::TGoodsIndex>(4), static_cast<aGalaxyStruct::TGoodsIndex>(3), static_cast<aGalaxyStruct::TGoodsIndex>(2), static_cast<aGalaxyStruct::TGoodsIndex>(6), static_cast<aGalaxyStruct::TGoodsIndex>(7)}};
+    const aGalaxyStruct::TGoodsTextOrder ShopGoodsOrder = aGalaxyStruct::TGoodsTextOrder{{
+        static_cast<aGalaxyStruct::TGoodsIndex>(0), static_cast<aGalaxyStruct::TGoodsIndex>(1),
+        static_cast<aGalaxyStruct::TGoodsIndex>(5), static_cast<aGalaxyStruct::TGoodsIndex>(4),
+        static_cast<aGalaxyStruct::TGoodsIndex>(3), static_cast<aGalaxyStruct::TGoodsIndex>(2),
+        static_cast<aGalaxyStruct::TGoodsIndex>(6), static_cast<aGalaxyStruct::TGoodsIndex>(7)}};
 
     // Native style-derived out-of-stock price markup.
     pas::WideString OutOfStockColor{};
@@ -112,54 +114,74 @@ namespace fGoodsShop2 {
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* ADD_WarningSpace = MainPanel->FindByNameRecursive(u"ADD_WarningSpace"sv);
-                ADD_WarningSpace->SetPosition(ClassesImports::Point(ADD_WarningSpace->LocalPosition.X + GR_Main::ExtraScreenWidth, ADD_WarningSpace->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                ADD_WarningSpace->SetPosition(ClassesImports::Point(
+                    ADD_WarningSpace->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    ADD_WarningSpace->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
                 GI_MessageLoop::TObjectGI* ADD_WarningMoney = MainPanel->FindByNameRecursive(u"ADD_WarningMoney"sv);
-                ADD_WarningMoney->SetPosition(ClassesImports::Point(ADD_WarningMoney->LocalPosition.X + GR_Main::ExtraScreenWidth, ADD_WarningMoney->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                ADD_WarningMoney->SetPosition(ClassesImports::Point(
+                    ADD_WarningMoney->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    ADD_WarningMoney->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
                 GI_MessageLoop::TObjectGI* ADD_Space = MainPanel->FindByNameRecursive(u"ADD_Space"sv);
-                ADD_Space->SetPosition(ClassesImports::Point(ADD_Space->LocalPosition.X + GR_Main::ExtraScreenWidth, ADD_Space->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                ADD_Space->SetPosition(ClassesImports::Point(ADD_Space->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    ADD_Space->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
                 GI_MessageLoop::TObjectGI* ADD_Money = MainPanel->FindByNameRecursive(u"ADD_Money"sv);
-                ADD_Money->SetPosition(ClassesImports::Point(ADD_Money->LocalPosition.X + GR_Main::ExtraScreenWidth, ADD_Money->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                ADD_Money->SetPosition(ClassesImports::Point(ADD_Money->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    ADD_Money->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
                 GI_MessageLoop::TObjectGI* GS_Help = MainPanel->FindByNameRecursive(u"GS_Help"sv);
-                GS_Help->SetPosition(ClassesImports::Point(GS_Help->LocalPosition.X, GS_Help->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                GS_Help->SetPosition(ClassesImports::Point(GS_Help->LocalPosition.X,
+                    GS_Help->LocalPosition.Y + GR_Main::ExtraScreenHeight));
             }
             {
                 GI_MessageLoop::TObjectGI* GoodsPanel = MainPanel->FindByNameRecursive(u"GoodsPanel"sv);
-                GoodsPanel->SetPosition(ClassesImports::Point(GoodsPanel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, GoodsPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                GoodsPanel->SetPosition(ClassesImports::Point(
+                    GoodsPanel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    GoodsPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
-            MainPanel->FindByNameRecursive(u"BGShrLight"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGShrLight"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::ShipClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::GalaxyClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::QuestClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::MenuClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::ShipClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Gal"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::GalaxyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Quest"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::QuestClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Logo"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::MenuClicked>(this);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfGoodsShop2::MainPanelKeyDown>(this);
         GetByName(u"MainPanel"sv)->MouseMoveCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseMove>(this);
         GetByName(u"MainPanel"sv)->LeftButtonUpCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseUp>(this);
         GetByName(u"MainPanel"sv)->RightButtonDownCallback = pas::bind_method<&TfGoodsShop2::GoodsRightMouseDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->UpCallback = pas::bind_method<&TfGoodsShop2::SavePricesClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->UpCallback = pas::bind_method<
+                &TfGoodsShop2::SavePricesClicked>(this);
         NameFaceHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.Y;
         FaceCaptionHeight = ([&] {
-            std::int32_t cpp_left = ([&] {
-                std::int32_t cpp_left_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->LocalPosition.Y;
-                return cpp_left_2 + pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->ClientSize.Y;
+                std::int32_t cpp_left = ([&] {
+                    std::int32_t cpp_left_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"CharFace"sv))->LocalPosition.Y;
+                    return cpp_left_2 + pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->ClientSize.Y;
+                }());
+                return cpp_left - pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->LocalPosition.Y;
             }());
-            return cpp_left - pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->LocalPosition.Y;
-        }());
         OutOfStockColor = GR_Main::GetStyleColorTagGI(u"GoodsShop.GoodsColorOutOfStock"_w, 127, 127, 127);
     }
 
@@ -181,7 +203,8 @@ namespace fGoodsShop2 {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 17); cpp_range.next(I); ) {
             if (I != 8 && I != 9) {
                 {
-                    GI_Label::TLabelGI* cpp_with = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovCnt", SysUtils::IntToStr(I)})))));
+                    GI_Label::TLabelGI* cpp_with = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(pas::view(pas::concat_wide({u"TovCnt", pas::wide_int_to_str(I)}))));
                     if (GlobalsV::FontDialog == 0) {
                         cpp_with->SetFontName(GlobalsV::NormalFontName);
                     } else if (GlobalsV::FontDialog == 1) {
@@ -193,7 +216,8 @@ namespace fGoodsShop2 {
                     }
                 }
                 {
-                    GI_Label::TLabelGI* cpp_with_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPrice", SysUtils::IntToStr(I)})))));
+                    GI_Label::TLabelGI* cpp_with_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(pas::view(pas::concat_wide({u"TovPrice", pas::wide_int_to_str(I)}))));
                     if (GlobalsV::FontDialog == 0) {
                         cpp_with_2->SetFontName(GlobalsV::NormalFontName);
                     } else if (GlobalsV::FontDialog == 1) {
@@ -209,7 +233,8 @@ namespace fGoodsShop2 {
         GetByName(u"GS_Help"sv)->SetActive(false);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv))->SetDisabled(false);
         {
-            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
+            GI_GraphButton::TGraphButtonGI* ButFormClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButFormClose"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 ButFormClose->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -220,7 +245,8 @@ namespace fGoodsShop2 {
         }
         DraggedGoodsIndex = -1;
         {
-            WindowsSdk::TPoint point = ClassesImports::Point(pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X, NameFaceHeight);
+            WindowsSdk::TPoint point = ClassesImports::Point(
+                pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X, NameFaceHeight);
             GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv));
             cpp_arg->SetSize(point);
         }
@@ -236,16 +262,20 @@ namespace fGoodsShop2 {
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->SetText(u""_wref.get());
             } else {
                 GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv));
-                const pas::WideString& cpp_arg_4 = pas::concat_wide({aConst::PlanetEconomyInfo[aPlayer::GetPlayer()->CurrentPlanet->Economy].ShortDisplayName, u"\r\n", aConst::PlanetGovernmentMarket[aPlayer::GetPlayer()->CurrentPlanet->Government].DisplayName});
+                const pas::WideString& cpp_arg_4 = pas::concat_wide({
+                    aConst::PlanetEconomyInfo[aPlayer::GetPlayer()->CurrentPlanet->Economy].ShortDisplayName, u"\r\n",
+                    aConst::PlanetGovernmentMarket[aPlayer::GetPlayer()->CurrentPlanet->Government].DisplayName});
                 cpp_arg_3->SetText(cpp_arg_4);
             }
             {
                 GI_Image::TImageGI* cpp_arg_5 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageFace"sv));
-                pas::WideString cpp_arg_6 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"PlanetL"});
+                pas::WideString cpp_arg_6 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(),
+                    u"PlanetL"});
                 cpp_arg_5->SetImagePath(std::move(cpp_arg_6));
             }
             {
-                GI_GraphBuf::TGraphBufGI* GraphBufFace = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GraphBufFace"sv));
+                GI_GraphBuf::TGraphBufGI* GraphBufFace = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"GraphBufFace"sv));
                 GraphBufFace->SetActive(true);
                 GraphBufFace->SourceHasPerPixelAlpha = true;
                 aPlayer::GetPlayer()->CurrentPlanet->Graphic->RenderToBuffer(this, GraphBufFace->GraphBuf, false);
@@ -260,30 +290,47 @@ namespace fGoodsShop2 {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->SetText(u""_wref.get());
             GetByName(u"CloseLine"sv)->SetActive(true);
             {
-                WindowsSdk::TPoint point_2 = ClassesImports::Point(pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X, FaceCaptionHeight);
+                WindowsSdk::TPoint point_2 = ClassesImports::Point(
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X, FaceCaptionHeight);
                 GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv));
                 cpp_arg_8->SetSize(point_2);
             }
             {
                 GI_Image::TImageGI* cpp_arg_9 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageFace"sv));
-                pas::WideString cpp_arg_10 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"AllL"});
+                pas::WideString cpp_arg_10 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(),
+                    u"AllL"});
                 cpp_arg_9->SetImagePath(std::move(cpp_arg_10));
             }
             {
-                GI_GraphBuf::TGraphBufGI* GraphBufFace_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GraphBufFace"sv));
+                GI_GraphBuf::TGraphBufGI* GraphBufFace_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"GraphBufFace"sv));
                 GraphBufFace_2->SetActive(true);
                 GraphBufFace_2->SourceHasPerPixelAlpha = true;
                 if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(aPlayer::GetPlayer()->DockedTo->Graphic) != nullptr) {
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(aPlayer::GetPlayer()->DockedTo->Graphic)->StaticImagePath), 1, u","sv), GraphBufFace_2->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(
+                        EC_Str::ExtractDelimitedPartW(
+                            pas::view(
+                                pas::checked_cast<SE_Ruins::TRuinsSE*>(
+                                aPlayer::GetPlayer()->DockedTo->Graphic)->StaticImagePath), 1, u","sv),
+                        GraphBufFace_2->GraphBuf);
                 } else {
-                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(pas::view(aPlayer::GetPlayer()->DockedTo->GetShipPortraitImagePath()), 1, u","sv);
+                    const pas::WideString& extractDelimitedPartW = EC_Str::ExtractDelimitedPartW(
+                        pas::view(aPlayer::GetPlayer()->DockedTo->GetShipPortraitImagePath()), 1, u","sv);
                     GR_GraphBuf::TGraphBufGR* graphBuf = GraphBufFace_2->GraphBuf;
                     GI_GI::LoadGiByPathIntoGraphBuf(extractDelimitedPartW, graphBuf);
                 }
-                if (static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width) >= static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height)) {
-                    GraphBufFace_2->GraphBuf->RescaleRgba(GraphBufFace_2->ClientSize.X, System::Round(pas::real_divide(GraphBufFace_2->ClientSize.X, static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width)) * static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height)), 5);
+                if (static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width) >=
+                    static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height)) {
+                    GraphBufFace_2->GraphBuf->RescaleRgba(GraphBufFace_2->ClientSize.X,
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufFace_2->ClientSize.X) /
+                            static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width)) *
+                            static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height))), 5);
                 } else {
-                    GraphBufFace_2->GraphBuf->RescaleRgba(System::Round(pas::real_divide(GraphBufFace_2->ClientSize.Y, static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height)) * static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width)), GraphBufFace_2->ClientSize.Y, 5);
+                    GraphBufFace_2->GraphBuf->RescaleRgba(
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufFace_2->ClientSize.Y) /
+                            static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Height)) *
+                            static_cast<std::uint32_t>(GraphBufFace_2->GraphBuf->Width))), GraphBufFace_2->ClientSize.Y,
+                        5);
                 }
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
@@ -294,7 +341,8 @@ namespace fGoodsShop2 {
                     cpp_arg_11->SetText(fullName_3);
                 }
                 {
-                    const pas::WideString& characterName = pas::checked_cast<aRanger::TRanger*>(Globals::TalkShip)->GetCharacterName();
+                    const pas::WideString& characterName = pas::checked_cast<aRanger::TRanger*>(
+                        Globals::TalkShip)->GetCharacterName();
                     GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv));
                     cpp_arg_12->SetText(characterName);
                 }
@@ -307,31 +355,46 @@ namespace fGoodsShop2 {
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"CharFace"sv))->SetText(u""_wref.get());
                 GetByName(u"CloseLine"sv)->SetActive(true);
                 {
-                    WindowsSdk::TPoint point_3 = ClassesImports::Point(pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X, FaceCaptionHeight);
+                    WindowsSdk::TPoint point_3 = ClassesImports::Point(
+                        pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv))->ClientSize.X,
+                        FaceCaptionHeight);
                     GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"NameFace"sv));
                     cpp_arg_14->SetSize(point_3);
                 }
             }
             {
                 GI_Image::TImageGI* cpp_arg_15 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"ImageFace"sv));
-                pas::WideString cpp_arg_16 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"AllL"});
+                pas::WideString cpp_arg_16 = pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(),
+                    u"AllL"});
                 cpp_arg_15->SetImagePath(std::move(cpp_arg_16));
             }
             {
-                GI_GraphBuf::TGraphBufGI* GraphBufFace_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GraphBufFace"sv));
+                GI_GraphBuf::TGraphBufGI* GraphBufFace_3 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                    GetByName(u"GraphBufFace"sv));
                 GraphBufFace_3->SetActive(true);
                 GraphBufFace_3->SourceHasPerPixelAlpha = true;
                 if (SE_Ruins::TRuinsSE* ruinsSE = pas::class_cast_if<SE_Ruins::TRuinsSE*>(Globals::TalkShip->Graphic)) {
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ruinsSE->StaticImagePath), 1, u","sv), GraphBufFace_3->GraphBuf);
+                    GI_GI::LoadGiByPathIntoGraphBuf(
+                        EC_Str::ExtractDelimitedPartW(pas::view(ruinsSE->StaticImagePath), 1, u","sv),
+                        GraphBufFace_3->GraphBuf);
                 } else {
-                    const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(pas::view(Globals::TalkShip->GetShipPortraitImagePath()), 1, u","sv);
+                    const pas::WideString& extractDelimitedPartW_2 = EC_Str::ExtractDelimitedPartW(
+                        pas::view(Globals::TalkShip->GetShipPortraitImagePath()), 1, u","sv);
                     GR_GraphBuf::TGraphBufGR* graphBuf_2 = GraphBufFace_3->GraphBuf;
                     GI_GI::LoadGiByPathIntoGraphBuf(extractDelimitedPartW_2, graphBuf_2);
                 }
-                if (static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width) >= static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height)) {
-                    GraphBufFace_3->GraphBuf->RescaleRgba(GraphBufFace_3->ClientSize.X, System::Round(pas::real_divide(GraphBufFace_3->ClientSize.X, static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width)) * static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height)), 5);
+                if (static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width) >=
+                    static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height)) {
+                    GraphBufFace_3->GraphBuf->RescaleRgba(GraphBufFace_3->ClientSize.X,
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufFace_3->ClientSize.X) /
+                            static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width)) *
+                            static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height))), 5);
                 } else {
-                    GraphBufFace_3->GraphBuf->RescaleRgba(System::Round(pas::real_divide(GraphBufFace_3->ClientSize.Y, static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height)) * static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width)), GraphBufFace_3->ClientSize.Y, 5);
+                    GraphBufFace_3->GraphBuf->RescaleRgba(
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufFace_3->ClientSize.Y) /
+                            static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Height)) *
+                            static_cast<std::uint32_t>(GraphBufFace_3->GraphBuf->Width))), GraphBufFace_3->ClientSize.Y,
+                        5);
                 }
             }
         }
@@ -349,7 +412,8 @@ namespace fGoodsShop2 {
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 {
                     GI_Image::TImageGI* FaceI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"FaceI"sv));
-                    FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot1i"}));
+                    FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(),
+                        u"ShopBot1i"}));
                     FaceI->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceI->SetImageKindX(GI_Main::ikxCenter);
                     FaceI->SetImageKindY(GI_Main::ikyCenter);
@@ -358,7 +422,8 @@ namespace fGoodsShop2 {
                 {
                     GI_GAI::TgaiGI* FaceA_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"FaceA"sv));
                     FaceA_2->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                    FaceA_2->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot1a"}));
+                    FaceA_2->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(),
+                        u"ShopBot1a"}));
                     FaceA_2->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceA_2->SequenceIndex = 0;
                     FaceA_2->UpdateAutoGeometry();
@@ -373,7 +438,8 @@ namespace fGoodsShop2 {
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 {
                     GI_Image::TImageGI* FaceI_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"FaceI"sv));
-                    FaceI_2->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot1i"}));
+                    FaceI_2->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(),
+                        u"ShopBot1i"}));
                     FaceI_2->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceI_2->SetImageKindX(GI_Main::ikxCenter);
                     FaceI_2->SetImageKindY(GI_Main::ikyCenter);
@@ -382,7 +448,8 @@ namespace fGoodsShop2 {
                 {
                     GI_GAI::TgaiGI* FaceA_3 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"FaceA"sv));
                     FaceA_3->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                    FaceA_3->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot1a"}));
+                    FaceA_3->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(),
+                        u"ShopBot1a"}));
                     FaceA_3->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceA_3->SequenceIndex = 0;
                     FaceA_3->UpdateAutoGeometry();
@@ -397,7 +464,8 @@ namespace fGoodsShop2 {
             } else if (aPlayer::GetPlayer()->InNormalSpace()) {
                 {
                     GI_Image::TImageGI* FaceI_3 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"FaceI"sv));
-                    FaceI_3->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"i"}));
+                    FaceI_3->SetImagePath(pas::concat_wide({u"GI,",
+                        aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"i"}));
                     FaceI_3->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceI_3->SetImageKindX(GI_Main::ikxCenter);
                     FaceI_3->SetImageKindY(GI_Main::ikyCenter);
@@ -406,7 +474,8 @@ namespace fGoodsShop2 {
                 {
                     GI_GAI::TgaiGI* FaceA_4 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"FaceA"sv));
                     FaceA_4->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                    FaceA_4->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"a"}));
+                    FaceA_4->SetImagePath(pas::concat_wide({
+                        aShip::TShip_GetCaptainPortraitResourceBase(Globals::TalkShip), u"a"}));
                     FaceA_4->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                     FaceA_4->SequenceIndex = 0;
                     FaceA_4->UpdateAutoGeometry();
@@ -425,7 +494,8 @@ namespace fGoodsShop2 {
             GetByName(u"FaceGB"sv)->SetActive(false);
             {
                 GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
-                CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
+                CaptainI->SetImagePath(pas::concat_wide({u"GI,",
+                    aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
                 CaptainI->SetImageKindX(GI_Main::ikxCenter);
                 CaptainI->SetImageKindY(GI_Main::ikyCenter);
                 CaptainI->SetActive(true);
@@ -433,7 +503,8 @@ namespace fGoodsShop2 {
             {
                 GI_GAI::TgaiGI* CaptainA_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
                 CaptainA_2->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                CaptainA_2->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"a"}));
+                CaptainA_2->SetImagePath(pas::concat_wide({
+                    aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"a"}));
                 CaptainA_2->SequenceIndex = 0;
                 CaptainA_2->UpdateAutoGeometry();
                 CaptainA_2->SetImageKindX(GI_Main::ikxCenter);
@@ -458,20 +529,34 @@ namespace fGoodsShop2 {
             cpp_arg_19->SetImagePath(std::move(cpp_arg_20));
         }
         {
-            GI_GraphBuf::TGraphBufGI* GraphBufCaptain = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"GraphBufCaptain"sv));
+            GI_GraphBuf::TGraphBufGI* GraphBufCaptain = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"GraphBufCaptain"sv));
             GraphBufCaptain->SetActive(true);
             GraphBufCaptain->SourceHasPerPixelAlpha = true;
             if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(aPlayer::GetPlayer()->Graphic) != nullptr) {
-                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(aPlayer::GetPlayer()->Graphic)->StaticImagePath), 1, u","sv), GraphBufCaptain->GraphBuf);
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    EC_Str::ExtractDelimitedPartW(
+                        pas::view(
+                            pas::checked_cast<SE_Ruins::TRuinsSE*>(aPlayer::GetPlayer()->Graphic)->StaticImagePath), 1,
+                        u","sv), GraphBufCaptain->GraphBuf);
             } else {
-                const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(pas::view(aPlayer::GetPlayer()->GetShipPortraitImagePath()), 1, u","sv);
+                const pas::WideString& extractDelimitedPartW_3 = EC_Str::ExtractDelimitedPartW(
+                    pas::view(aPlayer::GetPlayer()->GetShipPortraitImagePath()), 1, u","sv);
                 GR_GraphBuf::TGraphBufGR* graphBuf_3 = GraphBufCaptain->GraphBuf;
                 GI_GI::LoadGiByPathIntoGraphBuf(extractDelimitedPartW_3, graphBuf_3);
             }
-            if (static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width) >= static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height)) {
-                GraphBufCaptain->GraphBuf->RescaleRgba(GraphBufCaptain->ClientSize.X, System::Round(pas::real_divide(GraphBufCaptain->ClientSize.X, static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width)) * static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height)), 5);
+            if (static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width) >=
+                static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height)) {
+                GraphBufCaptain->GraphBuf->RescaleRgba(GraphBufCaptain->ClientSize.X,
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufCaptain->ClientSize.X) /
+                        static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width)) *
+                        static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height))), 5);
             } else {
-                GraphBufCaptain->GraphBuf->RescaleRgba(System::Round(pas::real_divide(GraphBufCaptain->ClientSize.Y, static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height)) * static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width)), GraphBufCaptain->ClientSize.Y, 5);
+                GraphBufCaptain->GraphBuf->RescaleRgba(
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(GraphBufCaptain->ClientSize.Y) /
+                        static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Height)) *
+                        static_cast<std::uint32_t>(GraphBufCaptain->GraphBuf->Width))), GraphBufCaptain->ClientSize.Y,
+                    5);
             }
         }
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
@@ -488,9 +573,11 @@ namespace fGoodsShop2 {
         }
         {
             GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
-            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase);
+            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                    aGalaxyStruct::rstMilitaryBase);
             if (BGCity2->Active) {
-                BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
+                BGCity2->SetImagePath(pas::concat_wide({u"GAI,",
+                    aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
                 BGCity2->GaiImageControl->LoadFrameSequenceFromText(GI_GAI::SingleFrameAnimationSpec);
                 BGCity2->SetImageKindX(GI_Main::ikxCenter);
                 BGCity2->SetImageKindY(GI_Main::ikyCenter);
@@ -502,20 +589,24 @@ namespace fGoodsShop2 {
                 BGCity->SetActive(true);
                 {
                     pas::WideString governmentBackgroundGraph = aPlayer::GetPlayer()->CurrentPlanet->GetGovernmentBackgroundGraph();
-                    GI_Image::TImageGI* cpp_arg_21 = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"sv));
+                    GI_Image::TImageGI* cpp_arg_21 = pas::checked_cast<GI_Image::TImageGI*>(
+                        BGCity->FindByNameRecursive(u"BGCity"sv));
                     cpp_arg_21->SetImagePath(std::move(governmentBackgroundGraph));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 BGCity->SetActive(true);
                 if (aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey != u"") {
-                    BackgroundPath = pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(), aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey, u"bg"});
+                    BackgroundPath = pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                            aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey, u"bg"});
                     if (GR_Main::CacheDataRoot->FileExistsByPath(BackgroundPath)) {
                         BGCity->SetImagePath(pas::concat_wide({u"GI,", BackgroundPath}));
                     } else {
-                        BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
+                        BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                            aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
                     }
                 } else {
-                    BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
+                    BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                        aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
                 }
             } else {
                 BGCity->SetActive(false);
@@ -533,7 +624,8 @@ namespace fGoodsShop2 {
                 BGBuf->SetActive(false);
             }
         }
-        GetByName(u"BGShrLight"sv)->SetActive(aPlayer::GetPlayer()->InNormalSpace() && static_cast<std::uint8_t>(GlobalsV::BackgroundShade ^ 1));
+        GetByName(u"BGShrLight"sv)->SetActive(aPlayer::GetPlayer()->InNormalSpace() &&
+            static_cast<std::uint8_t>(GlobalsV::BackgroundShade ^ 1));
         MainPanel->RebuildMessageButtons(false);
         RefreshGoodsDisplay();
         CaptureMerchantBackground(nullptr);
@@ -605,17 +697,22 @@ namespace fGoodsShop2 {
                 TradeRows[Good].Count = Globals::TalkShip->CargoGoods[Good].Count;
                 TradeRows[Good].MaximumPrice = aConst::GoodsMarket[Good].MaxPrice;
                 if (Globals::TalkShip->CargoGoods[Good].Count <= 0) {
-                    TradeRows[Good].PurchasePrice = System::Round(pas::real_max<pas::Extended>(aConst::GoodsMarket[Good].AveragePrice * 1.1L, 0.0L));
-                    TradeRows[Good].BaseSalePrice = System::Round(std::max<std::int32_t>(aConst::GoodsMarket[Good].MinPrice, 0));
+                    TradeRows[Good].PurchasePrice = pas::real_round(pas::real_max<double>(
+                            static_cast<float>(aConst::GoodsMarket[Good].AveragePrice * 0x1.199999999999bp+0), 0.0));
+                    TradeRows[Good].BaseSalePrice = pas::real_round(std::max<std::int32_t>(
+                            aConst::GoodsMarket[Good].MinPrice, 0));
                 } else {
-                    TradeRows[Good].PurchasePrice = System::Round(pas::real_max<pas::Extended>(aConst::GoodsMarket[Good].AveragePrice * 1.1L, pas::real_divide(Globals::TalkShip->CargoGoods[Good].TotalCost, Globals::TalkShip->CargoGoods[Good].Count) * 1.3L));
-                    TradeRows[Good].BaseSalePrice = System::Round(pas::real_max<pas::Extended>(static_cast<pas::Extended>(aConst::GoodsMarket[Good].MinPrice), pas::real_divide(Globals::TalkShip->CargoGoods[Good].TotalCost, Globals::TalkShip->CargoGoods[Good].Count) * 0.7L));
+                    TradeRows[Good].PurchasePrice = pas::real_round(pas::real_max<double>(
+                            static_cast<float>(aConst::GoodsMarket[Good].AveragePrice * 0x1.199999999999bp+0),
+                            static_cast<float>(static_cast<float>(static_cast<double>(Globals::TalkShip->CargoGoods[Good].TotalCost) /
+                                Globals::TalkShip->CargoGoods[Good].Count) * 0x1.4ccccccccccccp+0)));
+                    TradeRows[Good].BaseSalePrice = pas::real_round(pas::real_max<double>(
+                            static_cast<double>(aConst::GoodsMarket[Good].MinPrice),
+                            static_cast<float>(static_cast<float>(static_cast<double>(Globals::TalkShip->CargoGoods[Good].TotalCost) /
+                                Globals::TalkShip->CargoGoods[Good].Count) * 0x1.6666666666665p-1)));
                 }
             }
-            {
-                std::int32_t cpp_left = Globals::TalkShip->GetCargoFreeSpace();
-                PartnerCargoLimit = cpp_left - Globals::TalkShip->GetDesiredCargoFreeSpace();
-            }
+            PartnerCargoLimit = Globals::TalkShip->GetCargoFreeSpace() - Globals::TalkShip->GetDesiredCargoFreeSpace();
             PartnerMoneyLimit = Globals::TalkShip->Money;
         }
         {
@@ -629,24 +726,35 @@ namespace fGoodsShop2 {
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 7); cpp_range_2.next(I); ) {
             Good = ShopGoodsOrder[I];
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I)})))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I)}))));
                 cpp_with_3->MouseEnterCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseEnter>(this);
                 cpp_with_3->MouseLeaveCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseLeave>(this);
-                cpp_with_3->SetDisabled((DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20 || aPlayer::GetPlayer()->GetLocationGoodsEntry(ShopGoodsOrder[I])->Count <= 0) && (DraggedGoodsIndex < 10 || DraggedGoodsIndex >= 20 || DraggedGoodsIndex % 10 != I));
+                cpp_with_3->SetDisabled((DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20 ||
+                    aPlayer::GetPlayer()->GetLocationGoodsEntry(ShopGoodsOrder[I])->Count <= 0) && (DraggedGoodsIndex <
+                        10 || DraggedGoodsIndex >= 20 || DraggedGoodsIndex % 10 != I));
             }
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I + 10)})))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_4 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I + 10)}))));
                 cpp_with_4->MouseEnterCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseEnter>(this);
                 cpp_with_4->MouseLeaveCallback = pas::bind_method<&TfGoodsShop2::GoodsMouseLeave>(this);
-                cpp_with_4->SetDisabled((DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 || aPlayer::GetPlayer()->CargoGoods[ShopGoodsOrder[I]].Count <= 0) && (DraggedGoodsIndex < 0 || DraggedGoodsIndex >= 10 || DraggedGoodsIndex % 10 != I));
+                cpp_with_4->SetDisabled((DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 ||
+                    aPlayer::GetPlayer()->CargoGoods[ShopGoodsOrder[I]].Count <= 0) && (DraggedGoodsIndex < 0 ||
+                        DraggedGoodsIndex >= 10 || DraggedGoodsIndex % 10 != I));
             }
-            GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPermit", SysUtils::IntToStr(I + 1)}))))->SetActive(aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(ShopGoodsOrder[I]));
+            GetByName(pas::view(pas::concat_wide({u"TovPermit",
+                pas::wide_int_to_str(I +
+                    1)})))->SetActive(aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(ShopGoodsOrder[I]));
             {
-                std::uint8_t active = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPermit", SysUtils::IntToStr(I + 1)}))))->Active;
-                GI_MessageLoop::TObjectGI* byName = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPermit", SysUtils::IntToStr(I + 10 + 1)}))));
+                std::uint8_t active = GetByName(pas::view(pas::concat_wide({u"TovPermit",
+                    pas::wide_int_to_str(I + 1)})))->Active;
+                GI_MessageLoop::TObjectGI* byName = GetByName(pas::view(pas::concat_wide({u"TovPermit",
+                    pas::wide_int_to_str(I + 10 + 1)})));
                 byName->SetActive(active);
             }
-            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovCool", SysUtils::IntToStr(I + 1)})))));
+            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(pas::concat_wide({u"TovCool",
+                    pas::wide_int_to_str(I + 1)}))));
             Panel->Invalidate();
             Panel->FreeOwnedChildren();
             if (aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count <= 0) {
@@ -655,7 +763,8 @@ namespace fGoodsShop2 {
                 std::int32_t shopGoodsPurchasePrice = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, nullptr);
                 std::uint8_t good = Good;
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                IconCount = System::Round(aMyFunction::RemapClamped(aGalaxy::TGalaxy::GetGoodsPricePercent(good, shopGoodsPurchasePrice), 0.0, 3.0E+1, 3.0, 0.0));
+                IconCount = pas::real_round(aMyFunction::RemapClamped(
+                        aGalaxy::TGalaxy::GetGoodsPricePercent(good, shopGoodsPurchasePrice), 0.0, 3.0E+1, 3.0, 0.0));
             }
             ImageName = u"Good"_w;
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, IconCount - 1); cpp_range_3.next(J); ) {
@@ -664,10 +773,11 @@ namespace fGoodsShop2 {
                 Image->SetSize(Image->GetContentSize());
                 Image->SetPosition(ClassesImports::Point(Panel->ClientSize.X - (Image->ClientSize.X + 1) * (J + 1), 0));
             }
-            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovCool", SysUtils::IntToStr(I + 10 + 1)})))));
+            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(pas::concat_wide({u"TovCool",
+                    pas::wide_int_to_str(I + 10 + 1)}))));
             Panel->Invalidate();
             Panel->FreeOwnedChildren();
-            OldCost = System::Round(aPlayer::GetPlayer()->GetAverageCargoCost(Good));
+            OldCost = pas::real_round(aPlayer::GetPlayer()->GetAverageCargoCost(Good));
             SellPrice = aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, nullptr);
             if (aPlayer::GetPlayer()->CargoGoods[Good].Count > 0) {
                 if (SellPrice > OldCost) {
@@ -688,13 +798,14 @@ namespace fGoodsShop2 {
         }
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, 7); cpp_range_5.next(I); ) {
             Good = ShopGoodsOrder[I];
-            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovImgCnt", SysUtils::IntToStr(I)})))));
+            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(pas::concat_wide({u"TovImgCnt",
+                    pas::wide_int_to_str(I)}))));
             Panel->FreeOwnedChildren();
             Panel->Invalidate();
-            IconCount = System::Round(([&] {
-                pas::Extended cpp_left_2 = aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count;
-                return pas::real_divide(cpp_left_2, aConst::GoodsMarket[Good].BaseStock);
-            }()) * 6.0L);
+            {
+                double cpp_left = aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count;
+                IconCount = pas::real_round(static_cast<float>(static_cast<float>(cpp_left / aConst::GoodsMarket[Good].BaseStock) * 6.0));
+            }
             if (IconCount <= 0 && aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count >= 1) {
                 IconCount = 1;
             } else if (IconCount > 6) {
@@ -702,7 +813,8 @@ namespace fGoodsShop2 {
             }
             for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, IconCount - 1); cpp_range_6.next(J); ) {
                 Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
-                Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"Goods", pas::wide_int_to_str(I + 1)}));
+                Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"Goods",
+                    pas::wide_int_to_str(I + 1)}));
                 if (pas::in_set<2, 2, 4, 6>(I)) {
                     Image->SetPosition(ClassesImports::Point(J * GR_Main::GiScalePixels(12), 0));
                 } else {
@@ -720,34 +832,44 @@ namespace fGoodsShop2 {
             // Native writes this sell-price label once with the market color, then again with the cargo color below.
             {
                 const pas::WideString& wrapTextInColor = ([&] {
-                    pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, nullptr));
+                    pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good,
+                        nullptr));
                     pas::WideString color = Color;
                     return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr)), pas::view(std::move(color)));
                 }());
-                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPrice", SysUtils::IntToStr(I + 10)})))));
+                GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"TovPrice", pas::wide_int_to_str(I + 10)}))));
                 cpp_arg->SetText(wrapTextInColor);
             }
             {
                 const pas::WideString& wrapTextInColor_2 = ([&] {
-                    pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count);
+                    pas::WideString intToStr_2 = pas::wide_int_to_str(
+                        aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count);
                     pas::WideString color_2 = Color;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_2)), pas::view(std::move(color_2)));
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_2)),
+                        pas::view(std::move(color_2)));
                 }());
-                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovCnt", SysUtils::IntToStr(I)})))));
+                GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"TovCnt", pas::wide_int_to_str(I)}))));
                 cpp_arg_2->SetText(wrapTextInColor_2);
             }
             {
                 const pas::WideString& wrapTextInColor_3 = ([&] {
-                    pas::WideString intToStr_3 = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, nullptr));
+                    pas::WideString intToStr_3 = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good,
+                        nullptr));
                     pas::WideString color_3 = Color;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_3)), pas::view(std::move(color_3)));
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_3)),
+                        pas::view(std::move(color_3)));
                 }());
-                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPrice", SysUtils::IntToStr(I)})))));
+                GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"TovPrice", pas::wide_int_to_str(I)}))));
                 cpp_arg_3->SetText(wrapTextInColor_3);
             }
-            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovImgCnt", SysUtils::IntToStr(I + 10)})))));
+            Panel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(pas::concat_wide({u"TovImgCnt",
+                    pas::wide_int_to_str(I + 10)}))));
             Panel->FreeOwnedChildren();
-            IconCount = System::Round(pas::real_divide(aPlayer::GetPlayer()->CargoGoods[Good].Count, aConst::GoodsMarket[Good].BaseStock) * 6.0L);
+            IconCount = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(aPlayer::GetPlayer()->CargoGoods[Good].Count) /
+                    aConst::GoodsMarket[Good].BaseStock) * 6.0));
             if (IconCount <= 0 && aPlayer::GetPlayer()->CargoGoods[Good].Count >= 1) {
                 IconCount = 1;
             } else if (IconCount > 6) {
@@ -755,7 +877,8 @@ namespace fGoodsShop2 {
             }
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, IconCount - 1); cpp_range_7.next(J); ) {
                 Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
-                Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"Goods", pas::wide_int_to_str(I + 1)}));
+                Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGoods2.", GR_Main::GiResourceSuffix(), u"Goods",
+                    pas::wide_int_to_str(I + 1)}));
                 // Unlike the market row, native cargo-icon spacing does not use GiScalePixels.
                 if (pas::in_set<4, 6>(I)) {
                     Image->SetPosition(ClassesImports::Point(J * 12, 0));
@@ -772,17 +895,22 @@ namespace fGoodsShop2 {
                 Color = OutOfStockColor;
             }
             {
-                const pas::WideString& wrapTextInColor_4 = aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->CargoGoods[Good].Count)), pas::view(Color));
-                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovCnt", SysUtils::IntToStr(I + 10)})))));
+                const pas::WideString& wrapTextInColor_4 = aMyFunction::WrapTextInColor(
+                    pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->CargoGoods[Good].Count)), pas::view(Color));
+                GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"TovCnt", pas::wide_int_to_str(I + 10)}))));
                 cpp_arg_4->SetText(wrapTextInColor_4);
             }
             {
                 const pas::WideString& wrapTextInColor_5 = ([&] {
-                    pas::WideString intToStr_4 = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, nullptr));
+                    pas::WideString intToStr_4 = pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good,
+                        nullptr));
                     pas::WideString color_4 = Color;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_4)), pas::view(std::move(color_4)));
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(intToStr_4)),
+                        pas::view(std::move(color_4)));
                 }());
-                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TovPrice", SysUtils::IntToStr(I + 10)})))));
+                GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"TovPrice", pas::wide_int_to_str(I + 10)}))));
                 cpp_arg_5->SetText(wrapTextInColor_5);
             }
         }
@@ -796,16 +924,19 @@ namespace fGoodsShop2 {
             Location = nullptr;
         }
         {
-            GI_GraphButton::TGraphButtonGI* UserMsgAdd = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
+            GI_GraphButton::TGraphButtonGI* UserMsgAdd = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"UserMsgAdd"sv));
             if (aPlayer::GetPlayer()->InNormalSpace()) {
                 UserMsgAdd->SetDisabled(true);
             } else {
-                UserMsgAdd->SetDisabled(Globals::FindPlayerBubbleByText(TfGoodsShop2::BuildPriceText(Location), false) != nullptr);
+                UserMsgAdd->SetDisabled(Globals::FindPlayerBubbleByText(TfGoodsShop2::BuildPriceText(Location),
+                    false) != nullptr);
             }
         }
     }
 
-    void TfGoodsShop2::GoodsMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfGoodsShop2::GoodsMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         std::int32_t I{};
         std::int32_t Index{};
         std::int32_t Count{};
@@ -832,25 +963,29 @@ namespace fGoodsShop2 {
         Index = -1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I)})))));
+                GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I)}))));
                 if (cpp_with->ContainsPoint(GetCursorPoint())) {
                     Index = I;
                     break;
                 }
             }
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I + 10)})))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I + 10)}))));
                 if (cpp_with_2->ContainsPoint(GetCursorPoint())) {
                     Index = I + 10;
                     break;
                 }
             }
         }
-        if (Index < 0 && (DraggedGoodsIndex < 0 || OverMarket && DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 || OverCargo && DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20)) {
+        if (Index < 0 && (DraggedGoodsIndex < 0 || OverMarket && DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 ||
+                OverCargo && DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20)) {
             DraggedGoodsIndex = -1;
             UpdateActionCursor(false);
             RefreshGoodsDisplay();
-        } else if (DraggedGoodsIndex < 0 || DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 && Index >= 0 && Index < 10 || DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20 && Index >= 10 && Index < 20) {
+        } else if (DraggedGoodsIndex < 0 || DraggedGoodsIndex >= 0 && DraggedGoodsIndex < 10 && Index >= 0 && Index <
+                    10 || DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20 && Index >= 10 && Index < 20) {
             if (Index == DraggedGoodsIndex) {
                 DraggedGoodsIndex = -1;
             } else if (TfGoodsShop2::GetAvailableGoodsCount(Index) > 0) {
@@ -859,7 +994,8 @@ namespace fGoodsShop2 {
             UpdateActionCursor(false);
             RefreshGoodsDisplay();
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(Index)})))));
+                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(Index)}))));
                 cpp_with_3->SetDown(false);
                 cpp_with_3->SetHovered(false);
                 cpp_with_3->SetHovered(true);
@@ -867,17 +1003,22 @@ namespace fGoodsShop2 {
         }
         if (DraggedGoodsIndex >= 0) {
             Count = GetMaximumTradeCount(DraggedGoodsIndex, false);
-            if (Count <= 0 && (DraggedGoodsIndex >= 10 || aPlayer::GetPlayer()->InNormalSpace() || GetMaximumTradeCount(DraggedGoodsIndex, true) <= 0)) {
+            if (Count <= 0 && (DraggedGoodsIndex >= 10 || aPlayer::GetPlayer()->InNormalSpace() || GetMaximumTradeCount(
+                        DraggedGoodsIndex, true) <= 0)) {
                 if (aPlayer::GetPlayer()->InNormalSpace()) {
                     if (DraggedGoodsIndex >= 10 && DraggedGoodsIndex < 20) {
                         if (PartnerCargoLimit <= 0) {
-                            const pas::WideString& lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoSpace"_wref.get());
+                            const pas::WideString& lookupTalkText = aShip::TShip_LookupTalkText(Globals::TalkShip,
+                                u"Talk.Trade.NoSpace"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self = this;
-                            GI_MessageBox::ShowMessageBoxGI(self, lookupTalkText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
+                            GI_MessageBox::ShowMessageBoxGI(self, lookupTalkText,
+                                GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                         } else {
-                            const pas::WideString& lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoMoney"_wref.get());
+                            const pas::WideString& lookupTalkText_2 = aShip::TShip_LookupTalkText(Globals::TalkShip,
+                                u"Talk.Trade.NoMoney"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_2 = this;
-                            GI_MessageBox::ShowMessageBoxGI(self_2, lookupTalkText_2, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
+                            GI_MessageBox::ShowMessageBoxGI(self_2, lookupTalkText_2,
+                                GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                         }
                     } else if (DraggedGoodsIndex < 10) {
                         if (aPlayer::GetPlayer()->GetLocationGoodsEntry(ShopGoodsOrder[DraggedGoodsIndex])->Count > 0) {
@@ -885,7 +1026,8 @@ namespace fGoodsShop2 {
                                 FlashCargoWarning();
                             }
                             {
-                                std::int32_t cpp_left = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex], nullptr);
+                                std::int32_t cpp_left = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(
+                                    ShopGoodsOrder[DraggedGoodsIndex], nullptr);
                                 if (cpp_left > aPlayer::GetPlayer()->Money) {
                                     FlashMoneyWarning();
                                 }
@@ -903,7 +1045,8 @@ namespace fGoodsShop2 {
                             MainPanel->FlashCargoWarning();
                         }
                         {
-                            std::int32_t cpp_left_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex], nullptr);
+                            std::int32_t cpp_left_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(
+                                ShopGoodsOrder[DraggedGoodsIndex], nullptr);
                             if (cpp_left_2 > aPlayer::GetPlayer()->Money) {
                                 MainPanel->FlashMoneyWarning();
                             }
@@ -914,12 +1057,15 @@ namespace fGoodsShop2 {
                 Limit = std::max<std::int32_t>(0, Count);
                 if (DraggedGoodsIndex < 10) {
                     Description = ([&] {
-                        pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aConst::GoodsMarket[ShopGoodsOrder[DraggedGoodsIndex % 10]].TradeName);
-                        pas::WideString localizedText = aConst::LocalizedText(u"FormGS.Buy"_wref.get());
-                        pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(localizedText), std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
-                    }());
-                    Price = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
+                            pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(
+                                aConst::GoodsMarket[ShopGoodsOrder[DraggedGoodsIndex % 10]].TradeName);
+                            pas::WideString localizedText = aConst::LocalizedText(u"FormGS.Buy"_wref.get());
+                            pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText),
+                                std::move(dialogHighlightColorTag), u"<Name>"_w, std::move(lowerCaseWideString));
+                        }());
+                    Price = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex % 10],
+                            nullptr);
                     Maximum = aPlayer::GetPlayer()->GetLocationGoodsEntry(ShopGoodsOrder[DraggedGoodsIndex])->Count;
                     Available = aPlayer::GetPlayer()->GetCargoFreeSpace();
                     TotalLimit = aPlayer::GetPlayer()->Money;
@@ -928,11 +1074,13 @@ namespace fGoodsShop2 {
                     }
                 } else {
                     Description = ([&] {
-                        pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aConst::GoodsMarket[ShopGoodsOrder[DraggedGoodsIndex % 10]].TradeName);
-                        pas::WideString localizedText_2 = aConst::LocalizedText(u"FormGS.Sell"_wref.get());
-                        pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(localizedText_2), std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
-                    }());
+                            pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(
+                                aConst::GoodsMarket[ShopGoodsOrder[DraggedGoodsIndex % 10]].TradeName);
+                            pas::WideString localizedText_2 = aConst::LocalizedText(u"FormGS.Sell"_wref.get());
+                            pas::WideString dialogHighlightColorTag_2 = aMyFunction::DialogHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedText_2),
+                                std::move(dialogHighlightColorTag_2), u"<Name>"_w, std::move(lowerCaseWideString_2));
+                        }());
                     Price = aPlayer::GetPlayer()->ShopGoodsSellPrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
                     Maximum = aPlayer::GetPlayer()->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex - 10]].Count;
                     if (!aPlayer::GetPlayer()->InNormalSpace()) {
@@ -945,95 +1093,117 @@ namespace fGoodsShop2 {
                     }
                 }
                 Count = std::max<std::int32_t>(0, Count);
-                if (fCount2::ShowCountDialog(this, pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(ShopGoodsOrder[DraggedGoodsIndex % 10]))}), Description, 0, Maximum, Limit, Price, std::max<std::int32_t>(0, Available), TotalLimit, Count) == 1) {
-                    if (([&] {
-                        std::int32_t cpp_left_3 = GetMaximumTradeCount(DraggedGoodsIndex, false);
-                        return cpp_left_3 < Count;
-                    }()) && DraggedGoodsIndex >= 10 && aPlayer::GetPlayer()->InNormalSpace()) {
+                if (fCount2::ShowCountDialog(this,
+                    pas::concat_wide({u"GI,",
+                        aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(ShopGoodsOrder[DraggedGoodsIndex %
+                            10]))}), Description, 0, Maximum, Limit, Price, std::max<std::int32_t>(0, Available),
+                    TotalLimit, Count) == 1) {
+                    std::int32_t cpp_left_3 = GetMaximumTradeCount(DraggedGoodsIndex, false);
+                    if (cpp_left_3 < Count && DraggedGoodsIndex >= 10 && aPlayer::GetPlayer()->InNormalSpace()) {
                         if (Count > PartnerCargoLimit) {
-                            const pas::WideString& lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoSpace"_wref.get());
+                            const pas::WideString& lookupTalkText_3 = aShip::TShip_LookupTalkText(Globals::TalkShip,
+                                u"Talk.Trade.NoSpace"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_3 = this;
-                            GI_MessageBox::ShowMessageBoxGI(self_3, lookupTalkText_3, GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
+                            GI_MessageBox::ShowMessageBoxGI(self_3, lookupTalkText_3,
+                                GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
                         } else {
-                            const pas::WideString& lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip, u"Talk.Trade.NoMoney"_wref.get());
+                            const pas::WideString& lookupTalkText_4 = aShip::TShip_LookupTalkText(Globals::TalkShip,
+                                u"Talk.Trade.NoMoney"_wref.get());
                             GI_MessageLoop::TMessageLoopGI* self_4 = this;
-                            GI_MessageBox::ShowMessageBoxGI(self_4, lookupTalkText_4, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
+                            GI_MessageBox::ShowMessageBoxGI(self_4, lookupTalkText_4,
+                                GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
                         }
-                    } else if (Count > 0 && ([&] {
-                        std::int32_t cpp_left_4 = GetMaximumTradeCount(DraggedGoodsIndex, static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1));
-                        return cpp_left_4 >= Count;
-                    }())) {
-                        // Native legality check uses the hovered row, even when a different
-                        // row supplied the dragged good; preserve that original selection.
-                        if (aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(ShopGoodsOrder[Index % 10])) {
-                            if (([&] {
-                                const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGS.NotPermitGoods"_wref.get());
-                                GI_MessageLoop::TMessageLoopGI* self_5 = this;
-                                return GI_MessageBox::ShowMessageBoxGI(self_5, paramByPathOrMarker, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0);
-                            }()) != GI_MessageBox::mbgResultOK) {
-                                DraggedGoodsIndex = -1;
-                                UpdateActionCursor(false);
-                                RefreshGoodsDisplay();
-                                FinishModalTrade();
-                                GI_Main::BreakUiMessage();
-                                return;
+                    } else {
+                        bool cpp_condition = Count > 0;
+                        if (cpp_condition) {
+                            std::int32_t cpp_left_4 = GetMaximumTradeCount(DraggedGoodsIndex,
+                                !aPlayer::GetPlayer()->InNormalSpace());
+                            cpp_condition = cpp_left_4 >= Count;
+                        }
+                        if (cpp_condition) {
+                            // Native legality check uses the hovered row, even when a different
+                            // row supplied the dragged good; preserve that original selection.
+                            if (aPlayer::GetPlayer()->IsCargoGoodIllegalOnCurrentPlanet(ShopGoodsOrder[Index % 10])) {
+                                if (([&] {
+                                    const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(
+                                        u"FormGS.NotPermitGoods"_wref.get());
+                                    GI_MessageLoop::TMessageLoopGI* self_5 = this;
+                                    return GI_MessageBox::ShowMessageBoxGI(self_5, paramByPathOrMarker,
+                                        GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0);
+                                }()) != GI_MessageBox::mbgResultOK) {
+                                    DraggedGoodsIndex = -1;
+                                    UpdateActionCursor(false);
+                                    RefreshGoodsDisplay();
+                                    FinishModalTrade();
+                                    GI_Main::BreakUiMessage();
+                                    return;
+                                }
                             }
-                        }
-                        if (!aPlayer::GetPlayer()->InNormalSpace()) {
-                            aGalaxy::Galaxy->CheckIntegrityChecksum(136);
-                        }
-                        if (aPlayer::GetPlayer()->InNormalSpace()) {
+                            if (!aPlayer::GetPlayer()->InNormalSpace()) {
+                                aGalaxy::Galaxy->CheckIntegrityChecksum(136);
+                            }
+                            if (aPlayer::GetPlayer()->InNormalSpace()) {
+                                if (DraggedGoodsIndex < 10) {
+                                    {
+                                        std::int32_t cpp_right_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(
+                                            ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
+                                        std::int32_t cpp_right = Count * cpp_right_2;
+                                        std::int32_t cpp_arg = Globals::TalkShip->Money + cpp_right;
+                                        aShip::TShip* talkShip = Globals::TalkShip;
+                                        talkShip->SetMoney(cpp_arg);
+                                    }
+                                    {
+                                        std::int32_t cpp_step = ([&] {
+                                            std::int32_t cpp_right_3 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(
+                                                ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
+                                            return Count * cpp_right_3;
+                                        }());
+                                        std::int32_t& cpp_target = Globals::TalkShip->CargoGoods[
+                                            ShopGoodsOrder[DraggedGoodsIndex]].TotalCost;
+                                        cpp_target -= cpp_step;
+                                    }
+                                    Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex]].Count -= Count;
+                                } else {
+                                    {
+                                        std::int32_t cpp_right_5 = aPlayer::GetPlayer()->ShopGoodsSellPrice(
+                                            ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
+                                        std::int32_t cpp_right_4 = Count * cpp_right_5;
+                                        std::int32_t cpp_arg_2 = Globals::TalkShip->Money - cpp_right_4;
+                                        aShip::TShip* talkShip_2 = Globals::TalkShip;
+                                        talkShip_2->SetMoney(cpp_arg_2);
+                                    }
+                                    {
+                                        std::int32_t cpp_step_2 = ([&] {
+                                            std::int32_t cpp_right_6 = aPlayer::GetPlayer()->ShopGoodsSellPrice(
+                                                ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
+                                            return Count * cpp_right_6;
+                                        }());
+                                        std::int32_t& cpp_target_2 = Globals::TalkShip->CargoGoods[
+                                            ShopGoodsOrder[DraggedGoodsIndex % 10]].TotalCost;
+                                        cpp_target_2 += cpp_step_2;
+                                    }
+                                    Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex % 10]].Count +=
+                                        Count;
+                                }
+                                Globals::TalkShip->RefreshDerivedStats(true);
+                            }
                             if (DraggedGoodsIndex < 10) {
-                                {
-                                    std::int32_t cpp_right_2 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
-                                    std::int32_t cpp_right = Count * cpp_right_2;
-                                    std::int32_t cpp_arg = Globals::TalkShip->Money + cpp_right;
-                                    aShip::TShip* talkShip = Globals::TalkShip;
-                                    talkShip->SetMoney(cpp_arg);
-                                }
-                                {
-                                    std::int32_t cpp_step = ([&] {
-                                        std::int32_t cpp_right_3 = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
-                                        return Count * cpp_right_3;
-                                    }());
-                                    std::int32_t& cpp_target = Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex]].TotalCost;
-                                    cpp_target -= cpp_step;
-                                }
-                                Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex]].Count -= Count;
+                                GR_Main::SoundManager->PlaySound(u"Sound.Buy"_wref.get());
+                                aPlayer::GetPlayer()->BuyGoodsFromLocation(ShopGoodsOrder[DraggedGoodsIndex], Count);
                             } else {
-                                {
-                                    std::int32_t cpp_right_5 = aPlayer::GetPlayer()->ShopGoodsSellPrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
-                                    std::int32_t cpp_right_4 = Count * cpp_right_5;
-                                    std::int32_t cpp_arg_2 = Globals::TalkShip->Money - cpp_right_4;
-                                    aShip::TShip* talkShip_2 = Globals::TalkShip;
-                                    talkShip_2->SetMoney(cpp_arg_2);
-                                }
-                                {
-                                    std::int32_t cpp_step_2 = ([&] {
-                                        std::int32_t cpp_right_6 = aPlayer::GetPlayer()->ShopGoodsSellPrice(ShopGoodsOrder[DraggedGoodsIndex % 10], nullptr);
-                                        return Count * cpp_right_6;
-                                    }());
-                                    std::int32_t& cpp_target_2 = Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex % 10]].TotalCost;
-                                    cpp_target_2 += cpp_step_2;
-                                }
-                                Globals::TalkShip->CargoGoods[ShopGoodsOrder[DraggedGoodsIndex % 10]].Count += Count;
+                                GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
+                                aPlayer::GetPlayer()->SellGoodsToLocation(ShopGoodsOrder[DraggedGoodsIndex - 10],
+                                    Count);
                             }
-                            Globals::TalkShip->RefreshDerivedStats(true);
-                        }
-                        if (DraggedGoodsIndex < 10) {
-                            GR_Main::SoundManager->PlaySound(u"Sound.Buy"_wref.get());
-                            aPlayer::GetPlayer()->BuyGoodsFromLocation(ShopGoodsOrder[DraggedGoodsIndex], Count);
-                        } else {
-                            GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
-                            aPlayer::GetPlayer()->SellGoodsToLocation(ShopGoodsOrder[DraggedGoodsIndex - 10], Count);
-                        }
-                        if (!aPlayer::GetPlayer()->InNormalSpace()) {
-                            aGalaxy::Galaxy->PrimeIntegrityChecksum(137);
-                        }
-                        if (aPlayer::GetPlayer()->IsOnPlanet()) {
-                            if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
-                                GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
-                                RequestClose(1);
+                            if (!aPlayer::GetPlayer()->InNormalSpace()) {
+                                aGalaxy::Galaxy->PrimeIntegrityChecksum(137);
+                            }
+                            if (aPlayer::GetPlayer()->IsOnPlanet()) {
+                                if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+                                    aGalaxyStruct::rlHostile) {
+                                    GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
+                                    RequestClose(1);
+                                }
                             }
                         }
                     }
@@ -1047,7 +1217,8 @@ namespace fGoodsShop2 {
         GI_Main::BreakUiMessage();
     }
 
-    void TfGoodsShop2::GoodsRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfGoodsShop2::GoodsRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (DraggedGoodsIndex >= 0) {
             DraggedGoodsIndex = -1;
             UpdateActionCursor(false);
@@ -1055,7 +1226,8 @@ namespace fGoodsShop2 {
         }
     }
 
-    void TfGoodsShop2::GoodsMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfGoodsShop2::GoodsMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         std::int32_t Count{};
         std::int32_t Price{};
         GI_MessageLoop::TObjectGI* Control{};
@@ -1074,17 +1246,19 @@ namespace fGoodsShop2 {
             Index = DraggedGoodsIndex;
         } else {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(I); ) {
-                Control = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I)}))));
+                Control = GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I)})));
                 {
-                    GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control);
+                    GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                        Control);
                     if (cpp_with->ContainsPoint(GetCursorPoint())) {
                         Index = I;
                         break;
                     }
                 }
-                Control = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(I + 10)}))));
+                Control = GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(I + 10)})));
                 {
-                    GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Control);
+                    GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                        Control);
                     if (cpp_with_2->ContainsPoint(GetCursorPoint())) {
                         Index = I + 10;
                         break;
@@ -1094,7 +1268,8 @@ namespace fGoodsShop2 {
         }
         if (Index >= 0) {
             Good = ShopGoodsOrder[Index % 10];
-            if (Index < 10 && aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count > 0 || Index >= 10 && aPlayer::GetPlayer()->CargoGoods[Good].Count > 0) {
+            if (Index < 10 && aPlayer::GetPlayer()->GetLocationGoodsEntry(Good)->Count > 0 || Index >= 10 &&
+                    aPlayer::GetPlayer()->CargoGoods[Good].Count > 0) {
                 if (Index < 10) {
                     Action = u"Buy"_w;
                     Price = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, nullptr);
@@ -1106,13 +1281,18 @@ namespace fGoodsShop2 {
                     Count = aPlayer::GetPlayer()->CargoGoods[Good].Count;
                     {
                         std::int32_t cpp_left = aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, nullptr);
-                        Profit = cpp_left - static_cast<std::int32_t>(System::Round(aPlayer::GetPlayer()->GetAverageCargoCost(Good)));
+                        Profit = cpp_left -
+                                static_cast<std::int32_t>(
+                                    pas::real_round(aPlayer::GetPlayer()->GetAverageCargoCost(Good)));
                     }
                 }
                 Text = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"FormGS.", Action, u"Help"}));
-                aMyFunction::ReplaceTextToken(Text, u"<Goods>"_w, aConst::GoodsMarket[Good].TradeName, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count), aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Price), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Goods>"_w, aConst::GoodsMarket[Good].TradeName,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Count>"_w, pas::wide_int_to_str(Count),
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Cost>"_w, pas::wide_int_to_str(Price),
+                    aMyFunction::TextHighlightColorTag);
                 if (Profit > 0) {
                     Color = aMyFunction::GreenColorTag;
                 } else if (Profit < 0) {
@@ -1120,31 +1300,42 @@ namespace fGoodsShop2 {
                 } else if (Profit == 0) {
                     Color = pas::WideString();
                 }
-                aMyFunction::ReplaceTextToken(Text, u"<OldCost>"_w, pas::wide_int64_to_str(System::Round(aPlayer::GetPlayer()->GetAverageCargoCost(Good))), Color);
-                aMyFunction::ReplaceTextToken(Text, u"<Profit>"_w, pas::wide_int_to_str(Profit), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<OldCost>"_w,
+                    pas::wide_int64_to_str(pas::real_round(aPlayer::GetPlayer()->GetAverageCargoCost(Good))), Color);
+                aMyFunction::ReplaceTextToken(Text, u"<Profit>"_w, pas::wide_int_to_str(Profit),
+                    aMyFunction::TextHighlightColorTag);
             } else if (Index < 10) {
                 if (aPlayer::GetPlayer()->IsOutsideStarSpace()) {
                     Text = ([&] {
-                        pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(aConst::GoodsMarket[Good].DisplayName);
-                        pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormGS.NotGoodsForBuyHelp"_wref.get());
-                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey), std::move(textHighlightColorTag), u"<Goods>"_w, std::move(lowerCaseWideString));
-                    }());
+                            pas::WideString lowerCaseWideString = EC_Str::LowerCaseWideString(
+                                aConst::GoodsMarket[Good].DisplayName);
+                            pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                                u"FormGS.NotGoodsForBuyHelp"_wref.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey),
+                                std::move(textHighlightColorTag), u"<Goods>"_w, std::move(lowerCaseWideString));
+                        }());
                 } else {
                     Text = ([&] {
-                        pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(aConst::GoodsMarket[Good].DisplayName);
-                        pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"FormGS.NotGoodsForBuyHelpInShip"_wref.get());
-                        pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                        return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey_2), std::move(textHighlightColorTag_2), u"<Goods>"_w, std::move(lowerCaseWideString_2));
-                    }());
+                            pas::WideString lowerCaseWideString_2 = EC_Str::LowerCaseWideString(
+                                aConst::GoodsMarket[Good].DisplayName);
+                            pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(
+                                u"FormGS.NotGoodsForBuyHelpInShip"_wref.get());
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey_2),
+                                std::move(textHighlightColorTag_2), u"<Goods>"_w, std::move(lowerCaseWideString_2));
+                        }());
                 }
             } else {
                 Text = ([&] {
-                    pas::WideString lowerCaseWideString_3 = EC_Str::LowerCaseWideString(aConst::GoodsMarket[Good].DisplayName);
-                    pas::WideString lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(u"FormGS.NotGoodsForSaleHelp"_wref.get());
-                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey_3), std::move(textHighlightColorTag_3), u"<Goods>"_w, std::move(lowerCaseWideString_3));
-                }());
+                        pas::WideString lowerCaseWideString_3 = EC_Str::LowerCaseWideString(
+                            aConst::GoodsMarket[Good].DisplayName);
+                        pas::WideString lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(
+                            u"FormGS.NotGoodsForSaleHelp"_wref.get());
+                        pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey_3),
+                            std::move(textHighlightColorTag_3), u"<Goods>"_w, std::move(lowerCaseWideString_3));
+                    }());
             }
         }
         if (HoveredControl == nullptr || HoveredControl->HelpText == u"") {
@@ -1159,12 +1350,16 @@ namespace fGoodsShop2 {
             return;
         }
         if (DraggedGoodsIndex >= 0) {
-            SetCursorImage(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(ShopGoodsOrder[DraggedGoodsIndex % 10]))}), ClassesImports::Point(16, 16));
+            SetCursorImage(
+                pas::concat_wide({u"GI,",
+                    aItem::GetItemTypeBitmapPath(static_cast<aConst::TItemType>(ShopGoodsOrder[DraggedGoodsIndex %
+                        10]))}), ClassesImports::Point(16, 16));
         } else {
             Found = false;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, 7); cpp_range.next(Index); ) {
                 {
-                    GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(Index)})))));
+                    GI_GraphButton::TGraphButtonGI* cpp_with = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                        GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(Index)}))));
                     if (cpp_with->ContainsPoint(GetCursorPoint())) {
                         if (aPlayer::GetPlayer()->GetLocationGoodsEntry(ShopGoodsOrder[Index])->Count > 0) {
                             Found = true;
@@ -1173,7 +1368,8 @@ namespace fGoodsShop2 {
                     }
                 }
                 {
-                    GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Tov", SysUtils::IntToStr(Index + 10)})))));
+                    GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                        GetByName(pas::view(pas::concat_wide({u"Tov", pas::wide_int_to_str(Index + 10)}))));
                     if (cpp_with_2->ContainsPoint(GetCursorPoint())) {
                         if (aPlayer::GetPlayer()->CargoGoods[ShopGoodsOrder[Index]].Count > 0) {
                             Found = true;
@@ -1209,13 +1405,17 @@ namespace fGoodsShop2 {
                 Result = aPlayer::GetPlayer()->GetCargoFreeSpace();
             }
             Total = Result;
-            Total = static_cast<long double>(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index], nullptr)) * Total;
-            if (([&] {
-                std::int32_t cpp_left = Result * aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index], nullptr);
-                return cpp_left > aPlayer::GetPlayer()->Money;
-            }()) || Total > pas::constant(static_cast<long double>(aGalaxyStruct::MaxMonetaryValue))) {
-                std::int32_t cpp_right = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index], nullptr);
-                return pas::idiv(aPlayer::GetPlayer()->Money, cpp_right);
+            Total = static_cast<float>(static_cast<double>(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index], nullptr)) *
+                    Total);
+            {
+                std::int32_t cpp_left = Result * aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index],
+                        nullptr);
+                if (cpp_left > aPlayer::GetPlayer()->Money || Total >
+                        pas::constant(static_cast<double>(aGalaxyStruct::MaxMonetaryValue))) {
+                    std::int32_t cpp_right = aPlayer::GetPlayer()->ShopGoodsPurchasePrice(ShopGoodsOrder[Index],
+                        nullptr);
+                    return pas::idiv(aPlayer::GetPlayer()->Money, cpp_right);
+                }
             }
         } else {
             Result = aPlayer::GetPlayer()->CargoGoods[ShopGoodsOrder[Index - 10]].Count;
@@ -1224,9 +1424,11 @@ namespace fGoodsShop2 {
                     Result = PartnerCargoLimit;
                 }
                 {
-                    std::int32_t cpp_left_2 = Result * Globals::TalkShip->ShopGoodsSellPrice(ShopGoodsOrder[Index - 10], nullptr);
+                    std::int32_t cpp_left_2 = Result * Globals::TalkShip->ShopGoodsSellPrice(ShopGoodsOrder[Index - 10],
+                            nullptr);
                     if (cpp_left_2 > PartnerMoneyLimit) {
-                        std::int32_t cpp_right_2 = Globals::TalkShip->ShopGoodsSellPrice(ShopGoodsOrder[Index - 10], nullptr);
+                        std::int32_t cpp_right_2 = Globals::TalkShip->ShopGoodsSellPrice(ShopGoodsOrder[Index - 10],
+                            nullptr);
                         return pas::idiv(PartnerMoneyLimit, cpp_right_2);
                     }
                 }
@@ -1264,68 +1466,97 @@ namespace fGoodsShop2 {
         }
         if (pas::class_cast_if<aPlanet::TPlanet*>(Location) != nullptr) {
             Title = ([&] {
-                auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(Location)->Name);
-                pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGS.PlanetInfo"_wref.get());
-                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Planet>"_w, name.get());
-            }());
+                    auto name = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(Location)->Name);
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGS.PlanetInfo"_wref.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                        u"<Planet>"_w, name.get());
+                }());
         } else if (pas::class_cast_if<aRuins::TRuins*>(Location) != nullptr) {
-            Title = aMyFunction::WrapTextInColor(pas::view(pas::checked_cast<aRuins::TRuins*>(Location)->GetColoredFullName(aMyFunction::TextHighlightColorTag)), u""sv);
+            Title = aMyFunction::WrapTextInColor(
+                    pas::view(
+                        pas::checked_cast<aRuins::TRuins*>(
+                        Location)->GetColoredFullName(aMyFunction::TextHighlightColorTag)), u""sv);
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             Title = ([&] {
-                pas::WideString fullName = Globals::TalkShip->GetFullName(u" "_wref.get());
-                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(textHighlightColorTag_2)));
-            }());
+                    pas::WideString fullName = Globals::TalkShip->GetFullName(u" "_wref.get());
+                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)),
+                        pas::view(std::move(textHighlightColorTag_2)));
+                }());
         }
-        Text = pas::concat_wide({static_cast<pas::WideString>(pas::concat_ansi({"<td=", SysUtils::IntToStr(GR_Main::GiScalePixels(0)), ">", "<align=left>"})), Title, u"</align>"});
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(230)), u">", u"<align=center>", ([&] {
-            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn);
-            pas::WideString greenColorTag = aMyFunction::GreenColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)), pas::view(std::move(greenColorTag)));
-        }()), u"</align>"});
+        Text = pas::concat_wide({
+                pas::concat_wide({u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(0)), u">", u"<align=left>"}),
+                Title, u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(230)), u">",
+                u"<align=center>",
+                ([&] {
+                    pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(aGalaxy::Galaxy->CurrentTurn);
+                    pas::WideString greenColorTag = aMyFunction::GreenColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)),
+                        pas::view(std::move(greenColorTag)));
+                }()), u"</align>"});
         if (pas::class_cast_if<aPlanet::TPlanet*>(Location) != nullptr) {
             Info = ([&] {
-                auto name_2 = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(Location)->CurrentStar->Name);
-                pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
-                pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_3), u"<Star>"_w, name_2.get());
-            }());
+                    auto name_2 = pas::borrow(pas::checked_cast<aPlanet::TPlanet*>(Location)->CurrentStar->Name);
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
+                    pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_3),
+                        u"<Star>"_w, name_2.get());
+                }());
         } else if (pas::class_cast_if<aShip::TShip*>(Location) != nullptr) {
             Info = ([&] {
-                auto name_3 = pas::borrow(pas::checked_cast<aShip::TShip*>(Location)->CurrentStar->Name);
-                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
-                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_4), u"<Star>"_w, name_3.get());
-            }());
+                    auto name_3 = pas::borrow(pas::checked_cast<aShip::TShip*>(Location)->CurrentStar->Name);
+                    pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormGS.StarInfo"_wref.get());
+                    pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(textHighlightColorTag_4),
+                        u"<Star>"_w, name_3.get());
+                }());
         }
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(400)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(Info), u""sv), u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(400)), u">",
+                u"<align=center>", aMyFunction::WrapTextInColor(pas::view(Info), u""sv), u"</align>"});
         Text = pas::concat_wide({Text, u"\r\n", Separator});
-        Text = pas::concat_wide({Text, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(10)), u">", u"<align=center>", ([&] {
-            pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormGS.ColumnNumber"_wref.get());
-            pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_4)), pas::view(std::move(textHighlightColorTag_5)));
-        }()), u"</align>"});
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(30)), u">", u"<align=left>", ([&] {
-            pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get());
-            pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_5)), pas::view(std::move(textHighlightColorTag_6)));
-        }()), u"</align>"});
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(190)), u">", u"<align=center>", ([&] {
-            pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormGS.ColumnCount"_wref.get());
-            pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_6)), pas::view(std::move(textHighlightColorTag_7)));
-        }()), u"</align>"});
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(300)), u">", u"<align=center>", ([&] {
-            pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormGS.ColumnCost"_wref.get());
-            pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_7)), pas::view(std::move(textHighlightColorTag_8)));
-        }()), u"</align>"});
-        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(410)), u">", u"<align=center>", ([&] {
-            pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormGS.ColumnLegality"_wref.get());
-            pas::WideString textHighlightColorTag_9 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_8)), pas::view(std::move(textHighlightColorTag_9)));
-        }()), u"</align>"});
+        Text = pas::concat_wide({Text, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(10)), u">",
+                u"<align=center>",
+                ([&] {
+                    pas::WideString localizedColorText_4 = aConst::LocalizedColorText(
+                        u"FormGS.ColumnNumber"_wref.get());
+                    pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_4)),
+                        pas::view(std::move(textHighlightColorTag_5)));
+                }()), u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(30)), u">", u"<align=left>",
+                ([&] {
+                    pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormGS.ColumnName"_wref.get());
+                    pas::WideString textHighlightColorTag_6 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_5)),
+                        pas::view(std::move(textHighlightColorTag_6)));
+                }()), u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(190)), u">",
+                u"<align=center>",
+                ([&] {
+                    pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormGS.ColumnCount"_wref.get());
+                    pas::WideString textHighlightColorTag_7 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_6)),
+                        pas::view(std::move(textHighlightColorTag_7)));
+                }()), u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(300)), u">",
+                u"<align=center>",
+                ([&] {
+                    pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormGS.ColumnCost"_wref.get());
+                    pas::WideString textHighlightColorTag_8 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_7)),
+                        pas::view(std::move(textHighlightColorTag_8)));
+                }()), u"</align>"});
+        Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(410)), u">",
+                u"<align=center>",
+                ([&] {
+                    pas::WideString localizedColorText_8 = aConst::LocalizedColorText(
+                        u"FormGS.ColumnLegality"_wref.get());
+                    pas::WideString textHighlightColorTag_9 = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_8)),
+                        pas::view(std::move(textHighlightColorTag_9)));
+                }()), u"</align>"});
         Text = pas::concat_wide({Text, u"\r\n", Separator});
         RowNumber = 1;
         for (Index = static_cast<std::uint8_t>(0); Index <= static_cast<std::uint8_t>(7); ++Index) {
@@ -1338,13 +1569,27 @@ namespace fGoodsShop2 {
             } else {
                 GR_Main::RaiseWideMessage(u"no goods shop"_wref.get());
             }
-            Text = pas::concat_wide({Text, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(10)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(RowNumber)), u""sv), u"</align>"});
+            Text = pas::concat_wide({Text, u"\r\n", u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(10)), u">",
+                    u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(RowNumber)), u""sv),
+                    u"</align>"});
             ++RowNumber;
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(30)), u">", u"", aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), u""sv), u""});
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(190)), u">", u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Stock)), u""sv), u"</align>"});
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(285)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Location))), u""sv), u"</align>"});
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(300)), u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(335)), u"><align=right>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Location))), u""sv), u"</align>"});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(30)), u">", u"",
+                    aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Good].DisplayName), u""sv), u""});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(190)), u">",
+                    u"<align=center>", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Stock)), u""sv),
+                    u"</align>"});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(285)),
+                    u"><align=right>",
+                    aMyFunction::WrapTextInColor(
+                        pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsPurchasePrice(Good, Location))),
+                        u""sv), u"</align>"});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(300)),
+                    u"><align=center>", aMyFunction::WrapTextInColor(u"/"sv, u""sv), u"</align>"});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(335)),
+                    u"><align=right>",
+                    aMyFunction::WrapTextInColor(
+                        pas::view(pas::wide_int_to_str(aPlayer::GetPlayer()->ShopGoodsSellPrice(Good, Location))),
+                        u""sv), u"</align>"});
             SavedPlanet = aPlayer::GetPlayer()->CurrentPlanet;
             SavedDockedTo = aPlayer::GetPlayer()->DockedTo;
             // Both native writes clear CurrentPlanet; retain the original duplicate assignment.
@@ -1359,14 +1604,17 @@ namespace fGoodsShop2 {
                 Info = GR_Main::LookupLocalizedTextByKey(u"FormGS.LegalityOk"_wref.get());
             } else {
                 Info = ([&] {
-                    pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormGS.LegalityNo"_wref.get());
-                    pas::WideString redColorTag = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)), pas::view(std::move(redColorTag)));
-                }());
+                        pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                            u"FormGS.LegalityNo"_wref.get());
+                        pas::WideString redColorTag = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)),
+                            pas::view(std::move(redColorTag)));
+                    }());
             }
             aPlayer::GetPlayer()->CurrentPlanet = SavedPlanet;
             aPlayer::GetPlayer()->DockedTo = SavedDockedTo;
-            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(405)), u"><align=center>", aMyFunction::WrapTextInColor(pas::view(Info), u""sv), u"</align>"});
+            Text = pas::concat_wide({Text, u"<td=", pas::wide_int_to_str(GR_Main::GiScalePixels(405)),
+                    u"><align=center>", aMyFunction::WrapTextInColor(pas::view(Info), u""sv), u"</align>"});
         }
         return Text;
     }
@@ -1401,15 +1649,30 @@ namespace fGoodsShop2 {
         if (aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport &&
+            static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstDominion &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar !=
+                aPlayer::GetPlayer()->CurrentStar &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <=
+                aGalaxy::Galaxy->CurrentTurn) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstMilitaryBase &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar !=
+                aPlayer::GetPlayer()->CurrentStar &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <=
+                aGalaxy::Galaxy->CurrentTurn) {
             if (aPlayer::GetPlayer()->Speed <= 0) {
                 Globals::RuinsTalkScreen->DepartWithStation(1);
                 return;
@@ -1492,7 +1755,8 @@ namespace fGoodsShop2 {
         }
         AmbientSound->SetVolume(1.0f);
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
-            if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+                aGalaxyStruct::rlHostile) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
                 RequestClose(1);
             }
@@ -1522,8 +1786,9 @@ namespace fGoodsShop2 {
             Position = FaceGB->ToAbsolutePoint(ClassesImports::Point(0, 0));
             FaceGB->GraphBuf->AllocateNative(FaceGB->ClientSize.X, FaceGB->ClientSize.Y);
             {
-                std::uint8_t* cpp_left = static_cast<std::uint8_t*>(GR_Main::ScreenRenderBuffer->GetPixels()) + Position.X * 2;
-                void* cpp_arg = cpp_left + Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes;
+                std::uint8_t* cpp_left = pas::pointer_add(
+                    static_cast<std::uint8_t*>(GR_Main::ScreenRenderBuffer->GetPixels()), Position.X * 2);
+                void* cpp_arg = pas::pointer_add(cpp_left, Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes);
                 std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
                 std::int32_t x = FaceGB->ClientSize.X;
                 std::int32_t y = FaceGB->ClientSize.Y;
@@ -1556,7 +1821,9 @@ namespace fGoodsShop2 {
             Sender->UserValue = Sequence;
             {
                 GI_Image::TImageGI* FaceI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"FaceI"sv));
-                FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserValue))), u"i"}));
+                FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserValue))),
+                    u"i"}));
                 FaceI->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                 FaceI->SetImageKindX(GI_Main::ikxCenter);
                 FaceI->SetImageKindY(GI_Main::ikyCenter);
@@ -1565,7 +1832,9 @@ namespace fGoodsShop2 {
             {
                 GI_GAI::TgaiGI* FaceA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"FaceA"sv));
                 FaceA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-                FaceA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserValue))), u"a"}));
+                FaceA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), u"ShopBot",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserValue))),
+                    u"a"}));
                 FaceA->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
                 FaceA->SequenceIndex = 0;
                 FaceA->UpdateAutoGeometry();
@@ -1663,7 +1932,8 @@ namespace fGoodsShop2 {
     }
 
     void TfGoodsShop2::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (Key == WindowsSdk::VK_ESCAPE && DraggedGoodsIndex >= 0) {
@@ -1672,20 +1942,22 @@ namespace fGoodsShop2 {
             RefreshGoodsDisplay();
         } else if (Key == WindowsSdk::VK_ESCAPE && aPlayer::GetPlayer()->InNormalSpace()) {
             CloseClicked(nullptr);
-        } else if (Key == WindowsSdk::VK_SPACE && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1)) {
+        } else if (Key == WindowsSdk::VK_SPACE && !aPlayer::GetPlayer()->InNormalSpace()) {
             if (GetByName(u"PM_EndTurn"sv)->Active) {
                 EndTurnClicked(nullptr);
             }
-        } else if (Key == 'S' && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1)) {
+        } else if (Key == 'S' && !aPlayer::GetPlayer()->InNormalSpace()) {
             ShipClicked(nullptr);
         } else if (!aPlayer::GetPlayer()->InNormalSpace()) {
-            if (Key == 'M' || Key == 'R' || Key == WindowsSdk::VK_ESCAPE || Key == WindowsSdk::VK_F2 || Key == WindowsSdk::VK_F3) {
+            if (Key == 'M' || Key == 'R' || Key == WindowsSdk::VK_ESCAPE || Key == WindowsSdk::VK_F2 || Key ==
+                    WindowsSdk::VK_F3) {
                 AmbientSound->SetVolume(0.0f);
             }
             MainPanel->ProcessKeyDown(Key);
             PlanetPanel->ProcessKeyDown(Key);
             StationPanel->ProcessKeyDown(Key);
-            if (Key == 'M' || Key == 'R' || Key == WindowsSdk::VK_ESCAPE || Key == WindowsSdk::VK_F2 || Key == WindowsSdk::VK_F3) {
+            if (Key == 'M' || Key == 'R' || Key == WindowsSdk::VK_ESCAPE || Key == WindowsSdk::VK_F2 || Key ==
+                    WindowsSdk::VK_F3) {
                 AmbientSound->SetVolume(1.0f);
             }
         }
@@ -1732,7 +2004,8 @@ namespace fGoodsShop2 {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+            ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10006);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20006);
@@ -1750,20 +2023,28 @@ namespace fGoodsShop2 {
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         }
     }

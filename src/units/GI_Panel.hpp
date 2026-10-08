@@ -9,8 +9,10 @@ namespace GI_MessageLoop {
 namespace GI_Panel {
     void TPanelGI_Create(TPanelGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
-    void TPanelGI_Destroy(TPanelGI* Self);
+    inline void TPanelGI_Destroy(TPanelGI* Self);
 
     void TPanelGI_LoadFromConfigPath(TPanelGI* Self, const pas::WideString& Path);
 
 } // namespace GI_Panel
+
+#include "inline/GI_Panel.hpp"

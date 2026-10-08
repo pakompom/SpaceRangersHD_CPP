@@ -34,7 +34,8 @@ namespace ab_W18 {
         State = Owner->State;
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 1000;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w18_f"_wref.get(), u"GAI,Bm.AB.w18_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w18_f"_wref.get(), u"GAI,Bm.AB.w18_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetFrameMode(Image, ab_WorldImage::afmRandomStart);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
@@ -49,22 +50,24 @@ namespace ab_W18 {
         ab_Object::TabObject::Advance();
         if (!Exploding) {
             if (SourceObject != nullptr) {
-                if (OrbitRadius < 1.5E+2L) {
-                    OrbitRadius = OrbitRadius + 0.5L;
+                if (OrbitRadius < 1.5E+2) {
+                    OrbitRadius = static_cast<float>(OrbitRadius + 0.5);
                 }
-                if (OrbitRadius < 1.0E+2L) {
-                    OrbitRadius = OrbitRadius + 0.5L;
+                if (OrbitRadius < 1.0E+2) {
+                    OrbitRadius = static_cast<float>(OrbitRadius + 0.5);
                 }
-                if (OrbitRadius < 5.0E+1L) {
-                    OrbitRadius = OrbitRadius + 0.5L;
+                if (OrbitRadius < 5.0E+1) {
+                    OrbitRadius = static_cast<float>(OrbitRadius + 0.5);
                 }
                 if (ab_Global::ArcadeTickCount % 3 == 1) {
-                    OrbitAngle = aMyFunction::WrapHeadingDegrees(OrbitAngle + 3.75L + AngleCorrection);
+                    OrbitAngle = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<float>(OrbitAngle + 3.75) + AngleCorrection));
                     AngleCorrection = 0.0f;
                 } else {
-                    OrbitAngle = aMyFunction::WrapHeadingDegrees(OrbitAngle + 3.75L);
+                    OrbitAngle = aMyFunction::WrapHeadingDegrees(static_cast<float>(OrbitAngle + 3.75));
                 }
-                State = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(SourceObject->State.LongitudeDegrees, SourceObject->State.PolarAngleDegrees, OrbitAngle), OrbitRadius);
+                State = ab_Global::AdvanceSphericalStateOnCurrentSphere(
+                        ab_Global::MakeSphericalBearingState(SourceObject->State.LongitudeDegrees,
+                            SourceObject->State.PolarAngleDegrees, OrbitAngle), OrbitRadius);
                 if (ab_Global::ArcadeTickCount % 3 == 0) {
                     Collision = nullptr;
                     NextNeighbor = nullptr;
@@ -72,13 +75,15 @@ namespace ab_W18 {
                     NegativeDelta = 0.0f;
                     Obj = ab_Object::FirstArcadeObject;
                     while (Obj != nullptr) {
-                        if (TabW18* abW18 = pas::class_cast_if<TabW18*>(Obj); abW18 != nullptr && Obj != this && abW18->SourceObject == SourceObject) {
-                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<long double>(abW18->OrbitAngle) - OrbitAngle);
-                            if (Delta < 0.0L && (Collision == nullptr || NegativeDelta < Delta)) {
+                        if (TabW18* abW18 = pas::class_cast_if<TabW18*>(Obj); abW18 != nullptr && Obj != this &&
+                            abW18->SourceObject == SourceObject) {
+                            Delta = aMyFunction::WrapSignedHeadingDegrees(static_cast<float>(static_cast<double>(abW18->OrbitAngle) -
+                                    OrbitAngle));
+                            if (Delta < 0.0 && (Collision == nullptr || NegativeDelta < Delta)) {
                                 NegativeDelta = Delta;
                                 Collision = Obj;
                             }
-                            if (Delta >= 0.0L && (NextNeighbor == nullptr || PositiveDelta > Delta)) {
+                            if (Delta >= 0.0 && (NextNeighbor == nullptr || PositiveDelta > Delta)) {
                                 PositiveDelta = Delta;
                                 NextNeighbor = Obj;
                             }
@@ -87,11 +92,12 @@ namespace ab_W18 {
                     }
                     if (Collision != nullptr) {
                         auto& cpp_target = static_cast<TabW18*>(Collision)->AngleCorrection;
-                        cpp_target = static_cast<TabW18*>(Collision)->AngleCorrection - (1.8E+2L + NegativeDelta) * 0.03L;
+                        cpp_target = static_cast<float>(static_cast<TabW18*>(Collision)->AngleCorrection - static_cast<float>((static_cast<float>(1.8E+2 + NegativeDelta)) * 0x1.eb851eb851eb7p-6));
                     }
                     if (NextNeighbor != nullptr) {
                         auto& cpp_target_2 = static_cast<TabW18*>(NextNeighbor)->AngleCorrection;
-                        cpp_target_2 = static_cast<TabW18*>(NextNeighbor)->AngleCorrection + (1.8E+2L - PositiveDelta) * 0.03L;
+                        cpp_target_2 = static_cast<float>(static_cast<TabW18*>(NextNeighbor)->AngleCorrection + static_cast<float>((static_cast<float>(1.8E+2 - PositiveDelta)) *
+                                    0x1.eb851eb851eb7p-6));
                     }
                 }
             }
@@ -105,13 +111,15 @@ namespace ab_W18 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr || SourceObject == nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr || SourceObject == nullptr) &&
+            static_cast<std::uint8_t>(Exploding ^ 1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
-                Collision->State.BearingDegrees = Collision->State.BearingDegrees - 3.0E+1L;
+                Collision->State.BearingDegrees = static_cast<float>(Collision->State.BearingDegrees - 3.0E+1);
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w18a_f"_wref.get(), u"GAI,Bm.AB.w18a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w18a_f"_wref.get(),
+                u"GAI,Bm.AB.w18a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Exploding) {

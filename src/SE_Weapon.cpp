@@ -68,12 +68,14 @@ namespace SE_Weapon {
     }
 
     // Stores visual/variant and appends them to GraphKey. Position is passed through the base constructor.
-    void TWeaponSE_Create(TWeaponSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition, std::int32_t ShotVisual, std::int32_t Variant) {
+    void TWeaponSE_Create(TWeaponSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition,
+        std::int32_t ShotVisual, std::int32_t Variant) {
         Self->ShotVisual = ShotVisual;
         Self->HitVariant = Variant;
         SE_Space::TObjectSE_Create(Self, GraphKey, UnusedPosition);
         if (Variant >= 0) {
-            Self->GraphKey = pas::concat_wide({Self->GraphKey, u",", pas::wide_int_to_str(ShotVisual), u",", pas::wide_int_to_str(Variant)});
+            Self->GraphKey = pas::concat_wide({Self->GraphKey, u",", pas::wide_int_to_str(ShotVisual), u",",
+                    pas::wide_int_to_str(Variant)});
         } else if (ShotVisual > 0) {
             Self->GraphKey = pas::concat_wide({Self->GraphKey, u",", pas::wide_int_to_str(ShotVisual)});
         }
@@ -103,9 +105,11 @@ namespace SE_Weapon {
         WeaponConfig = GR_Main::GameDataConfig->GetBlock(u"Weapon"sv);
         Key = EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv);
         I = EC_Str::ExtractDigitsToIntW(pas::view(Key));
-        if (ShotVisual == 0 && EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1 || pas::in_set<3, 3, 14, 14, 17, 17>(I)) {
+        if (ShotVisual == 0 && EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1 || pas::in_set<3, 3, 14,
+                14, 17, 17>(I)) {
             if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
-                ShotVisual = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
+                ShotVisual = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                        pas::view(GraphKey), 1, u","sv)));
             }
             VisualConfig = nullptr;
             if (pas::in_set<3, 3, 14, 14, 17, 17>(I)) {
@@ -119,7 +123,8 @@ namespace SE_Weapon {
         std::uint8_t UseRandomHit = true;
         if (Key == u"Weapon.Star") {
             // Native allocates this child and then clears the retained projectile reference.
-            Projectile = pas::construct_call<GI_PSWeapon12Turbogravir::TPSBlueWhirlGI>(GI_PSWeapon12Turbogravir::TPSBlueWhirlGI_Create, Space->MapPanel);
+            Projectile = pas::construct_call<GI_PSWeapon12Turbogravir::TPSBlueWhirlGI>(
+                    GI_PSWeapon12Turbogravir::TPSBlueWhirlGI_Create, Space->MapPanel);
             Projectile = nullptr;
             UseRandomHit = false;
         } else if (Key == u"Weapon.NoGraph") {
@@ -142,7 +147,8 @@ namespace SE_Weapon {
             SourceAnimation->SetDepthByName(u"Weapon"_wref.get());
             SourceAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(SourceAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg = pas::concat_wide({u"[50,0-",
+                    pas::wide_int_to_str(SourceAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* sourceAnimation_2 = SourceAnimation;
                 sourceAnimation_2->LoadFrameSequenceFromText(cpp_arg);
             }
@@ -165,7 +171,8 @@ namespace SE_Weapon {
             SourceAnimation->SetDepthByName(u"Weapon"_wref.get());
             SourceAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg_2 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(SourceAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg_2 = pas::concat_wide({u"[50,0-",
+                    pas::wide_int_to_str(SourceAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* sourceAnimation_4 = SourceAnimation;
                 sourceAnimation_4->LoadFrameSequenceFromText(cpp_arg_2);
             }
@@ -188,18 +195,22 @@ namespace SE_Weapon {
             TargetAnimation->SetDepthByName(u"Weapon"_wref.get());
             TargetAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg_3 = static_cast<pas::WideString>(pas::concat_ansi({"[40,0-", SysUtils::IntToStr(TargetAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[40,0-",
+                    pas::wide_int_to_str(TargetAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* targetAnimation_2 = TargetAnimation;
                 targetAnimation_2->LoadFrameSequenceFromText(cpp_arg_3);
             }
             TargetAnimation->StopAutoPlayback();
             TargetAnimationInterval = 2;
         } else if (Key == u"Weapon.Nine") {
-            Projectile = pas::construct_call<GI_PSWeapon09MResonator::TPSWeapon09BranchGI>(GI_PSWeapon09MResonator::TPSWeapon09BranchGI_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon09MResonator::TPSWeapon09BranchGI>(
+                    GI_PSWeapon09MResonator::TPSWeapon09BranchGI_Create, Space->MapPanel, ShotVisual);
         } else if (Key == u"Weapon.PDTurret") {
-            Projectile = pas::construct_call<GI_PDTurretWeapon::TPSPDWeaponGI>(GI_PDTurretWeapon::TPSPDWeaponGI_Create, Space->MapPanel);
+            Projectile = pas::construct_call<GI_PDTurretWeapon::TPSPDWeaponGI>(GI_PDTurretWeapon::TPSPDWeaponGI_Create,
+                    Space->MapPanel);
         } else if (Key == u"Weapon.RadialEffect") {
-            Projectile = pas::construct_call<GI_RadialEffect::TPSRadEffectGI>(GI_RadialEffect::TPSRadEffectGI_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_RadialEffect::TPSRadEffectGI>(GI_RadialEffect::TPSRadEffectGI_Create,
+                    Space->MapPanel, ShotVisual);
             UseRandomHit = false;
         } else if (Key == u"Weapon.AuraEffect") {
             Projectile = nullptr;
@@ -215,31 +226,41 @@ namespace SE_Weapon {
             TargetAnimation->SetDepthByName(u"Weapon"_wref.get());
             TargetAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg_4 = static_cast<pas::WideString>(pas::concat_ansi({"[40,0-", SysUtils::IntToStr(TargetAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg_4 = pas::concat_wide({u"[40,0-",
+                    pas::wide_int_to_str(TargetAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* targetAnimation_4 = TargetAnimation;
                 targetAnimation_4->LoadFrameSequenceFromText(cpp_arg_4);
             }
             TargetAnimation->StopAutoPlayback();
             TargetAnimationInterval = 2;
         } else if (I == 0) {
-            Projectile = pas::construct_call<GI_PSWeapon01Laser::TPSWeapon01Laser>(GI_PSWeapon01Laser::TPSWeapon01Laser_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon01Laser::TPSWeapon01Laser>(
+                    GI_PSWeapon01Laser::TPSWeapon01Laser_Create, Space->MapPanel, ShotVisual);
         } else if (I == 1) {
-            Projectile = pas::construct_call<GI_PSWeapon02FragCannon::TPSWeapon02FragCannon>(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon02FragCannon::TPSWeapon02FragCannon>(
+                    GI_PSWeapon02FragCannon::TPSWeapon02FragCannon_Create, Space->MapPanel, ShotVisual);
         } else if (I == 2) {
-            Projectile = pas::construct_call<GI_PSWeapon03Lezka::TPSWeapon03Lezka>(GI_PSWeapon03Lezka::TPSWeapon03Lezka_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon03Lezka::TPSWeapon03Lezka>(
+                    GI_PSWeapon03Lezka::TPSWeapon03Lezka_Create, Space->MapPanel, ShotVisual);
         } else if (I == 4) {
-            Projectile = pas::construct_call<GI_PSWeapon05Treton::TPSWeapon05Treton>(GI_PSWeapon05Treton::TPSWeapon05Treton_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon05Treton::TPSWeapon05Treton>(
+                    GI_PSWeapon05Treton::TPSWeapon05Treton_Create, Space->MapPanel, ShotVisual);
         } else if (I == 5) {
-            Projectile = pas::construct_call<GI_PSWeapon06Phaser::TPSWeapon06Phaser>(GI_PSWeapon06Phaser::TPSWeapon06Phaser_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon06Phaser::TPSWeapon06Phaser>(
+                    GI_PSWeapon06Phaser::TPSWeapon06Phaser_Create, Space->MapPanel, ShotVisual);
         } else if (I == 6) {
-            Projectile = pas::construct_call<GI_PSWeapon07Blaster::TPSWeapon07Blaster>(GI_PSWeapon07Blaster::TPSWeapon07Blaster_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon07Blaster::TPSWeapon07Blaster>(
+                    GI_PSWeapon07Blaster::TPSWeapon07Blaster_Create, Space->MapPanel, ShotVisual);
         } else if (I == 7) {
-            Projectile = pas::construct_call<GI_PSWeapon08ECutter::TPSWeapon08ECutter>(GI_PSWeapon08ECutter::TPSWeapon08ECutter_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon08ECutter::TPSWeapon08ECutter>(
+                    GI_PSWeapon08ECutter::TPSWeapon08ECutter_Create, Space->MapPanel, ShotVisual);
         } else if (I == 8) {
-            Projectile = pas::construct_call<GI_PSWeapon09MResonator::TPSWeapon09MResonator>(GI_PSWeapon09MResonator::TPSWeapon09MResonator_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon09MResonator::TPSWeapon09MResonator>(
+                    GI_PSWeapon09MResonator::TPSWeapon09MResonator_Create, Space->MapPanel, ShotVisual);
             UseRandomHit = false;
         } else if (I == 9) {
-            Projectile = pas::construct_call<GI_PSWeapon10AVision::TPSWeapon10AVision>(GI_PSWeapon10AVision::TPSWeapon10AVision_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon10AVision::TPSWeapon10AVision>(
+                    GI_PSWeapon10AVision::TPSWeapon10AVision_Create, Space->MapPanel, ShotVisual);
             UseRandomHit = false;
             TargetAnimation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
             TargetAnimation->SetImagePath(GI_PSWeapon10AVision::AVisionAnimationPaths[ShotVisual][0]);
@@ -252,18 +273,22 @@ namespace SE_Weapon {
             TargetAnimation->SetDepthByName(u"Weapon"_wref.get());
             TargetAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg_5 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(TargetAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg_5 = pas::concat_wide({u"[50,0-",
+                    pas::wide_int_to_str(TargetAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* targetAnimation_6 = TargetAnimation;
                 targetAnimation_6->LoadFrameSequenceFromText(cpp_arg_5);
             }
             TargetAnimation->StopAutoPlayback();
             TargetAnimationInterval = 2;
         } else if (I == 10) {
-            Projectile = pas::construct_call<GI_PSWeapon11Desintegrator::TPSWeapon11Desintegrator>(GI_PSWeapon11Desintegrator::TPSWeapon11Desintegrator_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon11Desintegrator::TPSWeapon11Desintegrator>(
+                    GI_PSWeapon11Desintegrator::TPSWeapon11Desintegrator_Create, Space->MapPanel, ShotVisual);
         } else if (I == 11) {
-            Projectile = pas::construct_call<GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir>(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir>(
+                    GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir_Create, Space->MapPanel, ShotVisual);
         } else if (I == 12) {
-            Projectile = pas::construct_call<GI_PSWeapon13IMHO::TPSWeapon13IMHO>(GI_PSWeapon13IMHO::TPSWeapon13IMHO_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon13IMHO::TPSWeapon13IMHO>(
+                    GI_PSWeapon13IMHO::TPSWeapon13IMHO_Create, Space->MapPanel, ShotVisual);
         } else if (I == 13) {
             Projectile = nullptr;
             UseRandomHit = false;
@@ -283,9 +308,11 @@ namespace SE_Weapon {
             SourceAnimation->StopAutoPlayback();
             SourceAnimationInterval = 1;
         } else if (I == 15) {
-            Projectile = pas::construct_call<GI_PSWeapon16Esodafer::TPSWeapon16Esodafer>(GI_PSWeapon16Esodafer::TPSWeapon16Esodafer_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon16Esodafer::TPSWeapon16Esodafer>(
+                    GI_PSWeapon16Esodafer::TPSWeapon16Esodafer_Create, Space->MapPanel, ShotVisual);
         } else if (I == 16) {
-            Projectile = pas::construct_call<GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor>(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor>(
+                    GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor_Create, Space->MapPanel, ShotVisual);
             TargetAnimation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
             TargetAnimation->SetImagePath(GI_PSWeapon17Kafacitor::KafacitorAnimationPaths[ShotVisual][0]);
             {
@@ -297,20 +324,24 @@ namespace SE_Weapon {
             TargetAnimation->SetDepthByName(u"Weapon"_wref.get());
             TargetAnimation->SetPositionModeW(true);
             {
-                const pas::WideString& cpp_arg_6 = static_cast<pas::WideString>(pas::concat_ansi({"[40,0-", SysUtils::IntToStr(TargetAnimation->GetMainImageFrameCount() - 1), "]"}));
+                const pas::WideString& cpp_arg_6 = pas::concat_wide({u"[40,0-",
+                    pas::wide_int_to_str(TargetAnimation->GetMainImageFrameCount() - 1), u"]"});
                 GI_GAI::TgaiGI* targetAnimation_8 = TargetAnimation;
                 targetAnimation_8->LoadFrameSequenceFromText(cpp_arg_6);
             }
             TargetAnimation->StopAutoPlayback();
             TargetAnimationInterval = 2;
         } else {
-            Projectile = pas::construct_call<GI_PSEyes::TPSEyesGI>(GI_PSEyes::TPSEyesGI_Create, Space->MapPanel, ShotVisual);
+            Projectile = pas::construct_call<GI_PSEyes::TPSEyesGI>(GI_PSEyes::TPSEyesGI_Create, Space->MapPanel,
+                    ShotVisual);
         }
         if (HitVariant < 0) {
             if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 2) {
-                HitVariant = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 2, u","sv)));
+                HitVariant = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                        pas::view(GraphKey), 2, u","sv)));
             } else if (UseRandomHit) {
-                HitVariant = pas::random(EC_Str::ExtractDigitsToIntW(pas::view(WeaponConfig->GetParam(u"HitCount"sv))), &System::RandSeed) + 1;
+                HitVariant = pas::random(EC_Str::ExtractDigitsToIntW(pas::view(WeaponConfig->GetParam(u"HitCount"sv))),
+                        &System::RandSeed) + 1;
             }
         }
         if (HitVariant > 0) {
@@ -335,8 +366,8 @@ namespace SE_Weapon {
             Projectile->SetPositionModeW(true);
         }
         DamageLabelPoint = GetTargetPoint();
-        DamageLabelPoint.X = DamageLabelPoint.X - 3.0E+1L;
-        DamageLabelPoint.Y = DamageLabelPoint.Y - 3.0E+1L;
+        DamageLabelPoint.X = static_cast<float>(DamageLabelPoint.X - 3.0E+1);
+        DamageLabelPoint.Y = static_cast<float>(DamageLabelPoint.Y - 3.0E+1);
         if (HitColor != 0) {
             DamageLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Space->MapPanel);
             DamageLabel->SetFontName(GlobalsV::NormalFontName);
@@ -345,7 +376,7 @@ namespace SE_Weapon {
             if (HitDamage >= 0) {
                 DamageLabel->SetText(pas::wide_int_to_str(HitDamage));
             } else {
-                DamageLabel->SetText(static_cast<pas::WideString>(pas::concat_ansi({"+", SysUtils::IntToStr(-HitDamage)})));
+                DamageLabel->SetText(pas::concat_wide({u"+", pas::wide_int_to_str(-HitDamage)}));
             }
             DamageLabel->SetWordWrapEnabled(false);
             DamageLabel->SetTextAlignX(GI_Main::taxAuto);
@@ -356,7 +387,8 @@ namespace SE_Weapon {
         }
         if (TargetDestroyed) {
             if (DestructionEffect == 0) {
-                if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(TargetObject) != nullptr || TargetObject->Size.X > 128 || TargetObject->Size.Y > 128) {
+                if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(TargetObject) != nullptr || TargetObject->Size.X > 128 ||
+                    TargetObject->Size.Y > 128) {
                     DestructionEffect = 4;
                 }
             }
@@ -368,7 +400,7 @@ namespace SE_Weapon {
                 DestructionDetachStep = 10;
                 if (TargetObject != nullptr) {
                     DestructionAlpha = TargetObject->GetAlpha();
-                    DestructionAlphaStep = pas::real_divide(0.0L - DestructionAlpha, 11.0L);
+                    DestructionAlphaStep = static_cast<float>((static_cast<float>(0.0 - DestructionAlpha)) / 11.0);
                 } else {
                     DestructionAlpha = 255.0f;
                     DestructionAlphaStep = 0.0f;
@@ -377,7 +409,8 @@ namespace SE_Weapon {
                 DestructionAnimation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
                 DestructionAnimation->SetActive(false);
                 {
-                    const pas::WideString& cpp_arg_7 = static_cast<pas::WideString>(pas::concat_ansi({"Bm.Weapon.Expl", SysUtils::IntToStr(aMyFunction::RandomIntRange(0, 1))}));
+                    const pas::WideString& cpp_arg_7 = pas::concat_wide({u"Bm.Weapon.Expl",
+                        pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))});
                     GI_GAI::TgaiGI* destructionAnimation = DestructionAnimation;
                     destructionAnimation->SetImagePath(cpp_arg_7);
                 }
@@ -390,7 +423,8 @@ namespace SE_Weapon {
                 DestructionAnimation->SetDepthByName(u"Weapon"_wref.get());
                 DestructionAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_8 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(DestructionAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_8 = pas::concat_wide({u"[50,0-",
+                        pas::wide_int_to_str(DestructionAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* destructionAnimation_3 = DestructionAnimation;
                     destructionAnimation_3->LoadFrameSequenceFromText(cpp_arg_8);
                 }
@@ -400,8 +434,8 @@ namespace SE_Weapon {
                 if (TargetObject != nullptr) {
                     DestructionAlpha = TargetObject->GetAlpha();
                     {
-                        pas::Extended cpp_right = DestructionAnimation->GetMainImageFrameCount() / 2 - 1;
-                        DestructionAlphaStep = pas::real_divide(0.0L - DestructionAlpha, cpp_right);
+                        double cpp_right = DestructionAnimation->GetMainImageFrameCount() / 2 - 1;
+                        DestructionAlphaStep = static_cast<float>((static_cast<float>(0.0 - DestructionAlpha)) / cpp_right);
                     }
                 } else {
                     DestructionAlpha = 255.0f;
@@ -420,7 +454,8 @@ namespace SE_Weapon {
                 DestructionAnimation->SetDepthByName(u"Weapon"_wref.get());
                 DestructionAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_9 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(DestructionAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_9 = pas::concat_wide({u"[50,0-",
+                        pas::wide_int_to_str(DestructionAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* destructionAnimation_5 = DestructionAnimation;
                     destructionAnimation_5->LoadFrameSequenceFromText(cpp_arg_9);
                 }
@@ -440,13 +475,15 @@ namespace SE_Weapon {
                 DestructionAnimation->SetDepthByName(u"Weapon"_wref.get());
                 DestructionAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_10 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(DestructionAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_10 = pas::concat_wide({u"[50,0-",
+                        pas::wide_int_to_str(DestructionAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* destructionAnimation_7 = DestructionAnimation;
                     destructionAnimation_7->LoadFrameSequenceFromText(cpp_arg_10);
                 }
                 DestructionAnimation->StopAutoPlayback();
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 3); cpp_range.next(I); ) {
-                    ExtraDestructionAnimations[I] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
+                    ExtraDestructionAnimations[I] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create,
+                            Space->MapPanel);
                     ExtraDestructionAnimations[I]->SetActive(false);
                     ExtraDestructionAnimations[I]->SetImagePath(u"Bm.Weapon.Expl0"_wref.get());
                     {
@@ -454,26 +491,28 @@ namespace SE_Weapon {
                         GI_GAI::TgaiGI* cpp_arg_11 = ExtraDestructionAnimations[I];
                         cpp_arg_11->SetSize(contentSize_11);
                     }
-                    ExtraDestructionAnimations[I]->SetOrigin(EC_Struct::HalfPoint(ExtraDestructionAnimations[I]->ClientSize));
+                    ExtraDestructionAnimations[
+                        I]->SetOrigin(EC_Struct::HalfPoint(ExtraDestructionAnimations[I]->ClientSize));
                     ExtraDestructionAnimations[I]->SetDepthByName(u"Weapon"_wref.get());
                     ExtraDestructionAnimations[I]->SetPositionModeW(true);
                     {
-                        const pas::WideString& cpp_arg_12 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(ExtraDestructionAnimations[I]->GetMainImageFrameCount() - 1), "]"}));
+                        const pas::WideString& cpp_arg_12 = pas::concat_wide({u"[50,0-",
+                            pas::wide_int_to_str(ExtraDestructionAnimations[I]->GetMainImageFrameCount() - 1), u"]"});
                         GI_GAI::TgaiGI* cpp_arg_13 = ExtraDestructionAnimations[I];
                         cpp_arg_13->LoadFrameSequenceFromText(cpp_arg_12);
                     }
                     ExtraDestructionAnimations[I]->StopAutoPlayback();
                     Distance = aMyFunction::RandomIntRange(50, 100);
                     Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::RandomIntRange(0, 360));
-                    ExtraDestructionAnimations[I]->UserValue = System::Round(System::Sin(Angle) * Distance);
-                    ExtraDestructionAnimations[I]->UserIndex = System::Round(System::Cos(Angle) * -Distance);
+                    ExtraDestructionAnimations[I]->UserValue = pas::real_round(static_cast<float>(System::Sin(Angle) * Distance));
+                    ExtraDestructionAnimations[I]->UserIndex = pas::real_round(static_cast<float>(System::Cos(Angle) * -Distance));
                 }
                 DestructionFrameInterval = 2;
                 if (TargetObject != nullptr) {
                     DestructionAlpha = TargetObject->GetAlpha();
                     {
-                        pas::Extended cpp_right_2 = DestructionAnimation->GetMainImageFrameCount() / 2 - 1;
-                        DestructionAlphaStep = pas::real_divide(0.0L - DestructionAlpha, cpp_right_2);
+                        double cpp_right_2 = DestructionAnimation->GetMainImageFrameCount() / 2 - 1;
+                        DestructionAlphaStep = static_cast<float>((static_cast<float>(0.0 - DestructionAlpha)) / cpp_right_2);
                     }
                 } else {
                     DestructionAlpha = 255.0f;
@@ -491,7 +530,8 @@ namespace SE_Weapon {
                 TargetAnimation->SetDepthByName(u"Weapon"_wref.get());
                 TargetAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_14 = static_cast<pas::WideString>(pas::concat_ansi({"[1,0-", SysUtils::IntToStr(TargetAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_14 = pas::concat_wide({u"[1,0-",
+                        pas::wide_int_to_str(TargetAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* targetAnimation_10 = TargetAnimation;
                     targetAnimation_10->LoadFrameSequenceFromText(cpp_arg_14);
                 }
@@ -517,7 +557,8 @@ namespace SE_Weapon {
                 DestructionAnimation->SetDepthByName(u"Weapon"_wref.get());
                 DestructionAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_15 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(DestructionAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_15 = pas::concat_wide({u"[50,0-",
+                        pas::wide_int_to_str(DestructionAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* destructionAnimation_9 = DestructionAnimation;
                     destructionAnimation_9->LoadFrameSequenceFromText(cpp_arg_15);
                 }
@@ -537,7 +578,8 @@ namespace SE_Weapon {
                 DestructionAnimation->SetDepthByName(u"Weapon"_wref.get());
                 DestructionAnimation->SetPositionModeW(true);
                 {
-                    const pas::WideString& cpp_arg_16 = static_cast<pas::WideString>(pas::concat_ansi({"[50,0-", SysUtils::IntToStr(DestructionAnimation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_16 = pas::concat_wide({u"[50,0-",
+                        pas::wide_int_to_str(DestructionAnimation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* destructionAnimation_11 = DestructionAnimation;
                     destructionAnimation_11->LoadFrameSequenceFromText(cpp_arg_16);
                 }
@@ -644,7 +686,10 @@ namespace SE_Weapon {
         } else if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(TargetObject)) {
             std::uint8_t angle = ship2SE->GetAngle();
             SE_Ship2::TShip2SE* cpp_arg = ship2SE;
-            Result = cpp_arg->GetTargetPoint(angle, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
+            Result = cpp_arg->GetTargetPoint(angle,
+                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) +
+                        static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) +
+                        static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
         } else {
             Result = TargetObject->Position;
         }
@@ -656,9 +701,15 @@ namespace SE_Weapon {
         if (SourceObject == nullptr) {
             Result = Position;
         } else if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(SourceObject)) {
-            Result = ship2SE->GetWeaponPortPoint(SourceObject->GetAngle(), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
+            Result = ship2SE->GetWeaponPortPoint(SourceObject->GetAngle(),
+                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) +
+                        static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) +
+                        static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
         } else if (SE_Ruins::TRuinsSE* ruinsSE = pas::class_cast_if<SE_Ruins::TRuinsSE*>(SourceObject)) {
-            Result = ruinsSE->GetWeaponPortPoint(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
+            Result =
+                ruinsSE->GetWeaponPortPoint(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) +
+                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) +
+                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);
         } else {
             Result = SourceObject->Position;
         }
@@ -672,10 +723,13 @@ namespace SE_Weapon {
         }
         if (HitEffect != nullptr && Projectile != nullptr) {
             if (!HitEffect->Started) {
-                if (static_cast<std::uint8_t>(ProjectileFinished ^ 1) && HitEffect->LeftTime >= Projectile->RemainingTicks && HitEffect->BeforeEnd) {
+                if (static_cast<std::uint8_t>(ProjectileFinished ^ 1) && HitEffect->LeftTime >=
+                        Projectile->RemainingTicks && HitEffect->BeforeEnd) {
                     HitEffect->Started = true;
                     HitEffect->Start();
-                } else if (static_cast<std::uint8_t>(ProjectileFinished ^ 1) && static_cast<std::uint8_t>(HitEffect->BeforeEnd ^ 1) && Projectile->GetElapsedTicks() >= HitEffect->LeftTime) {
+                } else if (static_cast<std::uint8_t>(ProjectileFinished ^ 1) &&
+                    static_cast<std::uint8_t>(HitEffect->BeforeEnd ^ 1) && Projectile->GetElapsedTicks() >=
+                        HitEffect->LeftTime) {
                     HitEffect->Started = true;
                     HitEffect->Start();
                 }
@@ -815,7 +869,8 @@ namespace SE_Weapon {
                     DestructionAnimation->SetSequenceFrame(DestructionAnimation->SequenceFrame + 1);
                     for (Index = 0; Index <= 5; ++Index) {
                         if (ExtraDestructionAnimations[Index] != nullptr) {
-                            ExtraDestructionAnimations[Index]->SetSequenceFrame(ExtraDestructionAnimations[Index]->SequenceFrame + 1);
+                            ExtraDestructionAnimations[
+                                Index]->SetSequenceFrame(ExtraDestructionAnimations[Index]->SequenceFrame + 1);
                         }
                     }
                     if (DestructionAnimation->SequenceFrame == DestructionDetachStep && TargetObject != nullptr) {
@@ -825,17 +880,19 @@ namespace SE_Weapon {
                 DestructionAnimation->SetPosition(EC_Struct::TruncatePointF(GetTargetPoint()));
                 for (Index = 0; Index <= 5; ++Index) {
                     if (ExtraDestructionAnimations[Index] != nullptr) {
-                        ExtraDestructionAnimations[Index]->SetPosition(ClassesImports::Point(DestructionAnimation->LocalPosition.X + ExtraDestructionAnimations[Index]->UserValue, DestructionAnimation->LocalPosition.Y + ExtraDestructionAnimations[Index]->UserIndex));
+                        ExtraDestructionAnimations[Index]->SetPosition(ClassesImports::Point(
+                            DestructionAnimation->LocalPosition.X + ExtraDestructionAnimations[Index]->UserValue,
+                            DestructionAnimation->LocalPosition.Y + ExtraDestructionAnimations[Index]->UserIndex));
                     }
                 }
-                if (DestructionAlphaStep != 0.0L) {
-                    DestructionAlpha = static_cast<long double>(DestructionAlpha) + DestructionAlphaStep;
-                    if (DestructionAlpha < 0.0L) {
+                if (DestructionAlphaStep != 0.0) {
+                    DestructionAlpha = static_cast<float>(static_cast<double>(DestructionAlpha) + DestructionAlphaStep);
+                    if (DestructionAlpha < 0.0) {
                         DestructionAlpha = 0.0f;
-                    } else if (DestructionAlpha > 255.0L) {
+                    } else if (DestructionAlpha > 255.0) {
                         DestructionAlpha = 255.0f;
                     }
-                    TargetObject->SetAlpha(System::Round(DestructionAlpha));
+                    TargetObject->SetAlpha(pas::real_round(DestructionAlpha));
                 }
             }
         }
@@ -844,8 +901,8 @@ namespace SE_Weapon {
             Projectile->SetTargetPoint(EC_Struct::TruncatePointF(GetTargetPoint()));
         }
         if (DamageLabel != nullptr) {
-            DamageLabelPoint.X = DamageLabelPoint.X - 1.0L;
-            DamageLabelPoint.Y = DamageLabelPoint.Y - 1.0L;
+            DamageLabelPoint.X = static_cast<float>(DamageLabelPoint.X - 1.0);
+            DamageLabelPoint.Y = static_cast<float>(DamageLabelPoint.Y - 1.0);
             DamageLabel->SetPosition(EC_Struct::RoundPointF(DamageLabelPoint));
         }
         ++StepIndex;
@@ -888,7 +945,8 @@ namespace SE_Weapon {
         Self->Direction = 0.0f;
         Self->AnimationInterval = 1;
         Self->AnimationCountdown = 0;
-        Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(Self->EffectIndex)})));
+        Block = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"Weapon.",
+                pas::wide_int_to_str(Self->EffectIndex)}));
         if (Block->CountParams(u"LeftTime"_wref.get()) > 0) {
             Self->LeftTime = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"LeftTime"sv)));
         } else {
@@ -956,11 +1014,13 @@ namespace SE_Weapon {
 
     void TWeaponEffect::AddTargetEffect(std::int32_t Index) {
         EC_BlockPar::TBlockParEC* Block{};
-        Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex), ".D:", SysUtils::IntToStr(Index)})));
+        Block = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"Weapon.", pas::wide_int_to_str(EffectIndex),
+                u".D:", pas::wide_int_to_str(Index)}));
         PWeaponEffectItem Item = AddItem();
         Item->AtTarget = true;
-        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
-        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))), 1.8E+2L) * SystemImports::Pi;
+        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position,
+            EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
+        Item->Angle = static_cast<float>(static_cast<float>(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))) / 1.8E+2) * SystemImports::Pi);
         Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"sv));
         Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"sv));
         if (Block->CountParams(u"AutoAnim"_wref.get()) > 0) {
@@ -989,7 +1049,8 @@ namespace SE_Weapon {
         }
         Item->Image->SetOrigin(EC_Struct::HalfPoint(Item->Image->ClientSize));
         Item->Image->SetDepthByName(DepthExpression);
-        Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(TargetPoint, Item->Position.Y, Item->Angle)));
+        Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(TargetPoint,
+            Item->Position.Y, Item->Angle)));
         Item->Image->SetPositionModeW(true);
         Item->Image->SetSequenceFrame(0);
         if (Item->SkipTime == 0) {
@@ -1010,11 +1071,13 @@ namespace SE_Weapon {
 
     void TWeaponEffect::AddSourceEffect(std::int32_t Index) {
         EC_BlockPar::TBlockParEC* Block{};
-        Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex), ".S:", SysUtils::IntToStr(Index)})));
+        Block = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"Weapon.", pas::wide_int_to_str(EffectIndex),
+                u".S:", pas::wide_int_to_str(Index)}));
         PWeaponEffectItem Item = AddItem();
         Item->AtTarget = false;
-        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position, EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
-        Item->Angle = pas::real_divide(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))), 1.8E+2L) * SystemImports::Pi;
+        pas::store_unaligned<EC_Struct::TPointF>(&Item->Position,
+            EC_Struct::MakePointF(0.0f, EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"StartPos"sv))));
+        Item->Angle = static_cast<float>(static_cast<float>(EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"Angle"sv))) / 1.8E+2) * SystemImports::Pi);
         Item->Speed = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Speed"sv));
         Item->Acceleration = EC_Str::ExtractDecimalToSingleW(Block->GetParam(u"Accel"sv));
         if (Block->CountParams(u"AutoAnim"_wref.get()) > 0) {
@@ -1043,7 +1106,8 @@ namespace SE_Weapon {
         }
         Item->Image->SetOrigin(EC_Struct::HalfPoint(Item->Image->ClientSize));
         Item->Image->SetDepthByName(DepthExpression);
-        Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(SourcePoint, Item->Position.Y, Item->Angle)));
+        Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(SourcePoint,
+            Item->Position.Y, Item->Angle)));
         Item->Image->SetPositionModeW(true);
         Item->Image->SetSequenceFrame(0);
         if (Item->SkipTime == 0) {
@@ -1065,7 +1129,8 @@ namespace SE_Weapon {
     void TWeaponEffect::Start() {
         std::int32_t Index{};
         EC_BlockPar::TBlockParEC* Block{};
-        Block = GR_Main::GameDataConfig->GetBlockByPath(static_cast<pas::WideString>(pas::concat_ansi({"Weapon.", SysUtils::IntToStr(EffectIndex)})));
+        Block = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"Weapon.",
+                pas::wide_int_to_str(EffectIndex)}));
         if (Block->CountParams(u"AnimTakt"_wref.get()) > 0) {
             AnimationInterval = EC_Str::ExtractDigitsToIntW(pas::view(Block->GetParam(u"AnimTakt"sv)));
         } else {
@@ -1089,14 +1154,16 @@ namespace SE_Weapon {
         while (Item != nullptr) {
             if (Item->SkipTime == 0) {
                 --Item->Lifetime;
-                Item->Position.Y = static_cast<long double>(Item->Position.Y) + Item->Speed;
-                Item->Speed = static_cast<long double>(Item->Speed) + Item->Acceleration;
+                Item->Position.Y = static_cast<float>(static_cast<double>(Item->Position.Y) + Item->Speed);
+                Item->Speed = static_cast<float>(static_cast<double>(Item->Speed) + Item->Acceleration);
             }
             if (Item->Image != nullptr) {
                 if (Item->AtTarget) {
-                    Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(TargetPoint, Item->Position.Y, Item->Angle - 9.0E+1L)));
+                    Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(
+                        TargetPoint, Item->Position.Y, static_cast<float>(Item->Angle - 9.0E+1))));
                 } else {
-                    Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(SourcePoint, Item->Position.Y, Item->Angle - 9.0E+1L)));
+                    Item->Image->SetPosition(EC_Struct::TruncatePointF(aMyFunction::OffsetPointByRadiusAngle(
+                        SourcePoint, Item->Position.Y, static_cast<float>(Item->Angle - 9.0E+1))));
                 }
                 if (Item->SkipTime == 0) {
                     --AnimationCountdown;
@@ -1131,7 +1198,8 @@ namespace SE_Weapon {
     }
 
     void TWeaponEffect::AnimationComplete(GI_MessageLoop::TObjectGI* Sender) {
-        PWeaponEffectItem Item = reinterpret_cast<PWeaponEffectItem>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+        PWeaponEffectItem Item = reinterpret_cast<PWeaponEffectItem>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         RemoveItem(Item);
     }
 
@@ -1141,23 +1209,23 @@ namespace SE_Weapon {
 
     void TWeaponEffect::SetSourcePoint(EC_Struct::TPointF Point) {
         SourcePoint = Point;
-        float X = static_cast<long double>(TargetPoint.X) - SourcePoint.X;
-        float Y = static_cast<long double>(TargetPoint.Y) - SourcePoint.Y;
-        if (std::fabs(static_cast<pas::Extended>(X)) < 1.0L) {
-            Direction = Math::ArcTan2(Y, 1.0L) + pas::constant(2.0L * SystemImports::Pi);
+        float X = static_cast<float>(static_cast<double>(TargetPoint.X) - SourcePoint.X);
+        float Y = static_cast<float>(static_cast<double>(TargetPoint.Y) - SourcePoint.Y);
+        if (std::fabs(static_cast<double>(X)) < 1.0) {
+            Direction = static_cast<float>(Math::ArcTan2(Y, 1.0) + pas::constant(2.0 * SystemImports::Pi));
         } else {
-            Direction = Math::ArcTan2(Y, X) + pas::constant(2.0L * SystemImports::Pi);
+            Direction = static_cast<float>(Math::ArcTan2(Y, X) + pas::constant(2.0 * SystemImports::Pi));
         }
     }
 
     void TWeaponEffect::SetTargetPoint(EC_Struct::TPointF Point) {
         TargetPoint = Point;
-        float X = static_cast<long double>(TargetPoint.X) - SourcePoint.X;
-        float Y = static_cast<long double>(TargetPoint.Y) - SourcePoint.Y;
-        if (std::fabs(static_cast<pas::Extended>(X)) < 1.0L) {
-            Direction = Math::ArcTan2(Y, 1.0L) + pas::constant(2.0L * SystemImports::Pi);
+        float X = static_cast<float>(static_cast<double>(TargetPoint.X) - SourcePoint.X);
+        float Y = static_cast<float>(static_cast<double>(TargetPoint.Y) - SourcePoint.Y);
+        if (std::fabs(static_cast<double>(X)) < 1.0) {
+            Direction = static_cast<float>(Math::ArcTan2(Y, 1.0) + pas::constant(2.0 * SystemImports::Pi));
         } else {
-            Direction = Math::ArcTan2(Y, X) + pas::constant(2.0L * SystemImports::Pi);
+            Direction = static_cast<float>(Math::ArcTan2(Y, X) + pas::constant(2.0 * SystemImports::Pi));
         }
     }
 

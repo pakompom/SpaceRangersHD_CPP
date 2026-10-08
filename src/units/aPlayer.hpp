@@ -34,7 +34,7 @@ namespace aPlayer {
     // Updates Galaxy.PlayerRangerIndex; a nil Galaxy leaves the current player unchanged.
     void SetPlayer(TPlayer* Player, aGalaxy::TGalaxy* Galaxy);
 
-    TPlayer* GetPlayer();
+    inline TPlayer* GetPlayer();
 
     void TJournalRecord_Create(TJournalRecord* Self);
 
@@ -60,3 +60,5 @@ namespace aPlayer {
     void TPlayer_RefreshCurrentStanding(TPlayer* Self);
 
 } // namespace aPlayer
+
+#include "inline/aPlayer.hpp"

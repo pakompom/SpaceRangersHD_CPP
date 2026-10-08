@@ -78,9 +78,11 @@ namespace VorbisFile {
 
     inline constexpr std::int32_t VorbisOutputSampleBytes = static_cast<std::int32_t>(sizeof(std::int16_t));
 
-    inline constexpr std::int32_t VorbisOutputBlockAlign = VorbisFile::VorbisOutputChannels * VorbisFile::VorbisOutputSampleBytes;
+    inline constexpr std::int32_t VorbisOutputBlockAlign = VorbisFile::VorbisOutputChannels *
+        VorbisFile::VorbisOutputSampleBytes;
 
-    inline constexpr std::int32_t VorbisOutputBytesPerSecond = VorbisFile::VorbisOutputSampleRate * VorbisFile::VorbisOutputBlockAlign;
+    inline constexpr std::int32_t VorbisOutputBytesPerSecond = VorbisFile::VorbisOutputSampleRate *
+        VorbisFile::VorbisOutputBlockAlign;
 
     // libvorbis codec.h status codes returned by ov_read.
     inline constexpr std::int32_t OV_HOLE = -3;

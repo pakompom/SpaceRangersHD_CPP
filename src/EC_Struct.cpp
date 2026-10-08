@@ -1,39 +1,23 @@
 #include "layout/EC_Struct.hpp"
 #include "types/Types.hpp"
 #include "units/EC_Struct.hpp"
-#include "units/System.hpp"
 
 namespace EC_Struct {
     // Freed on both startup shutdown paths; concrete class unresolved.
     pas::Object* StartupCleanupObject{};
 
-    TVector3D MakeVector3D(double X, double Y, double Z) {
-        TVector3D Result{};
-        Result.X = X;
-        Result.Y = Y;
-        Result.Z = Z;
-        return Result;
-    }
-
-    TPointF MakePointF(float X, float Y) {
-        TPointF Result{};
-        Result.X = X;
-        Result.Y = Y;
-        return Result;
-    }
-
     // Truncates each coordinate toward zero.
     Types::TPoint TruncatePointF(TPointF Point) {
         Types::TPoint Result{};
-        Result.X = System::Trunc(Point.X);
-        Result.Y = System::Trunc(Point.Y);
+        Result.X = pas::real_trunc(Point.X);
+        Result.Y = pas::real_trunc(Point.Y);
         return Result;
     }
 
     Types::TPoint RoundPointF(TPointF Point) {
         Types::TPoint Result{};
-        Result.X = System::Round(Point.X);
-        Result.Y = System::Round(Point.Y);
+        Result.X = pas::real_round(Point.X);
+        Result.Y = pas::real_round(Point.Y);
         return Result;
     }
 
@@ -44,59 +28,57 @@ namespace EC_Struct {
         return Result;
     }
 
-    // Integer division rounds toward zero.
-    Types::TPoint HalfPoint(Types::TPoint Point) {
-        Types::TPoint Result{};
-        Result.X = Point.X / 2;
-        Result.Y = Point.Y / 2;
-        return Result;
-    }
-
-    Types::TPoint AddPoints(Types::TPoint Left, Types::TPoint Right) {
-        Types::TPoint Result{};
-        Result.X = Left.X + Right.X;
-        Result.Y = Left.Y + Right.Y;
-        return Result;
-    }
-
-    Types::TPoint SubtractPoints(Types::TPoint Left, Types::TPoint Right) {
-        Types::TPoint Result{};
-        Result.X = Left.X - Right.X;
-        Result.Y = Left.Y - Right.Y;
-        return Result;
-    }
-
     TPointF HalfPointF(TPointF Point) {
         TPointF Result{};
-        Result.X = pas::real_divide(Point.X, 2.0L);
-        Result.Y = pas::real_divide(Point.Y, 2.0L);
+        Result.X = static_cast<float>(Point.X / 2.0);
+        Result.Y = static_cast<float>(Point.Y / 2.0);
         return Result;
     }
 
     TPointF AddPointsF(TPointF Left, TPointF Right) {
         TPointF Result{};
-        Result.X = static_cast<long double>(Left.X) + Right.X;
-        Result.Y = static_cast<long double>(Left.Y) + Right.Y;
+        Result.X = static_cast<float>(static_cast<double>(Left.X) + Right.X);
+        Result.Y = static_cast<float>(static_cast<double>(Left.Y) + Right.Y);
         return Result;
     }
 
     TPointF SubtractPointsF(TPointF Left, TPointF Right) {
         TPointF Result{};
-        Result.X = static_cast<long double>(Left.X) - Right.X;
-        Result.Y = static_cast<long double>(Left.Y) - Right.Y;
+        Result.X = static_cast<float>(static_cast<double>(Left.X) - Right.X);
+        Result.Y = static_cast<float>(static_cast<double>(Left.Y) - Right.Y);
         return Result;
     }
 
-    std::int32_t SquaredDistanceToPoint(const Types::TPoint& Point, std::int32_t X, std::int32_t Y) {
-        return pas::sqr(Point.X - X) + pas::sqr(Point.Y - Y);
-    }
-
-    void TObjectEx_Create(TObjectEx* Self) {
-        pas::object_create(Self);
-    }
-
-    void TObjectEx_Destroy(TObjectEx* Self) {
-        pas::object_destroy(Self);
+    // Returns false without writing Intersection when the rectangles do not overlap.
+    std::uint8_t IntersectRects(Types::TRect& Intersection, const Types::TRect& First, const Types::TRect& Second) {
+        // The original kernel tests all edges before writing, then stores Left,
+        // Right, Top, Bottom in that order. Inputs may alias the destination.
+        std::uint8_t Result = false;
+        if (Second.Left >= First.Right || Second.Right <= First.Left || Second.Top >= First.Bottom || Second.Bottom <=
+                First.Top) {
+            return Result;
+        }
+        if (Second.Left >= First.Left) {
+            Intersection.Left = Second.Left;
+        } else {
+            Intersection.Left = First.Left;
+        }
+        if (Second.Right <= First.Right) {
+            Intersection.Right = Second.Right;
+        } else {
+            Intersection.Right = First.Right;
+        }
+        if (Second.Top >= First.Top) {
+            Intersection.Top = Second.Top;
+        } else {
+            Intersection.Top = First.Top;
+        }
+        if (Second.Bottom <= First.Bottom) {
+            Intersection.Bottom = Second.Bottom;
+        } else {
+            Intersection.Bottom = First.Bottom;
+        }
+        return true;
     }
 
     void TObjectEx::p_destroy() {

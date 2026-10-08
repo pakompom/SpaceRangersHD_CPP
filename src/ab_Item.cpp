@@ -11,7 +11,6 @@
 #include "units/Globals.hpp"
 #include "units/SE_Process.hpp"
 #include "units/SE_Space.hpp"
-#include "units/SysUtils.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
 #include "units/aShip.hpp"
@@ -36,7 +35,8 @@ namespace ab_Item {
             if (pas::list_count(ab_Ship::PlayerArcadeShip->Enemies) > 0) {
                 Zone = ab_Zone::FirstZone;
                 while (Zone != nullptr) {
-                    if ((Zone->BonusFlags & ab_Global::ArcadeBonusKindMask) != 0 && Zone->NextBonusTick >= 0 && Zone->NextBonusTick <= ab_Global::ArcadeTickCount) {
+                    if ((Zone->BonusFlags & ab_Global::ArcadeBonusKindMask) != 0 && Zone->NextBonusTick >= 0 &&
+                        Zone->NextBonusTick <= ab_Global::ArcadeTickCount) {
                         Zone->NextBonusTick = -1;
                         Count = 0;
                         for (Index = 0; Index <= 7; ++Index) {
@@ -56,7 +56,9 @@ namespace ab_Item {
                         Bonus->State.PolarAngleDegrees = Zone->PolarAngle;
                         Bonus->State.BearingDegrees = aMyFunction::RandomIntRange(0, 359);
                         Distance = 0.0f;
-                        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Bonus->State.LongitudeDegrees), pas::Var<double>(&Bonus->State.PolarAngleDegrees), pas::Var<double>(&Bonus->State.BearingDegrees), ab_Global::SphereRadius, Distance);
+                        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Bonus->State.LongitudeDegrees),
+                            pas::Var<double>(&Bonus->State.PolarAngleDegrees),
+                            pas::Var<double>(&Bonus->State.BearingDegrees), ab_Global::SphereRadius, Distance);
                         Bonus->AttachVisual();
                         ab_Object::ab_Object_Add(Bonus);
                     }
@@ -72,16 +74,20 @@ namespace ab_Item {
                 Bonus = abItem;
                 Ship = ab_Object::FirstArcadeObject;
                 while (Ship != nullptr) {
-                    if (pas::class_cast_if<ab_Ship::TabShip*>(Ship) != nullptr && Ship->DistanceTo(Bonus) < 6.0E+1L) {
+                    if (pas::class_cast_if<ab_Ship::TabShip*>(Ship) != nullptr && Ship->DistanceTo(Bonus) < 6.0E+1) {
                         Bonus->Visual->DetachFromSpace();
-                        Bonus->SpawnZone->NextBonusTick = ([&] {
-                            std::int32_t cpp_right = 20 * aMyFunction::RandomIntRange(ab_Global::BonusRespawnSeconds[Bonus->SpawnZone->BonusRespawnClass * 2], ab_Global::BonusRespawnSeconds[Bonus->SpawnZone->BonusRespawnClass * 2 + 1]);
-                            return ab_Global::ArcadeTickCount + cpp_right;
-                        }());
-                        if (Bonus->BonusKind == ab_Global::abkInvisibility && reinterpret_cast<ab_Ship::TabShip*>(Ship)->BonusTicks[Bonus->BonusKind] <= 0) {
+                        {
+                            std::int32_t cpp_right = 20 * aMyFunction::RandomIntRange(
+                                    ab_Global::BonusRespawnSeconds[Bonus->SpawnZone->BonusRespawnClass * 2],
+                                    ab_Global::BonusRespawnSeconds[Bonus->SpawnZone->BonusRespawnClass * 2 + 1]);
+                            Bonus->SpawnZone->NextBonusTick = ab_Global::ArcadeTickCount + cpp_right;
+                        }
+                        if (Bonus->BonusKind == ab_Global::abkInvisibility &&
+                            reinterpret_cast<ab_Ship::TabShip*>(Ship)->BonusTicks[Bonus->BonusKind] <= 0) {
                             reinterpret_cast<ab_Ship::TabShip*>(Ship)->RevealTicks = 0;
                         }
-                        reinterpret_cast<ab_Ship::TabShip*>(Ship)->BonusTicks[Bonus->BonusKind] = 20 * ab_Global::BonusDurationSeconds[Bonus->BonusKind];
+                        reinterpret_cast<ab_Ship::TabShip*>(Ship)->BonusTicks[Bonus->BonusKind] = 20 *
+                                ab_Global::BonusDurationSeconds[Bonus->BonusKind];
                         if (ab_Ship::PlayerArcadeShip == Ship) {
                             GR_Main::SoundManager->PlaySound(Globals::ArcadeItemSounds[Bonus->BonusKind]);
                         }
@@ -92,14 +98,19 @@ namespace ab_Item {
                 }
             }
         }
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook())) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && ab_Ship::PlayerArcadeShip != nullptr &&
+            ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aShip::TShip_IsEquipmentUsable(
+                aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook())) {
             NextObj = ab_Object::FirstArcadeObject;
             while (NextObj != nullptr) {
                 Obj = NextObj;
                 NextObj = NextObj->Next;
-                if (TabItem* abItem_2 = pas::class_cast_if<TabItem*>(Obj); abItem_2 != nullptr && abItem_2->Item != nullptr) {
-                    if (abItem_2->Item->Weight <= aPlayer::GetPlayer()->CargoFreeSpace && ab_Ship::PlayerArcadeShip->DistanceTo(Obj) < ab_Global::CargoPickupDistance) {
-                        std::int32_t cpp_left = aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook());
+                if (TabItem* abItem_2 = pas::class_cast_if<TabItem*>(Obj); abItem_2 != nullptr && abItem_2->Item !=
+                        nullptr) {
+                    if (abItem_2->Item->Weight <= aPlayer::GetPlayer()->CargoFreeSpace &&
+                        ab_Ship::PlayerArcadeShip->DistanceTo(Obj) < ab_Global::CargoPickupDistance) {
+                        std::int32_t cpp_left = aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(),
+                            aPlayer::GetPlayer()->GetCargoHook());
                         if (cpp_left >= abItem_2->Item->Weight) {
                             ab_MainForm::TfAB::PickUpItem(abItem_2);
                             Globals::ArcadeBattleScreen->CancelCargoPickup();
@@ -110,7 +121,8 @@ namespace ab_Item {
         }
     }
 
-    void ab_Item_Drop(ab_Object::TabObject* Origin, aItem::TItem* Item, std::int32_t MinDistance, std::int32_t MaxDistance) {
+    void ab_Item_Drop(ab_Object::TabObject* Origin, aItem::TItem* Item, std::int32_t MinDistance,
+        std::int32_t MaxDistance) {
         TabItem* Dropped{};
         std::int32_t Attempt{};
         double Distance{};
@@ -123,10 +135,12 @@ namespace ab_Item {
             Bearing = aMyFunction::RandomIntRange(0, 359);
             Dropped->State = Origin->State;
             Dropped->State.BearingDegrees = Bearing;
-            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Dropped->State.LongitudeDegrees), pas::Var<double>(&Dropped->State.PolarAngleDegrees), pas::Var<double>(&Dropped->State.BearingDegrees), ab_Global::SphereRadius, Distance);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Dropped->State.LongitudeDegrees),
+                pas::Var<double>(&Dropped->State.PolarAngleDegrees), pas::Var<double>(&Dropped->State.BearingDegrees),
+                ab_Global::SphereRadius, Distance);
             Obj = ab_Object::FirstArcadeObject;
             while (Obj != nullptr) {
-                if (pas::class_cast_if<TabItem*>(Obj) != nullptr && Obj->DistanceTo(Dropped) < 2.0E+1L) {
+                if (pas::class_cast_if<TabItem*>(Obj) != nullptr && Obj->DistanceTo(Dropped) < 2.0E+1) {
                     break;
                 }
                 Obj = Obj->Next;
@@ -147,8 +161,10 @@ namespace ab_Item {
         while (Obj != nullptr) {
             if (TabItem* abItem = pas::class_cast_if<TabItem*>(Obj)) {
                 std::int32_t cpp_case = abItem->BonusKind;
-                if (cpp_case == ab_Global::abkRegeneration || cpp_case == ab_Global::abkSpeed || cpp_case >= ab_Global::abkDamage && cpp_case <= ab_Global::abkInvisibility) {
-                    ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0, Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
+                if (cpp_case == ab_Global::abkRegeneration || cpp_case == ab_Global::abkSpeed || cpp_case >=
+                        ab_Global::abkDamage && cpp_case <= ab_Global::abkInvisibility) {
+                    ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0,
+                        Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
                     if (Distance < BestDistance) {
                         BestDistance = Distance;
                         Result = reinterpret_cast<TabItem*>(Obj);
@@ -170,8 +186,10 @@ namespace ab_Item {
         while (Obj != nullptr) {
             if (TabItem* abItem = pas::class_cast_if<TabItem*>(Obj)) {
                 std::int32_t cpp_case = abItem->BonusKind;
-                if (cpp_case == ab_Global::abkRegeneration || cpp_case == ab_Global::abkSpeed || cpp_case >= ab_Global::abkDamage && cpp_case <= ab_Global::abkInvisibility) {
-                    ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0, Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
+                if (cpp_case == ab_Global::abkRegeneration || cpp_case == ab_Global::abkSpeed || cpp_case >=
+                        ab_Global::abkDamage && cpp_case <= ab_Global::abkInvisibility) {
+                    ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0,
+                        Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
                     if (Distance < BestDistance) {
                         Route = ab_Zone::ab_Zone_FindReachableRouteZone(reinterpret_cast<TabItem*>(Obj)->SpawnZone);
                         if (Route != nullptr) {
@@ -197,8 +215,10 @@ namespace ab_Item {
         double BestDistance = 1.0E+20;
         ab_Object::TabObject* Obj = ab_Object::FirstArcadeObject;
         while (Obj != nullptr) {
-            if (TabItem* abItem = pas::class_cast_if<TabItem*>(Obj); abItem != nullptr && pas::in_range(abItem->BonusKind, ab_Global::abkRegeneration, ab_Global::abkRegeneration)) {
-                ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0, Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
+            if (TabItem* abItem = pas::class_cast_if<TabItem*>(Obj); abItem != nullptr && pas::in_range(
+                    abItem->BonusKind, ab_Global::abkRegeneration, ab_Global::abkRegeneration)) {
+                ab_Global::ComputeSphericalDistance(Distance, Origin->Longitude, Origin->PolarAngle, 0.0,
+                    Obj->State.LongitudeDegrees, Obj->State.PolarAngleDegrees, ab_Global::SphereRadius);
                 if (Distance < BestDistance) {
                     Route = ab_Zone::ab_Zone_FindReachableRouteZone(reinterpret_cast<TabItem*>(Obj)->SpawnZone);
                     if (Route != nullptr) {
@@ -259,11 +279,13 @@ namespace ab_Item {
         HiddenBonus = Hidden;
         SpawnZone = Zone;
         if (HiddenBonus) {
-            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"sv, u"ItemAB.Unknown"_wref.get(), ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Container"sv,
+                u"ItemAB.Unknown"_wref.get(), ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> visual = pas::Var<SE_Space::TObjectSE*>(&Visual);
             SE_Space::RetainSpaceObject(visual, createSpaceObjectByName);
         } else {
-            SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Container"sv, static_cast<pas::WideString>(pas::concat_ansi({"ItemAB.", SysUtils::IntToStr(Kind)})), ClassesImports::Point(0, 0));
+            SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Container"sv,
+                pas::concat_wide({u"ItemAB.", pas::wide_int_to_str(Kind)}), ClassesImports::Point(0, 0));
             pas::Var<SE_Space::TObjectSE*> visual_2 = pas::Var<SE_Space::TObjectSE*>(&Visual);
             SE_Space::RetainSpaceObject(visual_2, createSpaceObjectByName_2);
         }
@@ -305,7 +327,8 @@ namespace ab_Item {
         EC_Struct::TVector3D Position{};
         ab_Object::TabObject::UpdateVisuals();
         Position = GetWorldPosition();
-        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
+        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                pas::ConstRef<EC_Struct::TVector3D>(&Position));
         if (Item != nullptr) {
             {
                 EC_Struct::TPointF makePointF = EC_Struct::MakePointF(Position.X, Position.Y);

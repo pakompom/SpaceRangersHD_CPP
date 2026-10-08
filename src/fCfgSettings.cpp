@@ -29,9 +29,7 @@
 #include "units/GlobalsV.hpp"
 #include "units/Robot.hpp"
 #include "units/SimpleSteamApi.hpp"
-#include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -63,61 +61,83 @@ namespace fCfgSettings {
                 cpp_with_2->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_3 = cpp_with_2->NextSibling;
-                    cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    cpp_with_3->SetPosition(ClassesImports::Point(
+                        cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                        cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     {
                         GI_MessageLoop::TObjectGI* cpp_with_4 = cpp_with_3->NextSibling;
-                        cpp_with_4->SetPosition(ClassesImports::Point(cpp_with_4->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_4->LocalPosition.Y));
+                        cpp_with_4->SetPosition(ClassesImports::Point(
+                            cpp_with_4->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_4->LocalPosition.Y));
                         {
                             GI_MessageLoop::TObjectGI* cpp_with_5 = cpp_with_4->NextSibling;
-                            cpp_with_5->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + cpp_with_5->LocalPosition.X, cpp_with_5->LocalPosition.Y));
-                            cpp_with_5->SetSize(ClassesImports::Point(cpp_with_5->ClientSize.X, cpp_with_5->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
+                            cpp_with_5->SetPosition(ClassesImports::Point(
+                                GR_Main::ExtraScreenWidth / 2 + cpp_with_5->LocalPosition.X,
+                                cpp_with_5->LocalPosition.Y));
+                            cpp_with_5->SetSize(ClassesImports::Point(cpp_with_5->ClientSize.X,
+                                cpp_with_5->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                             {
-                                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(cpp_with_5->FindByNameRecursive(u"PanelSet"sv));
-                                PanelSet->SetSize(ClassesImports::Point(PanelSet->ClientSize.X, PanelSet->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
-                                PanelSet->VerticalScrollBar->SetSize(ClassesImports::Point(PanelSet->VerticalScrollBar->ClientSize.X, PanelSet->VerticalScrollBar->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
+                                GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                                    cpp_with_5->FindByNameRecursive(u"PanelSet"sv));
+                                PanelSet->SetSize(ClassesImports::Point(PanelSet->ClientSize.X,
+                                    PanelSet->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
+                                PanelSet->VerticalScrollBar->SetSize(ClassesImports::Point(
+                                    PanelSet->VerticalScrollBar->ClientSize.X,
+                                    PanelSet->VerticalScrollBar->ClientSize.Y + std::max<std::int32_t>(
+                                            GR_Main::ExtraScreenHeight, 0)));
                             }
                             {
                                 GI_MessageLoop::TObjectGI* cpp_with_7 = cpp_with_5->NextSibling;
-                                cpp_with_7->SetPosition(ClassesImports::Point(cpp_with_7->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, cpp_with_7->LocalPosition.Y));
+                                cpp_with_7->SetPosition(ClassesImports::Point(
+                                    cpp_with_7->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                                    cpp_with_7->LocalPosition.Y));
                             }
                         }
                     }
                 }
             }
             {
-                GI_MessageLoop::TObjectGI* ModeLeftPanel_NextSibling = MainPanel->FindByNameRecursive(u"ModeLeftPanel"sv)->NextSibling;
-                ModeLeftPanel_NextSibling->SetSize(ClassesImports::Point(ModeLeftPanel_NextSibling->ClientSize.X, ModeLeftPanel_NextSibling->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
+                GI_MessageLoop::TObjectGI* ModeLeftPanel_NextSibling = MainPanel->FindByNameRecursive(
+                    u"ModeLeftPanel"sv)->NextSibling;
+                ModeLeftPanel_NextSibling->SetSize(ClassesImports::Point(ModeLeftPanel_NextSibling->ClientSize.X,
+                    ModeLeftPanel_NextSibling->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_9 = ModeLeftPanel_NextSibling->NextSibling;
-                    cpp_with_9->SetSize(ClassesImports::Point(cpp_with_9->ClientSize.X, cpp_with_9->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
+                    cpp_with_9->SetSize(ClassesImports::Point(cpp_with_9->ClientSize.X,
+                        cpp_with_9->ClientSize.Y + std::max<std::int32_t>(GR_Main::ExtraScreenHeight, 0)));
                 }
             }
             {
                 GI_MessageLoop::TObjectGI* cpp_with_10 = MainPanel->FirstChild->NextSibling;
-                cpp_with_10->SetDepth(cpp_with_10->Depth - 2.0L);
+                cpp_with_10->SetDepth(static_cast<float>(cpp_with_10->Depth - 2.0));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         {
-            GI_GraphButton::TGraphButtonGI* Cancel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Cancel"sv));
+            GI_GraphButton::TGraphButtonGI* Cancel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Cancel"sv));
             Cancel->UpCallback = pas::bind_method<&TfCfgSettings::CancelClicked>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<&TfCfgSettings::ApplyClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv))->UpCallback = pas::bind_method<
+                &TfCfgSettings::ApplyClicked>(this);
         GetByName(u"MainPanel"sv)->MouseMoveCallback = pas::bind_method<&TfCfgSettings::MainPanelMouseMove>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButAUp = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAUp"sv));
+            GI_GraphButton::TGraphButtonGI* ButAUp = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButAUp"sv));
             ButAUp->UpCallback = pas::bind_method<&TfCfgSettings::HighPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButAMiddle = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAMiddle"sv));
+            GI_GraphButton::TGraphButtonGI* ButAMiddle = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButAMiddle"sv));
             ButAMiddle->UpCallback = pas::bind_method<&TfCfgSettings::MediumPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButADown = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButADown"sv));
+            GI_GraphButton::TGraphButtonGI* ButADown = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButADown"sv));
             ButADown->UpCallback = pas::bind_method<&TfCfgSettings::LowPresetClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButAAuto = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButAAuto"sv));
+            GI_GraphButton::TGraphButtonGI* ButAAuto = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButAAuto"sv));
             ButAAuto->UpCallback = pas::bind_method<&TfCfgSettings::AutoPresetClicked>(this);
         }
         {
@@ -125,25 +145,29 @@ namespace fCfgSettings {
             MainPanel_2->KeyDownCallback = pas::bind_method<&TfCfgSettings::MainPanelKeyDown>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[0] = ButGroup0->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[1] = ButGroup1->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[2] = ButGroup2->LocalPosition.Y;
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup3"sv));
             ButGroup3->UpCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             ButGroup3->DownCallback = pas::bind_method<&TfCfgSettings::GroupClicked>(this);
             GroupButtonTops[3] = ButGroup3->LocalPosition.Y;
@@ -204,7 +228,8 @@ namespace fCfgSettings {
         SettingsMode = 0;
         ModeButtonState = 0;
         GetByName(u"LabelHelp"sv)->SetActive(false);
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSet"sv));
         Panel->FreeOwnedChildren();
         for (I = 0; I <= 5; ++I) {
             GroupNextY[I] = 0;
@@ -219,23 +244,31 @@ namespace fCfgSettings {
         }
         BuildGroupIndex = 0;
         HasInstalledPackages = false;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(GR_Main::ModLanguageInstallConfigs) - 1); cpp_range.next(I); ) {
-            Block = pas::list_at<EC_BlockPar::TBlockParEC>(GR_Main::ModLanguageInstallConfigs, I);
-            Block = Block->GetBlock(u"Packages"sv);
-            if (Block->GetParamCount() > 0) {
-                HasInstalledPackages = true;
-                break;
+        {
+            const std::int32_t cpp_last = pas::list_count(GR_Main::ModLanguageInstallConfigs) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Block = pas::list_at<EC_BlockPar::TBlockParEC>(GR_Main::ModLanguageInstallConfigs, I);
+                    Block = Block->GetBlock(u"Packages"sv);
+                    if (Block->GetParamCount() > 0) {
+                        HasInstalledPackages = true;
+                        break;
+                    }
+                }
             }
         }
         if (static_cast<std::uint8_t>(SimpleSteamApi::SteamInitialized ^ 1) && GR_Main::RequestedLanguage == u"") {
             AddOptionLabel(u"Lang"_w, aConst::LocalizedText(u"FormCfgSettings.Lang"_wref.get()), true);
-            if (GR_Main::AvailableLanguageCodes != u"" && EC_Str::CountDelimitedPartsW(pas::view(GR_Main::AvailableLanguageCodes), u","sv) > 0) {
+            if (GR_Main::AvailableLanguageCodes != u"" && EC_Str::CountDelimitedPartsW(
+                    pas::view(GR_Main::AvailableLanguageCodes), u","sv) > 0) {
                 LanguageCount = EC_Str::CountDelimitedPartsW(pas::view(GR_Main::AvailableLanguageCodes), u","sv);
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LanguageCount - 1); cpp_range_2.next(I); ) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(0, LanguageCount - 1); cpp_range.next(I); ) {
                     Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes), I, u","sv);
-                    if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", Language, u".txt"})))) {
+                    if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_",
+                        Language, u".txt"})))) {
                         Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-                        Block->LoadFromTextFileWithEncodingProbe((cpp_text = pas::concat_wide({u"install_", Language, u".txt"}), cpp_text.pchar()), false);
+                        Block->LoadFromTextFileWithEncodingProbe(
+                            (cpp_text = pas::concat_wide({u"install_", Language, u".txt"}), cpp_text.pchar()), false);
                         LanguageName = Block->GetParam(u"LangName"sv);
                         pas::free(Block);
                     }
@@ -281,10 +314,12 @@ namespace fCfgSettings {
             pas::WideString localizedText_5 = aConst::LocalizedText(u"FormCfgSettings.DefaultOrderFar"_wref.get());
             AddOptionChoice(3, std::move(localizedText_5), cpp_arg_6, false);
         }
-        AddOptionLabel(u"RightClickOnShip"_w, aConst::LocalizedText(u"FormCfgSettings.RightClickOnShip"_wref.get()), false);
+        AddOptionLabel(u"RightClickOnShip"_w, aConst::LocalizedText(u"FormCfgSettings.RightClickOnShip"_wref.get()),
+            false);
         {
             std::uint8_t cpp_arg_7 = GlobalsV::RightClickOnShip == 0;
-            pas::WideString localizedText_6 = aConst::LocalizedText(u"FormCfgSettings.RightClickOnShipScaner"_wref.get());
+            pas::WideString localizedText_6 = aConst::LocalizedText(
+                u"FormCfgSettings.RightClickOnShipScaner"_wref.get());
             AddOptionChoice(0, std::move(localizedText_6), cpp_arg_7, false);
         }
         {
@@ -294,7 +329,8 @@ namespace fCfgSettings {
         }
         {
             std::uint8_t cpp_arg_9 = GlobalsV::RightClickOnShip == 2;
-            pas::WideString localizedText_8 = aConst::LocalizedText(u"FormCfgSettings.RightClickOnShipChangeOrder"_wref.get());
+            pas::WideString localizedText_8 = aConst::LocalizedText(
+                u"FormCfgSettings.RightClickOnShipChangeOrder"_wref.get());
             AddOptionChoice(2, std::move(localizedText_8), cpp_arg_9, false);
         }
         AddOptionLabel(u"FilmSpeed"_w, aConst::LocalizedText(u"FormCfgSettings.FilmSpeed"_wref.get()), false);
@@ -340,7 +376,8 @@ namespace fCfgSettings {
             pas::WideString localizedText_16 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_16), cpp_arg_15, false);
         }
-        AddOptionLabel(u"ActionDoubleClick"_w, aConst::LocalizedText(u"FormCfgSettings.ActionDoubleClick"_wref.get()), false);
+        AddOptionLabel(u"ActionDoubleClick"_w, aConst::LocalizedText(u"FormCfgSettings.ActionDoubleClick"_wref.get()),
+            false);
         {
             std::uint8_t actionDoubleClick = GlobalsV::ActionDoubleClick;
             pas::WideString localizedText_17 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -351,7 +388,8 @@ namespace fCfgSettings {
             pas::WideString localizedText_18 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_18), cpp_arg_16, false);
         }
-        AddOptionLabel(u"ClickAutoCloseForm"_w, aConst::LocalizedText(u"FormCfgSettings.ClickAutoCloseForm"_wref.get()), false);
+        AddOptionLabel(u"ClickAutoCloseForm"_w, aConst::LocalizedText(u"FormCfgSettings.ClickAutoCloseForm"_wref.get()),
+            false);
         {
             std::uint8_t clickAutoCloseForm = GlobalsV::ClickAutoCloseForm;
             pas::WideString localizedText_19 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -362,25 +400,44 @@ namespace fCfgSettings {
             pas::WideString localizedText_20 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_20), cpp_arg_17, false);
         }
-        GI_Label::TLabelGI* ValueLabel = AddOptionLabel(u"ForsageDeactivatePercent"_w, aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOff"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::AfterburnerStopCondition, 1, pas::bind_static_method<&TfCfgSettings::FormatForsageDeactivatePercent>(this));
-        ValueLabel = AddOptionLabel(u"MaxSearchResult"_w, aConst::LocalizedText(u"FormCfgSettings.MaxSearchResult"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 1, 100, GlobalsV::MaxSearchResult, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"MaxPlayerNews"_w, aConst::LocalizedText(u"FormCfgSettings.MaxPlayerNews"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::MaxPlayerNews, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"TurnSaveStep"_w, aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, aGalaxyStruct::TurnsPerYear, GlobalsV::TurnSaveStep, 1, pas::bind_static_method<&TfCfgSettings::FormatTurnSaveStep>(this));
-        ValueLabel = AddOptionLabel(u"QuickSaveExtraSlots"_w, aConst::LocalizedText(u"FormCfgSettings.QuickSaveSlots"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 9, GlobalsV::QuickSaveExtraSlots, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"CountFilmSave"_w, aConst::LocalizedText(u"FormCfgSettings.CountFilmSave"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 1, 100, GlobalsV::FilmHistoryLimit, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"ScrollSpeed"_w, aConst::LocalizedText(u"FormCfgSettings.ScrollSpeed"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 1, 80, GlobalsV::ScrollStep, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"BeginCalcNextTurn"_w, aConst::LocalizedText(u"FormCfgSettings.BeginCalcNextTurn"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GlobalsV::BeginCalcNextTurn * 1.0E+2L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"ChangeAutoPilot"_w, aConst::LocalizedText(u"FormCfgSettings.ChangeAutoPilot"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 2, 20, GlobalsV::ChangeAutoPilot, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        AddOptionLabel(u"DisableAutoPilot"_w, aConst::LocalizedText(u"FormCfgSettings.DisableAutoPilot"_wref.get()), false);
+        GI_Label::TLabelGI* ValueLabel = AddOptionLabel(u"ForsageDeactivatePercent"_w,
+            aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOff"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::AfterburnerStopCondition, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatForsageDeactivatePercent>(this));
+        ValueLabel = AddOptionLabel(u"MaxSearchResult"_w,
+                aConst::LocalizedText(u"FormCfgSettings.MaxSearchResult"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 1, 100, GlobalsV::MaxSearchResult, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"MaxPlayerNews"_w,
+                aConst::LocalizedText(u"FormCfgSettings.MaxPlayerNews"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::MaxPlayerNews, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"TurnSaveStep"_w,
+                aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, aGalaxyStruct::TurnsPerYear, GlobalsV::TurnSaveStep, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatTurnSaveStep>(this));
+        ValueLabel = AddOptionLabel(u"QuickSaveExtraSlots"_w,
+                aConst::LocalizedText(u"FormCfgSettings.QuickSaveSlots"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 9, GlobalsV::QuickSaveExtraSlots, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"CountFilmSave"_w,
+                aConst::LocalizedText(u"FormCfgSettings.CountFilmSave"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 1, 100, GlobalsV::FilmHistoryLimit, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"ScrollSpeed"_w, aConst::LocalizedText(u"FormCfgSettings.ScrollSpeed"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 1, 80, GlobalsV::ScrollStep, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"BeginCalcNextTurn"_w,
+                aConst::LocalizedText(u"FormCfgSettings.BeginCalcNextTurn"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(GlobalsV::BeginCalcNextTurn * 1.0E+2)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"ChangeAutoPilot"_w,
+                aConst::LocalizedText(u"FormCfgSettings.ChangeAutoPilot"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 2, 20, GlobalsV::ChangeAutoPilot, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        AddOptionLabel(u"DisableAutoPilot"_w, aConst::LocalizedText(u"FormCfgSettings.DisableAutoPilot"_wref.get()),
+            false);
         {
             std::uint8_t disableAutoPilot = GlobalsV::DisableAutoPilot;
             pas::WideString localizedText_21 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -400,17 +457,23 @@ namespace fCfgSettings {
                     GR_Main::TDisplayModeGR& cpp_with_2 = GR_Main::GameDisplayModes[I];
                     if (cpp_with_2.Width == 0) {
                         std::uint8_t cpp_arg_19 = GR_Main::SelectedGameDisplayMode == I;
-                        pas::WideString localizedText_23 = aConst::LocalizedText(u"FormCfgSettings.HelpButAuto"_wref.get());
+                        pas::WideString localizedText_23 = aConst::LocalizedText(
+                            u"FormCfgSettings.HelpButAuto"_wref.get());
                         AddOptionChoice(I, std::move(localizedText_23), cpp_arg_19, false);
                     } else {
-                        AddOptionChoice(I, static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(cpp_with_2.Width), "x", SysUtils::Int64ToStr(cpp_with_2.Height)})), GR_Main::SelectedGameDisplayMode == I, false);
+                        AddOptionChoice(I,
+                            pas::concat_wide({pas::wide_int64_to_str(static_cast<std::int64_t>(cpp_with_2.Width)), u"x",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(cpp_with_2.Height))}),
+                            GR_Main::SelectedGameDisplayMode == I, false);
                     }
                 }
                 --I;
             }
         } else {
-            ValueLabel = AddOptionLabel(u"Resolution"_w, aConst::LocalizedText(u"FormCfgSettings.Resolution"_wref.get()), false);
-            AddOptionSlider(ValueLabel, 0, GR_Main::GameDisplayModeCount - 1, GR_Main::SelectedGameDisplayMode, 1, pas::bind_static_method<&TfCfgSettings::FormatResolution>(this));
+            ValueLabel = AddOptionLabel(u"Resolution"_w,
+                    aConst::LocalizedText(u"FormCfgSettings.Resolution"_wref.get()), false);
+            AddOptionSlider(ValueLabel, 0, GR_Main::GameDisplayModeCount - 1, GR_Main::SelectedGameDisplayMode, 1,
+                pas::bind_static_method<&TfCfgSettings::FormatResolution>(this));
         }
         AddOptionLabel(u"VSync"_w, aConst::LocalizedText(u"FormCfgSettings.VSync"_wref.get()), false);
         {
@@ -448,7 +511,8 @@ namespace fCfgSettings {
             }
         }
         if (!GR_Main::AlternateViewportEnabled) {
-            AddOptionLabel(u"HardwareRender"_w, aConst::LocalizedText(u"FormCfgSettings.HardwareRender"_wref.get()), false);
+            AddOptionLabel(u"HardwareRender"_w, aConst::LocalizedText(u"FormCfgSettings.HardwareRender"_wref.get()),
+                false);
             {
                 std::uint8_t hardwareRenderingRequested = GlobalsV::HardwareRenderingRequested;
                 pas::WideString localizedText_30 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -460,7 +524,8 @@ namespace fCfgSettings {
                 AddOptionChoice(0, std::move(localizedText_31), cpp_arg_23, false);
             }
         }
-        AddOptionLabel(u"UseTablesForGov"_w, aConst::LocalizedText(u"FormCfgSettings.UseTablesForGov"_wref.get()), true);
+        AddOptionLabel(u"UseTablesForGov"_w, aConst::LocalizedText(u"FormCfgSettings.UseTablesForGov"_wref.get()),
+            true);
         {
             std::uint8_t useTablesForGov = GlobalsV::UseTablesForGov;
             pas::WideString localizedText_32 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -524,14 +589,18 @@ namespace fCfgSettings {
             pas::WideString localizedText_43 = aConst::LocalizedText(u"FormCfgSettings.FontSizeLarge"_wref.get());
             AddOptionChoice(3, std::move(localizedText_43), cpp_arg_33, false);
         }
-        ValueLabel = AddOptionLabel(u"Brightness"_w, aConst::LocalizedText(u"FormCfgSettings.Brightness"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GR_Main::DisplayBrightness * 5.0E+1L + 5.0E+1L), 1, pas::bind_method<&TfCfgSettings::PreviewBrightness>(this));
-        ValueLabel = AddOptionLabel(u"Contrast"_w, aConst::LocalizedText(u"FormCfgSettings.Contrast"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GR_Main::DisplayContrast * 5.0E+1L + 5.0E+1L), 1, pas::bind_method<&TfCfgSettings::PreviewContrast>(this));
+        ValueLabel = AddOptionLabel(u"Brightness"_w, aConst::LocalizedText(u"FormCfgSettings.Brightness"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(static_cast<float>(GR_Main::DisplayBrightness * 5.0E+1) + 5.0E+1)), 1,
+            pas::bind_method<&TfCfgSettings::PreviewBrightness>(this));
+        ValueLabel = AddOptionLabel(u"Contrast"_w, aConst::LocalizedText(u"FormCfgSettings.Contrast"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(static_cast<float>(GR_Main::DisplayContrast * 5.0E+1) + 5.0E+1)), 1,
+            pas::bind_method<&TfCfgSettings::PreviewContrast>(this));
         AddOptionLabel(u"Intro"_w, aConst::LocalizedText(u"FormCfgSettings.Intro"_wref.get()), false);
         {
             std::uint8_t cpp_arg_34 = static_cast<std::uint8_t>(Globals::SkipIntro ^ 1);
-            std::uint8_t cpp_arg_35 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"Video"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_35 = !GR_Main::IsInstallFeatureEnabled(u"Video"_wref.get());
             pas::WideString localizedText_44 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_44), cpp_arg_34, cpp_arg_35);
         }
@@ -543,7 +612,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"Video"_w, aConst::LocalizedText(u"FormCfgSettings.Video"_wref.get()), false);
         {
             std::uint8_t cpp_arg_36 = static_cast<std::uint8_t>(Globals::SkipVideo ^ 1);
-            std::uint8_t cpp_arg_37 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"Video"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_37 = !GR_Main::IsInstallFeatureEnabled(u"Video"_wref.get());
             pas::WideString localizedText_46 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_46), cpp_arg_36, cpp_arg_37);
         }
@@ -555,18 +624,20 @@ namespace fCfgSettings {
         AddOptionLabel(u"SoftwareCursor"_w, aConst::LocalizedText(u"FormCfgSettings.SoftwareCursor"_wref.get()), false);
         {
             std::uint8_t showSystemMouse = GR_Main::ShowSystemMouse;
-            pas::WideString localizedText_48 = aConst::LocalizedText(u"FormCfgSettings.SoftwareCursorHardware"_wref.get());
+            pas::WideString localizedText_48 = aConst::LocalizedText(
+                u"FormCfgSettings.SoftwareCursorHardware"_wref.get());
             AddOptionChoice(1, std::move(localizedText_48), showSystemMouse, false);
         }
         {
             std::uint8_t cpp_arg_38 = static_cast<std::uint8_t>(GR_Main::ShowSystemMouse ^ 1);
-            pas::WideString localizedText_49 = aConst::LocalizedText(u"FormCfgSettings.SoftwareCursorSoftware"_wref.get());
+            pas::WideString localizedText_49 = aConst::LocalizedText(
+                u"FormCfgSettings.SoftwareCursorSoftware"_wref.get());
             AddOptionChoice(0, std::move(localizedText_49), cpp_arg_38, false);
         }
         AddOptionLabel(u"BGImage"_w, aConst::LocalizedText(u"FormCfgSettings.BGImage"_wref.get()), false);
         {
             std::uint8_t bgImage = GlobalsV::BGImage;
-            std::uint8_t cpp_arg_39 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"BGImage"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_39 = !GR_Main::IsInstallFeatureEnabled(u"BGImage"_wref.get());
             pas::WideString localizedText_50 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_50), bgImage, cpp_arg_39);
         }
@@ -578,7 +649,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"AnimCaptain"_w, aConst::LocalizedText(u"FormCfgSettings.AnimCaptain"_wref.get()), false);
         {
             std::uint8_t animCaptain = GlobalsV::AnimCaptain;
-            std::uint8_t cpp_arg_41 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimCaptain"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_41 = !GR_Main::IsInstallFeatureEnabled(u"AnimCaptain"_wref.get());
             pas::WideString localizedText_52 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_52), animCaptain, cpp_arg_41);
         }
@@ -590,20 +661,20 @@ namespace fCfgSettings {
         AddOptionLabel(u"AnimShip"_w, aConst::LocalizedText(u"FormCfgSettings.AnimShip"_wref.get()), false);
         {
             std::uint8_t animShipFull = GlobalsV::AnimShipFull;
-            std::uint8_t cpp_arg_43 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimShipFull"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_43 = !GR_Main::IsInstallFeatureEnabled(u"AnimShipFull"_wref.get());
             pas::WideString localizedText_54 = aConst::LocalizedText(u"FormCfgSettings.AnimShipFull"_wref.get());
             AddOptionChoice(1, std::move(localizedText_54), animShipFull, cpp_arg_43);
         }
         {
             std::uint8_t cpp_arg_44 = static_cast<std::uint8_t>(GlobalsV::AnimShipFull ^ 1);
-            std::uint8_t cpp_arg_45 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimShipSmall"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_45 = !GR_Main::IsInstallFeatureEnabled(u"AnimShipSmall"_wref.get());
             pas::WideString localizedText_55 = aConst::LocalizedText(u"FormCfgSettings.AnimShipSmall"_wref.get());
             AddOptionChoice(0, std::move(localizedText_55), cpp_arg_44, cpp_arg_45);
         }
         AddOptionLabel(u"AnimItem"_w, aConst::LocalizedText(u"FormCfgSettings.AnimItem"_wref.get()), false);
         {
             std::uint8_t animItem = GlobalsV::AnimItem;
-            std::uint8_t cpp_arg_46 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimItem"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_46 = !GR_Main::IsInstallFeatureEnabled(u"AnimItem"_wref.get());
             pas::WideString localizedText_56 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_56), animItem, cpp_arg_46);
         }
@@ -626,13 +697,13 @@ namespace fCfgSettings {
         AddOptionLabel(u"AnimGov"_w, aConst::LocalizedText(u"FormCfgSettings.AnimGov"_wref.get()), false);
         {
             std::uint8_t cpp_arg_49 = GlobalsV::AnimGov == 2;
-            std::uint8_t cpp_arg_50 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimGov"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_50 = !GR_Main::IsInstallFeatureEnabled(u"AnimGov"_wref.get());
             pas::WideString localizedText_60 = aConst::LocalizedText(u"FormCfgSettings.AnimGovFull"_wref.get());
             AddOptionChoice(2, std::move(localizedText_60), cpp_arg_49, cpp_arg_50);
         }
         {
             std::uint8_t cpp_arg_51 = GlobalsV::AnimGov == 1;
-            std::uint8_t cpp_arg_52 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimGov"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_52 = !GR_Main::IsInstallFeatureEnabled(u"AnimGov"_wref.get());
             pas::WideString localizedText_61 = aConst::LocalizedText(u"FormCfgSettings.AnimGovHalf"_wref.get());
             AddOptionChoice(1, std::move(localizedText_61), cpp_arg_51, cpp_arg_52);
         }
@@ -655,7 +726,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"AnimStar"_w, aConst::LocalizedText(u"FormCfgSettings.AnimStar"_wref.get()), false);
         {
             std::uint8_t animStar = GlobalsV::AnimStar;
-            std::uint8_t cpp_arg_55 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"AnimStar"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_55 = !GR_Main::IsInstallFeatureEnabled(u"AnimStar"_wref.get());
             pas::WideString localizedText_65 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_65), animStar, cpp_arg_55);
         }
@@ -683,7 +754,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"SputnikShow"_w, aConst::LocalizedText(u"FormCfgSettings.SputnikShow"_wref.get()), false);
         {
             std::uint8_t sputnikShow = GlobalsV::SputnikShow;
-            std::uint8_t cpp_arg_60 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"SputnikShow"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_60 = !GR_Main::IsInstallFeatureEnabled(u"SputnikShow"_wref.get());
             pas::WideString localizedText_70 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_70), sputnikShow, cpp_arg_60);
         }
@@ -795,7 +866,8 @@ namespace fCfgSettings {
             pas::WideString localizedText_90 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_90), cpp_arg_75, false);
         }
-        AddOptionLabel(u"BackgroundShade"_w, aConst::LocalizedText(u"FormCfgSettings.BackgroundShade"_wref.get()), false);
+        AddOptionLabel(u"BackgroundShade"_w, aConst::LocalizedText(u"FormCfgSettings.BackgroundShade"_wref.get()),
+            false);
         {
             std::uint8_t backgroundShade = GlobalsV::BackgroundShade;
             pas::WideString localizedText_91 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -806,7 +878,8 @@ namespace fCfgSettings {
             pas::WideString localizedText_92 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_92), cpp_arg_76, false);
         }
-        AddOptionLabel(u"BackgroundGrayscale"_w, aConst::LocalizedText(u"FormCfgSettings.BackgroundGrayscale"_wref.get()), false);
+        AddOptionLabel(u"BackgroundGrayscale"_w,
+            aConst::LocalizedText(u"FormCfgSettings.BackgroundGrayscale"_wref.get()), false);
         {
             std::uint8_t backgroundGrayscale = GlobalsV::BackgroundGrayscale;
             pas::WideString localizedText_93 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -855,12 +928,15 @@ namespace fCfgSettings {
             pas::WideString localizedText_101 = aConst::LocalizedText(u"FormCfgSettings.ShotJPG"_wref.get());
             AddOptionChoice(2, std::move(localizedText_101), cpp_arg_82, false);
         }
-        ValueLabel = AddOptionLabel(u"ScreenShotQuality"_w, aConst::LocalizedText(u"FormCfgSettings.ScreenShotQuality"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::ScreenshotJpegQuality, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"ScreenShotQuality"_w,
+                aConst::LocalizedText(u"FormCfgSettings.ScreenShotQuality"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, GlobalsV::ScreenshotJpegQuality, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         AddOptionLabel(u"FontGalaxy"_w, aConst::LocalizedText(u"FormCfgSettings.FontGalaxy"_wref.get()), true);
         {
             std::uint8_t cpp_arg_83 = GlobalsV::GalaxyMapFontChoice == GlobalsV::gmfNormalBold;
-            pas::WideString localizedText_102 = aConst::LocalizedText(u"FormCfgSettings.FontGalaxyNormalBold"_wref.get());
+            pas::WideString localizedText_102 = aConst::LocalizedText(
+                u"FormCfgSettings.FontGalaxyNormalBold"_wref.get());
             AddOptionChoice(6, std::move(localizedText_102), cpp_arg_83, false);
         }
         {
@@ -870,7 +946,8 @@ namespace fCfgSettings {
         }
         {
             std::uint8_t cpp_arg_85 = GlobalsV::GalaxyMapFontChoice == GlobalsV::gmfSmallBold;
-            pas::WideString localizedText_104 = aConst::LocalizedText(u"FormCfgSettings.FontGalaxySmallBold"_wref.get());
+            pas::WideString localizedText_104 = aConst::LocalizedText(
+                u"FormCfgSettings.FontGalaxySmallBold"_wref.get());
             AddOptionChoice(4, std::move(localizedText_104), cpp_arg_85, false);
         }
         {
@@ -892,7 +969,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"Sound"_w, aConst::LocalizedText(u"FormCfgSettings.Sound"_wref.get()), true);
         {
             std::uint8_t soundEnabled = GlobalsV::SoundEnabled;
-            std::uint8_t cpp_arg_89 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"Sound"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_89 = !GR_Main::IsInstallFeatureEnabled(u"Sound"_wref.get());
             pas::WideString localizedText_108 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_108), soundEnabled, cpp_arg_89);
         }
@@ -904,7 +981,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"SoundInSpace"_w, aConst::LocalizedText(u"FormCfgSettings.SoundInSpace"_wref.get()), false);
         {
             std::uint8_t soundInSpaceEnabled = GlobalsV::SoundInSpaceEnabled;
-            std::uint8_t cpp_arg_91 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"SoundInSpace"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_91 = !GR_Main::IsInstallFeatureEnabled(u"SoundInSpace"_wref.get());
             pas::WideString localizedText_110 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_110), soundInSpaceEnabled, cpp_arg_91);
         }
@@ -913,12 +990,14 @@ namespace fCfgSettings {
             pas::WideString localizedText_111 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_111), cpp_arg_92, false);
         }
-        ValueLabel = AddOptionLabel(u"SoundVolume"_w, aConst::LocalizedText(u"FormCfgSettings.SoundVolume"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GlobalsV::SoundVolume * 1.0E+2L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"SoundVolume"_w, aConst::LocalizedText(u"FormCfgSettings.SoundVolume"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(GlobalsV::SoundVolume * 1.0E+2)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         AddOptionLabel(u"Music"_w, aConst::LocalizedText(u"FormCfgSettings.Music"_wref.get()), true);
         {
             std::uint8_t musicEnabled = GlobalsV::MusicEnabled;
-            std::uint8_t cpp_arg_93 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"Music"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_93 = !GR_Main::IsInstallFeatureEnabled(u"Music"_wref.get());
             pas::WideString localizedText_112 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_112), musicEnabled, cpp_arg_93);
         }
@@ -930,7 +1009,7 @@ namespace fCfgSettings {
         AddOptionLabel(u"MusicInSpace"_w, aConst::LocalizedText(u"FormCfgSettings.MusicInSpace"_wref.get()), false);
         {
             std::uint8_t musicInSpaceEnabled = GlobalsV::MusicInSpaceEnabled;
-            std::uint8_t cpp_arg_95 = static_cast<std::uint8_t>(GR_Main::IsInstallFeatureEnabled(u"MusicInSpace"_wref.get()) ^ 1);
+            std::uint8_t cpp_arg_95 = !GR_Main::IsInstallFeatureEnabled(u"MusicInSpace"_wref.get());
             pas::WideString localizedText_114 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
             AddOptionChoice(1, std::move(localizedText_114), musicInSpaceEnabled, cpp_arg_95);
         }
@@ -939,8 +1018,10 @@ namespace fCfgSettings {
             pas::WideString localizedText_115 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_115), cpp_arg_96, false);
         }
-        ValueLabel = AddOptionLabel(u"MusicVolume"_w, aConst::LocalizedText(u"FormCfgSettings.MusicVolume"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GlobalsV::MusicVolume * 1.0E+2L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"MusicVolume"_w, aConst::LocalizedText(u"FormCfgSettings.MusicVolume"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(GlobalsV::MusicVolume * 1.0E+2)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         AddOptionLabel(u"MusicInHyper"_w, aConst::LocalizedText(u"FormCfgSettings.MusicInHyper"_wref.get()), false);
         {
             std::uint8_t musicInHyperEnabled = GlobalsV::MusicInHyperEnabled;
@@ -972,17 +1053,23 @@ namespace fCfgSettings {
                     GR_Main::TDisplayModeGR& cpp_with_3 = GR_Main::RobotDisplayModes[I];
                     if (cpp_with_3.Width == 0) {
                         std::uint8_t cpp_arg_99 = GR_Main::SelectedRobotDisplayMode == I;
-                        pas::WideString localizedText_120 = aConst::LocalizedText(u"FormCfgSettings.HelpButAuto"_wref.get());
+                        pas::WideString localizedText_120 = aConst::LocalizedText(
+                            u"FormCfgSettings.HelpButAuto"_wref.get());
                         AddOptionChoice(I, std::move(localizedText_120), cpp_arg_99, false);
                     } else {
-                        AddOptionChoice(I, static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(cpp_with_3.Width), "x", SysUtils::Int64ToStr(cpp_with_3.Height)})), GR_Main::SelectedRobotDisplayMode == I, false);
+                        AddOptionChoice(I,
+                            pas::concat_wide({pas::wide_int64_to_str(static_cast<std::int64_t>(cpp_with_3.Width)), u"x",
+                                pas::wide_int64_to_str(static_cast<std::int64_t>(cpp_with_3.Height))}),
+                            GR_Main::SelectedRobotDisplayMode == I, false);
                     }
                 }
                 --I;
             }
         } else {
-            ValueLabel = AddOptionLabel(u"RobotResolution"_w, aConst::LocalizedText(u"FormCfgSettings.Resolution"_wref.get()), false);
-            AddOptionSlider(ValueLabel, 0, GR_Main::RobotDisplayModeCount - 1, GR_Main::SelectedRobotDisplayMode, 1, pas::bind_static_method<&TfCfgSettings::FormatRobotResolution>(this));
+            ValueLabel = AddOptionLabel(u"RobotResolution"_w,
+                    aConst::LocalizedText(u"FormCfgSettings.Resolution"_wref.get()), false);
+            AddOptionSlider(ValueLabel, 0, GR_Main::RobotDisplayModeCount - 1, GR_Main::SelectedRobotDisplayMode, 1,
+                pas::bind_static_method<&TfCfgSettings::FormatRobotResolution>(this));
         }
         AddOptionLabel(u"RobotVSync"_w, aConst::LocalizedText(u"FormCfgSettings.VSync"_wref.get()), false);
         {
@@ -996,64 +1083,86 @@ namespace fCfgSettings {
             AddOptionChoice(0, std::move(localizedText_122), cpp_arg_100, false);
         }
         if (Robot::SupportedMultiSampleCount > 1) {
-            ValueLabel = AddOptionLabel(u"RobotFSAASamples"_w, aConst::LocalizedText(u"FormCfgSettings.RobotFSAA"_wref.get()), false);
-            AddOptionSlider(ValueLabel, 0, Robot::SupportedMultiSampleCount - 1, Robot::GetRobotMultiSampleIndex(), 1, pas::bind_static_method<&TfCfgSettings::FormatRobotFsaaSamples>(this));
+            ValueLabel = AddOptionLabel(u"RobotFSAASamples"_w,
+                    aConst::LocalizedText(u"FormCfgSettings.RobotFSAA"_wref.get()), false);
+            AddOptionSlider(ValueLabel, 0, Robot::SupportedMultiSampleCount - 1, Robot::GetRobotMultiSampleIndex(), 1,
+                pas::bind_static_method<&TfCfgSettings::FormatRobotFsaaSamples>(this));
         }
         if (static_cast<std::int32_t>(Robot::MaximumAnisotropy) > 0) {
-            ValueLabel = AddOptionLabel(u"RobotAnisotropy"_w, aConst::LocalizedText(u"FormCfgSettings.RobotAnisotropy"_wref.get()), false);
-            AddOptionSlider(ValueLabel, 0, Robot::MaximumAnisotropy, Robot::RobotAnisotropy, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+            ValueLabel = AddOptionLabel(u"RobotAnisotropy"_w,
+                    aConst::LocalizedText(u"FormCfgSettings.RobotAnisotropy"_wref.get()), false);
+            AddOptionSlider(ValueLabel, 0, Robot::MaximumAnisotropy, Robot::RobotAnisotropy, 1,
+                pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         }
-        ValueLabel = AddOptionLabel(u"RobotMaxDistance"_w, aConst::LocalizedText(u"FormCfgSettings.RobotMaxDistance"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, Robot::RobotMaxDistance, 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"RobotBrightness"_w, aConst::LocalizedText(u"FormCfgSettings.Brightness"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GR_Main::RobotBrightness * 5.0E+1L + 5.0E+1L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        ValueLabel = AddOptionLabel(u"RobotContrast"_w, aConst::LocalizedText(u"FormCfgSettings.Contrast"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GR_Main::RobotContrast * 5.0E+1L + 5.0E+1L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
-        AddOptionLabel(u"RobotShowStencilShadows"_w, aConst::LocalizedText(u"FormCfgSettings.RobotShowStencilShadows"_wref.get()), true);
+        ValueLabel = AddOptionLabel(u"RobotMaxDistance"_w,
+                aConst::LocalizedText(u"FormCfgSettings.RobotMaxDistance"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, Robot::RobotMaxDistance, 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"RobotBrightness"_w,
+                aConst::LocalizedText(u"FormCfgSettings.Brightness"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(static_cast<float>(GR_Main::RobotBrightness * 5.0E+1) + 5.0E+1)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"RobotContrast"_w, aConst::LocalizedText(u"FormCfgSettings.Contrast"_wref.get()),
+                false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(static_cast<float>(GR_Main::RobotContrast * 5.0E+1) + 5.0E+1)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        AddOptionLabel(u"RobotShowStencilShadows"_w,
+            aConst::LocalizedText(u"FormCfgSettings.RobotShowStencilShadows"_wref.get()), true);
         {
             std::uint8_t showStencilShadows = Robot::RobotSettings.ShowStencilShadows;
-            pas::WideString localizedText_123 = aConst::LocalizedText(u"FormCfgSettings.RobotShowStencilShadowsOn"_wref.get());
+            pas::WideString localizedText_123 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotShowStencilShadowsOn"_wref.get());
             AddOptionChoice(1, std::move(localizedText_123), showStencilShadows, false);
         }
         {
             std::uint8_t cpp_arg_101 = static_cast<std::uint8_t>(Robot::RobotSettings.ShowStencilShadows ^ 1);
-            pas::WideString localizedText_124 = aConst::LocalizedText(u"FormCfgSettings.RobotShowStencilShadowsOff"_wref.get());
+            pas::WideString localizedText_124 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotShowStencilShadowsOff"_wref.get());
             AddOptionChoice(0, std::move(localizedText_124), cpp_arg_101, false);
         }
-        AddOptionLabel(u"RobotShowProjShadows"_w, aConst::LocalizedText(u"FormCfgSettings.RobotShowProjShadows"_wref.get()), true);
+        AddOptionLabel(u"RobotShowProjShadows"_w,
+            aConst::LocalizedText(u"FormCfgSettings.RobotShowProjShadows"_wref.get()), true);
         {
             std::uint8_t showProjShadows = Robot::RobotSettings.ShowProjShadows;
-            pas::WideString localizedText_125 = aConst::LocalizedText(u"FormCfgSettings.RobotShowProjShadowsOn"_wref.get());
+            pas::WideString localizedText_125 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotShowProjShadowsOn"_wref.get());
             AddOptionChoice(1, std::move(localizedText_125), showProjShadows, false);
         }
         {
             std::uint8_t cpp_arg_102 = static_cast<std::uint8_t>(Robot::RobotSettings.ShowProjShadows ^ 1);
-            pas::WideString localizedText_126 = aConst::LocalizedText(u"FormCfgSettings.RobotShowProjShadowsOff"_wref.get());
+            pas::WideString localizedText_126 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotShowProjShadowsOff"_wref.get());
             AddOptionChoice(0, std::move(localizedText_126), cpp_arg_102, false);
         }
-        AddOptionLabel(u"RobotRobotShadow"_w, aConst::LocalizedText(u"FormCfgSettings.RobotRobotShadow"_wref.get()), true);
+        AddOptionLabel(u"RobotRobotShadow"_w, aConst::LocalizedText(u"FormCfgSettings.RobotRobotShadow"_wref.get()),
+            true);
         {
             std::uint8_t cpp_arg_103 = Robot::RobotSettings.RobotShadow == 1;
-            pas::WideString localizedText_127 = aConst::LocalizedText(u"FormCfgSettings.RobotRobotShadowStencil"_wref.get());
+            pas::WideString localizedText_127 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotRobotShadowStencil"_wref.get());
             AddOptionChoice(1, std::move(localizedText_127), cpp_arg_103, false);
         }
         {
             std::uint8_t cpp_arg_104 = Robot::RobotSettings.RobotShadow == 0;
-            pas::WideString localizedText_128 = aConst::LocalizedText(u"FormCfgSettings.RobotRobotShadowOff"_wref.get());
+            pas::WideString localizedText_128 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotRobotShadowOff"_wref.get());
             AddOptionChoice(0, std::move(localizedText_128), cpp_arg_104, false);
         }
         AddOptionLabel(u"RobotSelectEx"_w, aConst::LocalizedText(u"FormCfgSettings.RobotSelectEx"_wref.get()), true);
         {
             std::uint8_t cpp_arg_105 = static_cast<std::uint8_t>(Robot::RobotSettings.SelectEx ^ 1);
-            pas::WideString localizedText_129 = aConst::LocalizedText(u"FormCfgSettings.RobotSelectExNormal"_wref.get());
+            pas::WideString localizedText_129 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotSelectExNormal"_wref.get());
             AddOptionChoice(0, std::move(localizedText_129), cpp_arg_105, false);
         }
         {
             std::uint8_t selectEx = Robot::RobotSettings.SelectEx;
-            pas::WideString localizedText_130 = aConst::LocalizedText(u"FormCfgSettings.RobotSelectExSpecial"_wref.get());
+            pas::WideString localizedText_130 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotSelectExSpecial"_wref.get());
             AddOptionChoice(1, std::move(localizedText_130), selectEx, false);
         }
-        AddOptionLabel(u"RobotLandTexturesGloss"_w, aConst::LocalizedText(u"FormCfgSettings.RobotLandTexturesGloss"_wref.get()), true);
+        AddOptionLabel(u"RobotLandTexturesGloss"_w,
+            aConst::LocalizedText(u"FormCfgSettings.RobotLandTexturesGloss"_wref.get()), true);
         {
             std::uint8_t landTexturesGloss = Robot::RobotSettings.LandTexturesGloss;
             pas::WideString localizedText_131 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -1064,7 +1173,8 @@ namespace fCfgSettings {
             pas::WideString localizedText_132 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_132), cpp_arg_106, false);
         }
-        AddOptionLabel(u"RobotObjTexturesGloss"_w, aConst::LocalizedText(u"FormCfgSettings.RobotObjTexturesGloss"_wref.get()), true);
+        AddOptionLabel(u"RobotObjTexturesGloss"_w,
+            aConst::LocalizedText(u"FormCfgSettings.RobotObjTexturesGloss"_wref.get()), true);
         {
             std::uint8_t objTexturesGloss = Robot::RobotSettings.ObjTexturesGloss;
             pas::WideString localizedText_133 = aConst::LocalizedText(u"FormCfgSettings.Yes"_wref.get());
@@ -1075,15 +1185,18 @@ namespace fCfgSettings {
             pas::WideString localizedText_134 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_134), cpp_arg_107, false);
         }
-        AddOptionLabel(u"RobotSoftwareCursor"_w, aConst::LocalizedText(u"FormCfgSettings.RobotSoftwareCursor"_wref.get()), true);
+        AddOptionLabel(u"RobotSoftwareCursor"_w,
+            aConst::LocalizedText(u"FormCfgSettings.RobotSoftwareCursor"_wref.get()), true);
         {
             std::uint8_t cpp_arg_108 = static_cast<std::uint8_t>(Robot::RobotSettings.SoftwareCursor ^ 1);
-            pas::WideString localizedText_135 = aConst::LocalizedText(u"FormCfgSettings.RobotSoftwareCursorHardware"_wref.get());
+            pas::WideString localizedText_135 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotSoftwareCursorHardware"_wref.get());
             AddOptionChoice(0, std::move(localizedText_135), cpp_arg_108, false);
         }
         {
             std::uint8_t softwareCursor = Robot::RobotSettings.SoftwareCursor;
-            pas::WideString localizedText_136 = aConst::LocalizedText(u"FormCfgSettings.RobotSoftwareCursorSoftware"_wref.get());
+            pas::WideString localizedText_136 = aConst::LocalizedText(
+                u"FormCfgSettings.RobotSoftwareCursorSoftware"_wref.get());
             AddOptionChoice(1, std::move(localizedText_136), softwareCursor, false);
         }
         AddOptionLabel(u"RobotSky"_w, aConst::LocalizedText(u"FormCfgSettings.RobotSky"_wref.get()), true);
@@ -1114,8 +1227,10 @@ namespace fCfgSettings {
             pas::WideString localizedText_141 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_141), cpp_arg_112, false);
         }
-        ValueLabel = AddOptionLabel(u"RobotMusicVolume"_w, aConst::LocalizedText(u"FormCfgSettings.MusicVolume"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GlobalsV::RobotMusicVolume * 1.0E+2L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"RobotMusicVolume"_w,
+                aConst::LocalizedText(u"FormCfgSettings.MusicVolume"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(GlobalsV::RobotMusicVolume * 1.0E+2)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         AddOptionLabel(u"RobotSound"_w, aConst::LocalizedText(u"FormCfgSettings.RobotSound"_wref.get()), true);
         {
             std::uint8_t robotSound = Robot::RobotSound;
@@ -1127,15 +1242,18 @@ namespace fCfgSettings {
             pas::WideString localizedText_143 = aConst::LocalizedText(u"FormCfgSettings.No"_wref.get());
             AddOptionChoice(0, std::move(localizedText_143), cpp_arg_113, false);
         }
-        ValueLabel = AddOptionLabel(u"RobotSoundVolume"_w, aConst::LocalizedText(u"FormCfgSettings.SoundVolume"_wref.get()), false);
-        AddOptionSlider(ValueLabel, 0, 100, System::Round(GlobalsV::RobotSoundVolume * 1.0E+2L), 1, pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
+        ValueLabel = AddOptionLabel(u"RobotSoundVolume"_w,
+                aConst::LocalizedText(u"FormCfgSettings.SoundVolume"_wref.get()), false);
+        AddOptionSlider(ValueLabel, 0, 100, pas::real_round(static_cast<float>(GlobalsV::RobotSoundVolume * 1.0E+2)), 1,
+            pas::bind_static_method<&TfCfgSettings::FormatInteger>(this));
         BuildGroupIndex = 3;
         for (I = 0; I <= 5; ++I) {
             GI_Panel::TPanelGI* cpp_with_4 = GroupPanels[I];
             cpp_with_4->SetSize(ClassesImports::Point(cpp_with_4->ClientSize.X, GroupNextY[I]));
         }
         {
-            std::int32_t cpp_arg_114 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->CaptionLabel->GetLineHeight() * 2;
+            std::int32_t cpp_arg_114 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv))->CaptionLabel->GetLineHeight() * 2;
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = Panel->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(cpp_arg_114);
         }
@@ -1159,7 +1277,8 @@ namespace fCfgSettings {
         }
     }
 
-    void TfCfgSettings::MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfCfgSettings::MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         GI_GraphButton::TGraphButtonGI* Button = nullptr;
         std::uint8_t Show = false;
         do {
@@ -1211,8 +1330,10 @@ namespace fCfgSettings {
         if (SettingsMode == 1) {
             Group = Group + 4 - 1;
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(Group == 0 || Group == 4);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(Group == 1 || Group == 5);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv))->SetDown(Group == 0 || Group ==
+                4);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv))->SetDown(Group == 1 || Group ==
+                5);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(Group == 2);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv))->SetDown(Group == 3);
         if (ActiveGroupIndex != Group) {
@@ -1225,19 +1346,23 @@ namespace fCfgSettings {
     void TfCfgSettings::RefreshVisibleGroup() {
         std::int32_t I{};
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(ActiveGroupIndex == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(ActiveGroupIndex == 1 || ActiveGroupIndex == 4);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup2"sv));
             ButGroup2->SetDown(ActiveGroupIndex == 2 || ActiveGroupIndex == 5);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup3"sv));
             ButGroup3->SetDown(ActiveGroupIndex == 3);
         }
         for (I = 0; I <= 5; ++I) {
@@ -1245,21 +1370,25 @@ namespace fCfgSettings {
             cpp_with_5->SetActive(I == ActiveGroupIndex);
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSet"sv));
             PanelSet->SetScrollOffset(ClassesImports::Point(0, 0));
             PanelSet->UpdateScrollRanges();
             PanelSet->SetVerticalScrollbarEnabled(GroupNextY[ActiveGroupIndex] > PanelSet->ClientSize.Y);
         }
     }
 
-    GI_Label::TLabelGI* TfCfgSettings::AddOptionLabel(pas::WideString OptionName, pas::WideString Caption, std::uint8_t UnusedFlag) {
+    GI_Label::TLabelGI* TfCfgSettings::AddOptionLabel(pas::WideString OptionName, pas::WideString Caption,
+        std::uint8_t UnusedFlag) {
         CurrentOptionName = std::move(OptionName);
         if (GroupNextY[BuildGroupIndex] != 0) {
             // Native retains a zero-spacing adjustment before the separator.
             GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex];
             {
-                GI_Image::TImageGI* cpp_with = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, GroupPanels[BuildGroupIndex]);
-                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"Line"}));
+                GI_Image::TImageGI* cpp_with = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                    GroupPanels[BuildGroupIndex]);
+                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                    u"Line"}));
                 cpp_with->SetPosition(ClassesImports::Point(0, GroupNextY[BuildGroupIndex]));
                 {
                     std::int32_t cpp_arg = cpp_with->GetContentSize().Y + 2;
@@ -1269,7 +1398,8 @@ namespace fCfgSettings {
                 GroupNextY[BuildGroupIndex] += cpp_with->ClientSize.Y;
             }
         }
-        GI_Label::TLabelGI* Result = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, GroupPanels[BuildGroupIndex]);
+        GI_Label::TLabelGI* Result = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+            GroupPanels[BuildGroupIndex]);
         Result->SetFontName(GlobalsV::NormalFontName);
         Result->SetPositionModeW(false);
         Result->SetPosition(ClassesImports::Point(0, GroupNextY[BuildGroupIndex]));
@@ -1285,9 +1415,11 @@ namespace fCfgSettings {
         return Result;
     }
 
-    void TfCfgSettings::AddOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected, std::uint8_t Disabled) {
+    void TfCfgSettings::AddOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected,
+        std::uint8_t Disabled) {
         std::int32_t RightMargin = GR_Main::GiScalePixelsEx(50, 30);
-        GI_Label::TLabelGI* ValueLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, GroupPanels[BuildGroupIndex]);
+        GI_Label::TLabelGI* ValueLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+            GroupPanels[BuildGroupIndex]);
         ValueLabel->SetFontName(GlobalsV::NormalFontName);
         ValueLabel->SetPositionModeW(false);
         ValueLabel->SetPosition(ClassesImports::Point(0, GroupNextY[BuildGroupIndex]));
@@ -1306,7 +1438,8 @@ namespace fCfgSettings {
             ValueLabel->MouseLeaveCallback = pas::bind_static_method<&TfCfgSettings::OptionChoiceMouseLeave>(this);
         }
         ValueLabel->SetTextAlignY(GI_Main::tayCenterEx);
-        GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, GroupPanels[BuildGroupIndex]);
+        GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+            GroupPanels[BuildGroupIndex]);
         if (Selected) {
             Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"}));
         } else if (Disabled) {
@@ -1331,26 +1464,35 @@ namespace fCfgSettings {
             Image->SetName(CurrentOptionName);
         }
         Image->UserValue = Value;
-        ValueLabel->SetSize(ClassesImports::Point(ValueLabel->ClientSize.X - Image->ClientSize.X - 10, std::max<std::int32_t>(ValueLabel->ClientSize.Y, Image->ClientSize.Y)));
-        Image->SetPosition(ClassesImports::Point(Image->LocalPosition.X, Image->LocalPosition.Y + (std::max<std::int32_t>(ValueLabel->ClientSize.Y, Image->ClientSize.Y) - ValueLabel->ClientSize.Y) / 2));
-        GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex] + ValueLabel->ClientSize.Y + GR_Main::GiScalePixels(5);
+        ValueLabel->SetSize(ClassesImports::Point(ValueLabel->ClientSize.X - Image->ClientSize.X - 10,
+            std::max<std::int32_t>(ValueLabel->ClientSize.Y, Image->ClientSize.Y)));
+        Image->SetPosition(ClassesImports::Point(Image->LocalPosition.X,
+            Image->LocalPosition.Y + (std::max<std::int32_t>(ValueLabel->ClientSize.Y, Image->ClientSize.Y) -
+                    ValueLabel->ClientSize.Y) / 2));
+        GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex] + ValueLabel->ClientSize.Y +
+                GR_Main::GiScalePixels(5);
         ValueLabel->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Image));
     }
 
-    void TfCfgSettings::OptionChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfCfgSettings::OptionChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (!(pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr)) {
-            Sender = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+            Sender =
+                reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         }
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
             if (Control->ControlName == Sender->ControlName) {
                 if (Control == Sender) {
                     GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(Control);
-                    pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
+                    pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                        u"SwitchD"});
                     cpp_arg->SetImagePath(std::move(cpp_arg_2));
                 } else {
                     GI_Image::TImageGI* cpp_arg_3 = pas::checked_cast<GI_Image::TImageGI*>(Control);
-                    pas::WideString cpp_arg_4 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
+                    pas::WideString cpp_arg_4 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                        u"SwitchN"});
                     cpp_arg_3->SetImagePath(std::move(cpp_arg_4));
                 }
             }
@@ -1363,37 +1505,47 @@ namespace fCfgSettings {
 
     void TfCfgSettings::OptionChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         if (!(pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr)) {
-            Sender = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+            Sender =
+                reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         }
         if (([&] {
             pas::WideString cpp_string = pas::checked_cast<GI_Image::TImageGI*>(Sender)->GetImagePath();
-            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
+            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                u"SwitchN"});
             return cpp_string == cpp_string_2;
         }())) {
             GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
-            pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
+            pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                u"SwitchA"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
     }
 
     void TfCfgSettings::OptionChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender) {
         if (!(pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr)) {
-            Sender = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+            Sender =
+                reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         }
         if (([&] {
             pas::WideString cpp_string = pas::checked_cast<GI_Image::TImageGI*>(Sender)->GetImagePath();
-            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchA"});
+            pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                u"SwitchA"});
             return cpp_string == cpp_string_2;
         }())) {
             GI_Image::TImageGI* cpp_arg = static_cast<GI_Image::TImageGI*>(Sender);
-            pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchN"});
+            pas::WideString cpp_arg_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+                u"SwitchN"});
             cpp_arg->SetImagePath(std::move(cpp_arg_2));
         }
     }
 
     // Invokes Callback immediately with the new slider.
-    void TfCfgSettings::AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback) {
-        GI_CountBar::TCountBarGI* Slider = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create, GroupPanels[BuildGroupIndex]);
+    void TfCfgSettings::AddOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum,
+        std::int32_t Position, std::int32_t UnusedStep, TOptionSliderEvent Callback) {
+        GI_CountBar::TCountBarGI* Slider = pas::construct_call<GI_CountBar::TCountBarGI>(
+            GI_CountBar::TCountBarGI_Create, GroupPanels[BuildGroupIndex]);
         GroupNextY[BuildGroupIndex] = GroupNextY[BuildGroupIndex];
         Slider->SetPositionModeW(false);
         if (GR_Main::GiResourceVariant() == 2) {
@@ -1401,35 +1553,50 @@ namespace fCfgSettings {
         } else {
             Slider->SetSize(ClassesImports::Point(156, 20));
         }
-        Slider->SetPosition(ClassesImports::Point(GroupPanels[BuildGroupIndex]->ClientSize.X - Slider->ClientSize.X, GroupNextY[BuildGroupIndex]));
+        Slider->SetPosition(ClassesImports::Point(GroupPanels[BuildGroupIndex]->ClientSize.X - Slider->ClientSize.X,
+            GroupNextY[BuildGroupIndex]));
         Slider->DecreaseButton->SetKind(GI_GraphButton::gbkDisable);
-        Slider->DecreaseButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeftN"}));
-        Slider->DecreaseButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeftA"}));
-        Slider->DecreaseButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeftD"}));
-        Slider->DecreaseButton->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeftH"}));
+        Slider->DecreaseButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackLeftN"}));
+        Slider->DecreaseButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackLeftA"}));
+        Slider->DecreaseButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackLeftD"}));
+        Slider->DecreaseButton->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackLeftH"}));
         Slider->DecreaseButton->EnterSound = u"Sound.ButtonEnter"_w;
         Slider->DecreaseButton->LeaveSound = u"Sound.ButtonLeave"_w;
         Slider->DecreaseButton->ClickSound = u"Sound.ButtonClick"_w;
         Slider->IncreaseButton->SetKind(GI_GraphButton::gbkDisable);
-        Slider->IncreaseButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRightN"}));
-        Slider->IncreaseButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRightA"}));
-        Slider->IncreaseButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRightD"}));
-        Slider->IncreaseButton->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRightH"}));
+        Slider->IncreaseButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackRightN"}));
+        Slider->IncreaseButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackRightA"}));
+        Slider->IncreaseButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackRightD"}));
+        Slider->IncreaseButton->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackRightH"}));
         Slider->IncreaseButton->EnterSound = u"Sound.ButtonEnter"_w;
         Slider->IncreaseButton->LeaveSound = u"Sound.ButtonLeave"_w;
         Slider->IncreaseButton->ClickSound = u"Sound.ButtonClick"_w;
-        Slider->MarkerImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackUp"}));
+        Slider->MarkerImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackUp"}));
         {
             Types::TPoint contentSize = Slider->MarkerImage->GetContentSize();
             GI_Image::TImageGI* markerImage = Slider->MarkerImage;
             markerImage->SetSize(contentSize);
         }
         Slider->MarkerImage->SetOrigin(EC_Struct::HalfPoint(Slider->MarkerImage->ClientSize));
-        Slider->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeft"}));
-        Slider->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRight"}));
-        Slider->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Slider->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Slider->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Slider->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackLeft"}));
+        Slider->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackRight"}));
+        Slider->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
+        Slider->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Slider->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
         Slider->PositionChangedCallback = Callback;
         Slider->UpdateLayout();
         Slider->SetRange(Minimum, Maximum);
@@ -1448,7 +1615,8 @@ namespace fCfgSettings {
                 if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
                     if (([&] {
                         pas::WideString cpp_string = imageGI->GetImagePath();
-                        pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
+                        pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.",
+                            GR_Main::GiResourceSuffix(), u"SwitchD"});
                         return cpp_string == cpp_string_2;
                     }())) {
                         return true;
@@ -1471,12 +1639,14 @@ namespace fCfgSettings {
                 if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Control)) {
                     if (([&] {
                         pas::WideString cpp_string = imageGI->GetImagePath();
-                        pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"SwitchD"});
+                        pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormOptions2.",
+                            GR_Main::GiResourceSuffix(), u"SwitchD"});
                         return cpp_string == cpp_string_2;
                     }())) {
                         return Control->UserValue;
                     }
-                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(
+                    Control)) {
                     return countBarGI->Position;
                 }
             }
@@ -1491,10 +1661,12 @@ namespace fCfgSettings {
         GI_MessageLoop::TObjectGI* Control = GroupPanels[ActiveGroupIndex]->FirstChild;
         while (Control != nullptr) {
             if (pas::view(Control->ControlName) == OptionName) {
-                if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr && Control->UserValue == Value && pas::assigned(Control->LeftButtonDownCallback)) {
+                if (pas::class_cast_if<GI_Image::TImageGI*>(Control) != nullptr && Control->UserValue == Value &&
+                    pas::assigned(Control->LeftButtonDownCallback)) {
                     OptionChoiceMouseDown(Control, 0u, ClassesImports::Point(-1000, -1000));
                     break;
-                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(Control)) {
+                } else if (GI_CountBar::TCountBarGI* countBarGI = pas::class_cast_if<GI_CountBar::TCountBarGI*>(
+                    Control)) {
                     countBarGI->SetPosition_2(Value);
                     break;
                 }
@@ -1507,14 +1679,21 @@ namespace fCfgSettings {
         std::int32_t Index{};
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (GR_Main::GameDisplayModes[Index].Width == 0) {
-                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
+                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText,
+                    aMyFunction::TextHighlightColorTag, u" ",
+                    aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(cpp_arg);
             } else {
-                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Height)), aMyFunction::EndColorTag}));
+                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Width)), u"x",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Height)),
+                    aMyFunction::EndColorTag}));
             }
         }
     }
@@ -1523,14 +1702,21 @@ namespace fCfgSettings {
         std::int32_t Index{};
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (GR_Main::RobotDisplayModes[Index].Width == 0) {
-                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
+                const pas::WideString& cpp_arg = pas::concat_wide({ValueLabel->HelpText,
+                    aMyFunction::TextHighlightColorTag, u" ",
+                    aConst::LocalizedText(u"FormCfgSettings.HelpAuto"_wref.get()), aMyFunction::EndColorTag});
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(cpp_arg);
             } else {
-                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Width)), u"x", pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Height)), aMyFunction::EndColorTag}));
+                ValueLabel->SetText(pas::concat_wide({ValueLabel->HelpText, aMyFunction::TextHighlightColorTag, u" ",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Width)), u"x",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::RobotDisplayModes[Index].Height)),
+                    aMyFunction::EndColorTag}));
             }
         }
     }
@@ -1539,10 +1725,14 @@ namespace fCfgSettings {
         std::int32_t Index{};
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Index = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(Robot::SupportedMultiSamples[Index]), aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Value>"_w, pas::wide_int_to_str(Robot::SupportedMultiSamples[Index]),
+                    aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1553,14 +1743,18 @@ namespace fCfgSettings {
     void TfCfgSettings::PreviewBrightness(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
         if (HasOptionValue(u"Contrast"sv) && HasOptionValue(u"Brightness"sv)) {
-            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
-            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
+            float cpp_arg = static_cast<float>((GetOptionValue(u"Brightness"sv) - 50) / 5.0E+1);
+            float cpp_arg_2 = static_cast<float>((GetOptionValue(u"Contrast"sv) - 50) / 5.0E+1);
             GR_Main::ApplyGammaRamp(cpp_arg, cpp_arg_2);
         }
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position),
+                    aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1571,14 +1765,18 @@ namespace fCfgSettings {
     void TfCfgSettings::PreviewContrast(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
         if (HasOptionValue(u"Contrast"sv) && HasOptionValue(u"Brightness"sv)) {
-            float cpp_arg = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
-            float cpp_arg_2 = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
+            float cpp_arg = static_cast<float>((GetOptionValue(u"Brightness"sv) - 50) / 5.0E+1);
+            float cpp_arg_2 = static_cast<float>((GetOptionValue(u"Contrast"sv) - 50) / 5.0E+1);
             GR_Main::ApplyGammaRamp(cpp_arg, cpp_arg_2);
         }
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position),
+                    aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1588,9 +1786,13 @@ namespace fCfgSettings {
     void TfCfgSettings::FormatInteger(GI_MessageLoop::TObjectGI* Sender) {
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position), aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Value>"_w, pas::wide_int_to_str(reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position),
+                    aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1602,7 +1804,9 @@ namespace fCfgSettings {
         pas::WideString Text{};
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Value = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (Value == 0) {
                 Text = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStepNever"_wref.get());
@@ -1610,21 +1814,26 @@ namespace fCfgSettings {
                 Text = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep1"_wref.get());
             } else if (Value >= 2 && Value <= 4) {
                 Text = ([&] {
-                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString intToStr = pas::wide_int_to_str(Value);
-                    pas::WideString localizedText = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep2"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), textHighlightColorTag.get());
-                }());
+                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                        pas::WideString intToStr = pas::wide_int_to_str(Value);
+                        pas::WideString localizedText = aConst::LocalizedText(
+                            u"FormCfgSettings.TurnSaveStep2"_wref.get());
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w,
+                            std::move(intToStr), textHighlightColorTag.get());
+                    }());
             } else {
                 Text = ([&] {
-                    auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString intToStr_2 = pas::wide_int_to_str(Value);
-                    pas::WideString localizedText_2 = aConst::LocalizedText(u"FormCfgSettings.TurnSaveStep3"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<Value>"_w, std::move(intToStr_2), textHighlightColorTag_2.get());
-                }());
+                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                        pas::WideString intToStr_2 = pas::wide_int_to_str(Value);
+                        pas::WideString localizedText_2 = aConst::LocalizedText(
+                            u"FormCfgSettings.TurnSaveStep3"_wref.get());
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<Value>"_w,
+                            std::move(intToStr_2), textHighlightColorTag_2.get());
+                    }());
             }
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1636,22 +1845,27 @@ namespace fCfgSettings {
         pas::WideString Text{};
         GI_Label::TLabelGI* ValueLabel{};
         if (Sender->UserIndex != 0) {
-            ValueLabel = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
+            ValueLabel =
+                reinterpret_cast<GI_Label::TLabelGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));
             Value = reinterpret_cast<GI_CountBar::TCountBarGI*>(Sender)->Position;
             if (Value <= 0) {
                 Text = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffNever"_wref.get());
             } else if (Value < 100) {
                 Text = ([&] {
-                    auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString intToStr = pas::wide_int_to_str(100 - Value);
-                    pas::WideString localizedText = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffStep"_wref.get());
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w, std::move(intToStr), textHighlightColorTag.get());
-                }());
+                        auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                        pas::WideString intToStr = pas::wide_int_to_str(100 - Value);
+                        pas::WideString localizedText = aConst::LocalizedText(
+                            u"FormCfgSettings.ForsageTurnOffStep"_wref.get());
+                        return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Value>"_w,
+                            std::move(intToStr), textHighlightColorTag.get());
+                    }());
             } else {
                 Text = aConst::LocalizedText(u"FormCfgSettings.ForsageTurnOffAlways"_wref.get());
             }
             {
-                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText, u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
+                const pas::WideString& replaceColoredToken = aMyFunction::ReplaceColoredToken(ValueLabel->HelpText,
+                    u"<Text>"_w, Text, aMyFunction::TextHighlightColorTag);
                 GI_Label::TLabelGI* valueLabel = ValueLabel;
                 valueLabel->SetText(replaceColoredToken);
             }
@@ -1711,7 +1925,8 @@ namespace fCfgSettings {
         SetOptionValue(u"RobotMusic"sv, 1);
         SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
-        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMax"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMax"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
 
     void TfCfgSettings::MediumPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -1767,7 +1982,9 @@ namespace fCfgSettings {
         SetOptionValue(u"RobotMusic"sv, 1);
         SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
-        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMiddle"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+        GI_MessageBox::ShowMessageBoxGI(this,
+            GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMiddle"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
 
     void TfCfgSettings::LowPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -1823,7 +2040,8 @@ namespace fCfgSettings {
         SetOptionValue(u"RobotMusic"sv, 0);
         SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
-        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMin"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.AutoMin"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
 
     void TfCfgSettings::AutoPresetClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -1831,21 +2049,25 @@ namespace fCfgSettings {
         WindowsSdk::TMemoryStatus Memory{};
         WindowsSdk::TOSVersionInfo Version{};
         {
-            double real_min = ([&] {
+            double real_min_scalar = ([&] {
                 double estimateCpuClockMHz = fCfgSettings::EstimateCpuClockMHz();
                 double estimateCpuClockMHz_2 = fCfgSettings::EstimateCpuClockMHz();
-                return pas::real_min<double>(estimateCpuClockMHz, estimateCpuClockMHz_2);
+                return pas::real_min_scalar<double>(estimateCpuClockMHz, estimateCpuClockMHz_2);
             }());
-            ClockMHz = System::Round(pas::real_min<double>(real_min, fCfgSettings::EstimateCpuClockMHz()));
+            ClockMHz = pas::real_round(pas::real_min_scalar<double>(real_min_scalar,
+                    fCfgSettings::EstimateCpuClockMHz()));
         }
-        pas::fill_memory(&Memory, static_cast<std::int32_t>(sizeof(WindowsSdk::TMemoryStatus)), static_cast<std::uint8_t>(0));
+        pas::fill_memory(&Memory, static_cast<std::int32_t>(sizeof(WindowsSdk::TMemoryStatus)),
+            static_cast<std::uint8_t>(0));
         Memory.dwLength = static_cast<std::int32_t>(sizeof(WindowsSdk::TMemoryStatus));
         WindowsSdk::GlobalMemoryStatus(Memory);
         std::int32_t MemoryMB = Memory.dwTotalPhys >> 20;
-        pas::fill_memory(&Version, static_cast<std::int32_t>(sizeof(WindowsSdk::TOSVersionInfo)), static_cast<std::uint8_t>(0));
+        pas::fill_memory(&Version, static_cast<std::int32_t>(sizeof(WindowsSdk::TOSVersionInfo)),
+            static_cast<std::uint8_t>(0));
         Version.dwOSVersionInfoSize = static_cast<std::int32_t>(sizeof(WindowsSdk::TOSVersionInfo));
         WindowsSdk::GetVersionEx(Version);
-        std::uint8_t ModernWindows = Version.dwMajorVersion > 5 || Version.dwMajorVersion == 5 && Version.dwMinorVersion >= 1;
+        std::uint8_t ModernWindows = Version.dwMajorVersion > 5 || Version.dwMajorVersion == 5 &&
+                Version.dwMinorVersion >= 1;
         std::int32_t SavedGroup = ActiveGroupIndex;
         ActiveGroupIndex = 0;
         SetOptionValue(u"CountFilmSave"sv, 30);
@@ -1946,7 +2168,8 @@ namespace fCfgSettings {
         SetOptionValue(u"RobotMusic"sv, ClockMHz >= 1500);
         SetOptionValue(u"RobotMusicVolume"sv, 75);
         ActiveGroupIndex = SavedGroup;
-        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.Auto"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+        GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormCfgSettings.Auto"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
     }
 
     void TfCfgSettings::CancelClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -1968,20 +2191,24 @@ namespace fCfgSettings {
                 Warning->SetText(u""_wref.get());
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup0"sv));
                 ButGroup0->SetActive(true);
                 ButGroup0->SetPosition(ClassesImports::Point(ButGroup0->LocalPosition.X, GroupButtonTops[0]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup1"sv));
                 ButGroup1->SetPosition(ClassesImports::Point(ButGroup1->LocalPosition.X, GroupButtonTops[1]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup2"sv));
                 ButGroup2->SetPosition(ClassesImports::Point(ButGroup2->LocalPosition.X, GroupButtonTops[2]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup3 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup3"sv));
                 ButGroup3->SetActive(false);
                 ButGroup3->SetPosition(ClassesImports::Point(ButGroup3->LocalPosition.X, GroupButtonTops[3]));
             }
@@ -1998,7 +2225,8 @@ namespace fCfgSettings {
             if (ModeButtonState != 0) {
                 GetByName(u"ModeLeftPanel"sv)->SetPosition(ModeLeftPosition);
             } else {
-                GetByName(u"ModeLeftPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeLeftPosition, ClassesImports::Point(-1, 4)));
+                GetByName(u"ModeLeftPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeLeftPosition,
+                    ClassesImports::Point(-1, 4)));
             }
             {
                 GI_Label::TLabelGI* ModeLeftName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"sv));
@@ -2011,7 +2239,8 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_Label::TLabelGI* ModeRightName = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"sv));
+                GI_Label::TLabelGI* ModeRightName = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(u"ModeRightName"sv));
                 ModeRightName->SetTextColor(SettingsModeColorNormal);
                 ModeRightName->SetShadowOffset(1);
             }
@@ -2026,29 +2255,45 @@ namespace fCfgSettings {
                 Warning_2->SetText(u""_wref.get());
                 Warning_2->CreateEmbeddedControl = pas::bind_static_method<&TfCfgSettings::CreateWarningImage>(this);
                 if (RobotAvailability == 1) {
-                    Warning_2->SetText(pas::concat_wide_reverse({aConst::LocalizedText(u"FormCfgSettings.WarningNoDX9"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=0,", SysUtils::IntToStr(GR_Main::GiScalePixels(26)), ",", SysUtils::IntToStr(GR_Main::GiScalePixelsEx(24, 18)), ",0>"}))}));
+                    Warning_2->SetText(pas::concat_wide_reverse({
+                        aConst::LocalizedText(u"FormCfgSettings.WarningNoDX9"_wref.get()),
+                        pas::concat_wide({u"<Object=0,", pas::wide_int_to_str(GR_Main::GiScalePixels(26)), u",",
+                            pas::wide_int_to_str(GR_Main::GiScalePixelsEx(24, 18)), u",0>"})}));
                 } else if (RobotAvailability == 2) {
-                    Warning_2->SetText(pas::concat_wide_reverse({aConst::LocalizedText(u"FormCfgSettings.WarningDriverOld"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=0,", SysUtils::IntToStr(GR_Main::GiScalePixels(26)), ",", SysUtils::IntToStr(GR_Main::GiScalePixelsEx(24, 18)), ",0>"}))}));
+                    Warning_2->SetText(pas::concat_wide_reverse({
+                        aConst::LocalizedText(u"FormCfgSettings.WarningDriverOld"_wref.get()),
+                        pas::concat_wide({u"<Object=0,", pas::wide_int_to_str(GR_Main::GiScalePixels(26)), u",",
+                            pas::wide_int_to_str(GR_Main::GiScalePixelsEx(24, 18)), u",0>"})}));
                 } else if (RobotAvailability == 3) {
-                    Warning_2->SetText(pas::concat_wide_reverse({aConst::LocalizedText(u"FormCfgSettings.WarningVideoUnsupported"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=0,", SysUtils::IntToStr(GR_Main::GiScalePixels(26)), ",", SysUtils::IntToStr(GR_Main::GiScalePixelsEx(24, 18)), ",0>"}))}));
+                    Warning_2->SetText(pas::concat_wide_reverse({
+                        aConst::LocalizedText(u"FormCfgSettings.WarningVideoUnsupported"_wref.get()),
+                        pas::concat_wide({u"<Object=0,", pas::wide_int_to_str(GR_Main::GiScalePixels(26)), u",",
+                            pas::wide_int_to_str(GR_Main::GiScalePixelsEx(24, 18)), u",0>"})}));
                 } else if (RobotAvailability == 4) {
-                    Warning_2->SetText(pas::concat_wide_reverse({aConst::LocalizedText(u"FormCfgSettings.WarningNoInstall"_wref.get()), static_cast<pas::WideString>(pas::concat_ansi({"<Object=0,", SysUtils::IntToStr(GR_Main::GiScalePixels(26)), ",", SysUtils::IntToStr(GR_Main::GiScalePixelsEx(24, 18)), ",0>"}))}));
+                    Warning_2->SetText(pas::concat_wide_reverse({
+                        aConst::LocalizedText(u"FormCfgSettings.WarningNoInstall"_wref.get()),
+                        pas::concat_wide({u"<Object=0,", pas::wide_int_to_str(GR_Main::GiScalePixels(26)), u",",
+                            pas::wide_int_to_str(GR_Main::GiScalePixelsEx(24, 18)), u",0>"})}));
                 }
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup0_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup0_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup0"sv));
                 ButGroup0_2->SetActive(false);
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup1_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup1_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup1"sv));
                 ButGroup1_2->SetPosition(ClassesImports::Point(ButGroup1_2->LocalPosition.X, GroupButtonTops[0]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup2_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup2_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup2"sv));
                 ButGroup2_2->SetPosition(ClassesImports::Point(ButGroup2_2->LocalPosition.X, GroupButtonTops[1]));
             }
             {
-                GI_GraphButton::TGraphButtonGI* ButGroup3_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup3"sv));
+                GI_GraphButton::TGraphButtonGI* ButGroup3_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                    GetByName(u"ButGroup3"sv));
                 ButGroup3_2->SetActive(false);
             }
             GetByName(u"ModeLeft"sv)->SetActive(false);
@@ -2064,10 +2309,12 @@ namespace fCfgSettings {
             if (ModeButtonState != 0) {
                 GetByName(u"ModeRightPanel"sv)->SetPosition(ModeRightPosition);
             } else {
-                GetByName(u"ModeRightPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeRightPosition, ClassesImports::Point(1, 4)));
+                GetByName(u"ModeRightPanel"sv)->SetPosition(EC_Struct::AddPoints(ModeRightPosition,
+                    ClassesImports::Point(1, 4)));
             }
             {
-                GI_Label::TLabelGI* ModeRightName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeRightName"sv));
+                GI_Label::TLabelGI* ModeRightName_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(u"ModeRightName"sv));
                 if (ModeButtonState == 1) {
                     ModeRightName_2->SetTextColor(SettingsModeColorHighlighted);
                     ModeRightName_2->SetShadowOffset(0);
@@ -2077,7 +2324,8 @@ namespace fCfgSettings {
                 }
             }
             {
-                GI_Label::TLabelGI* ModeLeftName_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModeLeftName"sv));
+                GI_Label::TLabelGI* ModeLeftName_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(u"ModeLeftName"sv));
                 ModeLeftName_2->SetTextColor(SettingsModeColorNormal);
                 ModeLeftName_2->SetShadowOffset(1);
             }
@@ -2104,7 +2352,8 @@ namespace fCfgSettings {
             CancelCallbackTimer(ModeLeaveTimer);
             ModeLeaveTimer = nullptr;
         }
-        ModeLeaveTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfCfgSettings::ModeLeaveTimerTick>(this), Sender->UserValue);
+        ModeLeaveTimer = ScheduleCallbackTimer(20, 20, pas::bind_method<&TfCfgSettings::ModeLeaveTimerTick>(this),
+                Sender->UserValue);
     }
 
     void TfCfgSettings::ModeLeaveTimerTick(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
@@ -2121,7 +2370,8 @@ namespace fCfgSettings {
         RefreshModeUi();
     }
 
-    void TfCfgSettings::ModeMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfCfgSettings::ModeMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (Sender->UserValue == SettingsMode) {
             if (ModeButtonState != 2) {
                 GR_Main::SoundManager->PlaySound(u"Sound.ButtonClick"_wref.get());
@@ -2131,7 +2381,8 @@ namespace fCfgSettings {
         RefreshModeUi();
     }
 
-    void TfCfgSettings::ModeMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfCfgSettings::ModeMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         if (Sender->UserValue == SettingsMode) {
             if (SettingsMode == 0) {
                 SettingsMode = 1;
@@ -2159,11 +2410,14 @@ namespace fCfgSettings {
     }
 
     void TfCfgSettings::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSet"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* PanelSet = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSet"sv));
         if (Delta == WindowsSdk::WHEEL_DELTA) {
-            PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position - PanelSet->VerticalScrollBar->SmallChange);
+            PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position -
+                PanelSet->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
-            PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position + PanelSet->VerticalScrollBar->SmallChange);
+            PanelSet->VerticalScrollBar->SetPosition_2(PanelSet->VerticalScrollBar->Position +
+                PanelSet->VerticalScrollBar->SmallChange);
         }
     }
 
@@ -2178,7 +2432,8 @@ namespace fCfgSettings {
         std::uint8_t ResetNeeded = false;
         ActiveGroupIndex = 0;
         if (static_cast<std::uint8_t>(SimpleSteamApi::SteamInitialized ^ 1) && GR_Main::RequestedLanguage == u"") {
-            Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes), GetOptionValue(u"Lang"sv), u","sv);
+            Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes),
+                    GetOptionValue(u"Lang"sv), u","sv);
             if (GR_Main::SelectedLanguage != Language) {
                 GR_Main::SelectedLanguage = std::move(Language);
                 Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Lang.txt"});
@@ -2192,12 +2447,16 @@ namespace fCfgSettings {
                     pas::free(GR_Main::LanguageInstallConfig);
                     GR_Main::LanguageInstallConfig = nullptr;
                 }
-                if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"})))) {
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed language: ", GR_Main::SelectedLanguage}))));
+                if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_",
+                    GR_Main::SelectedLanguage, u".txt"})))) {
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Not installed language: ", GR_Main::SelectedLanguage}))));
                 } else {
-                    GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+                    GR_Main::LanguageInstallConfig =
+                        pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                     {
-                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"}), cpp_text.pchar());
+                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"install_", GR_Main::SelectedLanguage,
+                                u".txt"}), cpp_text.pchar());
                         EC_BlockPar::TBlockParEC* languageInstallConfig = GR_Main::LanguageInstallConfig;
                         languageInstallConfig->LoadFromTextFileWithEncodingProbe(cpp_arg, false);
                     }
@@ -2206,118 +2465,170 @@ namespace fCfgSettings {
             }
         }
         GlobalsV::MultiThreadEnabled = GetOptionValue(u"MultiThread"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MultiThread"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MultiThreadEnabled));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MultiThread"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::MultiThreadEnabled));
         GlobalsV::DefaultOrder = GetOptionValue(u"DefaultOrder"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"DefaultOrder"_wref.get(), pas::wide_int_to_str(GlobalsV::DefaultOrder));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"DefaultOrder"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::DefaultOrder));
         GlobalsV::RightClickOnShip = GetOptionValue(u"RightClickOnShip"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RightClickOnShip"_wref.get(), pas::wide_int_to_str(GlobalsV::RightClickOnShip));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RightClickOnShip"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::RightClickOnShip));
         GlobalsV::ViewFollowShip = GetOptionValue(u"ViewFollowShip"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewFollowShip"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ViewFollowShip));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewFollowShip"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::ViewFollowShip));
         GlobalsV::ViewPathLength = GetOptionValue(u"ViewPathLength"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewPathLength"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ViewPathLength));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ViewPathLength"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::ViewPathLength));
         GlobalsV::ActionDoubleClick = GetOptionValue(u"ActionDoubleClick"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ActionDoubleClick"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ActionDoubleClick));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ActionDoubleClick"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::ActionDoubleClick));
         GlobalsV::ClickAutoCloseForm = GetOptionValue(u"ClickAutoCloseForm"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ClickAutoCloseForm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ClickAutoCloseForm));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ClickAutoCloseForm"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::ClickAutoCloseForm));
         GlobalsV::TurnSaveStep = GetOptionValue(u"TurnSaveStep"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"TurnSaveStep"_wref.get(), pas::wide_int_to_str(GlobalsV::TurnSaveStep));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"TurnSaveStep"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::TurnSaveStep));
         GlobalsV::QuickSaveExtraSlots = GetOptionValue(u"QuickSaveExtraSlots"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"QuickSaveExtraSlots"_wref.get(), pas::wide_int_to_str(GlobalsV::QuickSaveExtraSlots));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"QuickSaveExtraSlots"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::QuickSaveExtraSlots));
         GlobalsV::FilmHistoryLimit = GetOptionValue(u"CountFilmSave"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(), pas::wide_int_to_str(GlobalsV::FilmHistoryLimit));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::FilmHistoryLimit));
         GlobalsV::ScrollStep = GetOptionValue(u"ScrollSpeed"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScrollStep"_wref.get(), pas::wide_int_to_str(GlobalsV::ScrollStep));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScrollStep"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::ScrollStep));
         GlobalsV::MaxPlayerNews = GetOptionValue(u"MaxPlayerNews"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxPlayerNews"_wref.get(), pas::wide_int_to_str(GlobalsV::MaxPlayerNews));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxPlayerNews"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::MaxPlayerNews));
         GlobalsV::MaxSearchResult = GetOptionValue(u"MaxSearchResult"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxSearchResult"_wref.get(), pas::wide_int_to_str(GlobalsV::MaxSearchResult));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MaxSearchResult"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::MaxSearchResult));
         GlobalsV::AfterburnerStopCondition = GetOptionValue(u"ForsageDeactivatePercent"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ForsageDeactivatePercent"_wref.get(), pas::wide_int_to_str(GlobalsV::AfterburnerStopCondition));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ForsageDeactivatePercent"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::AfterburnerStopCondition));
         GlobalsV::FilmSpeed = GetOptionValue(u"FilmSpeed"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FilmSpeed"_wref.get(), pas::wide_int_to_str(GlobalsV::FilmSpeed));
         GlobalsV::ChangeAutoPilot = GetOptionValue(u"ChangeAutoPilot"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ChangeAutoPilot"_wref.get(), pas::wide_int_to_str(GlobalsV::ChangeAutoPilot));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ChangeAutoPilot"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::ChangeAutoPilot));
         GlobalsV::DisableAutoPilot = GetOptionValue(u"DisableAutoPilot"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"DisableAutoPilot"_wref.get(), EC_Str::BoolToWideString(GlobalsV::DisableAutoPilot));
-        GlobalsV::BeginCalcNextTurn = pas::real_divide(GetOptionValue(u"BeginCalcNextTurn"sv), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"BeginCalcNextTurn"_wref.get(), pas::wide_int64_to_str(System::Round(GlobalsV::BeginCalcNextTurn * 1.0E+2L)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"DisableAutoPilot"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::DisableAutoPilot));
+        GlobalsV::BeginCalcNextTurn = static_cast<float>(GetOptionValue(u"BeginCalcNextTurn"sv) / 1.0E+2);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"BeginCalcNextTurn"_wref.get(),
+            pas::wide_int64_to_str(pas::real_round(static_cast<float>(GlobalsV::BeginCalcNextTurn * 1.0E+2))));
         ActiveGroupIndex = 1;
         std::int32_t Index = GetOptionValue(u"Resolution"sv);
         if (GR_Main::SelectedGameDisplayMode != Index) {
             if (GR_Main::GameDisplayModes[Index].Width == 0) {
-                if (GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Width != GR_Main::DesktopDisplayMode.Width || GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Height != GR_Main::DesktopDisplayMode.Height) {
+                if (GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Width !=
+                    GR_Main::DesktopDisplayMode.Width ||
+                    GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Height !=
+                        GR_Main::DesktopDisplayMode.Height) {
                     RestartNeeded = true;
                 }
-            } else if (GR_Main::GameDisplayModes[Index].Width != GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Width || GR_Main::GameDisplayModes[Index].Height != GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Height) {
+            } else if (GR_Main::GameDisplayModes[Index].Width !=
+                GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Width ||
+                GR_Main::GameDisplayModes[Index].Height !=
+                    GR_Main::GameDisplayModes[GR_Main::SelectedGameDisplayMode].Height) {
                 RestartNeeded = true;
             }
             GR_Main::SelectedGameDisplayMode = Index;
         }
         if (Index >= 0) {
-            Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(GR_Main::GameDisplayModes[Index].Width), ",", SysUtils::Int64ToStr(GR_Main::GameDisplayModes[Index].Height)}));
+            Text = pas::concat_wide({
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Width)), u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(GR_Main::GameDisplayModes[Index].Height))});
             if (GR_Main::RequestedRefreshRate > 0) {
                 Text = pas::concat_wide({Text, u",", pas::wide_int_to_str(GR_Main::RequestedRefreshRate)});
             }
             GR_Main::UserSettingsConfig->SetOrAddParam(u"VideoMode"_wref.get(), Text);
         }
-        GR_Main::DisplayBrightness = pas::real_divide(GetOptionValue(u"Brightness"sv) - 50, 5.0E+1L);
-        GR_Main::DisplayContrast = pas::real_divide(GetOptionValue(u"Contrast"sv) - 50, 5.0E+1L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"Brightness"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayBrightness)));
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"Contrast"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayContrast)));
+        GR_Main::DisplayBrightness = static_cast<float>((GetOptionValue(u"Brightness"sv) - 50) / 5.0E+1);
+        GR_Main::DisplayContrast = static_cast<float>((GetOptionValue(u"Contrast"sv) - 50) / 5.0E+1);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"Brightness"_wref.get(),
+            static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayBrightness)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"Contrast"_wref.get(),
+            static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::DisplayContrast)));
         GR_Main::ApplyGammaRamp(GR_Main::DisplayBrightness, GR_Main::DisplayContrast);
         if (static_cast<std::uint8_t>(GetOptionValue(u"VSync"sv)) != GR_Main::VSyncEnabled) {
             ResetNeeded = true;
             GR_Main::VSyncEnabled = static_cast<std::uint8_t>(GR_Main::VSyncEnabled ^ 1);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"VSync"_wref.get(), EC_Str::BoolToWideString(GR_Main::VSyncEnabled));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"VSync"_wref.get(),
+                EC_Str::BoolToWideString(GR_Main::VSyncEnabled));
         }
         if (static_cast<std::uint8_t>(GetOptionValue(u"Window"sv)) != GR_Main::WindowedModeRequested) {
             ResetNeeded = true;
             GR_Main::WindowedModeRequested = GetOptionValue(u"Window"sv);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"Window"_wref.get(), EC_Str::BoolToWideString(GR_Main::WindowedModeRequested));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"Window"_wref.get(),
+                EC_Str::BoolToWideString(GR_Main::WindowedModeRequested));
         }
-        if (GR_Main::AlternateViewportEnabled && static_cast<std::uint8_t>(GetOptionValue(u"RenderMode"sv)) != GlobalsV::ScaleViewportToWindow) {
+        if (GR_Main::AlternateViewportEnabled && static_cast<std::uint8_t>(GetOptionValue(u"RenderMode"sv)) !=
+                GlobalsV::ScaleViewportToWindow) {
             RestartNeeded = true;
             GlobalsV::ScaleViewportToWindow = GetOptionValue(u"RenderMode"sv);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"RenderModeScale"_wref.get(), EC_Str::BoolToWideString(GlobalsV::ScaleViewportToWindow));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"RenderModeScale"_wref.get(),
+                EC_Str::BoolToWideString(GlobalsV::ScaleViewportToWindow));
         }
-        if (static_cast<std::uint8_t>(GR_Main::AlternateViewportEnabled ^ 1) && static_cast<std::uint8_t>(GetOptionValue(u"HardwareRender"sv)) != GlobalsV::HardwareRenderingRequested) {
+        if (static_cast<std::uint8_t>(GR_Main::AlternateViewportEnabled ^ 1) &&
+            static_cast<std::uint8_t>(GetOptionValue(u"HardwareRender"sv)) != GlobalsV::HardwareRenderingRequested) {
             GlobalsV::HardwareRenderingRequested = static_cast<std::uint8_t>(GlobalsV::HardwareRenderingRequested ^ 1);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"HardwareRender"_wref.get(), EC_Str::BoolToWideString(GlobalsV::HardwareRenderingRequested));
-            GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || GR_Main::UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get())))));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"HardwareRender"_wref.get(),
+                EC_Str::BoolToWideString(GlobalsV::HardwareRenderingRequested));
+            GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested &&
+                    (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) ||
+                        GR_Main::UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 &&
+                        GI_Main::ParseEnabledNameGI(
+                        pas::view(
+                        EC_Str::TrimWideString(
+                        GR_Main::UserSettingsConfig->GetParamByPathOrMarker(
+                        u"AllowHardwareRenderUnderWine"_wref.get())))));
         }
         GR_Main::ShowSystemMouse = GetOptionValue(u"SoftwareCursor"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowSystemMouse"_wref.get(), EC_Str::BoolToWideString(GR_Main::ShowSystemMouse));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowSystemMouse"_wref.get(),
+            EC_Str::BoolToWideString(GR_Main::ShowSystemMouse));
         Globals::SkipIntro = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Intro"sv)) ^ 1);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipIntro"_wref.get(), EC_Str::BoolToWideString(Globals::SkipIntro));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipIntro"_wref.get(),
+            EC_Str::BoolToWideString(Globals::SkipIntro));
         Globals::SkipVideo = static_cast<std::uint8_t>(static_cast<std::uint8_t>(GetOptionValue(u"Video"sv)) ^ 1);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipVideo"_wref.get(), EC_Str::BoolToWideString(Globals::SkipVideo));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SkipVideo"_wref.get(),
+            EC_Str::BoolToWideString(Globals::SkipVideo));
         GlobalsV::BGImage = GetOptionValue(u"BGImage"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"BGImage"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BGImage));
         GlobalsV::AnimCaptain = GetOptionValue(u"AnimCaptain"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimCaptain"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimCaptain));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimCaptain"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimCaptain));
         GlobalsV::AnimShipFull = GetOptionValue(u"AnimShip"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimShipFull"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimShipFull));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimShipFull"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimShipFull));
         GlobalsV::AnimItem = GetOptionValue(u"AnimItem"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimItem"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimItem));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimItem"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimItem));
         GlobalsV::AnimMenuShip = GetOptionValue(u"AnimMenuShip"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMenuShip"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimMenuShip));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMenuShip"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimMenuShip));
         GlobalsV::AnimGov = GetOptionValue(u"AnimGov"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimGov"_wref.get(), pas::wide_int_to_str(GlobalsV::AnimGov));
         GlobalsV::AnimHangar = GetOptionValue(u"AnimHangar"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimHangar"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimHangar));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimHangar"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimHangar));
         GlobalsV::AnimStar = GetOptionValue(u"AnimStar"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimStar"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimStar));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimStar"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimStar));
         if (GetOptionValue(u"SpaceImage"sv) != GlobalsV::SpaceImage) {
             GlobalsV::SpaceImage = GetOptionValue(u"SpaceImage"sv);
             if (aGalaxy::Galaxy != nullptr && GlobalsV::SpaceImage > 0) {
                 aGalaxy::Galaxy->GenerateSpaceBackground(aGalaxy::PlayerStar->BackgroundImage);
             }
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"SpaceImage"_wref.get(), pas::wide_int_to_str(GlobalsV::SpaceImage));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"SpaceImage"_wref.get(),
+                pas::wide_int_to_str(GlobalsV::SpaceImage));
         }
         GlobalsV::SputnikShow = GetOptionValue(u"SputnikShow"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SputnikShow"_wref.get(), EC_Str::BoolToWideString(GlobalsV::SputnikShow));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SputnikShow"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::SputnikShow));
         GlobalsV::CircleAction = GetOptionValue(u"CircleAction"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"CircleAction"_wref.get(), EC_Str::BoolToWideString(GlobalsV::CircleAction));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"CircleAction"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::CircleAction));
         GlobalsV::ShipTail = GetOptionValue(u"Tail"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"ShipTail"_wref.get(), pas::wide_int_to_str(GlobalsV::ShipTail));
         GlobalsV::Comet = GetOptionValue(u"Comet"sv);
@@ -2325,103 +2636,149 @@ namespace fCfgSettings {
         GlobalsV::Wind = GetOptionValue(u"Wind"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"Wind"_wref.get(), pas::wide_int_to_str(GlobalsV::Wind));
         GlobalsV::BackgroundShade = GetOptionValue(u"BackgroundShade"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundShade"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BackgroundShade));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundShade"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::BackgroundShade));
         GlobalsV::BackgroundGrayscale = GetOptionValue(u"BackgroundGrayscale"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundGrayscale"_wref.get(), EC_Str::BoolToWideString(GlobalsV::BackgroundGrayscale));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"BackgroundGrayscale"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::BackgroundGrayscale));
         GlobalsV::PlanetClouds = GetOptionValue(u"PlanetClouds"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetClouds"_wref.get(), EC_Str::BoolToWideString(GlobalsV::PlanetClouds));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetClouds"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::PlanetClouds));
         GlobalsV::PlanetAtm = GetOptionValue(u"PlanetAtm"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetAtm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::PlanetAtm));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"PlanetAtm"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::PlanetAtm));
         GlobalsV::AnimChangeForm = GetOptionValue(u"AnimChangeForm"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimChangeForm"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimChangeForm));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimChangeForm"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimChangeForm));
         GlobalsV::AnimMainFon = GetOptionValue(u"AnimMainFon"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMainFon"_wref.get(), EC_Str::BoolToWideString(GlobalsV::AnimMainFon));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"AnimMainFon"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::AnimMainFon));
         GR_Main::ShowFrameRate = GetOptionValue(u"ShowFPS"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowFPS"_wref.get(), EC_Str::BoolToWideString(GR_Main::ShowFrameRate));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ShowFPS"_wref.get(),
+            EC_Str::BoolToWideString(GR_Main::ShowFrameRate));
         GlobalsV::GalaxyMapFontChoice = static_cast<GlobalsV::TGalaxyMapFontChoice>(GetOptionValue(u"FontGalaxy"sv));
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontGalaxy"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(GlobalsV::GalaxyMapFontChoice)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontGalaxy"_wref.get(),
+            pas::wide_int_to_str(static_cast<std::int32_t>(GlobalsV::GalaxyMapFontChoice)));
         GlobalsV::DynamicTipsPos = GetOptionValue(u"DynamicTipsPos"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"DynamicTipsPos"_wref.get(), EC_Str::BoolToWideString(GlobalsV::DynamicTipsPos));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"DynamicTipsPos"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::DynamicTipsPos));
         if (static_cast<std::uint8_t>(GetOptionValue(u"UseTablesForGov"sv)) != GlobalsV::UseTablesForGov) {
             RestartNeeded = true;
             GlobalsV::UseTablesForGov = GetOptionValue(u"UseTablesForGov"sv);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"UseTablesForGov"_wref.get(), EC_Str::BoolToWideString(GlobalsV::UseTablesForGov));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"UseTablesForGov"_wref.get(),
+                EC_Str::BoolToWideString(GlobalsV::UseTablesForGov));
         }
         GlobalsV::FontSmoothingEnabled = GetOptionValue(u"FontSmooth"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontSmooth"_wref.get(), EC_Str::BoolToWideString(GlobalsV::FontSmoothingEnabled));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontSmooth"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::FontSmoothingEnabled));
         GlobalsV::FontDialog = GetOptionValue(u"FontDialog"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontDialog"_wref.get(), pas::wide_int_to_str(GlobalsV::FontDialog));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"FontDialog"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::FontDialog));
         GlobalsV::FontQuest = GetOptionValue(u"FontQuest"sv);
         GR_Main::UserSettingsConfig->SetOrAddParam(u"FontQuest"_wref.get(), pas::wide_int_to_str(GlobalsV::FontQuest));
         GlobalsV::ScreenshotFormat = GetOptionValue(u"ScreenShotType"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotType"_wref.get(), pas::wide_int_to_str(GlobalsV::ScreenshotFormat));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotType"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::ScreenshotFormat));
         GlobalsV::ScreenshotJpegQuality = GetOptionValue(u"ScreenShotQuality"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotQuality"_wref.get(), pas::wide_int_to_str(GlobalsV::ScreenshotJpegQuality));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"ScreenShotQuality"_wref.get(),
+            pas::wide_int_to_str(GlobalsV::ScreenshotJpegQuality));
         ActiveGroupIndex = 2;
         if (static_cast<std::uint8_t>(GetOptionValue(u"Sound"sv)) != GlobalsV::SoundEnabled) {
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"Sound"_wref.get(), EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::SoundEnabled ^ 1)));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"Sound"_wref.get(),
+                EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::SoundEnabled ^ 1)));
             RestartNeeded = true;
         }
         GlobalsV::SoundInSpaceEnabled = GetOptionValue(u"SoundInSpace"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundInSpace"_wref.get(), EC_Str::BoolToWideString(GlobalsV::SoundInSpaceEnabled));
-        GlobalsV::SoundVolume = pas::real_divide(GetOptionValue(u"SoundVolume"sv), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"SoundVolume"sv)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundInSpace"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::SoundInSpaceEnabled));
+        GlobalsV::SoundVolume = static_cast<float>(GetOptionValue(u"SoundVolume"sv) / 1.0E+2);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"SoundVolume"_wref.get(),
+            pas::wide_int_to_str(GetOptionValue(u"SoundVolume"sv)));
         if (static_cast<std::uint8_t>(GetOptionValue(u"Music"sv)) != GlobalsV::MusicEnabled) {
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"Music"_wref.get(), EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::MusicEnabled ^ 1)));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"Music"_wref.get(),
+                EC_Str::BoolToWideString(static_cast<std::uint8_t>(GlobalsV::MusicEnabled ^ 1)));
             RestartNeeded = true;
         }
         GlobalsV::MusicInSpaceEnabled = GetOptionValue(u"MusicInSpace"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInSpace"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInSpaceEnabled));
-        GlobalsV::MusicVolume = pas::real_divide(GetOptionValue(u"MusicVolume"sv), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"MusicVolume"sv)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInSpace"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::MusicInSpaceEnabled));
+        GlobalsV::MusicVolume = static_cast<float>(GetOptionValue(u"MusicVolume"sv) / 1.0E+2);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicVolume"_wref.get(),
+            pas::wide_int_to_str(GetOptionValue(u"MusicVolume"sv)));
         GlobalsV::MusicInHyperEnabled = GetOptionValue(u"MusicInHyper"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInHyper"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInHyperEnabled));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInHyper"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::MusicInHyperEnabled));
         GlobalsV::MusicInPlanetEnabled = GetOptionValue(u"MusicInPlanet"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInPlanet"_wref.get(), EC_Str::BoolToWideString(GlobalsV::MusicInPlanetEnabled));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"MusicInPlanet"_wref.get(),
+            EC_Str::BoolToWideString(GlobalsV::MusicInPlanetEnabled));
         ActiveGroupIndex = 4;
         GR_Main::SelectedRobotDisplayMode = GetOptionValue(u"RobotResolution"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotResolution"_wref.get(), static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Width), ",", SysUtils::Int64ToStr(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Height)})));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotResolution"_wref.get(),
+            pas::concat_wide({
+                pas::wide_int64_to_str(
+                    static_cast<std::int64_t>(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Width)),
+                u",",
+                pas::wide_int64_to_str(
+                    static_cast<std::int64_t>(GR_Main::RobotDisplayModes[GR_Main::SelectedRobotDisplayMode].Height))}));
         Robot::RobotVSync = GetOptionValue(u"RobotVSync"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotVSync"_wref.get(), EC_Str::BoolToWideString(Robot::RobotVSync));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotVSync"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotVSync));
         if (Robot::SupportedMultiSampleCount > 1) {
             Robot::RobotFSAASamples = Robot::SupportedMultiSamples[GetOptionValue(u"RobotFSAASamples"sv)];
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotFSAASamples"_wref.get(), pas::wide_int_to_str(Robot::RobotFSAASamples));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotFSAASamples"_wref.get(),
+                pas::wide_int_to_str(Robot::RobotFSAASamples));
         }
         if (static_cast<std::int32_t>(Robot::MaximumAnisotropy) > 0) {
             Robot::RobotAnisotropy = GetOptionValue(u"RobotAnisotropy"sv);
-            GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotAnisotropy"_wref.get(), pas::wide_int_to_str(Robot::RobotAnisotropy));
+            GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotAnisotropy"_wref.get(),
+                pas::wide_int_to_str(Robot::RobotAnisotropy));
         }
         Robot::RobotMaxDistance = GetOptionValue(u"RobotMaxDistance"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMaxDistance"_wref.get(), pas::wide_int_to_str(Robot::RobotMaxDistance));
-        GR_Main::RobotBrightness = pas::real_divide(GetOptionValue(u"RobotBrightness"sv) - 50, 5.0E+1L);
-        GR_Main::RobotContrast = pas::real_divide(GetOptionValue(u"RobotContrast"sv) - 50, 5.0E+1L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotBrightness"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotBrightness)));
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotContrast"_wref.get(), static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotContrast)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMaxDistance"_wref.get(),
+            pas::wide_int_to_str(Robot::RobotMaxDistance));
+        GR_Main::RobotBrightness = static_cast<float>((GetOptionValue(u"RobotBrightness"sv) - 50) / 5.0E+1);
+        GR_Main::RobotContrast = static_cast<float>((GetOptionValue(u"RobotContrast"sv) - 50) / 5.0E+1);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotBrightness"_wref.get(),
+            static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotBrightness)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotContrast"_wref.get(),
+            static_cast<pas::WideString>(pas::format("%.2f"_a, GR_Main::RobotContrast)));
         Robot::RobotSettings.ShowStencilShadows = GetOptionValue(u"RobotShowStencilShadows"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowStencilShadows"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ShowStencilShadows));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowStencilShadows"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.ShowStencilShadows));
         Robot::RobotSettings.ShowProjShadows = GetOptionValue(u"RobotShowProjShadows"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowProjShadows"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ShowProjShadows));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotShowProjShadows"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.ShowProjShadows));
         Robot::RobotSettings.RobotShadow = GetOptionValue(u"RobotRobotShadow"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotRobotShadow"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.RobotShadow)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotRobotShadow"_wref.get(),
+            pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.RobotShadow)));
         Robot::RobotSettings.SelectEx = GetOptionValue(u"RobotSelectEx"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSelectEx"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.SelectEx));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSelectEx"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.SelectEx));
         Robot::RobotSettings.LandTexturesGloss = GetOptionValue(u"RobotLandTexturesGloss"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotLandTexturesGloss"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.LandTexturesGloss));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotLandTexturesGloss"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.LandTexturesGloss));
         Robot::RobotSettings.ObjTexturesGloss = GetOptionValue(u"RobotObjTexturesGloss"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotObjTexturesGloss"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.ObjTexturesGloss));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotObjTexturesGloss"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.ObjTexturesGloss));
         Robot::RobotSettings.SoftwareCursor = GetOptionValue(u"RobotSoftwareCursor"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoftwareCursor"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSettings.SoftwareCursor));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoftwareCursor"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSettings.SoftwareCursor));
         Robot::RobotSettings.Sky = GetOptionValue(u"RobotSky"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSky"_wref.get(), pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.Sky)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSky"_wref.get(),
+            pas::wide_int_to_str(static_cast<std::int32_t>(Robot::RobotSettings.Sky)));
         ActiveGroupIndex = 5;
         Robot::RobotMusic = GetOptionValue(u"RobotMusic"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusic"_wref.get(), EC_Str::BoolToWideString(Robot::RobotMusic));
-        GlobalsV::RobotMusicVolume = pas::real_divide(GetOptionValue(u"RobotMusicVolume"sv), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusicVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotMusicVolume"sv)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusic"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotMusic));
+        GlobalsV::RobotMusicVolume = static_cast<float>(GetOptionValue(u"RobotMusicVolume"sv) / 1.0E+2);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotMusicVolume"_wref.get(),
+            pas::wide_int_to_str(GetOptionValue(u"RobotMusicVolume"sv)));
         Robot::RobotSound = GetOptionValue(u"RobotSound"sv);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSound"_wref.get(), EC_Str::BoolToWideString(Robot::RobotSound));
-        GlobalsV::RobotSoundVolume = pas::real_divide(GetOptionValue(u"RobotSoundVolume"sv), 1.0E+2L);
-        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoundVolume"_wref.get(), pas::wide_int_to_str(GetOptionValue(u"RobotSoundVolume"sv)));
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSound"_wref.get(),
+            EC_Str::BoolToWideString(Robot::RobotSound));
+        GlobalsV::RobotSoundVolume = static_cast<float>(GetOptionValue(u"RobotSoundVolume"sv) / 1.0E+2);
+        GR_Main::UserSettingsConfig->SetOrAddParam(u"RobotSoundVolume"_wref.get(),
+            pas::wide_int_to_str(GetOptionValue(u"RobotSoundVolume"sv)));
         ActiveGroupIndex = 3;
         Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"cfg.txt"});
         GR_Main::UserSettingsConfig->SaveTextFile(Text.pchar(), true, false);
@@ -2430,7 +2787,7 @@ namespace fCfgSettings {
             Buffer = GR_Main::SoundManager->FirstBuffer;
             while (Buffer != nullptr) {
                 if (Buffer->Streaming) {
-                    Buffer->SetVolume(static_cast<long double>(GlobalsV::MusicVolume) * GlobalsV::MusicVolumeScale);
+                    Buffer->SetVolume(static_cast<float>(static_cast<double>(GlobalsV::MusicVolume) * GlobalsV::MusicVolumeScale));
                 } else {
                     Buffer->SetVolume(GlobalsV::SoundVolume);
                 }
@@ -2460,7 +2817,8 @@ namespace fCfgSettings {
     }
 
     // Embedded-item data is ignored.
-    GI_MessageLoop::TObjectGI* TfCfgSettings::CreateWarningImage(GI_Label::TLabelGI* Owner, EC_CacheFont::PFontObjectEC Item) {
+    GI_MessageLoop::TObjectGI* TfCfgSettings::CreateWarningImage(GI_Label::TLabelGI* Owner,
+        EC_CacheFont::PFontObjectEC Item) {
         GI_MessageLoop::TObjectGI* Result = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
         {
             GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(Result);
@@ -2479,20 +2837,28 @@ namespace fCfgSettings {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {

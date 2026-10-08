@@ -11,10 +11,6 @@
 #include "units/Windows.hpp"
 
 namespace GR_GraphBufPal {
-    void TGraphBufPalGR_Create(TGraphBufPalGR* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TGraphBufPalGR_Destroy(TGraphBufPalGR* Self) {
         Self->Clear();
         EC_Struct::TObjectEx_Destroy(Self);
@@ -43,11 +39,13 @@ namespace GR_GraphBufPal {
         PitchBytes = AWidth;
         PaletteCount = APaletteCount;
         Pixels = EC_Mem::AllocEC(PitchBytes * Height);
-        Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AllocEC(APaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
+        Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AllocEC(APaletteCount *
+                static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
     }
 
     // Discards existing pixels and palette; rounds pitch up to a multiple of four.
-    void TGraphBufPalGR::AllocateBuffer(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount, std::int32_t APitchBytes) {
+    void TGraphBufPalGR::AllocateBuffer(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount,
+        std::int32_t APitchBytes) {
         Clear();
         Width = AWidth;
         Height = AHeight;
@@ -57,7 +55,8 @@ namespace GR_GraphBufPal {
         }
         PaletteCount = APaletteCount;
         Pixels = EC_Mem::AllocEC(PitchBytes * Height);
-        Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AllocEC(APaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
+        Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::AllocEC(APaletteCount *
+                static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
         if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) != 0) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufPalGR.CreateN"_a));
         }
@@ -65,13 +64,15 @@ namespace GR_GraphBufPal {
 
     // Index is unchecked.
     std::uint32_t TGraphBufPalGR::GetPaletteColor(std::int32_t Index) {
-        return pas::load_unaligned<std::uint32_t>(static_cast<System::PCardinal>(EC_Mem::AddPointerOffset(Palette, Index * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)))));
+        return pas::load_unaligned<std::uint32_t>(static_cast<System::PCardinal>(EC_Mem::AddPointerOffset(Palette,
+            Index * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)))));
     }
 
     void TGraphBufPalGR::SetPalette(GR_GraphBuf::PColorRGBA Source, std::int32_t Count) {
         if (PaletteCount != Count) {
             PaletteCount = Count;
-            Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::ReAllocREC(Palette, PaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
+            Palette = static_cast<GR_GraphBuf::PColorRGBA>(EC_Mem::ReAllocREC(Palette,
+                    PaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA))));
         }
         Windows::CopyMemory(Palette, Source, Count * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)));
     }
@@ -85,12 +86,17 @@ namespace GR_GraphBufPal {
     // Decodes the entire payload, ignoring Position; retains the codec's one- or two-byte indexed pixel width. Failures raise.
     void TGraphBufPalGR::LoadImage(EC_Buf::TBufEC* Buffer) {
         Clear();
-        EC_OKGF::POkgfReadContext Context = GR_Main::BeginIndexedImageRead(Buffer->Data, Buffer->DataSize, Width, Height, PaletteCount, BytesPerPixel);
+        EC_OKGF::POkgfReadContext Context = GR_Main::BeginIndexedImageRead(Buffer->Data, Buffer->DataSize, Width,
+            Height, PaletteCount, BytesPerPixel);
         if (Context == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufPalGR.LoadFromFile. Error load file"_a));
         }
         AllocateBuffer(Width, Height, PaletteCount, Width * BytesPerPixel);
-        Context = static_cast<EC_OKGF::POkgfReadContext>(reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadIndexedImagePixels(Context, Pixels, PitchBytes, Palette)))));
+        Context =
+            static_cast<EC_OKGF::POkgfReadContext>(
+                reinterpret_cast<void*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(GR_Main::ReadIndexedImagePixels(Context,
+                    Pixels, PitchBytes, Palette)))));
         if (Context == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TGraphBufPalGR.LoadFromFile. Error load file"_a));
         }

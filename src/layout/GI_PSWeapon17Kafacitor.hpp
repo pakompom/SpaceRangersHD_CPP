@@ -8,7 +8,8 @@ namespace GI_PSWeapon17Kafacitor {
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, LastParticle) == 312);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, PrimaryColor) == 316);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, SecondaryColor) == 318);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, ProjectionBounds) == 320);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, ProjectionBounds) ==
+            320);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, OriginalLength) == 336);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon17Kafacitor::TPSWeapon17Kafacitor, LengthScale) == 344);
     static_assert(sizeof(void*) != 4 || sizeof(GI_PSWeapon17Kafacitor::TKafacitorParticle) == 32);

@@ -11,7 +11,9 @@ namespace GI_PSWeapon {
     #endif
     struct TPSWeaponGI : GI_MessageLoop::TObjectGI {
         PAS_CLASS_META(TPSWeaponGI, GI_MessageLoop::TObjectGI, "TPSWeaponGI", 304)
-        std::uint8_t IsFinished();
+        inline std::uint8_t IsFinished() {
+            return RemainingTicks <= 0;
+        }
         // Returns LifetimeTicks minus RemainingTicks without clamping.
         virtual std::int32_t GetElapsedTicks();
         // Cyclic interpolation of normalized RGB triples in the current pixel format. Requires at least one triple and nonnegative Phase; trailing incomplete triples are ignored.

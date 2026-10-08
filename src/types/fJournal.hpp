@@ -36,7 +36,8 @@ namespace fJournal {
         void ClearEntries();
         void FinishEntries();
         void AddEntrySpacing(std::int32_t Height);
-        void AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact, std::int32_t RecordIndex);
+        void AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact,
+            std::int32_t RecordIndex);
         void AddEntryText(pas::WideString Text, GI_Main::TTextAlignXGI Align, pas::WideString FontName);
         void ToggleJournalNews(GI_MessageLoop::TObjectGI* Sender);
         void MainPanelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);

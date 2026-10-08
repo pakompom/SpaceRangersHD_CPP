@@ -21,7 +21,8 @@ namespace GR_GraphBufPal {
         // Discards existing pixels and palette; uses one byte per pixel with no row padding.
         void AllocateTight(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount);
         // Discards existing pixels and palette; rounds pitch up to a multiple of four.
-        void AllocateBuffer(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount, std::int32_t APitchBytes);
+        void AllocateBuffer(std::int32_t AWidth, std::int32_t AHeight, std::int32_t APaletteCount,
+            std::int32_t APitchBytes);
         // Index is unchecked.
         std::uint32_t GetPaletteColor(std::int32_t Index);
         void SetPalette(GR_GraphBuf::PColorRGBA Source, std::int32_t Count);

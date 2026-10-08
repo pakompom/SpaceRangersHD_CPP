@@ -10,7 +10,6 @@
 #include "units/GI_Image.hpp"
 #include "units/GI_MessageLoop.hpp"
 #include "units/GR_Main.hpp"
-#include "units/System.hpp"
 
 namespace GI_CountBar {
     void TCountBarGI_Create(TCountBarGI* Self, GI_MessageLoop::TObjectGI* Owner) {
@@ -20,11 +19,14 @@ namespace GI_CountBar {
         Self->Maximum = 100;
         Self->Position = 0;
         Self->Step = 1;
-        Self->DecreaseButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, Self);
-        Self->IncreaseButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, Self);
+        Self->DecreaseButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+                GI_GraphButton::TGraphButtonGI_Create, Self);
+        Self->IncreaseButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+                GI_GraphButton::TGraphButtonGI_Create, Self);
         Self->AfterThumbImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self);
         Self->BeforeThumbImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self);
-        Self->ThumbButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, Self);
+        Self->ThumbButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create,
+                Self);
         Self->MarkerImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Self);
         Self->DecreaseButton->DownCallback = pas::bind_method<&TCountBarGI::DecreasePressed>(Self);
         Self->IncreaseButton->DownCallback = pas::bind_method<&TCountBarGI::IncreasePressed>(Self);
@@ -139,7 +141,8 @@ namespace GI_CountBar {
             if (Maximum - Minimum == 0) {
                 ThumbLeft = IncreaseSize.X;
             } else {
-                ThumbLeft = static_cast<std::int32_t>(System::Round(pas::real_divide(TrackWidth * (Position - Minimum), Maximum - Minimum))) - ThumbSize.X / 2 + IncreaseSize.X + ThumbSize.X / 2;
+                ThumbLeft = static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<double>(TrackWidth * (Position -
+                            Minimum)) / (Maximum - Minimum)))) - ThumbSize.X / 2 + IncreaseSize.X + ThumbSize.X / 2;
             }
             ThumbRight = ThumbLeft + ThumbSize.X;
             DecreaseButton->SetPosition(ClassesImports::Point(0, 0));
@@ -148,7 +151,8 @@ namespace GI_CountBar {
             IncreaseButton->SetSize(IncreaseSize);
             BeforeThumbImage->SetPosition(ClassesImports::Point(DecreaseSize.X, 0));
             {
-                Types::TPoint point = ClassesImports::Point(ThumbLeft - DecreaseSize.X, AfterThumbImage->GetContentSize().Y);
+                Types::TPoint point = ClassesImports::Point(ThumbLeft - DecreaseSize.X,
+                    AfterThumbImage->GetContentSize().Y);
                 GI_Image::TImageGI* beforeThumbImage = BeforeThumbImage;
                 beforeThumbImage->SetSize(point);
             }
@@ -164,7 +168,8 @@ namespace GI_CountBar {
             ThumbButton->SetSize(ClassesImports::Point(ThumbRight - ThumbLeft, ThumbSize.Y));
             AfterThumbImage->SetImageKindX(GI_Main::ikxRightFill);
             BeforeThumbImage->SetImageKindX(GI_Main::ikxLeftFill);
-            MarkerImage->SetPosition(EC_Struct::AddPoints(ThumbButton->LocalPosition, EC_Struct::HalfPoint(ThumbButton->ClientSize)));
+            MarkerImage->SetPosition(EC_Struct::AddPoints(ThumbButton->LocalPosition,
+                EC_Struct::HalfPoint(ThumbButton->ClientSize)));
             if (DecreaseButton->Kind == GI_GraphButton::gbkDisable) {
                 DecreaseButton->SetDisabled(Position <= Minimum);
             }
@@ -222,7 +227,8 @@ namespace GI_CountBar {
             if (Maximum - Minimum == 0) {
                 SetPosition_2(Minimum);
             } else {
-                SetPosition_2(static_cast<std::int32_t>(System::Round(pas::real_divide(Point.X - TrackStart, TrackEnd - TrackStart) * (Maximum - Minimum))) + Minimum);
+                SetPosition_2(static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Point.X - TrackStart) /
+                    (TrackEnd - TrackStart)) * (Maximum - Minimum)))) + Minimum);
             }
         }
     }
@@ -254,16 +260,21 @@ namespace GI_CountBar {
                 std::int32_t cpp_left_3 = ThumbButton->GetMaxStateImageSize().X;
                 TrackEnd = cpp_left_2 - (cpp_left_3 - ThumbButton->GetMaxStateImageSize().X / 2);
             }
-            if (Point.X >= DecreaseButton->GetMaxStateImageSize().X && Point.X <= ([&] {
-                std::int32_t cpp_right_2 = IncreaseButton->GetMaxStateImageSize().X;
-                return ClientSize.X - cpp_right_2;
-            }())) {
-                if (Maximum - Minimum == 0) {
-                    SetPosition_2(Minimum);
-                } else {
-                    SetPosition_2(static_cast<std::int32_t>(System::Round(pas::real_divide(Point.X - TrackStart, TrackEnd - TrackStart) * (Maximum - Minimum))) + Minimum);
+            {
+                bool cpp_condition = Point.X >= DecreaseButton->GetMaxStateImageSize().X;
+                if (cpp_condition) {
+                    std::int32_t cpp_right_2 = IncreaseButton->GetMaxStateImageSize().X;
+                    cpp_condition = Point.X <= ClientSize.X - cpp_right_2;
                 }
-                ThumbButton->SetDown(true);
+                if (cpp_condition) {
+                    if (Maximum - Minimum == 0) {
+                        SetPosition_2(Minimum);
+                    } else {
+                        SetPosition_2(static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Point.X -
+                            TrackStart) / (TrackEnd - TrackStart)) * (Maximum - Minimum)))) + Minimum);
+                    }
+                    ThumbButton->SetDown(true);
+                }
             }
         }
     }

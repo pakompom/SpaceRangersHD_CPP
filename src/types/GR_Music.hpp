@@ -25,7 +25,7 @@ namespace GR_Music {
         PAS_CLASS_META(TMusicControl, EC_Thread::TThreadEC, "TMusicControl", 72)
         void p_destroy() override;
         void Clear();
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         void PlayFile(const pas::WideString& FileName);
         void PlayCategory(const pas::WideString& Category);
         void RequestFadeOut();
@@ -54,7 +54,7 @@ namespace GR_Music {
         void LoadFile(const pas::WideString& FileName, std::uint8_t Deferred);
         pas::WideString GetFileName();
         std::uint8_t IsIntroTrack();
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         VorbisFile::TOggWorker* Decoder;
         std::uint8_t BuiltinVorbis;
         std::uint8_t cpp_padding[3];

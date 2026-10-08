@@ -1,6 +1,7 @@
 #include "layout/PopUp.hpp"
 #include "types/GI_Main.hpp"
 #include "types/GR_GraphBuf.hpp"
+#include "types/System.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "units/ClassesImports.hpp"
@@ -11,7 +12,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/PopUp.hpp"
-#include "units/System.hpp"
 
 // Placement follows the reviewed PopUp association in reference/unit_ownership.json.
 // Native TfPopUpController VMT:.
@@ -44,7 +44,8 @@ namespace PopUp {
         pas::free(Self->QueueLock);
     }
 
-    GI_MessageLoop::TObjectGI* TfPopUpController_CreatePopup(TfPopUpController* Self, pas::WideString Text, pas::WideString ImagePath) {
+    GI_MessageLoop::TObjectGI* TfPopUpController_CreatePopup(TfPopUpController* Self, pas::WideString Text,
+        pas::WideString ImagePath) {
         GI_Panel::TPanelGI* Panel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, Self);
         GI_Image::TImageGI* Background = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Panel);
         Background->SetPosition(ClassesImports::Point(0, 0));
@@ -59,7 +60,8 @@ namespace PopUp {
         Icon->SetActive(true);
         GI_Label::TLabelGI* LabelControl = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Panel);
         LabelControl->SetPosition(ClassesImports::Point(Icon->LocalPosition.X + Icon->ClientSize.X + 15, 54));
-        LabelControl->SetSize(ClassesImports::Point(Panel->ClientSize.X - Icon->ClientSize.X - Icon->LocalPosition.X - 30, 72));
+        LabelControl->SetSize(ClassesImports::Point(
+            Panel->ClientSize.X - Icon->ClientSize.X - Icon->LocalPosition.X - 30, 72));
         LabelControl->SetFontName(GlobalsV::NormalBoldFontName);
         LabelControl->SetTextAlignX(GI_Main::taxCenter);
         LabelControl->SetTextAlignY(GI_Main::tayCenterEx);
@@ -85,7 +87,9 @@ namespace PopUp {
             SetDepth(-1.0E+3);
             SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             SetPositionModeW(true);
-            MessageLoop = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+            MessageLoop =
+                pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
             while (pas::list_count(TextQueue) > 0) {
                 Text = *pas::list_at<pas::WideString>(TextQueue, 0);
                 pas::dispose(pas::list_get(TextQueue, 0));
@@ -96,10 +100,12 @@ namespace PopUp {
                 Previous = LastChild;
                 Popup = PopUp::TfPopUpController_CreatePopup(this, Text, ImagePath);
                 if (Previous == nullptr) {
-                    Popup->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - Popup->ClientSize.X - 10, GR_Main::GameScreenHeight + 10));
+                    Popup->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - Popup->ClientSize.X - 10,
+                        GR_Main::GameScreenHeight + 10));
                     MotionRemainder = 0.0f;
                 } else {
-                    Popup->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - Popup->ClientSize.X - 10, Previous->LocalPosition.Y + Previous->ClientSize.Y + 10));
+                    Popup->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - Popup->ClientSize.X - 10,
+                        Previous->LocalPosition.Y + Previous->ClientSize.Y + 10));
                 }
                 MovingUp = true;
                 PauseRemaining = 0u;
@@ -110,15 +116,17 @@ namespace PopUp {
             LastTick = Tick;
         } else {
             if (PauseRemaining > 0) {
-                PauseRemaining = std::max<std::int64_t>(static_cast<std::int64_t>(Tick - LastTick), static_cast<std::int64_t>(PauseRemaining)) - (Tick - LastTick);
+                PauseRemaining = std::max<std::int64_t>(static_cast<std::int64_t>(Tick - LastTick),
+                        static_cast<std::int64_t>(PauseRemaining)) - (Tick - LastTick);
                 if (PauseRemaining == 0) {
                     MovingUp = false;
                 }
             } else {
-                MotionRemainder = MotionRemainder + std::max<std::int64_t>(static_cast<std::int64_t>(0), static_cast<std::int64_t>(Tick - LastTick)) * 0.07L;
-                if (MotionRemainder >= 1.0L) {
-                    Movement = System::Trunc(MotionRemainder);
-                    MotionRemainder = static_cast<long double>(MotionRemainder) - Movement;
+                MotionRemainder = static_cast<float>(MotionRemainder + static_cast<float>(std::max<std::int64_t>(static_cast<std::int64_t>(0),
+                            static_cast<std::int64_t>(Tick - LastTick)) * 0.07));
+                if (MotionRemainder >= 1.0) {
+                    Movement = pas::real_trunc(MotionRemainder);
+                    MotionRemainder = static_cast<float>(static_cast<double>(MotionRemainder) - Movement);
                     if (MovingUp) {
                         BottomOffset = LastChild->LocalPosition.Y + LastChild->ClientSize.Y - GR_Main::GameScreenHeight;
                         if (BottomOffset - Movement <= -10) {
@@ -127,13 +135,15 @@ namespace PopUp {
                         }
                         Popup = FirstChild;
                         while (Popup != nullptr) {
-                            Popup->SetPosition(ClassesImports::Point(Popup->LocalPosition.X, Popup->LocalPosition.Y - Movement));
+                            Popup->SetPosition(ClassesImports::Point(Popup->LocalPosition.X,
+                                Popup->LocalPosition.Y - Movement));
                             Popup = Popup->NextSibling;
                         }
                     } else {
                         Popup = FirstChild;
                         while (Popup != nullptr) {
-                            Popup->SetPosition(ClassesImports::Point(Popup->LocalPosition.X, Popup->LocalPosition.Y + Movement));
+                            Popup->SetPosition(ClassesImports::Point(Popup->LocalPosition.X,
+                                Popup->LocalPosition.Y + Movement));
                             Popup = Popup->NextSibling;
                         }
                     }

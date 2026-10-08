@@ -80,12 +80,19 @@ namespace EC_CacheFont {
         void ResetTextMeasureState();
         PFontObjectEC GetEmbeddedObject(std::int32_t Index);
         // Restores ObjectCount; FixedWidthDepth remains affected by the processed tags.
-        WindowsSdk::TRect MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y, WindowsSdk::PInteger TopAdjustment);
+        WindowsSdk::TRect MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y,
+            WindowsSdk::PInteger TopAdjustment);
         std::uint8_t HasGlyph(char16_t CharCode);
         // Replaces Lines, preserves tags in its output, and restores ObjectCount.
         void WrapTaggedTextIntoLines(EC_Str::TStringsEC* Lines, const pas::WideString& Text, std::int32_t MaxWidth);
-        void DrawTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, WindowsSdk::TRect ClipRect);
-        void DrawTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, WindowsSdk::TRect ClipRect);
+        void DrawTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+            const pas::WideString& Text, WindowsSdk::TRect ClipRect);
+        void DrawTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+            const pas::WideString& Text, WindowsSdk::TRect ClipRect);
+        void DrawJustifiedTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+            const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect);
+        void DrawJustifiedTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+            const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect);
         // Returns zero for incomplete tokens or a doubled opening bracket.
         static std::int32_t GetTaggedTextTokenLength(char16_t* Text, std::int32_t CharCount);
         // For td=n, raises X to at least n and returns the token length.
@@ -96,7 +103,8 @@ namespace EC_CacheFont {
         static std::int32_t MatchFixTag(char16_t* Text, std::int32_t CharCount);
         static std::int32_t MatchFixEndTag(char16_t* Text, std::int32_t CharCount);
         // Returns the token length; Alignment is -1 for left, 0 for center, 1 for right. FieldWidth counts characters.
-        static std::int32_t ParseFormatTag(char16_t* Text, std::int32_t CharCount, std::int32_t& FieldWidth, std::int32_t& Alignment);
+        static std::int32_t ParseFormatTag(char16_t* Text, std::int32_t CharCount, std::int32_t& FieldWidth,
+            std::int32_t& Alignment);
         static std::int32_t MatchFormatEndTag(char16_t* Text, std::int32_t CharCount);
         // Only characters present in GlyphLookup count.
         std::int32_t CountVisibleTaggedCharsUntilFormatEnd(char16_t* Text, std::int32_t CharCount);
@@ -118,7 +126,9 @@ namespace EC_CacheFont {
         // Requires aft version 1 and at least 0x20 bytes; glyph offsets and counts are trusted. Ignores LoadOption; ResidentBytes remains zero.
         void LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) override;
         // Zero dimensions use measured text size. ActualSize may be nil. Enables UseARGBColors on the shared font.
-        void RenderTaggedTextToTexture(const pas::WideString& Text, std::int32_t Width, std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::uint8_t WordWrap, WindowsSdk::PPoint ActualSize, Direct3D9::IDirect3DTexture9& Texture);
+        void RenderTaggedTextToTexture(const pas::WideString& Text, std::int32_t Width, std::int32_t Height,
+            std::int32_t AlignX, std::int32_t AlignY, std::uint8_t WordWrap, WindowsSdk::PPoint ActualSize,
+            Direct3D9::IDirect3DTexture9& Texture);
         PAftHeaderEC FontData;
         std::int32_t GlyphCount;
         PAftGlyphEC Glyphs;

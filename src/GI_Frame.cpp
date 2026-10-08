@@ -92,9 +92,11 @@ namespace GI_Frame {
         if (Fill) {
             if (GlobalsV::HardwareRenderingEnabled) {
                 if (FillAlpha == 255) {
-                    GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top, GR_DX::Color565ToArgb(FillColor), 255, true, &ClipRect);
+                    GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left,
+                        ClipRect.Bottom - ClipRect.Top, GR_DX::Color565ToArgb(FillColor), 255, true, &ClipRect);
                 } else {
-                    GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top, GR_DX::Color565ToArgb(FillColor), 64, true, &ClipRect);
+                    GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left,
+                        ClipRect.Bottom - ClipRect.Top, GR_DX::Color565ToArgb(FillColor), 64, true, &ClipRect);
                 }
             } else if (FillAlpha == 255) {
                 std::int32_t cpp_arg_2 = ClipRect.Bottom - ClipRect.Top;
@@ -106,20 +108,34 @@ namespace GI_Frame {
                 std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
                 GR_Main::Ex_OKGR_Fill_WORD(addPointerOffset, pitchBytes, cpp_arg_3, cpp_arg_2, fillColor);
             } else {
-                GR_Main::ScreenRenderBuffer->DrawAlphaTrapezium16(HitTestBounds.Left, HitTestBounds.Right, HitTestBounds.Top, HitTestBounds.Left, HitTestBounds.Right, HitTestBounds.Bottom, FillColor, 64, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawAlphaTrapezium16(HitTestBounds.Left, HitTestBounds.Right,
+                    HitTestBounds.Top, HitTestBounds.Left, HitTestBounds.Right, HitTestBounds.Bottom, FillColor, 64,
+                    ClipRect);
             }
         }
         if (Kind == fkRect) {
             if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Top, Color, 255, &ClipRect);
-                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Bottom - 1, HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
-                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Left, HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
-                GR_DX::DrawAlphaLine(HitTestBounds.Right - 1, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
+                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Top,
+                    Color, 255, &ClipRect);
+                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Bottom - 1, HitTestBounds.Right - 1,
+                    HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
+                GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Left,
+                    HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
+                GR_DX::DrawAlphaLine(HitTestBounds.Right - 1, HitTestBounds.Top, HitTestBounds.Right - 1,
+                    HitTestBounds.Bottom - 1, Color, 255, &ClipRect);
             } else {
-                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top), ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Top), Color, ClipRect);
-                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Bottom - 1), ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
-                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top), ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Bottom - 1), Color, ClipRect);
-                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Top), ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(
+                    ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top),
+                    ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Top), Color, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(
+                    ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Bottom - 1),
+                    ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(
+                    ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top),
+                    ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Bottom - 1), Color, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawLine16Clipped(
+                    ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Top),
+                    ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
             }
         }
     }

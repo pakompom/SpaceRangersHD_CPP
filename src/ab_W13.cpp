@@ -25,7 +25,8 @@ namespace ab_W13 {
         ab_Object::TabObject_Destroy(Self);
     }
 
-    void TabW13::Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Angle, std::int32_t AGeneration, ab_Object::TabObject* Origin) {
+    void TabW13::Launch(ab_Object::TabObject* Owner, std::int32_t Amount, float Angle, std::int32_t AGeneration,
+        ab_Object::TabObject* Origin) {
         SourceObject = Owner;
         Damage = Amount;
         if (Origin != nullptr) {
@@ -33,7 +34,7 @@ namespace ab_W13 {
         } else {
             State = Owner->State;
         }
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Angle);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + Angle));
         if (Owner != nullptr) {
             Velocity = Owner->Velocity;
         } else {
@@ -47,10 +48,12 @@ namespace ab_W13 {
         }
         // Native W13 shares W08 projectile and explosion resources.
         if (Generation == 0) {
-            Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w08_f"_wref.get(), u"GAI,Bm.AB.w08_s"_wref.get(), false);
+            Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                    u"GAI,Bm.AB.w08_f"_wref.get(), u"GAI,Bm.AB.w08_s"_wref.get(), false);
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
         } else {
-            Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w08b_f"_wref.get(), u"GAI,Bm.AB.w08b_s"_wref.get(), false);
+            Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                    u"GAI,Bm.AB.w08b_f"_wref.get(), u"GAI,Bm.AB.w08b_s"_wref.get(), false);
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
         }
     }
@@ -68,7 +71,8 @@ namespace ab_W13 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^
+                1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             } else if (Generation <= 1) {
@@ -101,7 +105,8 @@ namespace ab_W13 {
                 }
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w08a_f"_wref.get(), u"GAI,Bm.AB.w08a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w08a_f"_wref.get(),
+                u"GAI,Bm.AB.w08a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Exploding) {

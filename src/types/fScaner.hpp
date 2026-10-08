@@ -102,7 +102,8 @@ namespace fScaner {
         void ShowItemInfo(aItem::TItem* Item);
         void ShowGoodsInfo(aConst::TItemType ItemType);
         void UpdateSkills();
-        static GI_MessageLoop::TObjectGI* CreateAdditionalInfoIcon(GI_Label::TLabelGI* Sender, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateAdditionalInfoIcon(GI_Label::TLabelGI* Sender,
+            EC_CacheFont::PFontObjectEC Item);
         void BuildAdditionalInfo();
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;
         void SelectMusic() override;

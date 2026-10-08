@@ -71,10 +71,10 @@ namespace Rangers {
 
     pas::TextFile LanguageFile{};
 
-    void TSteamCallbacksThread_Execute(TSteamCallbacksThread* Self) {
+    void TSteamCallbacksThread::Execute() {
         std::uint32_t CurrentTick{};
         std::uint32_t LastCallbackTick = MMSystem::timeGetTime();
-        while (!Self->IsStopRequested()) {
+        while (!IsStopRequested()) {
             CurrentTick = MMSystem::timeGetTime();
             if (CurrentTick - LastCallbackTick > 200) {
                 SimpleSteamApi::SteamRunCallbacks();
@@ -92,7 +92,8 @@ namespace Rangers {
         if (SearchHandle != WindowsImports::INVALID_HANDLE_VALUE) {
             do {
                 if ((FindData.dwFileAttributes & WindowsSdk::FILE_ATTRIBUTE_READONLY) != 0) {
-                    static_cast<void>(WindowsSdk::SetFileAttributesA(FindData.cFileName.elements, WindowsImports::FILE_ATTRIBUTE_NORMAL));
+                    static_cast<void>(WindowsSdk::SetFileAttributesA(FindData.cFileName.elements,
+                        WindowsImports::FILE_ATTRIBUTE_NORMAL));
                 }
             } while (WindowsSdk::FindNextFile(SearchHandle, FindData));
             WindowsImports::FindClose(SearchHandle);
@@ -101,8 +102,11 @@ namespace Rangers {
         if (SearchHandle != WindowsImports::INVALID_HANDLE_VALUE) {
             do {
                 if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != 0) {
-                    if (pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260) != "." && pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260) != "..") {
-                        Rangers::ClearReadOnlyAttributesRecursive(pas::concat_wide({DirectoryPath, u"\\", static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260))}));
+                    if (pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260) != "." &&
+                        pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260) != "..") {
+                        Rangers::ClearReadOnlyAttributesRecursive(pas::concat_wide({DirectoryPath, u"\\",
+                            static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements,
+                                260))}));
                     }
                 }
             } while (WindowsSdk::FindNextFile(SearchHandle, FindData));
@@ -117,7 +121,7 @@ namespace Rangers {
             Buffer = GR_Main::SoundManager->FirstBuffer;
             while (Buffer != nullptr) {
                 if (Buffer->Streaming) {
-                    Buffer->SetVolume(static_cast<long double>(GlobalsV::MusicVolume) * GlobalsV::MusicVolumeScale);
+                    Buffer->SetVolume(static_cast<float>(static_cast<double>(GlobalsV::MusicVolume) * GlobalsV::MusicVolumeScale));
                 } else {
                     Buffer->SetVolume(GlobalsV::SoundVolume);
                 }
@@ -126,7 +130,8 @@ namespace Rangers {
         }
         if (GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId] != nullptr) {
             GR_Main::FullFrameRedrawRequested = true;
-            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->InvalidateViewport();
+            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->InvalidateViewport();
         }
         if (GlobalsV::MemorySnapshotActive) {
             aSaveLoad::RestoreGameFromMemorySnapshot();
@@ -184,12 +189,14 @@ namespace Rangers {
         pas::AnsiString OldDirectory{};
         SysUtils::TSearchRec Search{};
         OldDirectory = SysUtilsImports::GetCurrentDir();
-        SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Cache\\"})));
+        SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+            u"Cache\\"})));
         if (SysUtilsImports::FindFirst("*.*"_a, SysUtilsImports::faAnyFile, Search) == 0) {
             do {
                 FileName = Search.Name;
                 if (FileName != "." && FileName != "..") {
-                    SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Cache\\", static_cast<pas::WideString>(FileName)})));
+                    SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::concat_wide({
+                        GR_Main::GetGameUserDirectory(), u"Cache\\", static_cast<pas::WideString>(FileName)})));
                 }
             } while (!(SysUtilsImports::FindNext(Search) != 0));
             SysUtilsImports::FindClose(Search);
@@ -245,24 +252,40 @@ namespace Rangers {
                         GR_Main::OnMessageResume = GR_Main::TRuntimeCallbackGR(HandleMessageResume);
                         Forms::TApplication::Initialize();
                         ApplicationEvents = pas::make_object<TAD>();
-                        Forms::Application->OnActivate = pas::bind_static_method<&TAD::ApplicationActivated>(ApplicationEvents);
-                        Forms::Application->OnDeactivate = pas::bind_static_method<&TAD::ApplicationDeactivated>(ApplicationEvents);
-                        if (WindowsImports::OpenEvent(WindowsImports::EVENT_MODIFY_STATE, 0, pas::literal_pointer("EG_SpaceRangers_Run")) != 0) {
-                            WindowsImports::MessageBox(0u, pas::literal_pointer("Please terminate already running instance of the game!"), pas::literal_pointer("Space Rangers"), WindowsImports::MB_ICONERROR);
+                        Forms::Application->OnActivate = pas::bind_static_method<
+                                &TAD::ApplicationActivated>(ApplicationEvents);
+                        Forms::Application->OnDeactivate = pas::bind_static_method<
+                                &TAD::ApplicationDeactivated>(ApplicationEvents);
+                        if (WindowsImports::OpenEvent(WindowsImports::EVENT_MODIFY_STATE, 0,
+                            pas::literal_pointer("EG_SpaceRangers_Run")) != 0) {
+                            WindowsImports::MessageBox(0u,
+                                pas::literal_pointer("Please terminate already running instance of the game!"),
+                                pas::literal_pointer("Space Rangers"), WindowsImports::MB_ICONERROR);
                         } else {
                             WindowsImports::CreateEvent(nullptr, -1, -1, pas::literal_pointer("EG_SpaceRangers_Run"));
-                            for (auto cpp_range = pas::for_to<std::int32_t>(1, SystemImports::ParamCount()); cpp_range.next(ArgumentIndex); ) {
-                                if (SysUtilsImports::LowerCase(SystemImports::ParamStr(ArgumentIndex)) == "savemergedcfg") {
+                            for (auto cpp_range = pas::for_to<std::int32_t>(1,
+                                SystemImports::ParamCount()); cpp_range.next(ArgumentIndex); ) {
+                                if (SysUtilsImports::LowerCase(SystemImports::ParamStr(ArgumentIndex)) ==
+                                    "savemergedcfg") {
                                     GlobalsV::DumpLoadedConfig = true;
                                 }
                             }
                             ExecutableFileName.set_length(WindowsImports::MAX_PATH);
-                            if (WindowsImports::GetModuleFileNameA(0u, ExecutableFileName.pchar(), WindowsImports::MAX_PATH) != 0) {
-                                ExecutableFileName.set_length(static_cast<std::int32_t>(SysUtilsImports::StrLen(ExecutableFileName.pchar())));
-                                Rangers::ClearReadOnlyAttributesRecursive(EC_Str::ExtractFileDirW(pas::view(static_cast<pas::WideString>(ExecutableFileName))));
-                                SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(EC_Str::ExtractFileDirW(pas::view(static_cast<pas::WideString>(ExecutableFileName)))));
+                            if (WindowsImports::GetModuleFileNameA(0u, ExecutableFileName.pchar(),
+                                WindowsImports::MAX_PATH) != 0) {
+                                ExecutableFileName.set_length(
+                                    static_cast<std::int32_t>(SysUtilsImports::StrLen(ExecutableFileName.pchar())));
+                                Rangers::ClearReadOnlyAttributesRecursive(
+                                    EC_Str::ExtractFileDirW(
+                                        pas::view(static_cast<pas::WideString>(ExecutableFileName))));
+                                SysUtilsImports::SetCurrentDir(
+                                    static_cast<pas::AnsiString>(
+                                        EC_Str::ExtractFileDirW(
+                                            pas::view(static_cast<pas::WideString>(ExecutableFileName)))));
                             }
-                            EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\CLASSES\\avifile\\Extensions\\VDO"_w, pas::WideString(), u"{00020000-0000-0000-C000-000000000046}"_w);
+                            EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE,
+                                u"SOFTWARE\\CLASSES\\avifile\\Extensions\\VDO"_w, pas::WideString(),
+                                u"{00020000-0000-0000-C000-000000000046}"_w);
                             SystemImports::Randomize();
                             do {
                                 try {
@@ -277,43 +300,61 @@ namespace Rangers {
                                             GR_Main::InitializePlatformRuntimeAndMainWindow();
                                         }
                                         SimpleSteamApi::SteamInitialized = false;
-                                        if (GR_Main::InstallConfig->CountParamsByPath(u"GameDistributor"_wref.get()) > 0) {
-                                            StartupText = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(GR_Main::InstallConfig->GetParamByPathOrMarker(u"GameDistributor"_wref.get()))));
+                                        if (GR_Main::InstallConfig->CountParamsByPath(u"GameDistributor"_wref.get()) >
+                                            0) {
+                                            StartupText =
+                                                static_cast<pas::WideString>(
+                                                    SysUtilsImports::LowerCase(
+                                                        static_cast<pas::AnsiString>(
+                                                        GR_Main::InstallConfig->GetParamByPathOrMarker(
+                                                        u"GameDistributor"_wref.get()))));
                                             if (StartupText == u"steam") {
                                                 GR_Main::AppendLogLineThreadSafe("GameDistributor=Steam"_a);
                                                 SimpleSteamApi::LoadSteamApi();
                                                 GR_Main::SelectedLanguage.set_length(255);
                                                 GR_Main::AvailableLanguageCodes.set_length(255);
-                                                SimpleSteamApi::SteamInitialized = SimpleSteamApi::SteamInit(GR_Main::SelectedLanguage, GR_Main::AvailableLanguageCodes);
+                                                SimpleSteamApi::SteamInitialized = SimpleSteamApi::SteamInit(
+                                                        GR_Main::SelectedLanguage, GR_Main::AvailableLanguageCodes);
                                                 if (!SimpleSteamApi::SteamInitialized) {
                                                     GR_Main::AppendLogLineThreadSafe("Steam not initialized"_a);
                                                 }
                                             } else if (StartupText == u"gog") {
                                                 GR_Main::AppendLogLineThreadSafe("GameDistributor=GOG"_a);
                                             } else {
-                                                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"GameDistributor=Unknown(", GR_Main::InstallConfig->GetParamByPathOrMarker(u"GameDistributor"_wref.get()), u")"})));
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    static_cast<pas::AnsiString>(pas::concat_wide({
+                                                        u"GameDistributor=Unknown(",
+                                                        GR_Main::InstallConfig->GetParamByPathOrMarker(
+                                                            u"GameDistributor"_wref.get()), u")"})));
                                             }
                                         } else {
                                             GR_Main::AppendLogLineThreadSafe("GameDistributor=None"_a);
                                         }
                                         if (SimpleSteamApi::SteamInitialized) {
                                             LanguageBuffer = &GR_Main::SelectedLanguage;
-                                            WStringUtils::TruncateStartupWideString(pas::Var<WStringUtils::PStartupWideString>(&LanguageBuffer));
+                                            WStringUtils::TruncateStartupWideString(
+                                                pas::Var<WStringUtils::PStartupWideString>(&LanguageBuffer));
                                             LanguageBuffer = &GR_Main::AvailableLanguageCodes;
-                                            WStringUtils::TruncateStartupWideString(pas::Var<WStringUtils::PStartupWideString>(&LanguageBuffer));
+                                            WStringUtils::TruncateStartupWideString(
+                                                pas::Var<WStringUtils::PStartupWideString>(&LanguageBuffer));
                                         } else {
                                             GR_Main::SelectedLanguage = u"english"_w;
                                             GR_Main::AvailableLanguageCodes = Rangers::CollectInstallLanguageCodes();
-                                            LanguageFileName = static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Lang.txt"}));
+                                            LanguageFileName = static_cast<pas::AnsiString>(pas::concat_wide({
+                                                    GR_Main::GetGameUserDirectory(), u"Lang.txt"}));
                                             if (SysUtilsImports::FileExists(LanguageFileName)) {
                                                 pas::text_assign(LanguageFile, LanguageFileName, false);
                                                 pas::text_open(LanguageFile, 2, false);
                                                 while (!pas::text_eof(LanguageFile, false)) {
                                                     pas::text_readln(LanguageFile, LanguageLine, false);
                                                     StartupText = static_cast<pas::WideString>(LanguageLine);
-                                                    if (EC_Str::CountDelimitedPartsW(pas::view(StartupText), u"="sv) > 1) {
-                                                        if (EC_Str::ExtractDelimitedPartW(pas::view(StartupText), 0, u"="sv) == u"Lang") {
-                                                            GR_Main::SelectedLanguage = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(StartupText), 1, u"="sv));
+                                                    if (EC_Str::CountDelimitedPartsW(pas::view(StartupText), u"="sv) >
+                                                        1) {
+                                                        if (EC_Str::ExtractDelimitedPartW(pas::view(StartupText), 0,
+                                                            u"="sv) == u"Lang") {
+                                                            GR_Main::SelectedLanguage =
+                                                                EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(
+                                                                    pas::view(StartupText), 1, u"="sv));
                                                         }
                                                     }
                                                 }
@@ -331,18 +372,34 @@ namespace Rangers {
                                         GlobalsV::RunningUnderWine = false;
                                         WineModule = WindowsImports::LoadLibrary(pas::literal_pointer("ntdll.dll"));
                                         if (WineModule > 32) {
-                                            WineGetVersion = WindowsImports::GetProcAddress(WineModule, pas::literal_pointer("wine_get_version"));
-                                            WineGetHostVersion = pas::callback_from_address<TWineGetHostVersion>(WindowsImports::GetProcAddress(WineModule, pas::literal_pointer("wine_get_host_version")));
-                                            WineNtToUnixFileName = WindowsImports::GetProcAddress(WineModule, pas::literal_pointer("wine_nt_to_unix_file_name"));
-                                            WineGetBuildId = pas::callback_from_address<TWineGetBuildId>(WindowsImports::GetProcAddress(WineModule, pas::literal_pointer("wine_get_build_id")));
-                                            GlobalsV::RunningUnderWine = WineGetVersion != nullptr || WineGetHostVersion != nullptr || WineNtToUnixFileName != nullptr || WineGetBuildId != nullptr;
+                                            WineGetVersion = WindowsImports::GetProcAddress(WineModule,
+                                                    pas::literal_pointer("wine_get_version"));
+                                            WineGetHostVersion =
+                                                pas::callback_from_address<TWineGetHostVersion>(
+                                                    WindowsImports::GetProcAddress(WineModule,
+                                                        pas::literal_pointer("wine_get_host_version")));
+                                            WineNtToUnixFileName = WindowsImports::GetProcAddress(WineModule,
+                                                    pas::literal_pointer("wine_nt_to_unix_file_name"));
+                                            WineGetBuildId =
+                                                pas::callback_from_address<TWineGetBuildId>(
+                                                    WindowsImports::GetProcAddress(WineModule,
+                                                        pas::literal_pointer("wine_get_build_id")));
+                                            GlobalsV::RunningUnderWine = WineGetVersion != nullptr ||
+                                                    WineGetHostVersion != nullptr || WineNtToUnixFileName != nullptr ||
+                                                    WineGetBuildId != nullptr;
                                             if (GlobalsV::RunningUnderWine) {
-                                                GR_Main::AppendLogLineThreadSafe("----------------------------------"_a);
-                                                GR_Main::AppendLogLineThreadSafe("NOTICE: Game is launched under Wine or Proton!"_a);
-                                                GR_Main::AppendLogLineThreadSafe("NOTICE: Game may work as it does on Windows - or be funky, bug out and crash."_a);
-                                                GR_Main::AppendLogLineThreadSafe("NOTICE: Please refer to https://www.protondb.com/app/214730 if you having any issues"_a);
-                                                GR_Main::AppendLogLineThreadSafe("NOTICE: MacOS users may try to ask for help on https://www.reddit.com/r/macgaming/ or https://www.reddit.com/r/wine_gaming/"_a);
-                                                GR_Main::AppendLogLineThreadSafe("----------------------------------"_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "----------------------------------"_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "NOTICE: Game is launched under Wine or Proton!"_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "NOTICE: Game may work as it does on Windows - or be funky, bug out and crash."_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "NOTICE: Please refer to https://www.protondb.com/app/214730 if you having any issues"_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "NOTICE: MacOS users may try to ask for help on https://www.reddit.com/r/macgaming/ or https://www.reddit.com/r/wine_gaming/"_a);
+                                                GR_Main::AppendLogLineThreadSafe(
+                                                    "----------------------------------"_a);
                                                 if (WineGetHostVersion != nullptr) {
                                                     Rangers::WineGetHostVersion(WineHostOS, WineHostVersion);
                                                     GR_Main::AppendLogTextThreadSafe("Host OS="_a);
@@ -350,23 +407,37 @@ namespace Rangers {
                                                     if (static_cast<pas::AnsiString>(WineHostOS) == "Darwin") {
                                                         GR_Main::AppendLogTextThreadSafe("Linux"_a);
                                                     } else {
-                                                        GR_Main::AppendLogTextThreadSafe(static_cast<pas::AnsiString>(WineHostOS));
+                                                        GR_Main::AppendLogTextThreadSafe(
+                                                            static_cast<pas::AnsiString>(WineHostOS));
                                                     }
-                                                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({" ", static_cast<pas::AnsiString>(static_cast<pas::ShortString>(WineHostVersion))}));
+                                                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({" ",
+                                                        static_cast<pas::AnsiString>(
+                                                            static_cast<pas::ShortString>(WineHostVersion))}));
                                                 } else {
-                                                    GR_Main::AppendLogLineThreadSafe("Can't detect host OS, wine_get_host_version() not found"_a);
+                                                    GR_Main::AppendLogLineThreadSafe(
+                                                        "Can't detect host OS, wine_get_host_version() not found"_a);
                                                 }
                                                 if (WineGetBuildId != nullptr) {
-                                                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Wine=", static_cast<pas::AnsiString>(Rangers::WineGetBuildId())}));
+                                                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Wine=",
+                                                        static_cast<pas::AnsiString>(Rangers::WineGetBuildId())}));
                                                 } else {
-                                                    GR_Main::AppendLogLineThreadSafe("Can't detect Wine build version, wine_get_build_id() not found"_a);
+                                                    GR_Main::AppendLogLineThreadSafe(
+                                                        "Can't detect Wine build version, wine_get_build_id() not found"_a);
                                                 }
                                             }
                                             WindowsImports::FreeLibrary(WineModule);
                                         }
                                         HadProtectedStatus = false;
                                         WindowsImports::GetSystemTime(StartupTime);
-                                        GR_Main::AppendOptionalDebugLogLine(pas::format("=== Start %d-%.2d-%.2d %.2d.%.2d.%.2d.%.3d"_a, static_cast<std::int32_t>(StartupTime.wYear), static_cast<std::int32_t>(StartupTime.wMonth), static_cast<std::int32_t>(StartupTime.wDay), static_cast<std::int32_t>(StartupTime.wHour), static_cast<std::int32_t>(StartupTime.wMinute), static_cast<std::int32_t>(StartupTime.wSecond), static_cast<std::int32_t>(StartupTime.wMilliseconds)));
+                                        GR_Main::AppendOptionalDebugLogLine(pas::format(
+                                            "=== Start %d-%.2d-%.2d %.2d.%.2d.%.2d.%.3d"_a,
+                                            static_cast<std::int32_t>(StartupTime.wYear),
+                                            static_cast<std::int32_t>(StartupTime.wMonth),
+                                            static_cast<std::int32_t>(StartupTime.wDay),
+                                            static_cast<std::int32_t>(StartupTime.wHour),
+                                            static_cast<std::int32_t>(StartupTime.wMinute),
+                                            static_cast<std::int32_t>(StartupTime.wSecond),
+                                            static_cast<std::int32_t>(StartupTime.wMilliseconds)));
                                         while (true) {
                                             if (Globals::ReloadScriptTemplates || Globals::ReloadModsRequested) {
                                                 GR_Main::LoadDatConfigAndModOverrides();
@@ -374,7 +445,9 @@ namespace Rangers {
                                             if (Globals::ReloadModsRequested) {
                                                 GR_Main::LoadSelectedModInstallBlocks();
                                                 if (!aPacket::LoadConfiguredPackages()) {
-                                                    pas::raise(pas::make_exception<pas::Exception>("Error while openning package files"_a));
+                                                    pas::raise(
+                                                        pas::make_exception<pas::Exception>(
+                                                            "Error while openning package files"_a));
                                                 }
                                                 Globals::ReloadModsRequested = false;
                                             }
@@ -382,9 +455,12 @@ namespace Rangers {
                                             Globals::InitializeGlobalUiRuntime();
                                             Robot::InitializeRobotRuntime();
                                             if (SteamCallbackThread == nullptr) {
-                                                SteamCallbackThread = pas::construct_call<TSteamCallbacksThread>(EC_Thread::TThreadEC_Create);
+                                                SteamCallbackThread =
+                                                    pas::construct_call<TSteamCallbacksThread>(
+                                                        EC_Thread::TThreadEC_Create);
                                             }
-                                            if (static_cast<std::uint8_t>(SteamCallbackThread->IsRunning() ^ 1) && SimpleSteamApi::SteamInitialized) {
+                                            if (static_cast<std::uint8_t>(SteamCallbackThread->IsRunning() ^ 1) &&
+                                                SimpleSteamApi::SteamInitialized) {
                                                 SteamCallbackThread->Start();
                                             }
                                             MMSystem::timeBeginPeriod(1u);
@@ -409,7 +485,8 @@ namespace Rangers {
                                             MMSystem::timeEndPeriod(1u);
                                             HadProtectedStatus = false;
                                             if (aGalaxy::Galaxy != nullptr) {
-                                                HadProtectedStatus = GR_Main::CCInterface->GetProtectedStateXorSeed() != 0;
+                                                HadProtectedStatus = GR_Main::CCInterface->GetProtectedStateXorSeed() !=
+                                                        0;
                                                 aGalaxy::Galaxy->RestoreProtectedState();
                                                 aGalaxy::TGalaxy::ClearIntegrityStatus();
                                             }
@@ -419,7 +496,9 @@ namespace Rangers {
                                             GR_Main::AppendLogLineThreadSafe("Closing rendering and audio..."_a);
                                             GR_Main::FinalizeRuntimeAndSettings();
                                             GR_Main::AppendLogLineThreadSafe("Rendering and audio closed"_a);
-                                            if (GlobalsV::RequestedScreenId == GlobalsV::screenNone && GlobalsV::PostLoadScreenId == GlobalsV::screenNone || GR_Main::ExitScreenLoop) {
+                                            if (GlobalsV::RequestedScreenId == GlobalsV::screenNone &&
+                                                GlobalsV::PostLoadScreenId == GlobalsV::screenNone ||
+                                                GR_Main::ExitScreenLoop) {
                                                 GR_Main::FreeDatConfigRoots();
                                                 break;
                                             }
@@ -457,8 +536,15 @@ namespace Rangers {
                                         Rangers::PurgeCacheDirectoryFiles();
                                         GR_Main::AppendLogLineThreadSafe("Game shutdown complete"_a);
                                     } catch (...) {
-                                        if (static_cast<std::uint8_t>(GR_Main::SuppressModRetryPrompt ^ 1) && GR_Main::SelectedMods != u"" && static_cast<std::uint8_t>(GR_Main::SkipModsOnReload ^ 1)) {
-                                            if (WindowsImports::MessageBox(GR_Main::MainWindowHandle, pas::literal_pointer("Failed to launch, do you want to try restarting without mods?"), pas::literal_pointer("Exception:"), WindowsImports::MB_OKCANCEL | WindowsImports::MB_ICONERROR) == WindowsImports::IDOK) {
+                                        if (static_cast<std::uint8_t>(GR_Main::SuppressModRetryPrompt ^ 1) &&
+                                            GR_Main::SelectedMods != u"" &&
+                                            static_cast<std::uint8_t>(GR_Main::SkipModsOnReload ^ 1)) {
+                                            if (WindowsImports::MessageBox(GR_Main::MainWindowHandle,
+                                                pas::literal_pointer(
+                                                    "Failed to launch, do you want to try restarting without mods?"),
+                                                pas::literal_pointer("Exception:"),
+                                                WindowsImports::MB_OKCANCEL | WindowsImports::MB_ICONERROR) ==
+                                                WindowsImports::IDOK) {
                                                 Globals::ResetScriptHostRuntimeState();
                                                 GR_Main::ResetInstalledPackageState();
                                                 aModsInfo::ClearModInfoState();
@@ -470,7 +556,8 @@ namespace Rangers {
                                         if (aGalaxy::Galaxy != nullptr) {
                                             // Native passes the event field, not the thread handle.
                                             if (ThreadCalc::IsTurnCalculationRunning()) {
-                                                WindowsImports::TerminateThread(Globals::TurnCalculationThread->IdleEvent, 0u);
+                                                WindowsImports::TerminateThread(
+                                                    Globals::TurnCalculationThread->IdleEvent, 0u);
                                             }
                                             pas::free(aGalaxy::Galaxy);
                                             aGalaxy::Galaxy = nullptr;
@@ -493,8 +580,12 @@ namespace Rangers {
                                     }
                                 } catch (...) {
                                     auto cpp_exception_2 = pas::caught_object();
-                                    if (pas::Exception* StartupException = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
-                                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Exception ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(StartupException))), " with message ", StartupException->message}));
+                                    if (pas::Exception* StartupException = pas::class_cast_if<pas::Exception*>(
+                                        cpp_exception_2)) {
+                                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Exception ",
+                                            static_cast<pas::AnsiString>(
+                                                pas::class_name(pas::class_type(StartupException))), " with message ",
+                                            StartupException->message}));
                                     } else {
                                         throw;
                                     }
@@ -513,10 +604,6 @@ namespace Rangers {
             }
             Forms::UnitFinalize();
         }
-    }
-
-    void TSteamCallbacksThread::virtual_TThreadEC_Execute() {
-        Rangers::TSteamCallbacksThread_Execute(this);
     }
 
 } // namespace Rangers

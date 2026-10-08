@@ -15,7 +15,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Esodafer projectile, reusable particles and branching impact sparks.
@@ -32,7 +31,8 @@ namespace GI_PSWeapon16Esodafer {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         EsodaferPalettes.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
@@ -40,28 +40,35 @@ namespace GI_PSWeapon16Esodafer {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 2); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         EsodaferPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
             }
         }
     }
 
-    void TPSWeapon16Esodafer_Create(TPSWeapon16Esodafer* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon16Esodafer_Create(TPSWeapon16Esodafer* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 50;
         Self->LengthScale = 1.0;
         Self->OriginalLength = 1.0;
         Self->RemainingTicks = 160;
         Self->UpdateProjectionBounds();
-        Self->SetColors(EsodaferPalettes[APaletteIndex][0], EsodaferPalettes[APaletteIndex][1], EsodaferPalettes[APaletteIndex][2]);
+        Self->SetColors(EsodaferPalettes[APaletteIndex][0], EsodaferPalettes[APaletteIndex][1],
+            EsodaferPalettes[APaletteIndex][2]);
     }
 
     void TPSWeapon16Esodafer_Destroy(TPSWeapon16Esodafer* Self) {
@@ -90,25 +97,30 @@ namespace GI_PSWeapon16Esodafer {
     }
 
     void TPSWeapon16Esodafer::UpdateProjectionBounds() {
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        if (Distance == 0.0L) {
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        if (Distance == 0.0) {
             Distance = 1.0f;
         }
-        float Cosine = pas::real_divide(-(TargetPoint.Y - LocalPosition.Y), Distance);
-        float Sine = pas::real_divide(TargetPoint.X - LocalPosition.X, Distance);
-        float A = static_cast<long double>(-HalfWidth - 12) * Cosine - (-Distance - 1.0E+2L) * Sine;
-        float B = static_cast<long double>(HalfWidth + 12) * Cosine - (-Distance - 1.0E+2L) * Sine;
-        float C = static_cast<long double>(-HalfWidth - 12) * Cosine;
-        float D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth - 12) * Sine + (-Distance - 1.0E+2L) * Cosine;
-        B = static_cast<long double>(HalfWidth + 12) * Sine + (-Distance - 1.0E+2L) * Cosine;
-        C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        float Cosine = static_cast<float>(static_cast<double>(-(TargetPoint.Y - LocalPosition.Y)) / Distance);
+        float Sine = static_cast<float>(static_cast<double>(TargetPoint.X - LocalPosition.X) / Distance);
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine) - static_cast<float>((static_cast<float>(-Distance - 1.0E+2)) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine) - static_cast<float>((static_cast<float>(-Distance - 1.0E+2)) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine) + static_cast<float>((static_cast<float>(-Distance - 1.0E+2)) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Sine) + static_cast<float>((static_cast<float>(-Distance - 1.0E+2)) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon16Esodafer::UpdateHitTestBounds() {
@@ -128,7 +140,8 @@ namespace GI_PSWeapon16Esodafer {
     }
 
     PEsodaferParticle TPSWeapon16Esodafer::AddParticle() {
-        PEsodaferParticle Particle = static_cast<PEsodaferParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEsodaferParticle))));
+        PEsodaferParticle Particle = static_cast<PEsodaferParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEsodaferParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -156,7 +169,8 @@ namespace GI_PSWeapon16Esodafer {
     void TPSWeapon16Esodafer::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -187,23 +201,22 @@ namespace GI_PSWeapon16Esodafer {
         };
         Invalidate();
         if (FirstParticle == nullptr && RemainingTicks >= 24) {
-            Distance = System::Round(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)));
-            OriginalLength = pas::real_max<float>(7.0E+1f, Distance);
+            Distance = pas::real_round(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)));
+            OriginalLength = pas::real_max_scalar<float>(7.0E+1f, Distance);
             Particle = AddParticle();
             pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(0.0f, 0.0f));
             Particle->Color = Colors[1];
             Particle->Alpha = 0;
-            Speed = pas::real_divide(6.0L * Distance, RemainingTicks);
+            Speed = static_cast<float>(static_cast<float>(6.0 * Distance) / RemainingTicks);
             pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, Speed));
             Particle->State = 1;
             LengthScale = 1.0;
             for (I = 1; I <= 16; ++I) {
                 Particle = AddParticle();
-                {
-                    float cpp_arg = System::Cos(I * 3.14L * 0.125L) * 2.0L;
-                    float cpp_arg_2 = System::Sin(I * 3.14L * 0.125L) * 2.0L - 1.0E+1L;
-                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
-                }
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(static_cast<float>(System::Cos(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 2.0),
+                        static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 2.0) - 1.0E+1)));
                 Particle->Color = Colors[1];
                 Particle->Alpha = 0;
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, Speed));
@@ -211,31 +224,30 @@ namespace GI_PSWeapon16Esodafer {
             }
             for (I = 1; I <= 16; ++I) {
                 Particle = AddParticle();
-                {
-                    float cpp_arg_3 = System::Cos(I * 3.14L * 0.125L) * 1.5L;
-                    float cpp_arg_4 = System::Sin(I * 3.14L * 0.125L) * 1.5L - 2.0E+1L;
-                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(cpp_arg_3, cpp_arg_4));
-                }
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(static_cast<float>(System::Cos(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 1.5),
+                        static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 1.5) - 2.0E+1)));
                 Particle->Color = Colors[1];
                 Particle->Alpha = 0;
-                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(Particle->Position.X * 0.5L, Speed));
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity,
+                    EC_Struct::MakePointF(static_cast<float>(Particle->Position.X * 0.5), Speed));
                 Particle->State = 2;
             }
             for (I = 1; I <= 16; ++I) {
                 Particle = AddParticle();
-                {
-                    float cpp_arg_5 = System::Cos(I * 3.14L * 0.125L) * 1.0L;
-                    float cpp_arg_6 = System::Sin(I * 3.14L * 0.125L) * 1.0L - 3.0E+1L;
-                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(cpp_arg_5, cpp_arg_6));
-                }
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(static_cast<float>(System::Cos(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 1.0),
+                        static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(I * 0x1.91eb851eb8520p+1) * 0.125)) * 1.0) - 3.0E+1)));
                 Particle->Color = Colors[1];
                 Particle->Alpha = 0;
-                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(Particle->Position.X * 1.0L, Speed));
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity,
+                    EC_Struct::MakePointF(static_cast<float>(Particle->Position.X * 1.0), Speed));
                 Particle->State = 2;
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -246,35 +258,33 @@ namespace GI_PSWeapon16Esodafer {
                     pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position, Current->Position);
                     Spark->Color = Colors[pas::random(3, &System::RandSeed)];
                     Spark->Alpha = Current->Alpha;
-                    Speed = pas::real_divide(0.06L * Distance, RemainingTicks);
-                    Angle = pas::random(360, &System::RandSeed) * 0.01745329252L;
-                    {
-                        float cpp_arg_7 = System::Cos(Angle) * Speed + Current->Velocity.X;
-                        float cpp_arg_8 = System::Sin(Angle) * Speed + Current->Velocity.Y;
-                        pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity, EC_Struct::MakePointF(cpp_arg_7, cpp_arg_8));
-                    }
+                    Speed = static_cast<float>(static_cast<float>(0.06 * Distance) / RemainingTicks);
+                    Angle = static_cast<float>(pas::random(360, &System::RandSeed) * 0.01745329252);
+                    pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity,
+                        EC_Struct::MakePointF(static_cast<float>(static_cast<float>(System::Cos(Angle) * Speed) + Current->Velocity.X),
+                            static_cast<float>(static_cast<float>(System::Sin(Angle) * Speed) + Current->Velocity.Y)));
                     Spark->State = 2;
-                } else if (Current->State == 2 && pas::random(101, &System::RandSeed) < 3 || Current->State == 3 && pas::random(101, &System::RandSeed) < 10) {
+                } else if (Current->State == 2 && pas::random(101, &System::RandSeed) < 3 || Current->State == 3 &&
+                        pas::random(101, &System::RandSeed) < 10) {
                     if (Current->Alpha > 100) {
                         Current->Alpha -= 70;
-                        Current->Velocity.X = 0.9L * Current->Velocity.X;
-                        Current->Velocity.Y = 0.9L * Current->Velocity.Y;
-                        for (auto cpp_range = pas::for_to<std::int32_t>(1, Current->State * 4 + 1); cpp_range.next(I); ) {
+                        Current->Velocity.X = static_cast<float>(0x1.ccccccccccccbp-1 * Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.ccccccccccccbp-1 * Current->Velocity.Y);
+                        for (auto cpp_range = pas::for_to<std::int32_t>(1,
+                            Current->State * 4 + 1); cpp_range.next(I); ) {
                             Spark = AcquireEsodaferParticle();
                             pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position, Current->Position);
                             Spark->Color = Colors[pas::random(3, &System::RandSeed)];
                             Spark->Alpha = Current->Alpha;
                             if (Current->State == 3) {
-                                Speed = pas::real_divide(2.0E+1L, RemainingTicks);
+                                Speed = static_cast<float>(2.0E+1 / RemainingTicks);
                             } else {
-                                Speed = pas::real_divide(0.04L * Distance, RemainingTicks);
+                                Speed = static_cast<float>(static_cast<float>(0x1.47ae147ae147ap-5 * Distance) / RemainingTicks);
                             }
-                            Angle = pas::random(360, &System::RandSeed) * 0.01745329252L;
-                            {
-                                float cpp_arg_9 = System::Cos(Angle) * Speed + Current->Velocity.X;
-                                float cpp_arg_10 = System::Sin(Angle) * Speed + Current->Velocity.Y;
-                                pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity, EC_Struct::MakePointF(cpp_arg_9, cpp_arg_10));
-                            }
+                            Angle = static_cast<float>(pas::random(360, &System::RandSeed) * 0.01745329252);
+                            pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity,
+                                EC_Struct::MakePointF(static_cast<float>(static_cast<float>(System::Cos(Angle) * Speed) + Current->Velocity.X),
+                                    static_cast<float>(static_cast<float>(System::Sin(Angle) * Speed) + Current->Velocity.Y)));
                             Spark->State = Current->State;
                         }
                     } else {
@@ -285,8 +295,10 @@ namespace GI_PSWeapon16Esodafer {
                     if (Current->Alpha >= 3) {
                         Current->Alpha -= 3;
                     }
-                    Current->Velocity.X = (static_cast<long double>(Current->Velocity.X) - FirstParticle->Velocity.X) * 0.8L + FirstParticle->Velocity.X;
-                    Current->Velocity.Y = (static_cast<long double>(Current->Velocity.Y) - FirstParticle->Velocity.Y) * 0.8L + FirstParticle->Velocity.Y;
+                    Current->Velocity.X = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Current->Velocity.X) - FirstParticle->Velocity.X)) * 0x1.999999999999bp-1) +
+                            FirstParticle->Velocity.X);
+                    Current->Velocity.Y = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Current->Velocity.Y) - FirstParticle->Velocity.Y)) * 0x1.999999999999bp-1) +
+                            FirstParticle->Velocity.Y);
                 }
                 if (RemainingTicks > 150 && pas::in_set<1, 2>(Current->State)) {
                     Current->Alpha = std::min<std::int32_t>(255, Current->Alpha + 30);
@@ -297,16 +309,15 @@ namespace GI_PSWeapon16Esodafer {
                 if (Current->Alpha < 100 && RemainingTicks < 150) {
                     Current->State = 255;
                 }
-                Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
+                Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
                 if (Current->Position.Y >= Distance && pas::in_set<1, 2>(Current->State)) {
-                    Current->Position.Y = (static_cast<long double>(Current->Position.Y) - Distance) * 0.3L + Distance;
-                    Speed = pas::real_divide(4.0E+1L, RemainingTicks);
-                    Angle = pas::random(360, &System::RandSeed) * 0.01745329252L;
+                    Current->Position.Y = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Current->Position.Y) - Distance)) * 0x1.3333333333334p-2) + Distance);
+                    Speed = static_cast<float>(4.0E+1 / RemainingTicks);
+                    Angle = static_cast<float>(pas::random(360, &System::RandSeed) * 0.01745329252);
                     if (Current->State == 2) {
-                        float cpp_arg_11 = System::Cos(Angle) * Speed;
-                        float cpp_arg_12 = System::Sin(Angle) * Speed;
-                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity, EC_Struct::MakePointF(cpp_arg_11, cpp_arg_12));
+                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity,
+                            EC_Struct::MakePointF(static_cast<float>(System::Cos(Angle) * Speed), static_cast<float>(System::Sin(Angle) * Speed)));
                     } else {
                         pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity, EC_Struct::MakePointF(0.0f, 0.0f));
                     }
@@ -332,10 +343,12 @@ namespace GI_PSWeapon16Esodafer {
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
                 if (Particle->State != 255) {
-                    PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
                 Particle = Particle->Next;
@@ -344,10 +357,12 @@ namespace GI_PSWeapon16Esodafer {
         } else {
             while (Particle != nullptr) {
                 if (Particle->State != 255) {
-                    PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }

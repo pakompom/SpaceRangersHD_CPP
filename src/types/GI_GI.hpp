@@ -39,7 +39,9 @@ namespace GI_GI {
         void virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadImageProperties(EC_BlockPar::TBlockParEC* Block);
-        void SetHardwareMirrorHorizontal(std::uint8_t Value);
+        inline void SetHardwareMirrorHorizontal(std::uint8_t Value) {
+            HardwareMirrorHorizontal = Value;
+        }
         void Draw(Types::TRect ClipRect) override;
         void QueueImageLoad(pas::List* PendingLoads) override;
         EC_CacheGI::TCGiControlEC* ImageCache;

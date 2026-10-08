@@ -76,7 +76,8 @@ namespace VorbisFile {
     std::uint32_t ReadVorbisSource(void* Buffer, std::uint32_t Size, std::uint32_t Count, void* Source);
 
     // Always advertises stereo 44100-Hz signed 16-bit PCM; raises if ov_open_callbacks fails.
-    std::int32_t PAS_STDCALL OpenVorbisStream(TOggWorker* Decoder, DirectSound::TSoundWaveFormat& Format, EC_FileStream::TFileStreamEC*& Stream);
+    std::int32_t PAS_STDCALL OpenVorbisStream(TOggWorker* Decoder, DirectSound::TSoundWaveFormat& Format,
+        EC_FileStream::TFileStreamEC*& Stream);
 
     std::int32_t PAS_STDCALL ReadVorbisSamples(TOggWorker* Decoder, void* Buffer, std::int32_t& ByteCount);
 

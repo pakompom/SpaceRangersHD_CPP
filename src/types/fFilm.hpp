@@ -111,7 +111,8 @@ namespace fFilm {
     #endif
     struct TfFilmLoader : EC_Thread::TThreadEC {
         PAS_CLASS_META(TfFilmLoader, EC_Thread::TThreadEC, "TfFilmLoader", 44)
-        void virtual_TThreadEC_Execute() override;
+        // Loads FilmScreen.PreloadHistoryIndex into PreloadedFilm and supplies its separately stored Turn.
+        void Execute() override;
     };
     #if INTPTR_MAX == INT32_MAX
     #pragma pack(pop)

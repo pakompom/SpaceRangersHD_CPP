@@ -7,10 +7,12 @@ namespace GI_MessageLoop {
 } // namespace GI_MessageLoop
 
 namespace GI_Image {
-    void TImageGI_Create(TImageGI* Self, GI_MessageLoop::TObjectGI* Owner);
+    inline void TImageGI_Create(TImageGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
     void TImageGI_Destroy(TImageGI* Self);
 
     void TImageGI_LoadFromConfigPath(TImageGI* Self, const pas::WideString& Path);
 
 } // namespace GI_Image
+
+#include "inline/GI_Image.hpp"

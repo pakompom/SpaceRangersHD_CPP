@@ -37,7 +37,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 #include "units/ThreadCalc.hpp"
 #include "units/aCalc.hpp"
@@ -60,7 +59,10 @@
 #include "units/fPanelRuins.hpp"
 
 namespace fHangar {
-    const pas::Array<pas::Array<float, 0, 7>, 0, 2> HangarDominatorPortraitScales = pas::Array<pas::Array<float, 0, 7>, 0, 2>{{pas::Array<float, 0, 7>{{1.0f, 1.1f, 1.1f, 0.7f, 0.7f, 0.3f, 1.0f, 0.5f}}, pas::Array<float, 0, 7>{{1.0f, 1.2f, 0.9f, 0.9f, 0.8f, 0.7f, 1.0f, 0.5f}}, pas::Array<float, 0, 7>{{1.0f, 1.1f, 0.9f, 0.7f, 0.6f, 0.5f, 1.0f, 0.5f}}}};
+    const pas::Array<pas::Array<float, 0, 7>, 0, 2> HangarDominatorPortraitScales = pas::Array<pas::Array<float, 0, 7>, 0, 2>{{
+        pas::Array<float, 0, 7>{{1.0f, 1.1f, 1.1f, 0.7f, 0.7f, 0.3f, 1.0f, 0.5f}},
+        pas::Array<float, 0, 7>{{1.0f, 1.2f, 0.9f, 0.9f, 0.8f, 0.7f, 1.0f, 0.5f}},
+        pas::Array<float, 0, 7>{{1.0f, 1.1f, 0.9f, 0.7f, 0.6f, 0.5f, 1.0f, 0.5f}}}};
 
     void TfHangar_Create(TfHangar* Self) {
         std::int32_t I{};
@@ -69,7 +71,8 @@ namespace fHangar {
         Self->StationPanel = pas::construct_call<fPanelRuins::TfPanelRuins>(fPanelRuins::TfPanelRuins_Create);
         Self->LoadPanel = pas::construct_call<fPanelLoad::TfPanelLoad>(fPanelLoad::TfPanelLoad_Create);
         for (I = 0; I <= 8; ++I) {
-            Self->ShipSlots[I].ImageBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+            Self->ShipSlots[I].ImageBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+                    GR_GraphBuf::TGraphBufGR_Create, false);
         }
         Self->SelectedShip = nullptr;
     }
@@ -111,84 +114,111 @@ namespace fHangar {
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* AnimOpen = MainPanel->FindByNameRecursive(u"AnimOpen"sv);
-                AnimOpen->SetPosition(ClassesImports::Point(AnimOpen->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, AnimOpen->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                AnimOpen->SetPosition(ClassesImports::Point(AnimOpen->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    AnimOpen->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* AnimRnd = MainPanel->FindByNameRecursive(u"AnimRnd"sv);
-                AnimRnd->SetPosition(ClassesImports::Point(AnimRnd->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, AnimRnd->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                AnimRnd->SetPosition(ClassesImports::Point(AnimRnd->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    AnimRnd->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* AnimRepair = MainPanel->FindByNameRecursive(u"AnimRepair"sv);
-                AnimRepair->SetPosition(ClassesImports::Point(AnimRepair->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, AnimRepair->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                AnimRepair->SetPosition(ClassesImports::Point(
+                    AnimRepair->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    AnimRepair->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* AnimFuel = MainPanel->FindByNameRecursive(u"AnimFuel"sv);
-                AnimFuel->SetPosition(ClassesImports::Point(AnimFuel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, AnimFuel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                AnimFuel->SetPosition(ClassesImports::Point(AnimFuel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    AnimFuel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship0 = MainPanel->FindByNameRecursive(u"Ship0"sv);
-                Ship0->SetPosition(ClassesImports::Point(Ship0->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship0->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship0->SetPosition(ClassesImports::Point(Ship0->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship0->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship1 = MainPanel->FindByNameRecursive(u"Ship1"sv);
-                Ship1->SetPosition(ClassesImports::Point(Ship1->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship1->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship1->SetPosition(ClassesImports::Point(Ship1->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship1->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship2 = MainPanel->FindByNameRecursive(u"Ship2"sv);
-                Ship2->SetPosition(ClassesImports::Point(Ship2->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship2->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship2->SetPosition(ClassesImports::Point(Ship2->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship2->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship3 = MainPanel->FindByNameRecursive(u"Ship3"sv);
-                Ship3->SetPosition(ClassesImports::Point(Ship3->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship3->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship3->SetPosition(ClassesImports::Point(Ship3->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship3->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship4 = MainPanel->FindByNameRecursive(u"Ship4"sv);
-                Ship4->SetPosition(ClassesImports::Point(Ship4->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship4->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship4->SetPosition(ClassesImports::Point(Ship4->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship4->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship5 = MainPanel->FindByNameRecursive(u"Ship5"sv);
-                Ship5->SetPosition(ClassesImports::Point(Ship5->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship5->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship5->SetPosition(ClassesImports::Point(Ship5->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship5->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship6 = MainPanel->FindByNameRecursive(u"Ship6"sv);
-                Ship6->SetPosition(ClassesImports::Point(Ship6->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship6->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship6->SetPosition(ClassesImports::Point(Ship6->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship6->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship7 = MainPanel->FindByNameRecursive(u"Ship7"sv);
-                Ship7->SetPosition(ClassesImports::Point(Ship7->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship7->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship7->SetPosition(ClassesImports::Point(Ship7->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship7->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* Ship8 = MainPanel->FindByNameRecursive(u"Ship8"sv);
-                Ship8->SetPosition(ClassesImports::Point(Ship8->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, Ship8->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                Ship8->SetPosition(ClassesImports::Point(Ship8->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    Ship8->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
-            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity2"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* OpenImage = MainPanel->FindByNameRecursive(u"OpenImage"sv);
-                OpenImage->SetPosition(ClassesImports::Point(OpenImage->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, OpenImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                OpenImage->SetPosition(ClassesImports::Point(OpenImage->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    OpenImage->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* PanelUp = MainPanel->FindByNameRecursive(u"PanelUp"sv);
-                PanelUp->SetPosition(ClassesImports::Point(PanelUp->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelUp->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                PanelUp->SetPosition(ClassesImports::Point(PanelUp->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    PanelUp->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* PanelDown = MainPanel->FindByNameRecursive(u"PanelDown"sv);
-                PanelDown->SetPosition(ClassesImports::Point(PanelDown->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelDown->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                PanelDown->SetPosition(ClassesImports::Point(PanelDown->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    PanelDown->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         ShipInfoWindow = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoShip"sv));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 8); cpp_range.next(I); ) {
-            ShipSlots[I].ImageControl = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(I)})))));
+            ShipSlots[I].ImageControl =
+                pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(pas::concat_wide({u"Ship",
+                    pas::wide_int_to_str(I)}))));
         }
         GetByName(u"MainPanel"sv)->MouseMoveCallback = pas::bind_method<&TfHangar::MainMouseMove>(this);
         GetByName(u"MainPanel"sv)->RightButtonDownCallback = pas::bind_method<&TfHangar::MainRightButtonDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfHangar::EndTurnClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfHangar::ShipClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRepair"sv))->UpCallback = pas::bind_method<&TfHangar::RepairHullClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRefuel"sv))->UpCallback = pas::bind_method<&TfHangar::RefuelClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeOff"sv))->UpCallback = pas::bind_method<&TfHangar::TakeOffClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<
+                &TfHangar::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<
+                &TfHangar::ShipClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRepair"sv))->UpCallback = pas::bind_method<
+                &TfHangar::RepairHullClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRefuel"sv))->UpCallback = pas::bind_method<
+                &TfHangar::RefuelClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeOff"sv))->UpCallback = pas::bind_method<
+                &TfHangar::TakeOffClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<
+                &fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
     }
 
     void TfHangar::OnOpen() {
@@ -222,7 +252,8 @@ namespace fHangar {
         }
         TakeOffPending = false;
         {
-            GI_GraphButton::TGraphButtonGI* ButClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv));
+            GI_GraphButton::TGraphButtonGI* ButClose = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButClose"sv));
             if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 ButClose->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
@@ -232,9 +263,11 @@ namespace fHangar {
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfHangar::MainKeyDown>(this);
         {
             GI_Image::TImageGI* BGCity2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"BGCity2"sv));
-            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase);
+            BGCity2->SetActive(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                    aGalaxyStruct::rstMilitaryBase);
             if (BGCity2->Active) {
-                BGCity2->SetImagePath(pas::concat_wide({u"GAI,", aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
+                BGCity2->SetImagePath(pas::concat_wide({u"GAI,",
+                    aPlayer::GetPlayer()->CurrentStar->GetBackgroundImagePath(I)}));
                 BGCity2->GaiImageControl->LoadFrameSequenceFromText(GI_GAI::SingleFrameAnimationSpec);
                 BGCity2->SetImageKindX(GI_Main::ikxCenter);
                 BGCity2->SetImageKindY(GI_Main::ikyCenter);
@@ -246,20 +279,24 @@ namespace fHangar {
                 BGCity->SetActive(true);
                 {
                     pas::WideString governmentBackgroundGraph = aPlayer::GetPlayer()->CurrentPlanet->GetGovernmentBackgroundGraph();
-                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(BGCity->FindByNameRecursive(u"BGCity"sv));
+                    GI_Image::TImageGI* cpp_arg = pas::checked_cast<GI_Image::TImageGI*>(
+                        BGCity->FindByNameRecursive(u"BGCity"sv));
                     cpp_arg->SetImagePath(std::move(governmentBackgroundGraph));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 BGCity->SetActive(true);
                 if (aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey != u"") {
-                    Path = pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(), aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey, u"bg"});
+                    Path = pas::concat_wide({u"Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                            aPlayer::GetPlayer()->DockedTo->TypeNameOverrideKey, u"bg"});
                     if (GR_Main::CacheDataRoot->FileExistsByPath(Path)) {
                         BGCity->SetImagePath(pas::concat_wide({u"GI,", Path}));
                     } else {
-                        BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
+                        BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                            aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
                     }
                 } else {
-                    BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(), aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
+                    BGCity->SetImagePath(pas::concat_wide({u"GI,Bm.FormRuins.", GR_Main::GiResourceSuffix(),
+                        aConst::ShipTypeNames[aPlayer::GetPlayer()->DockedTo->TypeId].Name, u"bg"}));
                 }
             } else {
                 BGCity->SetActive(false);
@@ -319,7 +356,8 @@ namespace fHangar {
         GetByName(u"FaceGB"sv)->SetActive(false);
         {
             GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
-            CaptainI->SetImagePath(pas::concat_wide({u"GI,", aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
+            CaptainI->SetImagePath(pas::concat_wide({u"GI,",
+                aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"i"}));
             CaptainI->SetImageKindX(GI_Main::ikxCenter);
             CaptainI->SetImageKindY(GI_Main::ikyCenter);
             CaptainI->SetActive(true);
@@ -327,7 +365,8 @@ namespace fHangar {
         {
             GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-            CaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()), u"a"}));
+            CaptainA->SetImagePath(pas::concat_wide({aShip::TShip_GetCaptainPortraitResourceBase(aPlayer::GetPlayer()),
+                u"a"}));
             CaptainA->SequenceIndex = 0;
             CaptainA->UpdateAutoGeometry();
             CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -339,7 +378,7 @@ namespace fHangar {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 8); cpp_range.next(I); ) {
             ShipSlots[I].AnimationState = 0;
             ShipSlots[I].Opacity = 0;
-            GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(I)}))))->SetActive(false);
+            GetByName(pas::view(pas::concat_wide({u"Ship", pas::wide_int_to_str(I)})))->SetActive(false);
         }
         RefreshDockedShips();
         if (aPlayer::GetPlayer() != nullptr) {
@@ -364,7 +403,8 @@ namespace fHangar {
         }
         LoadPanel->OnClose();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 8); cpp_range.next(I); ) {
-            pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(I)})))))->GraphBuf->Clear();
+            pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(pas::concat_wide({u"Ship",
+                pas::wide_int_to_str(I)}))))->GraphBuf->Clear();
             if (ShipSlots[I].ImageBuffer != nullptr) {
                 ShipSlots[I].ImageBuffer->Clear();
             }
@@ -408,8 +448,12 @@ namespace fHangar {
             Position = FaceGB->ToAbsolutePoint(ClassesImports::Point(0, 0));
             FaceGB->GraphBuf->AllocateNative(FaceGB->ClientSize.X, FaceGB->ClientSize.Y);
             {
-                std::uint32_t cpp_left = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(GR_Main::ScreenRenderBuffer->GetPixels())) + static_cast<std::uint32_t>(Position.X * 2);
-                void* cpp_arg = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(cpp_left + static_cast<std::uint32_t>(Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes))));
+                std::uint32_t cpp_left = static_cast<std::uint32_t>(
+                    reinterpret_cast<std::uintptr_t>(GR_Main::ScreenRenderBuffer->GetPixels())) +
+                    static_cast<std::uint32_t>(Position.X * 2);
+                void* cpp_arg = reinterpret_cast<void*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(cpp_left +
+                        static_cast<std::uint32_t>(Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes))));
                 std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
                 std::int32_t x = FaceGB->ClientSize.X;
                 std::int32_t y = FaceGB->ClientSize.Y;
@@ -435,7 +479,8 @@ namespace fHangar {
             if (Alternate == 0) {
                 FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"Dispatcheri"}));
             } else {
-                FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), u"Dispatcher2i"}));
+                FaceI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(),
+                    u"Dispatcher2i"}));
             }
             FaceI->SetHardwareMirrorHorizontal(GlobalsV::HardwareRenderingEnabled);
             FaceI->SetImageKindX(GI_Main::ikxCenter);
@@ -476,15 +521,21 @@ namespace fHangar {
             return Result;
         }
         Result = true;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
-            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I));
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I));
+                }
+            }
         }
         Globals::StarMapWeaponPanelOpen = false;
         Globals::FilmCameraFollow = true;
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
         fEquipmentShop::RestoreTemporaryShopStock();
         aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 1);
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
+        if (aPlayer::GetPlayer() != nullptr &&
+            aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             aGalaxy::Galaxy->EnableDominatorSurfaces();
         } else {
             aGalaxy::Galaxy->DisableDominatorSurfaces();
@@ -496,7 +547,8 @@ namespace fHangar {
         if (aPlayer::GetPlayer() == nullptr) {
             GlobalsV::GameEndReason = GlobalsV::gerPlayerDeath;
             GlobalsV::RequestedScreenId = GlobalsV::screenGameEnd;
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
             return Result;
         }
         aCalc::CalculateGalaxyTurnAndWait();
@@ -511,15 +563,30 @@ namespace fHangar {
         if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->QueuedTravelTarget != nullptr) {
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport && static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 && static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstDominion && aPlayer::GetPlayer()->DockedTo->Order == aShip::soTeleport &&
+            static_cast<std::uint32_t>(aPlayer::GetPlayer()->DockedTo->OrderStateData) > 0 &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->DockedTo->InHyperspace ^ 1)) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstDominion && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstDominion &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar !=
+                aPlayer::GetPlayer()->CurrentStar &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <=
+                aGalaxy::Galaxy->CurrentTurn) {
             Globals::RuinsTalkScreen->DepartWithStation(1);
             return;
         }
-        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstMilitaryBase && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != aPlayer::GetPlayer()->CurrentStar && pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <= aGalaxy::Galaxy->CurrentTurn) {
+        if (aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstMilitaryBase &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar != nullptr &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyToStar !=
+                aPlayer::GetPlayer()->CurrentStar &&
+            pas::checked_cast<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo)->FlyDate <=
+                aGalaxy::Galaxy->CurrentTurn) {
             if (aPlayer::GetPlayer()->Speed <= 0) {
                 Globals::RuinsTalkScreen->DepartWithStation(1);
             } else {
@@ -557,7 +624,7 @@ namespace fHangar {
         if (Globals::ShipScreen->ShipStateChanged) {
             ShipSlots[0].AnimationState = 0;
             ShipSlots[0].Opacity = 0;
-            GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(0)}))))->SetActive(false);
+            GetByName(pas::view(pas::concat_wide({u"Ship", pas::wide_int_to_str(0)})))->SetActive(false);
             RefreshDockedShips();
         }
         RefreshServiceButtons();
@@ -575,7 +642,9 @@ namespace fHangar {
     }
 
     void TfHangar::MainKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (ExitCode != 0 || LoadPanel->IsAnimatingShutters() || IsServiceButtonDown() || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (ExitCode != 0 || LoadPanel->IsAnimatingShutters() || IsServiceButtonDown() ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (Key == WindowsSdk::VK_SPACE) {
@@ -608,7 +677,8 @@ namespace fHangar {
     }
 
     void TfHangar::SelectMusic() {
-        if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->GetShutterDirection() == -1 || TakeOffPending) {
+        if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->GetShutterDirection() == -1 ||
+            TakeOffPending) {
             return;
         }
         if (!GlobalsV::MusicInPlanetEnabled) {
@@ -618,29 +688,39 @@ namespace fHangar {
         if (aPlayer::GetPlayer()->IsOnPlanet()) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
                 return;
             }
-            if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         }
     }
 
     std::uint8_t TfHangar::IsServiceButtonDown() {
         std::uint8_t Result = true;
-        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeOff"sv))->Down || pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRepair"sv))->Down || pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRefuel"sv))->Down) {
+        if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeOff"sv))->Down ||
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRepair"sv))->Down ||
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRefuel"sv))->Down) {
             return Result;
         }
         return false;
@@ -648,35 +728,47 @@ namespace fHangar {
 
     void TfHangar::RefreshServiceButtons() {
         {
-            GI_GraphButton::TGraphButtonGI* ButRepair = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRepair"sv));
-            ButRepair->SetDisabled(aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->GetHull()->HullPoints >= aPlayer::GetPlayer()->GetHull()->Weight);
+            GI_GraphButton::TGraphButtonGI* ButRepair = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButRepair"sv));
+            ButRepair->SetDisabled(aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->GetHull()->HullPoints >=
+                    aPlayer::GetPlayer()->GetHull()->Weight);
             if (ButRepair->Disabled) {
                 ButRepair->HelpText = aConst::LocalizedColorText(u"Help.ButRepair"_wref.get());
             } else {
-                ButRepair->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRepair"_wref.get()), u" ", ([&] {
-                    pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.Cost"_wref.get());
-                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
-                }())});
+                ButRepair->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRepair"_wref.get()), u" ",
+                        ([&] {
+                            pas::WideString intToStr = pas::wide_int_to_str(
+                                aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
+                            pas::WideString localizedColorText = aConst::LocalizedColorText(
+                                u"FormHangar.HullStatus.Cost"_wref.get());
+                            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText),
+                                std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
+                        }())});
             }
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButRefuel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButRefuel"sv));
+            GI_GraphButton::TGraphButtonGI* ButRefuel = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButRefuel"sv));
             ButRefuel->SetDisabled(aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->GetFullRefuelCost() <= 0);
             if (ButRefuel->Disabled) {
                 ButRefuel->HelpText = aConst::LocalizedColorText(u"Help.ButRefuel"_wref.get());
             } else {
-                ButRefuel->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRefuel"_wref.get()), u" ", ([&] {
-                    pas::WideString intToStr_2 = pas::wide_int_to_str(aPlayer::GetPlayer()->GetFullRefuelCost());
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.Cost"_wref.get());
-                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
-                }())});
+                ButRefuel->HelpText = pas::concat_wide({aConst::LocalizedColorText(u"Help.ButRefuel"_wref.get()), u" ",
+                        ([&] {
+                            pas::WideString intToStr_2 = pas::wide_int_to_str(
+                                aPlayer::GetPlayer()->GetFullRefuelCost());
+                            pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                                u"FormHangar.FuelTankStatus.Cost"_wref.get());
+                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                            return aMyFunction::FormatText1(std::move(localizedColorText_2),
+                                std::move(textHighlightColorTag_2), u"<Money>"_w, std::move(intToStr_2));
+                        }())});
             }
         }
         {
-            GI_GraphButton::TGraphButtonGI* cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButTakeOff"sv));
+            GI_GraphButton::TGraphButtonGI* cpp_arg = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButTakeOff"sv));
             std::uint8_t cpp_arg_2 = static_cast<std::uint8_t>(RefreshTakeOffStatus() ^ 1);
             cpp_arg->SetDisabled(cpp_arg_2);
         }
@@ -691,24 +783,32 @@ namespace fHangar {
             aGalaxy::Galaxy->CheckIntegrityChecksum(215);
             aPlayer::GetPlayer()->SetMoney(0);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(216);
-            GI_MessageBox::ShowMessageBoxGI(this, ([&] {
-                pas::WideString intToStr = pas::wide_int_to_str(aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
-                pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.HullStatus.NotMoney"_wref.get());
-                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
-            }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(this,
+                ([&] {
+                    pas::WideString intToStr = pas::wide_int_to_str(
+                        aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormHangar.HullStatus.NotMoney"_wref.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                        u"<Money>"_w, std::move(intToStr));
+                }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
             MainPanel->FlashMoneyWarning();
             return;
         }
         if (aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()) > aPlayer::GetPlayer()->Money) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(217);
-            aPlayer::GetPlayer()->GetHull()->HullPoints += System::Round(pas::real_divide(aPlayer::GetPlayer()->Money, aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull())) * (aPlayer::GetPlayer()->GetHull()->Weight - aPlayer::GetPlayer()->GetHull()->HullPoints));
+            aPlayer::GetPlayer()->GetHull()->HullPoints +=
+                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(aPlayer::GetPlayer()->Money) /
+                    aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull())) *
+                    (aPlayer::GetPlayer()->GetHull()->Weight - aPlayer::GetPlayer()->GetHull()->HullPoints)));
             aPlayer::GetPlayer()->SetMoney(0);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(218);
             GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());
         } else {
             aGalaxy::Galaxy->CheckIntegrityChecksum(219);
-            aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
+            aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money -
+                aItem::TEquipment_CalculateRepairCost(aPlayer::GetPlayer()->GetHull()));
             aPlayer::GetPlayer()->GetHull()->HullPoints = aPlayer::GetPlayer()->GetHull()->Weight;
             aGalaxy::Galaxy->PrimeIntegrityChecksum(220);
             GR_Main::SoundManager->PlaySound(u"Sound.Repair"_wref.get());
@@ -731,12 +831,15 @@ namespace fHangar {
             return;
         }
         if (aPlayer::GetPlayer()->GetFullRefuelCost() > aPlayer::GetPlayer()->Money) {
-            GI_MessageBox::ShowMessageBoxGI(this, ([&] {
-                pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetFullRefuelCost());
-                pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.NotMoney"_wref.get());
-                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr));
-            }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(this,
+                ([&] {
+                    pas::WideString intToStr = pas::wide_int_to_str(aPlayer::GetPlayer()->GetFullRefuelCost());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormHangar.FuelTankStatus.NotMoney"_wref.get());
+                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                    return aMyFunction::FormatText1(std::move(localizedColorText), std::move(textHighlightColorTag),
+                        u"<Money>"_w, std::move(intToStr));
+                }()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgError, 0, 0, 0);
             MainPanel->FlashMoneyWarning();
             return;
         }
@@ -759,7 +862,9 @@ namespace fHangar {
     }
 
     void TfHangar::TakeOffClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (LoadPanel->IsAnimatingShutters() || MainPanel->NavigationLocked || aScript::HasPendingScriptRequests() || aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyRunning || aCalc::TurnCalculationPhase == ThreadCalc::tcpPlayerStarRunning) {
+        if (LoadPanel->IsAnimatingShutters() || MainPanel->NavigationLocked || aScript::HasPendingScriptRequests() ||
+            aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyRunning || aCalc::TurnCalculationPhase ==
+                ThreadCalc::tcpPlayerStarRunning) {
             return;
         }
         GR_Main::CaptureSavePreview();
@@ -833,11 +938,11 @@ namespace fHangar {
                 Text = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.NeedRepair"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
                 Warning = true;
-            } else if (cpp_with->GetFuelTanks()->ConditionPercent < 2.0E+1L) {
+            } else if (cpp_with->GetFuelTanks()->ConditionPercent < 2.0E+1) {
                 Text = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.SmallDuration"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
                 Warning = true;
-            } else if (cpp_with->GetFuelTanks()->ConditionPercent < 5.0E+1L) {
+            } else if (cpp_with->GetFuelTanks()->ConditionPercent < 5.0E+1) {
                 Text = aConst::LocalizedColorText(u"FormHangar.FuelTankStatus.AverageDuration"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
                 Warning = true;
@@ -855,7 +960,8 @@ namespace fHangar {
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
                 Warning = true;
-            } else if (static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(cpp_with, cpp_with->GetEngine()) ^ 1) || aShip::TShip_CalculateEngineSpeed(cpp_with, cpp_with->GetEngine(), false) <= 0) {
+            } else if (static_cast<std::uint8_t>(aShip::TShip_CanUseEquipmentTech(cpp_with, cpp_with->GetEngine()) ^
+                1) || aShip::TShip_CalculateEngineSpeed(cpp_with, cpp_with->GetEngine(), false) <= 0) {
                 Text = aConst::LocalizedColorText(u"FormHangar.EngineStatus.CanNotUse"_wref.get());
                 TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Bad"_wref.get());
                 Result = false;
@@ -867,13 +973,13 @@ namespace fHangar {
                         TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
                     }
                     Warning = true;
-                } else if (cpp_with->GetEngine()->ConditionPercent < 2.0E+1L) {
+                } else if (cpp_with->GetEngine()->ConditionPercent < 2.0E+1) {
                     Text = aConst::LocalizedColorText(u"FormHangar.EngineStatus.SmallDuration"_wref.get());
                     if (Result) {
                         TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
                     }
                     Warning = true;
-                } else if (cpp_with->GetEngine()->ConditionPercent < 5.0E+1L) {
+                } else if (cpp_with->GetEngine()->ConditionPercent < 5.0E+1) {
                     Text = aConst::LocalizedColorText(u"FormHangar.EngineStatus.AverageDuration"_wref.get());
                     if (Result) {
                         TotalText = aConst::LocalizedColorText(u"FormHangar.TotalStatus.Nearly"_wref.get());
@@ -918,7 +1024,8 @@ namespace fHangar {
             CancelCallbackTimer(AmbientAnimationTimer);
             AmbientAnimationTimer = nullptr;
         }
-        AmbientAnimationTimer = ScheduleCallbackTimer(aMyFunction::RandomIntRange(2000, 4000), 1, pas::bind_method<&TfHangar::StartAmbientAnimation>(this), 0);
+        AmbientAnimationTimer = ScheduleCallbackTimer(aMyFunction::RandomIntRange(2000, 4000), 1,
+                pas::bind_method<&TfHangar::StartAmbientAnimation>(this), 0);
     }
 
     void TfHangar::StartAmbientAnimation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
@@ -955,13 +1062,16 @@ namespace fHangar {
         }
     }
 
-    void TfHangar::LoadDockedShipImage(std::int32_t Index, pas::WideString ImagePath, std::uint8_t LargeHull, float Scale) {
+    void TfHangar::LoadDockedShipImage(std::int32_t Index, pas::WideString ImagePath, std::uint8_t LargeHull,
+        float Scale) {
         std::int32_t Width{};
         {
-            GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(Index)})))));
+            GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(pas::view(pas::concat_wide({u"Ship", pas::wide_int_to_str(Index)}))));
             cpp_with->SetActive(true);
             cpp_with->SourceHasPerPixelAlpha = true;
-            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv), ShipSlots[Index].ImageBuffer);
+            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv),
+                ShipSlots[Index].ImageBuffer);
             if (Index <= 0) {
                 Width = GR_Main::GiScalePixels(128);
             } else if (Index <= 3) {
@@ -972,22 +1082,30 @@ namespace fHangar {
             if (LargeHull) {
                 Width += Width / 2;
             }
-            Width = System::Round(static_cast<long double>(Width) * Scale);
+            Width = pas::real_round(static_cast<float>(static_cast<double>(Width) * Scale));
             if (ShipSlots[Index].ImageBuffer->Width > Width || ShipSlots[Index].ImageBuffer->Height > Width) {
-                ShipSlots[Index].ImageBuffer->RescaleRgba(Width, System::Round(pas::real_divide(Width * ShipSlots[Index].ImageBuffer->Height, ShipSlots[Index].ImageBuffer->Width)), 5);
+                ShipSlots[Index].ImageBuffer->RescaleRgba(Width,
+                    pas::real_round(static_cast<float>(static_cast<double>(Width * ShipSlots[Index].ImageBuffer->Height) /
+                        ShipSlots[Index].ImageBuffer->Width)), 5);
             }
             cpp_with->SetOrigin(ShipSlots[Index].ImageBuffer->GetPixelCentroid());
-            cpp_with->SetSize(ClassesImports::Point(ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height));
+            cpp_with->SetSize(ClassesImports::Point(ShipSlots[Index].ImageBuffer->Width,
+                ShipSlots[Index].ImageBuffer->Height));
             cpp_with->SetImageKindX(GI_Main::ikxLeft);
             cpp_with->SetImageKindY(GI_Main::ikyTop);
         }
     }
 
     void TfHangar::SetDockedShipOpacity(std::int32_t Index, std::uint8_t Alpha) {
-        GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(Index)})))));
-        cpp_with->GraphBuf->AllocateRgbaTight(ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height);
-        GR_GraphBuf::TGraphBufGR_CopyRect32(cpp_with->GraphBuf, ClassesImports::Point(0, 0), ShipSlots[Index].ImageBuffer, ClassesImports::Rect(0, 0, ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height));
-        GR_GraphBuf::TGraphBufGR_ScaleAlpha(cpp_with->GraphBuf, ClassesImports::Rect(0, 0, ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height), Alpha);
+        GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(pas::view(pas::concat_wide({u"Ship", pas::wide_int_to_str(Index)}))));
+        cpp_with->GraphBuf->AllocateRgbaTight(ShipSlots[Index].ImageBuffer->Width,
+            ShipSlots[Index].ImageBuffer->Height);
+        cpp_with->GraphBuf->CopyRect32(ClassesImports::Point(0, 0), ShipSlots[Index].ImageBuffer,
+            ClassesImports::Rect(0, 0, ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height));
+        cpp_with->GraphBuf->ScaleAlpha(
+            ClassesImports::Rect(0, 0, ShipSlots[Index].ImageBuffer->Width, ShipSlots[Index].ImageBuffer->Height),
+            Alpha);
         cpp_with->Invalidate();
     }
 
@@ -1006,7 +1124,8 @@ namespace fHangar {
                 if (ShipSlots[I].Opacity <= 0) {
                     ShipSlots[I].Opacity = 0;
                     ShipSlots[I].AnimationState = 0;
-                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Ship", SysUtils::IntToStr(I)})))))->SetActive(false);
+                    pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(pas::view(pas::concat_wide({u"Ship",
+                        pas::wide_int_to_str(I)}))))->SetActive(false);
                 }
                 SetDockedShipOpacity(I, ShipSlots[I].Opacity);
             }
@@ -1029,7 +1148,9 @@ namespace fHangar {
         for (I = 0; I <= 8; ++I) {
             if (ShipSlots[I].AnimationState == 2) {
                 Ship = static_cast<aShip::TShip*>(aGalaxy::Galaxy->IdToShip(ShipSlots[I].ShipId, false));
-                if (Ship == nullptr || !(aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet) && !(aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo == Ship->DockedTo)) {
+                if (Ship == nullptr || !(aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet ==
+                            Ship->CurrentPlanet) && !(aPlayer::GetPlayer()->IsDockedToShip() &&
+                            aPlayer::GetPlayer()->DockedTo == Ship->DockedTo)) {
                     ShipSlots[I].AnimationState = 3;
                     ShipSlots[I].Opacity = 255;
                 }
@@ -1039,7 +1160,9 @@ namespace fHangar {
             if (ShipSlots[I].AnimationState == 0 && ShipSlots[I].ShipId != 0) {
                 Ship = static_cast<aShip::TShip*>(aGalaxy::Galaxy->IdToShip(ShipSlots[I].ShipId, false));
                 if (Ship != nullptr) {
-                    if (!(aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet || aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo == Ship->DockedTo)) {
+                    if (!(aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet ==
+                            Ship->CurrentPlanet || aPlayer::GetPlayer()->IsDockedToShip() &&
+                            aPlayer::GetPlayer()->DockedTo == Ship->DockedTo)) {
                         Ship = nullptr;
                     } else {
                         K = 0;
@@ -1085,30 +1208,63 @@ namespace fHangar {
                     Ship = aPlayer::GetPlayer();
                 } else if (Ship == nullptr) {
                     if (aPlayer::GetPlayer()->IsOnPlanet()) {
-                        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(J); ) {
-                            Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, J);
-                            if (aPlayer::GetPlayer() == Ship) {
-                                Ship = nullptr;
-                            } else if (aPlayer::GetPlayer()->CurrentPlanet != Ship->CurrentPlanet) {
-                                Ship = nullptr;
-                            } else {
-                                K = 0;
-                                while (K <= 8) {
-                                    if (ShipSlots[K].AnimationState != 0 && ShipSlots[K].ShipId == Ship->Id) {
-                                        break;
+                        {
+                            const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+                            if (0 <= cpp_last) {
+                                for (J = 0; J <= cpp_last; ++J) {
+                                    Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, J);
+                                    if (aPlayer::GetPlayer() == Ship) {
+                                        Ship = nullptr;
+                                    } else if (aPlayer::GetPlayer()->CurrentPlanet != Ship->CurrentPlanet) {
+                                        Ship = nullptr;
+                                    } else {
+                                        K = 0;
+                                        while (K <= 8) {
+                                            if (ShipSlots[K].AnimationState != 0 && ShipSlots[K].ShipId == Ship->Id) {
+                                                break;
+                                            }
+                                            ++K;
+                                        }
+                                        if (K > 8) {
+                                            break;
+                                        }
+                                        Ship = nullptr;
                                     }
-                                    ++K;
                                 }
-                                if (K > 8) {
-                                    break;
-                                }
-                                Ship = nullptr;
                             }
                         }
                         if (Ship == nullptr) {
-                            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentPlanet->Warriors) - 1); cpp_range_2.next(J); ) {
-                                Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentPlanet->Warriors, J);
-                                if (aPlayer::GetPlayer()->CurrentPlanet != Ship->CurrentPlanet) {
+                            const std::int32_t cpp_last_2 = pas::list_count(
+                                aPlayer::GetPlayer()->CurrentPlanet->Warriors) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (J = 0; J <= cpp_last_2; ++J) {
+                                    Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentPlanet->Warriors, J);
+                                    if (aPlayer::GetPlayer()->CurrentPlanet != Ship->CurrentPlanet) {
+                                        Ship = nullptr;
+                                    } else {
+                                        K = 0;
+                                        while (K <= 8) {
+                                            if (ShipSlots[K].AnimationState != 0 && ShipSlots[K].ShipId == Ship->Id) {
+                                                break;
+                                            }
+                                            ++K;
+                                        }
+                                        if (K > 8) {
+                                            break;
+                                        }
+                                        Ship = nullptr;
+                                    }
+                                }
+                            }
+                        }
+                    } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
+                        const std::int32_t cpp_last_3 = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+                        if (0 <= cpp_last_3) {
+                            for (J = 0; J <= cpp_last_3; ++J) {
+                                Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, J);
+                                if (aPlayer::GetPlayer() == Ship) {
+                                    Ship = nullptr;
+                                } else if (aPlayer::GetPlayer()->DockedTo != Ship->DockedTo) {
                                     Ship = nullptr;
                                 } else {
                                     K = 0;
@@ -1123,27 +1279,6 @@ namespace fHangar {
                                     }
                                     Ship = nullptr;
                                 }
-                            }
-                        }
-                    } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
-                        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range_3.next(J); ) {
-                            Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, J);
-                            if (aPlayer::GetPlayer() == Ship) {
-                                Ship = nullptr;
-                            } else if (aPlayer::GetPlayer()->DockedTo != Ship->DockedTo) {
-                                Ship = nullptr;
-                            } else {
-                                K = 0;
-                                while (K <= 8) {
-                                    if (ShipSlots[K].AnimationState != 0 && ShipSlots[K].ShipId == Ship->Id) {
-                                        break;
-                                    }
-                                    ++K;
-                                }
-                                if (K > 8) {
-                                    break;
-                                }
-                                Ship = nullptr;
                             }
                         }
                     }
@@ -1181,7 +1316,9 @@ namespace fHangar {
                 ShowShipInfo(Ship);
                 if (GlobalsV::DynamicTipsPos) {
                     GI_GraphBuf::TGraphBufGI* cpp_with = ShipSlots[I].ImageControl;
-                    ShipInfoWindow->SetPosition(ClassesImports::Point(cpp_with->HitTestBounds.Left + cpp_with->ClientSize.X / 2 - ShipInfoWindow->ClientSize.X / 2, cpp_with->HitTestBounds.Top + cpp_with->ClientSize.Y));
+                    ShipInfoWindow->SetPosition(ClassesImports::Point(
+                        cpp_with->HitTestBounds.Left + cpp_with->ClientSize.X / 2 - ShipInfoWindow->ClientSize.X / 2,
+                        cpp_with->HitTestBounds.Top + cpp_with->ClientSize.Y));
                 } else {
                     ShipInfoWindow->SetPosition(ClassesImports::Point(10, 10));
                 }
@@ -1196,18 +1333,21 @@ namespace fHangar {
         ShipInfoHideTimer = ScheduleCallbackTimer(30, 30, pas::bind_method<&TfHangar::HideShipInfo>(this), 0);
     }
 
-    void TfHangar::MainRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfHangar::MainRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         std::int32_t I{};
         aShip::TShip* Ship{};
         WindowsSdk::TPoint CursorPoint{};
         CursorPoint = GetCursorPoint();
         for (I = 0; I <= 8; ++I) {
             Ship = static_cast<aShip::TShip*>(aGalaxy::Galaxy->IdToShip(ShipSlots[I].ShipId, false));
-            if (Ship != nullptr && ShipSlots[I].ImageControl->HitTestPixel(CursorPoint) && Ship->TypeId != aGalaxyStruct::stKling && static_cast<std::uint8_t>(Ship->NoScan ^ 1)) {
+            if (Ship != nullptr && ShipSlots[I].ImageControl->HitTestPixel(CursorPoint) && Ship->TypeId !=
+                    aGalaxyStruct::stKling && static_cast<std::uint8_t>(Ship->NoScan ^ 1)) {
                 if (aPlayer::GetPlayer() == Ship) {
                     SelectedShip = aPlayer::GetPlayer();
                     ShipClicked(nullptr);
-                } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && tranclucator->OwnerShip == aPlayer::GetPlayer()) {
+                } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(
+                    Ship); tranclucator != nullptr && tranclucator->OwnerShip == aPlayer::GetPlayer()) {
                     if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
                         aGalaxy::Galaxy->CheckIntegrityChecksum(227);
                         pas::checked_cast<aTranclucator::TTranclucator*>(Ship)->ConvertToStoredArtefact();
@@ -1247,7 +1387,6 @@ namespace fHangar {
         pas::WideString Text{};
         pas::WideString Path{};
         pas::WideString ColorTag{};
-        std::int32_t BarWidth{};
         std::int32_t CapWidth{};
         std::int32_t MinimumWidth{};
         if (ShipInfoHideTimer != nullptr) {
@@ -1264,43 +1403,66 @@ namespace fHangar {
                 const pas::WideString& wrapTextInColor = ([&] {
                     pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
                     pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)), pas::view(std::move(infoNameColorTag)));
+                    return aMyFunction::WrapTextInColor(pas::view(std::move(fullName)),
+                        pas::view(std::move(infoNameColorTag)));
                 }());
                 GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg->SetText(wrapTextInColor);
             }
             if (Ship != nullptr && aPlayer::GetPlayer() == Ship->PartnerShip) {
-                const pas::WideString& cpp_arg_2 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
-                    pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"FormInfo.Partner"_wref.get());
-                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)), pas::view(std::move(textHighlightColorTag)));
-                }())});
+                const pas::WideString& cpp_arg_2 = pas::concat_wide({
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n",
+                    ([&] {
+                        pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                            u"FormInfo.Partner"_wref.get());
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(lookupLocalizedTextByKey)),
+                            pas::view(std::move(textHighlightColorTag)));
+                    }())});
                 GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_3->SetText(cpp_arg_2);
             }
-            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr && kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId, static_cast<std::int32_t>(aGalaxyStruct::prgShipwreck), static_cast<std::int32_t>(aGalaxyStruct::prgDisconnection))) {
-                const pas::WideString& cpp_arg_4 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
-                    pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.", aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId], u".AddToShipInfo"}));
-                    pas::WideString redColorTag = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)), pas::view(std::move(redColorTag)));
-                }())});
+            if (aKling::TKling* kling = pas::class_cast_if<aKling::TKling*>(Ship); kling != nullptr &&
+                kling->ActiveProgramAppliedTurn > 0 && pas::in_range(kling->ActiveProgramId,
+                    static_cast<std::int32_t>(aGalaxyStruct::prgShipwreck),
+                    static_cast<std::int32_t>(aGalaxyStruct::prgDisconnection))) {
+                const pas::WideString& cpp_arg_4 = pas::concat_wide({
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n",
+                    ([&] {
+                        pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Programms.",
+                            aConst::ProgramNames[pas::checked_cast<aKling::TKling*>(Ship)->ActiveProgramId],
+                            u".AddToShipInfo"}));
+                        pas::WideString redColorTag = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedText)),
+                            pas::view(std::move(redColorTag)));
+                    }())});
                 GI_Label::TLabelGI* cpp_arg_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_5->SetText(cpp_arg_4);
             }
-            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship); ranger != nullptr && static_cast<std::uint32_t>(ranger->PrisonTermRemaining) > 0) {
-                const pas::WideString& cpp_arg_6 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get());
-                    pas::WideString redColorTag_2 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(redColorTag_2)));
-                }())});
+            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship); ranger != nullptr &&
+                static_cast<std::uint32_t>(ranger->PrisonTermRemaining) > 0) {
+                const pas::WideString& cpp_arg_6 = pas::concat_wide({
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n",
+                    ([&] {
+                        pas::WideString localizedColorText = aConst::LocalizedColorText(
+                            u"FormHangar.Prison"_wref.get());
+                        pas::WideString redColorTag_2 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)),
+                            pas::view(std::move(redColorTag_2)));
+                    }())});
                 GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_7->SetText(cpp_arg_6);
-            } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship); pirate != nullptr && pirate->PrisonTermRemaining > 0) {
-                const pas::WideString& cpp_arg_8 = pas::concat_wide({pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n", ([&] {
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormHangar.Prison"_wref.get());
-                    pas::WideString redColorTag_3 = aMyFunction::RedColorTag;
-                    return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)), pas::view(std::move(redColorTag_3)));
-                }())});
+            } else if (aPirate::TPirate* pirate = pas::class_cast_if<aPirate::TPirate*>(Ship); pirate != nullptr &&
+                pirate->PrisonTermRemaining > 0) {
+                const pas::WideString& cpp_arg_8 = pas::concat_wide({
+                    pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv))->GetText(), u"\r\n",
+                    ([&] {
+                        pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                            u"FormHangar.Prison"_wref.get());
+                        pas::WideString redColorTag_3 = aMyFunction::RedColorTag;
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText_2)),
+                            pas::view(std::move(redColorTag_3)));
+                    }())});
                 GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
                 cpp_arg_9->SetText(cpp_arg_8);
             }
@@ -1308,7 +1470,8 @@ namespace fHangar {
             const pas::WideString& wrapTextInColor_2 = ([&] {
                 pas::WideString fullName_2 = Ship->GetFullName(u" "_wref.get());
                 pas::WideString infoNameColorTag_2 = aMyFunction::InfoNameColorTag;
-                return aMyFunction::WrapTextInColor(pas::view(std::move(fullName_2)), pas::view(std::move(infoNameColorTag_2)));
+                return aMyFunction::WrapTextInColor(pas::view(std::move(fullName_2)),
+                    pas::view(std::move(infoNameColorTag_2)));
             }());
             GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
             cpp_arg_10->SetText(wrapTextInColor_2);
@@ -1323,17 +1486,28 @@ namespace fHangar {
             GetByName(u"InfoShipEmRace"sv)->SetActive(false);
         }
         if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Ship->Graphic) != nullptr) {
-            GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
+            GI_GraphBuf::TGraphBufGI* InfoShipImage2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"InfoShipImage2"sv));
             Path = Ship->GetShipPortraitImagePath();
             InfoShipImage2->SetActive(Path != u"");
             if (InfoShipImage2->Active) {
                 InfoShipImage2->SourceHasPerPixelAlpha = true;
-                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(Path), 1, u","sv), InfoShipImage2->GraphBuf);
-                if (InfoShipImage2->ClientSize.X < InfoShipImage2->GraphBuf->Width || InfoShipImage2->ClientSize.Y < InfoShipImage2->GraphBuf->Height) {
-                    if (static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) {
-                        InfoShipImage2->GraphBuf->RescaleRgba(InfoShipImage2->ClientSize.X, System::Round(pas::real_divide(InfoShipImage2->ClientSize.X, static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)), 5);
+                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(Path), 1, u","sv),
+                    InfoShipImage2->GraphBuf);
+                if (InfoShipImage2->ClientSize.X < InfoShipImage2->GraphBuf->Width || InfoShipImage2->ClientSize.Y <
+                        InfoShipImage2->GraphBuf->Height) {
+                    if (static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width) >=
+                        static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) {
+                        InfoShipImage2->GraphBuf->RescaleRgba(InfoShipImage2->ClientSize.X,
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoShipImage2->ClientSize.X) /
+                                static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width)) *
+                                static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height))), 5);
                     } else {
-                        InfoShipImage2->GraphBuf->RescaleRgba(System::Round(pas::real_divide(InfoShipImage2->ClientSize.Y, static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) * static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width)), InfoShipImage2->ClientSize.Y, 5);
+                        InfoShipImage2->GraphBuf->RescaleRgba(
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoShipImage2->ClientSize.Y) /
+                                static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Height)) *
+                                static_cast<std::uint32_t>(InfoShipImage2->GraphBuf->Width))),
+                            InfoShipImage2->ClientSize.Y, 5);
                     }
                 }
                 InfoShipImage2->SetImageKindX(GI_Main::ikxCenter);
@@ -1345,19 +1519,38 @@ namespace fHangar {
                 }
             }
         } else {
-            GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoShipImage2"sv));
+            GI_GraphBuf::TGraphBufGI* InfoShipImage2_2 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"InfoShipImage2"sv));
             InfoShipImage2_2->SetActive(true);
             InfoShipImage2_2->SourceHasPerPixelAlpha = true;
-            if (aKling::TerronShip == Ship && aGalaxy::Galaxy->TerronToStarTurn >= aGalaxyStruct::TerronTransformationFlag) {
-                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(aKling::TerronShip->CurrentStar->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
+            if (aKling::TerronShip == Ship && aGalaxy::Galaxy->TerronToStarTurn >=
+                    aGalaxyStruct::TerronTransformationFlag) {
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    EC_Str::ExtractDelimitedPartW(
+                        pas::view(
+                            reinterpret_cast<SE_Star::TStarSE*>(
+                            aKling::TerronShip->CurrentStar->Graphic)->StaticImagePath), 1, u","sv),
+                    InfoShipImage2_2->GraphBuf);
             } else {
-                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->StaticImagePath), 1, u","sv), InfoShipImage2_2->GraphBuf);
+                GI_GI::LoadGiByPathIntoGraphBuf(
+                    EC_Str::ExtractDelimitedPartW(
+                        pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Graphic)->StaticImagePath), 1, u","sv),
+                    InfoShipImage2_2->GraphBuf);
             }
-            if (InfoShipImage2_2->ClientSize.X < InfoShipImage2_2->GraphBuf->Width || InfoShipImage2_2->ClientSize.Y < InfoShipImage2_2->GraphBuf->Height) {
-                if (static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) {
-                    InfoShipImage2_2->GraphBuf->RescaleRgba(InfoShipImage2_2->ClientSize.X, System::Round(pas::real_divide(InfoShipImage2_2->ClientSize.X, static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)), 5);
+            if (InfoShipImage2_2->ClientSize.X < InfoShipImage2_2->GraphBuf->Width || InfoShipImage2_2->ClientSize.Y <
+                    InfoShipImage2_2->GraphBuf->Height) {
+                if (static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width) >=
+                    static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) {
+                    InfoShipImage2_2->GraphBuf->RescaleRgba(InfoShipImage2_2->ClientSize.X,
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoShipImage2_2->ClientSize.X) /
+                            static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width)) *
+                            static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height))), 5);
                 } else {
-                    InfoShipImage2_2->GraphBuf->RescaleRgba(System::Round(pas::real_divide(InfoShipImage2_2->ClientSize.Y, static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) * static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width)), InfoShipImage2_2->ClientSize.Y, 5);
+                    InfoShipImage2_2->GraphBuf->RescaleRgba(
+                        pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoShipImage2_2->ClientSize.Y) /
+                            static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Height)) *
+                            static_cast<std::uint32_t>(InfoShipImage2_2->GraphBuf->Width))),
+                        InfoShipImage2_2->ClientSize.Y, 5);
                 }
             }
             {
@@ -1392,20 +1585,25 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
             cpp_arg_14->SetText(wrapTextInColor_3);
         }
-        if (Ship->GetHull()->HullPoints <= pas::real_divide(Ship->GetHull()->Weight, 2.0L)) {
+        if (Ship->GetHull()->HullPoints <= static_cast<float>(Ship->GetHull()->Weight / 2.0)) {
             ColorTag = aMyFunction::OrangeColorTag;
         } else {
             ColorTag = pas::WideString();
         }
-        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
-            Text = pas::concat_wide({aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->GetHull()->HullPoints)), pas::view(ColorTag)), u"/", pas::wide_int_to_str(Ship->GetHull()->Weight)});
+        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship ||
+            aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            Text = pas::concat_wide({
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->GetHull()->HullPoints)),
+                        pas::view(ColorTag)), u"/", pas::wide_int_to_str(Ship->GetHull()->Weight)});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 {
                     const pas::WideString& weaponDamageSummary = aShip::TShip_GetWeaponDamageSummary(Ship);
-                    GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
+                    GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"InfoShipDamage"sv));
                     cpp_arg_15->SetText(weaponDamageSummary);
                 }
-                Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::view(aShip::TShip_GetRepairPointsSummary(Ship)), u""sv)});
+                Text = pas::concat_wide({Text, u" + ",
+                        aMyFunction::WrapTextInColor(pas::view(aShip::TShip_GetRepairPointsSummary(Ship)), u""sv)});
             }
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv))->SetText(Text);
         } else {
@@ -1413,24 +1611,31 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_16 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipSize"sv));
             cpp_arg_16->SetText(wrapTextInColor_4);
         }
-        Text = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Ship->GetDefensePercent()), "%"}));
-        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
-            Text = pas::concat_wide({Text, u" + ", aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->GetArmor())), u""sv)});
+        Text = pas::concat_wide({pas::wide_int_to_str(static_cast<std::int32_t>(Ship->GetDefensePercent())), u"%"});
+        if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship ||
+            aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+            Text = pas::concat_wide({Text, u" + ",
+                    aMyFunction::WrapTextInColor(pas::view(pas::wide_int_to_str(Ship->GetArmor())), u""sv)});
             if (aPlayer::GetPlayer()->HasScannerArtefact(Ship)) {
                 Text = pas::concat_wide({Ship->GetManeuverabilitySummary(), Text});
             }
         }
         pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDef"sv))->SetText(Text);
         {
-            const pas::WideString& relationLevelTextToShip = aShip::TShip_GetRelationLevelTextToShip(Ship, aPlayer::GetPlayer());
+            const pas::WideString& relationLevelTextToShip = aShip::TShip_GetRelationLevelTextToShip(Ship,
+                aPlayer::GetPlayer());
             GI_Label::TLabelGI* cpp_arg_17 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipRel"sv));
             cpp_arg_17->SetText(relationLevelTextToShip);
         }
-        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
+        if (aPlayer::GetPlayer() != Ship && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) &&
+            aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 &&
+            aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship)) {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(true);
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(true);
             {
-                const pas::WideString& cpp_arg_18 = static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(aShip::TShip_GetWinChancePercent(aPlayer::GetPlayer(), Ship)), "%"}));
+                const pas::WideString& cpp_arg_18 = pas::concat_wide({
+                    pas::wide_int_to_str(static_cast<std::int32_t>(aShip::TShip_GetWinChancePercent(
+                        aPlayer::GetPlayer(), Ship))), u"%"});
                 GI_Label::TLabelGI* cpp_arg_19 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
                 cpp_arg_19->SetText(cpp_arg_18);
             }
@@ -1438,20 +1643,25 @@ namespace fHangar {
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISWin"sv))->SetActive(false);
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv))->SetActive(false);
         }
-        {
-            float real_max = pas::real_max<float>(0.1f, Ship->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-            BarWidth = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Ship->GetHull()->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
-        }
+        std::int32_t BarWidth = pas::real_round(static_cast<float>(System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Ship->GetHull()->Weight) /
+            aConst::HullBaseSize) / pas::real_max_scalar<float>(0.1f,
+                Ship->GetHull()->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}))))) * 64.0));
         BarWidth = std::min<std::int32_t>(192, std::max<std::int32_t>(32, BarWidth));
         {
-            GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableLeft"sv));
+            GI_Image::TImageGI* InfoShipDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(
+                GetByName(u"InfoShipDurableLeft"sv));
             CapWidth = InfoShipDurableLeft->GetContentSize().X;
-            MinimumWidth = 2 * CapWidth + BarWidth + InfoShipDurableLeft->LocalPosition.X + InfoShipDurableLeft->Parent->LocalPosition.X + 2 * InfoShipDurableLeft->Parent->Parent->LocalPosition.X;
+            MinimumWidth = 2 * CapWidth + BarWidth + InfoShipDurableLeft->LocalPosition.X +
+                    InfoShipDurableLeft->Parent->LocalPosition.X + 2 *
+                        InfoShipDurableLeft->Parent->Parent->LocalPosition.X;
         }
         {
-            GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurable"sv));
-            if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship || aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
-                std::int64_t cpp_left = System::Round(pas::real_divide(Ship->GetHull()->HullPoints, Ship->GetHull()->Weight) * BarWidth);
+            GI_Image::TImageGI* InfoShipDurable = pas::checked_cast<GI_Image::TImageGI*>(
+                GetByName(u"InfoShipDurable"sv));
+            if (aPlayer::GetPlayer()->CanResolveObjectWithScanner(Ship) || aPlayer::GetPlayer() == Ship ||
+                aPlayer::GetPlayer() == Ship->PartnerShip || Ship->TypeId == aGalaxyStruct::stTranclucator) {
+                std::int64_t cpp_left = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Ship->GetHull()->HullPoints) /
+                    Ship->GetHull()->Weight) * BarWidth));
                 std::int32_t cpp_arg_20 = cpp_left - (InfoShipDurable->GetContentSize().X - 5);
                 std::int32_t y = InfoShipDurable->LocalPosition.Y;
                 InfoShipDurable->SetPosition(ClassesImports::Point(cpp_arg_20, y));
@@ -1465,27 +1675,34 @@ namespace fHangar {
                 }
             }
             InfoShipDurable->Parent->Parent->SetActive(true);
-            InfoShipDurable->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth, InfoShipDurable->Parent->Parent->ClientSize.Y));
-            InfoShipDurable->Parent->SetSize(ClassesImports::Point(BarWidth + 2, InfoShipDurable->Parent->Parent->ClientSize.Y));
+            InfoShipDurable->Parent->Parent->SetSize(ClassesImports::Point(2 * CapWidth + BarWidth,
+                InfoShipDurable->Parent->Parent->ClientSize.Y));
+            InfoShipDurable->Parent->SetSize(ClassesImports::Point(BarWidth + 2,
+                InfoShipDurable->Parent->Parent->ClientSize.Y));
         }
         {
-            GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableRight"sv));
+            GI_Image::TImageGI* InfoShipDurableRight = pas::checked_cast<GI_Image::TImageGI*>(
+                GetByName(u"InfoShipDurableRight"sv));
             {
                 std::int32_t cpp_arg_22 = BarWidth + CapWidth - InfoShipDurableRight->GetContentSize().X;
                 std::int32_t y_3 = InfoShipDurableRight->LocalPosition.Y;
                 InfoShipDurableRight->SetPosition(ClassesImports::Point(cpp_arg_22, y_3));
             }
-            InfoShipDurableRight->Parent->SetPosition(ClassesImports::Point(CapWidth, InfoShipDurableRight->Parent->LocalPosition.Y));
-            InfoShipDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableRight->Parent->ClientSize.Y));
+            InfoShipDurableRight->Parent->SetPosition(ClassesImports::Point(CapWidth,
+                InfoShipDurableRight->Parent->LocalPosition.Y));
+            InfoShipDurableRight->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth,
+                InfoShipDurableRight->Parent->ClientSize.Y));
         }
         {
-            GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoShipDurableBack"sv));
+            GI_Image::TImageGI* InfoShipDurableBack = pas::checked_cast<GI_Image::TImageGI*>(
+                GetByName(u"InfoShipDurableBack"sv));
             {
                 std::int32_t cpp_arg_23 = BarWidth + 1 - InfoShipDurableBack->GetContentSize().X;
                 std::int32_t y_4 = InfoShipDurableBack->LocalPosition.Y;
                 InfoShipDurableBack->SetPosition(ClassesImports::Point(cpp_arg_23, y_4));
             }
-            InfoShipDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth, InfoShipDurableBack->Parent->ClientSize.Y));
+            InfoShipDurableBack->Parent->SetSize(ClassesImports::Point(BarWidth + CapWidth,
+                InfoShipDurableBack->Parent->ClientSize.Y));
         }
         GI_Label::TLabelGI* DamageCaption = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ISDamage"sv));
         GI_Label::TLabelGI* DamageText = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipDamage"sv));
@@ -1513,13 +1730,18 @@ namespace fHangar {
             GI_Label::TLabelGI* cpp_arg_35 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipWin"sv));
             GI_MessageLoop::TObjectGI* byName = GetByName(u"InfoShipEmRace"sv);
             GI_Label::TLabelGI* cpp_arg_36 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoShipName"sv));
-            Globals::ShipScreen->LayoutObjectInfo(ShipInfoWindow, cpp_arg_36, cpp_arg_24, cpp_arg_25, cpp_arg_26, cpp_arg_27, cpp_arg_28, cpp_arg_29, cpp_arg_30, cpp_arg_31, DamageCaption, DamageText, cpp_arg_32, cpp_arg_33, cpp_arg_34, cpp_arg_35, nullptr, nullptr, byName, true, MinimumWidth);
+            Globals::ShipScreen->LayoutObjectInfo(ShipInfoWindow, cpp_arg_36, cpp_arg_24, cpp_arg_25, cpp_arg_26,
+                cpp_arg_27, cpp_arg_28, cpp_arg_29, cpp_arg_30, cpp_arg_31, DamageCaption, DamageText, cpp_arg_32,
+                cpp_arg_33, cpp_arg_34, cpp_arg_35, nullptr, nullptr, byName, true, MinimumWidth);
         }
         HoveredShip = Ship;
     }
 
     void TfHangar::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(LoadPanel->IsAnimatingShutters() ^ 1) && static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (!LoadPanel->IsAnimatingShutters() && static_cast<std::uint8_t>(MainPanel->NavigationLocked ^ 1) &&
+            static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle,
+                ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+                ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10000);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20000);

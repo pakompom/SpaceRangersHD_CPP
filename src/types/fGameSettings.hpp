@@ -11,7 +11,7 @@ namespace fGameSettings {
     #endif
     struct TThreadCreateNewGame : EC_Thread::TThreadEC {
         PAS_CLASS_META(TThreadCreateNewGame, EC_Thread::TThreadEC, "TThreadCreateNewGame", 76)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         aGalaxyStruct::TOwnerId PlayerRace;
         aGalaxyStruct::TGalaxyDifficultyLevels DifficultyLevels;
         std::uint8_t cpp_padding[3];

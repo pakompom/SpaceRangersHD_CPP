@@ -41,7 +41,4 @@ namespace aSaveLoad {
     // Waits for a pending write before freeing the worker.
     void FinalizeSaveWriter();
 
-    // Owns and frees all five buffers. Writes Save.tmp before replacing the destination; shares SaveLoadLock with the loader.
-    void TSaver_Execute(TSaver* Self);
-
 } // namespace aSaveLoad

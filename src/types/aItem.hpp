@@ -175,7 +175,9 @@ namespace aItem {
         pas::WideString GetShortName() override;
         // Selects strength and stat emphasis from Id, then calls Improve. Charging and eligibility checks belong to the caller.
         void ImproveAtScientificBase();
-        std::uint8_t HasMicroModule();
+        inline std::uint8_t HasMicroModule() {
+            return MicroModuleIndex != 0;
+        }
         pas::WideString GetMicroModuleQuotedName();
         pas::WideString GetSpecialModuleName();
         // Base is a no-op. Overrides change statistics and Cost without checking CanImprove or charging money; ikAny selects one of the three strengths.
@@ -233,7 +235,8 @@ namespace aItem {
     #endif
     struct THull : aItem::TEquipment {
         PAS_CLASS_META(THull, aItem::TEquipment, "THull", 132)
-        void Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner, aGalaxyStruct::THullType HullType, std::int32_t Series, std::uint8_t PirateBuilt);
+        void Init(std::int32_t Capacity, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner,
+            aGalaxyStruct::THullType HullType, std::int32_t Series, std::uint8_t PirateBuilt);
         // Applies the current hull series, resets HullPoints to capacity, and bounds Cost.
         void ApplySeriesSizeAndCost();
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
@@ -491,7 +494,9 @@ namespace aItem {
         void virtual_TItem_LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         void ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) override;
         void Unequip() override;
-        std::int32_t CalculateGeneratedAmmoCapacity();
+        inline std::int32_t CalculateGeneratedAmmoCapacity() {
+            return TechLevel * 5 + 25;
+        }
         std::int32_t CalculateGeneratedMinDamage();
         std::int32_t CalculateGeneratedMaxDamage();
         std::int32_t CalculateGeneratedRange();
@@ -652,7 +657,8 @@ namespace aItem {
     struct TUselessItem : aItem::TEquipmentWithActCode {
         PAS_CLASS_META(TUselessItem, aItem::TEquipmentWithActCode, "TUselessItem", 120)
         void p_destroy() override;
-        void Init(pas::WideString ConfigName, aGalaxyStruct::TDominatorSeries Series, std::uint32_t Seed, std::uint8_t ForceArtefactDisplay);
+        void Init(pas::WideString ConfigName, aGalaxyStruct::TDominatorSeries Series, std::uint32_t Seed,
+            std::uint8_t ForceArtefactDisplay);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
@@ -690,7 +696,8 @@ namespace aItem {
         pas::WideString GetDescriptionText() override;
         pas::WideString GetBitmapResourceName() override;
         // Node refund at the current ranger center, using priority and docked station ID. Priorities 31..69 are capped by half LowPriorityOfferCost; 70..100 by half MediumPriorityOfferCost. Minimum 5 nodes.
-        std::int32_t CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost, std::int32_t MediumPriorityOfferCost);
+        std::int32_t CalculateNodeExchangeValue(std::int32_t LowPriorityOfferCost,
+            std::int32_t MediumPriorityOfferCost);
         // Template name wrapped in the standard yellow highlight color.
         pas::WideString GetHighlightedName();
         // Uses this micromodule item's template and checks slot blockers and equipment compatibility.
@@ -853,7 +860,8 @@ namespace aItem {
     #endif
     struct TCustomWeapon : aItem::TWeapon {
         PAS_CLASS_META(TCustomWeapon, aItem::TWeapon, "TCustomWeapon", 132)
-        void InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level, aGalaxyStruct::TOwnerId Owner);
+        void InitCustom(aConst::PWeaponInfo Info, std::uint8_t Equipped, std::int32_t Weight, std::uint8_t Level,
+            aGalaxyStruct::TOwnerId Owner);
         void SaveToBuffer(EC_Buf::TBufEC* Buffer) override;
         void LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) override;
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;

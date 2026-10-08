@@ -190,12 +190,17 @@ namespace GI_Circle {
         std::int32_t Height{};
         Types::TRect Bounds{};
         if (Kind == ckSimple) {
-            R = std::min<std::int32_t>(HitTestBounds.Bottom - HitTestBounds.Top, HitTestBounds.Right - HitTestBounds.Left) / 2;
+            R = std::min<std::int32_t>(HitTestBounds.Bottom - HitTestBounds.Top,
+                    HitTestBounds.Right - HitTestBounds.Left) / 2;
             if (R > 0) {
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawCircle((HitTestBounds.Right + HitTestBounds.Left) / 2, (HitTestBounds.Bottom + HitTestBounds.Top) / 2, R, GR_DX::Color565ToArgb(Color), 255, 0, &ClipRect);
+                    GR_DX::DrawCircle((HitTestBounds.Right + HitTestBounds.Left) / 2,
+                        (HitTestBounds.Bottom + HitTestBounds.Top) / 2, R, GR_DX::Color565ToArgb(Color), 255, 0,
+                        &ClipRect);
                 } else {
-                    GR_Main::ScreenRenderBuffer->DrawAntialiasedCircle16(ClassesImports::Point((HitTestBounds.Bottom + HitTestBounds.Top) / 2, (HitTestBounds.Right + HitTestBounds.Left) / 2), R, Color, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawAntialiasedCircle16(
+                        ClassesImports::Point((HitTestBounds.Bottom + HitTestBounds.Top) / 2,
+                            (HitTestBounds.Right + HitTestBounds.Left) / 2), R, Color, ClipRect);
                 }
             }
         } else if (Kind == ckCircle) {
@@ -207,22 +212,29 @@ namespace GI_Circle {
                 }
             }
         } else if (Kind == ckFill) {
-            R = std::min<std::int32_t>(HitTestBounds.Bottom - HitTestBounds.Top, HitTestBounds.Right - HitTestBounds.Left) / 2;
+            R = std::min<std::int32_t>(HitTestBounds.Bottom - HitTestBounds.Top,
+                    HitTestBounds.Right - HitTestBounds.Left) / 2;
             if (R > 0) {
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawCircle((HitTestBounds.Bottom + HitTestBounds.Top) / 2, (HitTestBounds.Right + HitTestBounds.Left) / 2, R, GR_DX::Color565ToArgb(Color), 255, 1, &ClipRect);
+                    GR_DX::DrawCircle((HitTestBounds.Bottom + HitTestBounds.Top) / 2,
+                        (HitTestBounds.Right + HitTestBounds.Left) / 2, R, GR_DX::Color565ToArgb(Color), 255, 1,
+                        &ClipRect);
                 } else {
-                    GR_Main::ScreenRenderBuffer->DrawCircle16(ClassesImports::Point((HitTestBounds.Bottom + HitTestBounds.Top) / 2, (HitTestBounds.Right + HitTestBounds.Left) / 2), R, Color, FillColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawCircle16(
+                        ClassesImports::Point((HitTestBounds.Bottom + HitTestBounds.Top) / 2,
+                            (HitTestBounds.Right + HitTestBounds.Left) / 2), R, Color, FillColor, ClipRect);
                 }
             }
         } else if (Kind == ckShrLight) {
             if (GlobalsV::HardwareRenderingEnabled) {
                 if (Radius > 0) {
                     if (Center.Y - Radius > ClipRect.Top) {
-                        GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left, Center.Y - Radius - ClipRect.Top, 0u, 127, true, &ClipRect);
+                        GR_DX::DrawColoredRect(ClipRect.Left, ClipRect.Top, ClipRect.Right - ClipRect.Left,
+                            Center.Y - Radius - ClipRect.Top, 0u, 127, true, &ClipRect);
                     }
                     if (Center.Y + Radius < ClipRect.Bottom) {
-                        GR_DX::DrawColoredRect(ClipRect.Left, Center.Y + Radius, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - (Center.Y + Radius), 0u, 127, true, &ClipRect);
+                        GR_DX::DrawColoredRect(ClipRect.Left, Center.Y + Radius, ClipRect.Right - ClipRect.Left,
+                            ClipRect.Bottom - (Center.Y + Radius), 0u, 127, true, &ClipRect);
                     }
                     if (Center.X - Radius > ClipRect.Left) {
                         X = ClipRect.Left;
@@ -272,14 +284,16 @@ namespace GI_Circle {
                     std::int32_t pitchBytes = LightBuffer->PitchBytes;
                     std::int32_t cpp_arg_3 = ClipRect.Right - ClipRect.Left;
                     std::int32_t cpp_arg_4 = ClipRect.Bottom - ClipRect.Top;
-                    std::int32_t cpp_arg_2 = (ClipRect.Top - HitTestBounds.Top) * LightBuffer->PitchBytes + (ClipRect.Left - HitTestBounds.Left);
+                    std::int32_t cpp_arg_2 = (ClipRect.Top - HitTestBounds.Top) * LightBuffer->PitchBytes +
+                        (ClipRect.Left - HitTestBounds.Left);
                     void* pixels_2 = LightBuffer->GetPixels();
                     void* addPointerOffset = EC_Mem::AddPointerOffset(pixels_2, cpp_arg_2);
                     std::int32_t cpp_arg = GR_Main::ScreenRenderBuffer->PitchBytes * ClipRect.Top + ClipRect.Left * 2;
                     void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
                     void* addPointerOffset_2 = EC_Mem::AddPointerOffset(pixels, cpp_arg);
                     std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::Ex_OKGR_ShrLightMask_16(addPointerOffset_2, pitchBytes_2, addPointerOffset, pitchBytes, cpp_arg_3, cpp_arg_4);
+                    GR_Main::Ex_OKGR_ShrLightMask_16(addPointerOffset_2, pitchBytes_2, addPointerOffset, pitchBytes,
+                        cpp_arg_3, cpp_arg_4);
                 }
             }
         } else if (Kind == ckMulLight) {

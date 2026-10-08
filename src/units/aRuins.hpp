@@ -64,37 +64,46 @@ namespace aRuins {
     void TRuins_NextDayLogic(TRuins* Self);
 
     // Always false.
-    std::uint8_t TRuins_CanQueueReachablePlanet(TRuins* Self, aPlanet::TPlanet* Planet);
+    inline std::uint8_t TRuins_CanQueueReachablePlanet(TRuins* Self, aPlanet::TPlanet* Planet);
 
     // Returns false without changing InFear.
-    std::uint8_t TRuins_RecomputeFearState(TRuins* Self);
+    inline std::uint8_t TRuins_RecomputeFearState(TRuins* Self);
 
-    std::uint8_t TRuins_AcceptsRansomDemandFrom(TRuins* Self, aShip::TShip* Ship);
+    inline std::uint8_t TRuins_AcceptsRansomDemandFrom(TRuins* Self, aShip::TShip* Ship);
 
-    std::uint8_t TRuins_TrustsAttackRequester(TRuins* Self, aShip::TShip* Ship);
+    inline std::uint8_t TRuins_TrustsAttackRequester(TRuins* Self, aShip::TShip* Ship);
 
-    std::uint8_t TRuins_BuildMoneyExtortionResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
+    std::uint8_t TRuins_BuildMoneyExtortionResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t DemandedAmount);
 
     std::uint8_t TRuins_BuildCargoExtortionResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response);
 
-    std::uint8_t TRuins_BuildAttackRequestResponse(TRuins* Self, aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target);
+    std::uint8_t TRuins_BuildAttackRequestResponse(TRuins* Self, aShip::TShip* Requester, pas::WideString& Response,
+        aShip::TShip* Target);
 
-    std::uint8_t TRuins_AcceptPartnershipOffer(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TRuins_AcceptPartnershipOffer(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
-    std::uint8_t TRuins_BuildPartnershipOfferResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TRuins_BuildPartnershipOfferResponse(TRuins* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
     // Script state can force standing 9 or preserve the current value; type 13 has no default assignment.
     void TRuins_RefreshCurrentStanding(TRuins* Self);
 
     // Accepts types 42..68; weapon types all select the weapon generator. Does not insert the result into EquipmentShop.
-    aItem::TEquipment* TRuins_GenerateEquipmentOffer(TRuins* Self, pas::Object* Ship, aPlanet::TPlanet* Planet, aConst::TItemType ItemType);
+    aItem::TEquipment* TRuins_GenerateEquipmentOffer(TRuins* Self, pas::Object* Ship, aPlanet::TPlanet* Planet,
+        aConst::TItemType ItemType);
 
     // Returns a new owning list of offers. Ignores the Boolean argument.
-    aMyFunction::TObjectList* TRuins_GenerateEquipmentOfferBatch(TRuins* Self, aShip::TShip* Ship, std::uint8_t UnusedForceGeneratedOffers);
+    aMyFunction::TObjectList* TRuins_GenerateEquipmentOfferBatch(TRuins* Self, aShip::TShip* Ship,
+        std::uint8_t UnusedForceGeneratedOffers);
 
     // Zero-based module index. Deterministic chain keyed by station, current turn and player RNG state; Kind 1 selects priorities 31..69, Kind 2 selects 0..20 or 10..30, others 70..100.
-    std::int32_t TRuins_SelectServiceMicroModule(TRuins* Self, std::int32_t Kind, std::int32_t Index, std::uint8_t InvertRarity);
+    std::int32_t TRuins_SelectServiceMicroModule(TRuins* Self, std::int32_t Kind, std::int32_t Index,
+        std::uint8_t InvertRarity);
 
     std::uint8_t TRuins_CanDock(TRuins* Self, aShip::TShip* Ship);
 
 } // namespace aRuins
+
+#include "inline/aRuins.hpp"

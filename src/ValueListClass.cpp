@@ -1,5 +1,5 @@
 #include "layout/ValueListClass.hpp"
-#include "units/EC_Buf.hpp"
+#include "types/EC_Buf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/ValueListClass.hpp"
@@ -12,7 +12,8 @@ namespace ValueListClass {
         pas::WideString Normalized{};
         Normalized = pas::WideString();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Text.length()); cpp_range.next(i); ) {
-            if (Text.read(i) >= u'0' && Text.read(i) <= u'9' || Text.read(i) == u';' || Text.read(i) == u',' || Text.read(i) == u'-') {
+            if (Text.read(i) >= u'0' && Text.read(i) <= u'9' || Text.read(i) == u';' || Text.read(i) == u',' ||
+                Text.read(i) == u'-') {
                 Normalized = pas::concat_wide({Normalized, Text.read(i)});
             }
         }
@@ -47,11 +48,11 @@ namespace ValueListClass {
 
     void TValuesList::LoadFromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
-        Count = EC_Buf::TBufEC_GetInt32(Reader);
-        AcceptListed = EC_Buf::TBufEC_GetBoolean(Reader);
+        Count = Reader->GetInt32();
+        AcceptListed = Reader->GetBoolean();
         Values.set_length(Count + 2);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
-            Values[i] = EC_Buf::TBufEC_GetInt32(Reader);
+            Values[i] = Reader->GetInt32();
         }
     }
 

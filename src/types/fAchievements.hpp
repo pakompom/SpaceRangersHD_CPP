@@ -40,7 +40,8 @@ namespace fAchievements {
         void BuildRow(GI_MessageLoop::TObjectGI* Owner);
         void RefreshRowBackground(std::int32_t Index);
         void SelectMusic() override;
-        static void BuildProgressBars(GI_MessageLoop::TObjectGI* Owner, std::int32_t MinValue, std::int32_t MaxValue, std::int32_t StoredValue, std::int32_t CurrentValue);
+        static void BuildProgressBars(GI_MessageLoop::TObjectGI* Owner, std::int32_t MinValue, std::int32_t MaxValue,
+            std::int32_t StoredValue, std::int32_t CurrentValue);
         pas::DynArray<TfAchievementsSlot> Rows;
     };
     #if INTPTR_MAX == INT32_MAX

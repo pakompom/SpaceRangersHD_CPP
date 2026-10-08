@@ -19,16 +19,19 @@ namespace SE_StarsField {
         }
         SE_Space::TObjectSE::AttachToSpace(ASpace);
         if (GlobalsV::StaticBackground) {
-            StaticImage = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(GI_SimpleImage::TSimpleImageGI_Create, Space->MapPanel);
+            StaticImage = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(GI_SimpleImage::TSimpleImageGI_Create,
+                    Space->MapPanel);
             StaticImage->SetDepthByName(DepthExpression);
             StaticImage->SetPositionModeW(false);
             StaticImage->SetImageKindX(GI_Main::ikxLeftFill);
             StaticImage->SetImageKindY(GI_Main::ikyTopFill);
-            StaticImage->SetPosition(ClassesImports::Point(-Space->MapPanel->OriginPoint.X, -Space->MapPanel->OriginPoint.Y));
+            StaticImage->SetPosition(ClassesImports::Point(-Space->MapPanel->OriginPoint.X,
+                -Space->MapPanel->OriginPoint.Y));
             StaticImage->SetSize(ClassesImports::Point(Space->MapPanel->ClientSize.X, Space->MapPanel->ClientSize.Y));
             StaticImage->SetImagePath(ImagePath);
         } else {
-            InfiniteImage = pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(GI_InfiniteImage::TInfiniteImageGI_Create, Space->MapPanel);
+            InfiniteImage = pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(
+                    GI_InfiniteImage::TInfiniteImageGI_Create, Space->MapPanel);
             InfiniteImage->SetDepthByName(DepthExpression);
             InfiniteImage->SetPositionModeW(true);
             InfiniteImage->SetImagePath(ImagePath);
@@ -57,12 +60,14 @@ namespace SE_StarsField {
 
     void TStarsFieldSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
         if (GlobalsV::StaticBackground) {
-            GI_SimpleImage::TSimpleImageGI* cpp_with = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(GI_SimpleImage::TSimpleImageGI_Create, Owner);
+            GI_SimpleImage::TSimpleImageGI* cpp_with = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(
+                GI_SimpleImage::TSimpleImageGI_Create, Owner);
             cpp_with->SetImagePath(ImagePath);
             cpp_with->QueueImageLoad(PendingLoads);
             pas::free(cpp_with);
         } else {
-            GI_InfiniteImage::TInfiniteImageGI* cpp_with_2 = pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(GI_InfiniteImage::TInfiniteImageGI_Create, Owner);
+            GI_InfiniteImage::TInfiniteImageGI* cpp_with_2 = pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(
+                GI_InfiniteImage::TInfiniteImageGI_Create, Owner);
             cpp_with_2->SetImagePath(ImagePath);
             cpp_with_2->QueueImageLoad(PendingLoads);
             pas::free(cpp_with_2);

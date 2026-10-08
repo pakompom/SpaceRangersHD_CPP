@@ -25,7 +25,6 @@
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/Robot.hpp"
-#include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -62,38 +61,46 @@ namespace fMainForm {
         {
             GI_Label::TLabelGI* LVersion = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LVersion"sv));
             if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1280) {
-                LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth, LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 LVersion->SetText(([&] {
                     const pas::WideString& localizedText = aConst::LocalizedText(u"FormMain.Version"_wref.get());
                     const pas::WideString& gameVersionText = GR_Main::GameVersionText;
-                    return EC_Str::ReplaceAllWideString(localizedText, u"<Value>"_wref.get(), pas::view(gameVersionText));
+                    return EC_Str::ReplaceAllWideString(localizedText, u"<Value>"_wref.get(),
+                        pas::view(gameVersionText));
                 }()));
                 LogoShift = 0;
             } else {
-                LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth, LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight - 7));
+                LVersion->SetPosition(ClassesImports::Point(LVersion->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                    LVersion->LocalPosition.Y + GR_Main::ExtraScreenHeight - 7));
                 LVersion->SetText(([&] {
                     const pas::WideString& localizedText_2 = aConst::LocalizedText(u"FormMain.Version2"_wref.get());
                     const pas::WideString& gameVersionText_2 = GR_Main::GameVersionText;
-                    return EC_Str::ReplaceAllWideString(localizedText_2, u"<Value>"_wref.get(), pas::view(gameVersionText_2));
+                    return EC_Str::ReplaceAllWideString(localizedText_2, u"<Value>"_wref.get(),
+                        pas::view(gameVersionText_2));
                 }()));
                 LogoShift = 16;
             }
         }
         {
             GI_MessageLoop::TObjectGI* LogoElemental = GetByName(u"LogoElemental"sv);
-            LogoElemental->SetPosition(ClassesImports::Point(LogoElemental->LocalPosition.X + GR_Main::ExtraScreenWidth, LogoElemental->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
+            LogoElemental->SetPosition(ClassesImports::Point(LogoElemental->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                LogoElemental->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
         }
         {
             GI_MessageLoop::TObjectGI* Logo1C = GetByName(u"Logo1C"sv);
-            Logo1C->SetPosition(ClassesImports::Point(Logo1C->LocalPosition.X + GR_Main::ExtraScreenWidth, Logo1C->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
+            Logo1C->SetPosition(ClassesImports::Point(Logo1C->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                Logo1C->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
         }
         {
             GI_MessageLoop::TObjectGI* LogoKatauri = GetByName(u"LogoKatauri"sv);
-            LogoKatauri->SetPosition(ClassesImports::Point(LogoKatauri->LocalPosition.X + GR_Main::ExtraScreenWidth, LogoKatauri->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
+            LogoKatauri->SetPosition(ClassesImports::Point(LogoKatauri->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                LogoKatauri->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
         }
         {
             GI_MessageLoop::TObjectGI* LogoSNK = GetByName(u"LogoSNK"sv);
-            LogoSNK->SetPosition(ClassesImports::Point(LogoSNK->LocalPosition.X + GR_Main::ExtraScreenWidth, LogoSNK->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
+            LogoSNK->SetPosition(ClassesImports::Point(LogoSNK->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                LogoSNK->LocalPosition.Y + GR_Main::ExtraScreenHeight - LogoShift));
         }
         if (GR_Main::ExtraScreenWidth != 0 || GR_Main::ExtraScreenHeight != 0) {
             ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
@@ -101,7 +108,8 @@ namespace fMainForm {
             OffsetY = 0;
             if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600) {
                 OffsetX = -250;
-                if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) < 1040) {
+                if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900 &&
+                    static_cast<std::uint32_t>(GR_Main::GameScreenHeight) < 1040) {
                     OffsetY = pas::shr(1040 - GR_Main::GameScreenHeight, 1);
                 }
             }
@@ -111,7 +119,8 @@ namespace fMainForm {
                 {
                     GI_MessageLoop::TObjectGI* AnimMain = MainPanel->FindByNameRecursive(u"AnimMain"sv);
                     if (GR_Main::ExtraScreenHeight < 0) {
-                        AnimMain->SetPosition(ClassesImports::Point(AnimMain->LocalPosition.X, AnimMain->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        AnimMain->SetPosition(ClassesImports::Point(AnimMain->LocalPosition.X,
+                            AnimMain->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         AnimMain->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, AnimMain->ClientSize.Y));
                     } else {
                         AnimMain->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
@@ -119,159 +128,221 @@ namespace fMainForm {
                 }
                 {
                     GI_MessageLoop::TObjectGI* MicroText = MainPanel->FindByNameRecursive(u"MicroText"sv);
-                    MicroText->SetPosition(ClassesImports::Point(MicroText->LocalPosition.X, MicroText->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    MicroText->SetPosition(ClassesImports::Point(MicroText->LocalPosition.X,
+                        MicroText->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Circle = MainPanel->FindByNameRecursive(u"Circle"sv);
-                    Circle->SetPosition(ClassesImports::Point(Circle->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, Circle->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    Circle->SetPosition(ClassesImports::Point(
+                        Circle->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        Circle->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* New = MainPanel->FindByNameRecursive(u"New"sv);
-                    New->SetPosition(ClassesImports::Point(New->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, New->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    New->SetPosition(ClassesImports::Point(
+                        New->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        New->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Score = MainPanel->FindByNameRecursive(u"Score"sv);
-                    Score->SetPosition(ClassesImports::Point(Score->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, Score->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    Score->SetPosition(ClassesImports::Point(
+                        Score->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        Score->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* with_Achievements = MainPanel->FindByNameRecursive(u"Achievements"sv);
-                    with_Achievements->SetPosition(ClassesImports::Point(with_Achievements->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, with_Achievements->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    with_Achievements->SetPosition(ClassesImports::Point(
+                        with_Achievements->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        with_Achievements->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Load = MainPanel->FindByNameRecursive(u"Load"sv);
-                    Load->SetPosition(ClassesImports::Point(Load->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, Load->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    Load->SetPosition(ClassesImports::Point(
+                        Load->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        Load->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Settings = MainPanel->FindByNameRecursive(u"Settings"sv);
-                    Settings->SetPosition(ClassesImports::Point(Settings->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, Settings->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    Settings->SetPosition(ClassesImports::Point(
+                        Settings->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        Settings->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* About = MainPanel->FindByNameRecursive(u"About"sv);
-                    About->SetPosition(ClassesImports::Point(About->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, About->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    About->SetPosition(ClassesImports::Point(
+                        About->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        About->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Exit = MainPanel->FindByNameRecursive(u"Exit"sv);
-                    Exit->SetPosition(ClassesImports::Point(Exit->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX, Exit->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
+                    Exit->SetPosition(ClassesImports::Point(
+                        Exit->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + OffsetX,
+                        Exit->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2 + OffsetY));
                 }
                 {
                     GI_MessageLoop::TObjectGI* AnimAddonShip = MainPanel->FindByNameRecursive(u"AnimAddonShip"sv);
-                    AnimAddonShip->SetPosition(ClassesImports::Point(AnimAddonShip->LocalPosition.X, AnimAddonShip->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    AnimAddonShip->SetPosition(ClassesImports::Point(AnimAddonShip->LocalPosition.X,
+                        AnimAddonShip->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadRobot = MainPanel->FindByNameRecursive(u"LoadRobot"sv);
-                    LoadRobot->SetPosition(ClassesImports::Point(LoadRobot->LocalPosition.X, LoadRobot->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadRobot->SetPosition(ClassesImports::Point(LoadRobot->LocalPosition.X,
+                        LoadRobot->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadQuest = MainPanel->FindByNameRecursive(u"LoadQuest"sv);
-                    LoadQuest->SetPosition(ClassesImports::Point(LoadQuest->LocalPosition.X, LoadQuest->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadQuest->SetPosition(ClassesImports::Point(LoadQuest->LocalPosition.X,
+                        LoadQuest->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadAB = MainPanel->FindByNameRecursive(u"LoadAB"sv);
-                    LoadAB->SetPosition(ClassesImports::Point(LoadAB->LocalPosition.X, LoadAB->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadAB->SetPosition(ClassesImports::Point(LoadAB->LocalPosition.X,
+                        LoadAB->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* Mods = MainPanel->FindByNameRecursive(u"Mods"sv);
-                    Mods->SetPosition(ClassesImports::Point(Mods->LocalPosition.X, Mods->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    Mods->SetPosition(ClassesImports::Point(Mods->LocalPosition.X,
+                        Mods->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadRobotCnt = MainPanel->FindByNameRecursive(u"LoadRobotCnt"sv);
-                    LoadRobotCnt->SetPosition(ClassesImports::Point(LoadRobotCnt->LocalPosition.X, LoadRobotCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadRobotCnt->SetPosition(ClassesImports::Point(LoadRobotCnt->LocalPosition.X,
+                        LoadRobotCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadQuestCnt = MainPanel->FindByNameRecursive(u"LoadQuestCnt"sv);
-                    LoadQuestCnt->SetPosition(ClassesImports::Point(LoadQuestCnt->LocalPosition.X, LoadQuestCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadQuestCnt->SetPosition(ClassesImports::Point(LoadQuestCnt->LocalPosition.X,
+                        LoadQuestCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LoadABCnt = MainPanel->FindByNameRecursive(u"LoadABCnt"sv);
-                    LoadABCnt->SetPosition(ClassesImports::Point(LoadABCnt->LocalPosition.X, LoadABCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LoadABCnt->SetPosition(ClassesImports::Point(LoadABCnt->LocalPosition.X,
+                        LoadABCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* ModsCnt = MainPanel->FindByNameRecursive(u"ModsCnt"sv);
-                    ModsCnt->SetPosition(ClassesImports::Point(ModsCnt->LocalPosition.X, ModsCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    ModsCnt->SetPosition(ClassesImports::Point(ModsCnt->LocalPosition.X,
+                        ModsCnt->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LRobot = MainPanel->FindByNameRecursive(u"LRobot"sv);
-                    LRobot->SetPosition(ClassesImports::Point(LRobot->LocalPosition.X, LRobot->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LRobot->SetPosition(ClassesImports::Point(LRobot->LocalPosition.X,
+                        LRobot->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LQuest = MainPanel->FindByNameRecursive(u"LQuest"sv);
-                    LQuest->SetPosition(ClassesImports::Point(LQuest->LocalPosition.X, LQuest->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LQuest->SetPosition(ClassesImports::Point(LQuest->LocalPosition.X,
+                        LQuest->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LAB = MainPanel->FindByNameRecursive(u"LAB"sv);
-                    LAB->SetPosition(ClassesImports::Point(LAB->LocalPosition.X, LAB->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LAB->SetPosition(ClassesImports::Point(LAB->LocalPosition.X,
+                        LAB->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 {
                     GI_MessageLoop::TObjectGI* LMods = MainPanel->FindByNameRecursive(u"LMods"sv);
-                    LMods->SetPosition(ClassesImports::Point(LMods->LocalPosition.X, LMods->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    LMods->SetPosition(ClassesImports::Point(LMods->LocalPosition.X,
+                        LMods->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
                 if (GR_Main::ExtraScreenWidth > 0) {
                     CaptionControl = MainPanel->FindByNameRecursive(u"Caption"sv);
                     if (GI_GAI::TgaiGI* gaiGI = pas::class_cast_if<GI_GAI::TgaiGI*>(CaptionControl)) {
                         GI_GAI::TgaiGI* cpp_with_30 = gaiGI;
-                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
+                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 &&
+                            static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
                             cpp_with_30->SetSize(ClassesImports::Point(843, 218));
-                            cpp_with_30->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - cpp_with_30->ClientSize.X) / 2, 57));
+                            cpp_with_30->SetPosition(ClassesImports::Point(
+                                (GR_Main::GameScreenWidth - cpp_with_30->ClientSize.X) / 2, 57));
                             cpp_with_30->SetImagePath(u"Bm.FormMain3.CaptionLarge"_wref.get());
                         } else {
-                            cpp_with_30->SetPosition(ClassesImports::Point(cpp_with_30->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50, cpp_with_30->LocalPosition.Y));
+                            cpp_with_30->SetPosition(ClassesImports::Point(
+                                cpp_with_30->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50,
+                                cpp_with_30->LocalPosition.Y));
                         }
                     } else {
                         GI_Image::TImageGI* cpp_with_31 = pas::checked_cast<GI_Image::TImageGI*>(CaptionControl);
-                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
+                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 &&
+                            static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
                             cpp_with_31->SetSize(ClassesImports::Point(843, 218));
-                            cpp_with_31->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - cpp_with_31->ClientSize.X) / 2, 57));
-                            Extension = EC_Str::ExtractFileExtNoDotW(static_cast<pas::WideString>(SysUtilsImports::Trim(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(GR_Main::CacheDataRoot->FindEntry(u"Bm"_wref.get())->ChildData->FindEntry(u"FormMain3"_wref.get())->ChildData->FindEntry(u"CaptionLarge"_wref.get())->SharedFileRef->FileRef->FileName)))));
+                            cpp_with_31->SetPosition(ClassesImports::Point(
+                                (GR_Main::GameScreenWidth - cpp_with_31->ClientSize.X) / 2, 57));
+                            Extension =
+                                EC_Str::ExtractFileExtNoDotW(
+                                    static_cast<pas::WideString>(
+                                        SysUtilsImports::Trim(
+                                        SysUtilsImports::LowerCase(
+                                        static_cast<pas::AnsiString>(
+                                        GR_Main::CacheDataRoot->FindEntry(
+                                        u"Bm"_wref.get())->ChildData->FindEntry(
+                                        u"FormMain3"_wref.get())->ChildData->FindEntry(
+                                        u"CaptionLarge"_wref.get())->SharedFileRef->FileRef->FileName)))));
                             if (Extension == u"gai") {
                                 cpp_with_31->SetImagePath(u"GAI,Bm.FormMain3.CaptionLarge"_w);
                             } else {
                                 cpp_with_31->SetImagePath(u"GI,Bm.FormMain3.CaptionLarge"_w);
                             }
                         } else {
-                            cpp_with_31->SetPosition(ClassesImports::Point(cpp_with_31->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50, cpp_with_31->LocalPosition.Y));
+                            cpp_with_31->SetPosition(ClassesImports::Point(
+                                cpp_with_31->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50,
+                                cpp_with_31->LocalPosition.Y));
                         }
                     }
                     {
-                        GI_Image::TImageGI* CaptionBlur = pas::checked_cast<GI_Image::TImageGI*>(MainPanel->FindByNameRecursive(u"CaptionBlur"sv));
-                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
-                            CaptionBlur->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - CaptionBlur->ClientSize.X) / 2 - 7, -29));
+                        GI_Image::TImageGI* CaptionBlur = pas::checked_cast<GI_Image::TImageGI*>(
+                            MainPanel->FindByNameRecursive(u"CaptionBlur"sv));
+                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 &&
+                            static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
+                            CaptionBlur->SetPosition(ClassesImports::Point(
+                                (GR_Main::GameScreenWidth - CaptionBlur->ClientSize.X) / 2 - 7, -29));
                         } else {
-                            CaptionBlur->SetPosition(ClassesImports::Point(CaptionBlur->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50, CaptionBlur->LocalPosition.Y));
+                            CaptionBlur->SetPosition(ClassesImports::Point(
+                                CaptionBlur->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50,
+                                CaptionBlur->LocalPosition.Y));
                         }
                     }
                     {
-                        GI_Image::TImageGI* SubName = pas::checked_cast<GI_Image::TImageGI*>(MainPanel->FindByNameRecursive(u"SubName"sv));
-                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
+                        GI_Image::TImageGI* SubName = pas::checked_cast<GI_Image::TImageGI*>(
+                            MainPanel->FindByNameRecursive(u"SubName"sv));
+                        if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600 &&
+                            static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 900) {
                             SubName->SetImagePath(u"GI,Bm.FormMain3.SubLarge"_w);
                             SubName->SetSize(ClassesImports::Point(932, 76));
-                            SubName->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - SubName->ClientSize.X) / 2 - 54, 320));
+                            SubName->SetPosition(ClassesImports::Point(
+                                (GR_Main::GameScreenWidth - SubName->ClientSize.X) / 2 - 54, 320));
                         } else {
-                            SubName->SetPosition(ClassesImports::Point(SubName->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50, SubName->LocalPosition.Y));
+                            SubName->SetPosition(ClassesImports::Point(
+                                SubName->LocalPosition.X + GR_Main::ExtraScreenWidth / 2 + 50,
+                                SubName->LocalPosition.Y));
                         }
                     }
                 }
                 {
                     GI_MessageLoop::TObjectGI* Planet = MainPanel->FindByNameRecursive(u"Planet"sv);
-                    Planet->SetPosition(ClassesImports::Point(Planet->LocalPosition.X, Planet->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                    Planet->SetPosition(ClassesImports::Point(Planet->LocalPosition.X,
+                        Planet->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                 }
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         {
-            GI_GraphButton::TGraphButtonGI* LoadRobot_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LoadRobot"sv));
+            GI_GraphButton::TGraphButtonGI* LoadRobot_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"LoadRobot"sv));
             LoadRobot_2->SetActive(Robot::RobotInterface != nullptr);
             LoadRobot_2->UpCallback = pas::bind_method<&TfMainForm::RobotBattleClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* LoadQuest_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LoadQuest"sv));
+            GI_GraphButton::TGraphButtonGI* LoadQuest_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"LoadQuest"sv));
             LoadQuest_2->UpCallback = pas::bind_method<&TfMainForm::TextQuestClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* LoadAB_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LoadAB"sv));
+            GI_GraphButton::TGraphButtonGI* LoadAB_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"LoadAB"sv));
             LoadAB_2->UpCallback = pas::bind_method<&TfMainForm::ArcadeBattleClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* Mods_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Mods"sv));
+            GI_GraphButton::TGraphButtonGI* Mods_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Mods"sv));
             Mods_2->UpCallback = pas::bind_method<&TfMainForm::ModsClicked>(this);
         }
     }
@@ -297,21 +368,29 @@ namespace fMainForm {
             SysUtilsImports::Sleep(1u);
         }
         I = 0;
-        while (FindControlByPath(static_cast<pas::WideString>(pas::concat_ansi({"TempGAI", SysUtils::IntToStr(I)}))) != nullptr) {
-            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"TempGAI", SysUtils::IntToStr(I)})))))->RestartPlayback();
+        while (FindControlByPath(pas::concat_wide({u"TempGAI", pas::wide_int_to_str(I)})) != nullptr) {
+            pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(pas::view(pas::concat_wide({u"TempGAI",
+                pas::wide_int_to_str(I)}))))->RestartPlayback();
             ++I;
         }
         GetByName(u"MainPanel"sv)->MouseMoveCallback = pas::bind_method<&TfMainForm::MainPanelMouseMove>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Exit"sv))->UpCallback = pas::bind_method<&TfMainForm::QuitClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"New"sv))->UpCallback = pas::bind_method<&TfMainForm::NewGameClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Load"sv))->UpCallback = pas::bind_method<&TfMainForm::LoadGameClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Settings"sv))->UpCallback = pas::bind_method<&TfMainForm::SettingsClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Achievements"sv))->UpCallback = pas::bind_method<&TfMainForm::AchievementsClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Exit"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::QuitClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"New"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::NewGameClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Load"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::LoadGameClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Settings"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::SettingsClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Achievements"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::AchievementsClicked>(this);
         {
-            GI_GraphButton::TGraphButtonGI* Score = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Score"sv));
+            GI_GraphButton::TGraphButtonGI* Score = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Score"sv));
             Score->UpCallback = pas::bind_method<&TfMainForm::ScoresClicked>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"About"sv))->UpCallback = pas::bind_method<&TfMainForm::AboutClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"About"sv))->UpCallback = pas::bind_method<
+                &TfMainForm::AboutClicked>(this);
         SelectMusic();
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfMainForm::MainPanelKeyDown>(this);
         BackgroundScrollOffset = 0;
@@ -364,7 +443,8 @@ namespace fMainForm {
             if (FindControlByPath(u"AnimGaalShip"_wref.get()) != nullptr) {
                 GI_GAI::TgaiGI* AnimGaalShip = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"AnimGaalShip"sv));
                 AnimGaalShip->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimMenuShip ^ 1);
-                AnimGaalShip->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 661, pas::shr(GR_Main::GameScreenHeight - 642, 1) + 70));
+                AnimGaalShip->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 661,
+                    pas::shr(GR_Main::GameScreenHeight - 642, 1) + 70));
                 AnimGaalShip->SetDepth(29.0);
                 if (GlobalsV::AnimMenuShip) {
                     AnimGaalShip->SetFirstFrameImagePath(u"Bm.FormMain3.AnimGaalShip01"_wref.get());
@@ -376,7 +456,8 @@ namespace fMainForm {
                     AnimGaalShip->SetFirstFrameImagePath(u"Bm.FormMain3.AnimGaalShip03"_wref.get());
                     AnimGaalShip->SetImagePath(u"Bm.FormMain3.AnimGaalShip03A"_wref.get());
                     AnimGaalShip->PrimeImageCaches();
-                    AnimGaalShip->CycleCompleteCallback = pas::bind_method<&TfMainForm::GaalShipAnimationFinished>(this);
+                    AnimGaalShip->CycleCompleteCallback = pas::bind_method<
+                            &TfMainForm::GaalShipAnimationFinished>(this);
                     GaalShipAnimationFinished(AnimGaalShip->FindByNameRecursive(u"AnimGaalShip"sv));
                 } else {
                     AnimGaalShip->SetFirstFrameImagePath(u"Bm.FormMain3.AnimGaalShip01"_wref.get());
@@ -402,18 +483,23 @@ namespace fMainForm {
         {
             GI_Label::TLabelGI* ModsCnt = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ModsCnt"sv));
             if (GR_Main::SkipModsOnReload) {
-                ModsCnt->SetText(pas::concat_wide({aMyFunction::RedColorTag, EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)), aMyFunction::EndColorTag}));
+                ModsCnt->SetText(pas::concat_wide({aMyFunction::RedColorTag,
+                    EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)),
+                    aMyFunction::EndColorTag}));
             } else {
-                ModsCnt->SetText(EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods), u","sv)));
+                ModsCnt->SetText(EC_Str::IntToWideString(EC_Str::CountDelimitedPartsW(pas::view(GR_Main::SelectedMods),
+                    u","sv)));
             }
         }
         if (GlobalsV::ShowWineWarning) {
             GlobalsV::ShowWineWarning = false;
-            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"Warning.WeRunOnWine"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"Warning.WeRunOnWine"_wref.get()),
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
         }
         if (GlobalsV::ShowXonarWarning) {
             GlobalsV::ShowXonarWarning = false;
-            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"Warning.XonarDetected"_wref.get()), GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedColorText(u"Warning.XonarDetected"_wref.get()),
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgUnused04, 0, 0, 0);
         }
     }
 
@@ -422,7 +508,10 @@ namespace fMainForm {
     }
 
     void TfMainForm::QuitClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormMain.MsgExit"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+        if (GI_MessageBox::ShowMessageBoxGI(this,
+            GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormMain.MsgExit"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+            GI_MessageBox::mbgResultOK) {
             GlobalsV::RequestedScreenId = GlobalsV::screenNone;
             RequestClose(1);
         }
@@ -478,13 +567,16 @@ namespace fMainForm {
     }
 
     void TfMainForm::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (Key == 'Q') {
             reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LoadQuest"sv))->ExecuteOnPressCode();
             TextQuestClicked(nullptr);
-        } else if (Key == 'R' && GR_Main::IsInstallFeatureEnabled(u"Robot"_wref.get()) && Robot::RobotInterface != nullptr && Robot::RobotInterface->Support() == 0 && FindControlByPath(u"PanelRL"_wref.get()) == nullptr) {
+        } else if (Key == 'R' && GR_Main::IsInstallFeatureEnabled(u"Robot"_wref.get()) && Robot::RobotInterface !=
+                nullptr && Robot::RobotInterface->Support() == 0 && FindControlByPath(u"PanelRL"_wref.get()) ==
+                nullptr) {
             reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"LoadRobot"sv))->ExecuteOnPressCode();
             RobotBattleClicked(nullptr);
         } else if (Key == 'A' || Key == 'F') {
@@ -513,7 +605,8 @@ namespace fMainForm {
         }
     }
 
-    void TfMainForm::MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfMainForm::MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         RefreshTimerTick();
     }
 
@@ -533,8 +626,10 @@ namespace fMainForm {
         LastMenuShipAnimation = Index;
         {
             GI_GAI::TgaiGI* AnimAddonShip = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"AnimAddonShip"sv));
-            AnimAddonShip->SetFirstFrameImagePath(pas::concat_wide({u"Bm.FormMain3.", GR_Main::GiResourceSuffix(), u"Ship", pas::wide_int_to_str(Index)}));
-            AnimAddonShip->SetImagePath(pas::concat_wide({u"Bm.FormMain3.", GR_Main::GiResourceSuffix(), u"ShipA", pas::wide_int_to_str(Index)}));
+            AnimAddonShip->SetFirstFrameImagePath(pas::concat_wide({u"Bm.FormMain3.", GR_Main::GiResourceSuffix(),
+                u"Ship", pas::wide_int_to_str(Index)}));
+            AnimAddonShip->SetImagePath(pas::concat_wide({u"Bm.FormMain3.", GR_Main::GiResourceSuffix(), u"ShipA",
+                pas::wide_int_to_str(Index)}));
             AnimAddonShip->SequenceIndex = 0;
             AnimAddonShip->UpdateAutoGeometry();
             AnimAddonShip->RestartPlayback();
@@ -557,8 +652,10 @@ namespace fMainForm {
         LastGaalShipAnimation = Index;
         {
             GI_GAI::TgaiGI* AnimGaalShip = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"AnimGaalShip"sv));
-            AnimGaalShip->SetFirstFrameImagePath(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.AnimGaalShip0", SysUtils::IntToStr(Index)})));
-            AnimGaalShip->SetImagePath(static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormMain3.AnimGaalShip0", SysUtils::IntToStr(Index), "A"})));
+            AnimGaalShip->SetFirstFrameImagePath(pas::concat_wide({u"Bm.FormMain3.AnimGaalShip0",
+                pas::wide_int_to_str(Index)}));
+            AnimGaalShip->SetImagePath(pas::concat_wide({u"Bm.FormMain3.AnimGaalShip0", pas::wide_int_to_str(Index),
+                u"A"}));
             AnimGaalShip->SequenceIndex = 0;
             AnimGaalShip->UpdateAutoGeometry();
             AnimGaalShip->RestartPlayback();

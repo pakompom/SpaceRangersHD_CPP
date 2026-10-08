@@ -11,10 +11,6 @@
 #include "units/Windows.hpp"
 
 namespace EC_Buf {
-    void TBufEC_Create(TBufEC* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TBufEC_Destroy(TBufEC* Self) {
         Self->Clear();
         EC_Struct::TObjectEx_Destroy(Self);
@@ -44,13 +40,10 @@ namespace EC_Buf {
         }
     }
 
-    std::uint8_t TBufEC::IsAtEnd() {
-        return Position >= DataSize;
-    }
-
     void TBufEC::SetPosition(std::int32_t NewPosition) {
         if (NewPosition < 0 || NewPosition > DataSize) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.PointerSet. zn=", SysUtils::IntToStr(NewPosition)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.PointerSet. zn=",
+                SysUtils::IntToStr(NewPosition)})));
         }
         Position = NewPosition;
     }
@@ -58,7 +51,8 @@ namespace EC_Buf {
     // AddedBytes must be positive. Extends DataSize without advancing Position.
     void TBufEC::EnsureWriteCapacity(std::int32_t AddedBytes) {
         if (AddedBytes < 1) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. addlen=", SysUtils::IntToStr(AddedBytes)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. addlen=",
+                SysUtils::IntToStr(AddedBytes)})));
         }
         if (Position + AddedBytes > DataSize) {
             DataSize = Position + AddedBytes;
@@ -72,7 +66,8 @@ namespace EC_Buf {
     // AddedBytes must be positive; Offset must be in 0..DataSize. Position is unchanged.
     void TBufEC::EnsureWriteCapacityAtOffset(std::int32_t Offset, std::int32_t AddedBytes) {
         if (AddedBytes < 1 || Offset < 0 || Offset > DataSize) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. sme=", SysUtils::IntToStr(Offset), " addlen=", SysUtils::IntToStr(AddedBytes)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestAddLenBuf. sme=",
+                SysUtils::IntToStr(Offset), " addlen=", SysUtils::IntToStr(AddedBytes)})));
         }
         if (Offset + AddedBytes > DataSize) {
             DataSize = Offset + AddedBytes;
@@ -85,25 +80,27 @@ namespace EC_Buf {
 
     void TBufEC::EnsureReadable(std::int32_t Bytes) {
         if (Bytes < 1 || Position + Bytes > DataSize) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestGet. len=", SysUtils::IntToStr(Bytes)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestGet. len=",
+                SysUtils::IntToStr(Bytes)})));
         }
     }
 
     // Rejects nonpositive counts and ranges ending past DataSize; does not reject negative Offset.
     void TBufEC::EnsureReadableAtOffset(std::int32_t Offset, std::int32_t Bytes) {
         if (Bytes < 1 || Offset + Bytes > DataSize) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestGet. sme=", SysUtils::IntToStr(Offset), " len=", SysUtils::IntToStr(Bytes)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBufEC.TestGet. sme=",
+                SysUtils::IntToStr(Offset), " len=", SysUtils::IntToStr(Bytes)})));
         }
     }
 
     void TBufEC::SetByteAt(std::int32_t Offset, std::uint8_t Value) {
         EnsureWriteCapacityAtOffset(Offset, static_cast<std::int32_t>(sizeof(std::uint8_t)));
-        EC_Mem::WriteByteEC(static_cast<std::uint8_t*>(Data) + Offset, Value);
+        EC_Mem::WriteByteEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Offset), Value);
     }
 
     void TBufEC::SetInt32At(std::int32_t Offset, std::int32_t Value) {
         EnsureWriteCapacityAtOffset(Offset, static_cast<std::int32_t>(sizeof(std::int32_t)));
-        EC_Mem::WriteIntegerEC(static_cast<std::uint8_t*>(Data) + Offset, Value);
+        EC_Mem::WriteIntegerEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Offset), Value);
     }
 
     // Sequential operations use Position, including writes into existing data.
@@ -123,7 +120,8 @@ namespace EC_Buf {
     void TBufEC::AddWideStringZ(const pas::WideString& Value) {
         std::int32_t ByteCount = Value.length() * static_cast<std::int32_t>(sizeof(char16_t));
         EnsureWriteCapacity(ByteCount + static_cast<std::int32_t>(sizeof(char16_t)));
-        Windows::CopyMemory(EC_Mem::AddPointerOffset(Data, Position), Value.pchar(), ByteCount + static_cast<std::int32_t>(sizeof(char16_t)));
+        Windows::CopyMemory(EC_Mem::AddPointerOffset(Data, Position), Value.pchar(),
+            ByteCount + static_cast<std::int32_t>(sizeof(char16_t)));
         Position = Position + ByteCount + static_cast<std::int32_t>(sizeof(char16_t));
     }
 
@@ -221,17 +219,17 @@ namespace EC_Buf {
 
     std::uint8_t TBufEC::GetByteAt(std::int32_t Offset) {
         EnsureReadableAtOffset(Offset, static_cast<std::int32_t>(sizeof(std::uint8_t)));
-        return EC_Mem::ReadByteEC(static_cast<std::uint8_t*>(Data) + Offset);
+        return EC_Mem::ReadByteEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Offset));
     }
 
     std::uint32_t TBufEC::GetUInt32At(std::int32_t Offset) {
         EnsureReadableAtOffset(Offset, static_cast<std::int32_t>(sizeof(std::uint32_t)));
-        return EC_Mem::ReadDWordEC(static_cast<std::uint8_t*>(Data) + Offset);
+        return EC_Mem::ReadDWordEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Offset));
     }
 
     std::int32_t TBufEC::GetInt32At(std::int32_t Offset) {
         EnsureReadableAtOffset(Offset, static_cast<std::int32_t>(sizeof(std::int32_t)));
-        return EC_Mem::ReadIntegerEC(static_cast<std::uint8_t*>(Data) + Offset);
+        return EC_Mem::ReadIntegerEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Offset));
     }
 
     // Returns Dest; requires a positive ByteCount.
@@ -246,9 +244,12 @@ namespace EC_Buf {
     char16_t* TBufEC::ReadWideStringToBuffer(char16_t* Dest) {
         std::int32_t Count = GetWideStringLengthAt(Position);
         if (Count > 0) {
-            EnsureReadable(Count * static_cast<std::int32_t>(sizeof(char16_t)) + static_cast<std::int32_t>(sizeof(char16_t)));
-            Windows::CopyMemory(Dest, static_cast<std::uint8_t*>(Data) + Position, Count * static_cast<std::int32_t>(sizeof(char16_t)) + static_cast<std::int32_t>(sizeof(char16_t)));
-            Position = Position + Count * static_cast<std::int32_t>(sizeof(char16_t)) + static_cast<std::int32_t>(sizeof(char16_t));
+            EnsureReadable(Count * static_cast<std::int32_t>(sizeof(char16_t)) +
+                static_cast<std::int32_t>(sizeof(char16_t)));
+            Windows::CopyMemory(Dest, pas::pointer_add(static_cast<std::uint8_t*>(Data), Position),
+                Count * static_cast<std::int32_t>(sizeof(char16_t)) + static_cast<std::int32_t>(sizeof(char16_t)));
+            Position = Position + Count * static_cast<std::int32_t>(sizeof(char16_t)) +
+                    static_cast<std::int32_t>(sizeof(char16_t));
         } else {
             Position += static_cast<std::int32_t>(sizeof(char16_t));
             pas::store_unaligned<char16_t>(Dest, u'\000');
@@ -256,17 +257,59 @@ namespace EC_Buf {
         return Dest;
     }
 
+    // Scalar readers snapshot the address, then advance before loading: Data can alias Position.
+    std::uint8_t TBufEC::GetByte() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(std::uint8_t)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(std::uint8_t));
+        return EC_Mem::ReadByteEC(Source);
+    }
+
     char16_t TBufEC::GetWideChar() {
         EnsureReadable(static_cast<std::int32_t>(sizeof(char16_t)));
-        char16_t Result = EC_Mem::ReadWideCharEC(static_cast<std::uint8_t*>(Data) + Position);
+        char16_t Result = EC_Mem::ReadWideCharEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
         Position += 2;
+        return Result;
+    }
+
+    std::uint16_t TBufEC::GetWord() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(std::uint16_t)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(std::uint16_t));
+        return EC_Mem::ReadWordEC(Source);
+    }
+
+    std::uint32_t TBufEC::GetUInt32() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(std::uint32_t)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(std::uint32_t));
+        return EC_Mem::ReadDWordEC(Source);
+    }
+
+    std::int32_t TBufEC::GetInt32() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(std::int32_t)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(std::int32_t));
+        return EC_Mem::ReadIntegerEC(Source);
+    }
+
+    // Replaces NaN with zero.
+    float TBufEC::GetSingle() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(float)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(float));
+        float Result = EC_Mem::ReadSingleEC(Source);
+        if (pas::is_nan(Result)) {
+            Result = 0.0f;
+            GR_Main::AppendLogLineThreadSafe("Warning! NaN encountered, replaced with zero."_a);
+        }
         return Result;
     }
 
     // Replaces NaN with zero.
     double TBufEC::GetDouble() {
         EnsureReadable(static_cast<std::int32_t>(sizeof(double)));
-        double Result = EC_Mem::ReadDoubleEC(static_cast<std::uint8_t*>(Data) + Position);
+        double Result = EC_Mem::ReadDoubleEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
         if (pas::is_nan(Result)) {
             Result = 0.0;
             GR_Main::AppendLogLineThreadSafe("Warning! NaN encountered, replaced with zero."_a);
@@ -275,9 +318,16 @@ namespace EC_Buf {
         return Result;
     }
 
+    std::uint8_t TBufEC::GetBoolean() {
+        EnsureReadable(static_cast<std::int32_t>(sizeof(std::uint8_t)));
+        void* Source = EC_Mem::AddPointerOffset(Data, Position);
+        Position += static_cast<std::int32_t>(sizeof(std::uint8_t));
+        return *static_cast<System::PBoolean>(Source);
+    }
+
     // Dest.Position is preserved unless it exceeds the new size.
     void TBufEC::ReadLengthPrefixedBuffer(TBufEC* Dest) {
-        std::int32_t ByteCount = EC_Buf::TBufEC_GetUInt32(this);
+        std::int32_t ByteCount = GetUInt32();
         Dest->SetSize(ByteCount);
         if (ByteCount > 0) {
             ReadBytes(Dest->Data, ByteCount);
@@ -346,19 +396,19 @@ namespace EC_Buf {
         std::uint8_t Ch{};
         std::int32_t Count = GetAnsiTextLineLength();
         if (Count > 0) {
-            Windows::CopyMemory(Dest, static_cast<std::uint8_t*>(Data) + Position, Count);
+            Windows::CopyMemory(Dest, pas::pointer_add(static_cast<std::uint8_t*>(Data), Position), Count);
             Dest[Count] = '\000';
             Position += Count;
         } else {
             *Dest = '\000';
         }
         if (Position < DataSize) {
-            Ch = EC_Mem::ReadByteEC(static_cast<std::uint8_t*>(Data) + Position);
+            Ch = EC_Mem::ReadByteEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
             if (Ch == 0 || Ch == CarriageReturnCode || Ch == LineFeedCode) {
                 Position += 1;
             }
             if (Position < DataSize) {
-                Ch = EC_Mem::ReadByteEC(static_cast<std::uint8_t*>(Data) + Position);
+                Ch = EC_Mem::ReadByteEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
                 if (Ch == 0 || Ch == CarriageReturnCode || Ch == LineFeedCode) {
                     Position += 1;
                 }
@@ -384,19 +434,20 @@ namespace EC_Buf {
         std::uint16_t Ch{};
         std::int32_t Count = GetWideTextLineLength();
         if (Count > 0) {
-            Windows::CopyMemory(Dest, static_cast<std::uint8_t*>(Data) + Position, Count * static_cast<std::int32_t>(sizeof(char16_t)));
-            pas::store_unaligned<char16_t>(Dest + Count, u'\000');
+            Windows::CopyMemory(Dest, pas::pointer_add(static_cast<std::uint8_t*>(Data), Position),
+                Count * static_cast<std::int32_t>(sizeof(char16_t)));
+            pas::store_unaligned<char16_t>(pas::pointer_add(Dest, Count), u'\000');
             Position += Count * static_cast<std::int32_t>(sizeof(char16_t));
         } else {
             pas::store_unaligned<char16_t>(Dest, u'\000');
         }
         if (Position + 1 < DataSize) {
-            Ch = EC_Mem::ReadWordEC(static_cast<std::uint8_t*>(Data) + Position);
+            Ch = EC_Mem::ReadWordEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
             if (Ch == 0 || Ch == CarriageReturnCode || Ch == LineFeedCode) {
                 Position += static_cast<std::int32_t>(sizeof(char16_t));
             }
             if (Position + 1 < DataSize) {
-                Ch = EC_Mem::ReadWordEC(static_cast<std::uint8_t*>(Data) + Position);
+                Ch = EC_Mem::ReadWordEC(pas::pointer_add(static_cast<std::uint8_t*>(Data), Position));
                 if (Ch == 0 || Ch == CarriageReturnCode || Ch == LineFeedCode) {
                     Position += static_cast<std::int32_t>(sizeof(char16_t));
                 }
@@ -487,10 +538,7 @@ namespace EC_Buf {
         std::int32_t i{};
         // Nested helper of TBufEC.ApplyDatXorCipher; requires its parent stack frame.
         auto StepDatXorSeedState = [&]() -> std::int32_t {
-            {
-                std::int32_t cpp_left = SeedRngMultiplier * pas::imod(State, SeedRngQuotient);
-                State = cpp_left - SeedRngRemainder * pas::idiv(State, SeedRngQuotient);
-            }
+            State = SeedRngMultiplier * (State % SeedRngQuotient) - SeedRngRemainder * (State / SeedRngQuotient);
             if (State <= 0) {
                 State += SeedRngModulus;
             }
@@ -500,7 +548,7 @@ namespace EC_Buf {
         std::uint8_t* Cursor = static_cast<std::uint8_t*>(Data);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, DataSize - 1); cpp_range.next(i); ) {
             *Cursor = *Cursor ^ static_cast<std::uint8_t>(StepDatXorSeedState());
-            Cursor = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Cursor) + 1);
+            Cursor = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Cursor), 1));
         }
     }
 
@@ -510,7 +558,8 @@ namespace EC_Buf {
 
     // EndOffset is exclusive; offsets are not validated.
     std::uint32_t TBufEC::ComputeCrc32Range(std::int32_t StartOffset, std::int32_t EndOffset) {
-        return CrcUnit::ComputeCrc32(static_cast<std::uint8_t*>(Data) + StartOffset, EndOffset - StartOffset);
+        return CrcUnit::ComputeCrc32(pas::pointer_add(static_cast<std::uint8_t*>(Data), StartOffset),
+            EndOffset - StartOffset);
     }
 
     // CrcOffset reserves eight bytes inside the half-open range. Stores the range CRC followed by a correction word preserving the previous prefix CRC through that slot.
@@ -521,11 +570,17 @@ namespace EC_Buf {
         if (CrcOffset + 8 > EndOffset) {
             pas::raise(pas::make_exception<pas::Exception>("CRC update error"_a));
         }
-        std::uint32_t WholeCrc = CrcUnit::ExtendCrc32(0u, static_cast<std::uint8_t*>(Data) + StartOffset, EndOffset - StartOffset);
-        std::uint32_t PreviousPrefixCrc = CrcUnit::ExtendCrc32(0u, static_cast<std::uint8_t*>(Data) + StartOffset, CrcOffset - StartOffset + 8);
-        pas::store_unaligned<std::uint32_t>(reinterpret_cast<System::PCardinal>(static_cast<std::uint8_t*>(Data) + CrcOffset), WholeCrc);
-        std::uint32_t NewPrefixCrc = CrcUnit::ExtendCrc32(0u, static_cast<std::uint8_t*>(Data) + StartOffset, CrcOffset - StartOffset + 4);
-        CrcUnit::WriteCrc32Correction(NewPrefixCrc, PreviousPrefixCrc, CrcOffset + 4 + static_cast<std::uint8_t*>(Data));
+        std::uint32_t WholeCrc = CrcUnit::ExtendCrc32(0u,
+            pas::pointer_add(static_cast<std::uint8_t*>(Data), StartOffset), EndOffset - StartOffset);
+        std::uint32_t PreviousPrefixCrc = CrcUnit::ExtendCrc32(0u,
+            pas::pointer_add(static_cast<std::uint8_t*>(Data), StartOffset), CrcOffset - StartOffset + 8);
+        pas::store_unaligned<std::uint32_t>(
+            reinterpret_cast<System::PCardinal>(pas::pointer_add(static_cast<std::uint8_t*>(Data), CrcOffset)),
+            WholeCrc);
+        std::uint32_t NewPrefixCrc = CrcUnit::ExtendCrc32(0u,
+            pas::pointer_add(static_cast<std::uint8_t*>(Data), StartOffset), CrcOffset - StartOffset + 4);
+        CrcUnit::WriteCrc32Correction(NewPrefixCrc, PreviousPrefixCrc,
+            pas::pointer_add(static_cast<std::uint8_t*>(Data), CrcOffset + 4));
     }
 
     // Loaders replace the payload and leave Position at zero.

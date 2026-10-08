@@ -4,7 +4,6 @@
 #include "types/SystemImports.hpp"
 #include "types/ab_Ship.hpp"
 #include "units/EC_Struct.hpp"
-#include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_Object.hpp"
@@ -34,10 +33,11 @@ namespace ab_W14 {
         SourceObject = Owner;
         Damage = Amount;
         State = Owner->State;
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Angle);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + Angle));
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 150;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w14_f"_wref.get(), u"GAI,Bm.AB.w14_s"_wref.get(), true);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w14_f"_wref.get(), u"GAI,Bm.AB.w14_s"_wref.get(), true);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
@@ -49,7 +49,9 @@ namespace ab_W14 {
         ab_Object::TabObject* Collision = nullptr;
         if (Phase != 1) {
             Collision = FindCollision();
-            if (Collision != nullptr && SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) != nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies, reinterpret_cast<void*>(Collision)) < 0) {
+            if (Collision != nullptr && SourceObject != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Collision) !=
+                    nullptr && pas::list_indexof(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies,
+                    reinterpret_cast<void*>(Collision)) < 0) {
                 Collision = nullptr;
             } else if (Collision == SourceObject) {
                 Collision = nullptr;
@@ -58,12 +60,13 @@ namespace ab_W14 {
             }
         }
         // Native launch sets ExpireTick, but flight expires by half-circumference.
-        if ((DistanceTravelled > SystemImports::Pi * ab_Global::SphereRadius || Collision != nullptr) && Phase != 1) {
+        if ((DistanceTravelled > static_cast<float>(SystemImports::Pi * ab_Global::SphereRadius) || Collision != nullptr) && Phase != 1) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Phase = 1;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w14a_f"_wref.get(), u"GAI,Bm.AB.w14a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w14a_f"_wref.get(),
+                u"GAI,Bm.AB.w14a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Phase == 1) {
@@ -77,11 +80,12 @@ namespace ab_W14 {
         ab_Object::TabObject::UpdateVisuals();
         if (Phase == 0) {
             Position = GetWorldPosition();
-            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
-            Frame = System::Round(([&] {
-                pas::Extended cpp_left = pas::real_divide(GetProjectedHeading(Position), 3.6E+2L);
-                return cpp_left * Image->Image->GaiImageControl->SequenceFrameCount;
-            }()));
+            Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&Position));
+            {
+                double cpp_left = static_cast<float>(GetProjectedHeading(Position) / 3.6E+2);
+                Frame = pas::real_round(static_cast<float>(cpp_left * Image->Image->GaiImageControl->SequenceFrameCount));
+            }
             if (Frame >= Image->Image->GaiImageControl->SequenceFrameCount) {
                 Frame = 0;
             }

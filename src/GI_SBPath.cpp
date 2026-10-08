@@ -9,7 +9,6 @@
 #include "units/GI_SBPath.hpp"
 #include "units/GR_Main.hpp"
 #include "units/SysUtils.hpp"
-#include "units/System.hpp"
 
 // Native class ownership follows reference/unit_ownership.json.
 namespace GI_SBPath {
@@ -71,7 +70,8 @@ namespace GI_SBPath {
         if (Maximum - Minimum < 1) {
             ThumbImage->SetPosition(Points[0]);
         } else {
-            ThumbImage->SetPosition(Points[System::Round(pas::real_divide(Position - Minimum, Maximum - Minimum) * (PointCount - 1))]);
+            ThumbImage->SetPosition(Points[pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Position - Minimum) / (Maximum -
+                    Minimum)) * (PointCount - 1)))]);
         }
     }
 
@@ -79,7 +79,7 @@ namespace GI_SBPath {
         if (PointCount < 2) {
             return Minimum;
         }
-        return System::Round(pas::real_divide(Index, PointCount - 1) * (Maximum - Minimum) + Minimum);
+        return pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Index) / (PointCount - 1)) * (Maximum - Minimum)) + Minimum));
     }
 
     std::int32_t TSBPathGI::FindClosestPoint(Types::TPoint Point, std::int32_t& DistanceSquared) {

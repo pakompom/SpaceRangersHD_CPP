@@ -75,7 +75,8 @@ namespace CPDiapClass {
             // Native scan includes RangeCount and draws again within the selected range.
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, RangeCount); cpp_range_2.next(i); ) {
                 if (RandomValue >= Starts[i] && RandomValue <= Ends[i]) {
-                    RandomValue = pas::random(static_cast<std::int32_t>(RangeEnds[i] - RangeStarts[i] + 1), &System::RandSeed);
+                    RandomValue = pas::random(static_cast<std::int32_t>(RangeEnds[i] - RangeStarts[i] + 1),
+                            &System::RandSeed);
                     Result = RandomValue + RangeStarts[i];
                     break;
                 }
@@ -85,9 +86,9 @@ namespace CPDiapClass {
     }
 
     // Rounds with System.Round first.
-    std::uint8_t TCPDiapazone::Contains(pas::Extended Value) {
+    std::uint8_t TCPDiapazone::Contains(double Value) {
         std::int32_t i{};
-        std::int64_t Rounded = System::Round(Value);
+        std::int64_t Rounded = pas::real_round(Value);
         std::uint8_t Result = true;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, RangeCount - 1); cpp_range.next(i); ) {
             if (RangeStarts[i] <= Rounded && RangeEnds[i] >= Rounded) {
@@ -106,7 +107,8 @@ namespace CPDiapClass {
             if (RangeStarts[i] == RangeEnds[i]) {
                 Result = pas::concat_wide({Result, EC_Str::IntToWideString(RangeStarts[i])});
             } else {
-                Result = pas::concat_wide({Result, EC_Str::IntToWideString(RangeStarts[i]), u"h", EC_Str::IntToWideString(RangeEnds[i])});
+                Result = pas::concat_wide({Result, EC_Str::IntToWideString(RangeStarts[i]), u"h",
+                        EC_Str::IntToWideString(RangeEnds[i])});
             }
             if (i < RangeCount - 1) {
                 Result = pas::concat_wide({Result, u";"});
@@ -170,11 +172,11 @@ namespace CPDiapClass {
     }
 
     // Truncates to Int64; caught conversion errors preserve existing ranges.
-    void TCPDiapazone::AddValue(pas::Extended Value) {
+    void TCPDiapazone::AddValue(double Value) {
         std::int64_t IntegerValue = 0;
         std::uint8_t Failed = false;
         try {
-            IntegerValue = System::Trunc(Value);
+            IntegerValue = pas::real_trunc(Value);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::class_cast_if<pas::MathError*>(cpp_exception)) {

@@ -46,8 +46,10 @@ namespace fTalk {
         void CloseClicked(GI_MessageLoop::TObjectGI* Sender);
         void ClearChoices(std::uint8_t AllowClose);
         // ExtraValue is stored in the choice object at $1C; its wider meaning remains unresolved.
-        void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback, std::int32_t ExtraValue);
-        GI_MessageLoop::TObjectGI* CreateDialogObject(GI_Label::TLabelGI* LabelControl, EC_CacheFont::PFontObjectEC Item);
+        void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback,
+            std::int32_t ExtraValue);
+        GI_MessageLoop::TObjectGI* CreateDialogObject(GI_Label::TLabelGI* LabelControl,
+            EC_CacheFont::PFontObjectEC Item);
         void CenterEmbeddedObject(GI_MessageLoop::TObjectGI* Sender);
         void CenterShipClicked(GI_MessageLoop::TObjectGI* Sender);
         void MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);

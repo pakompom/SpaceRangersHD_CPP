@@ -294,9 +294,14 @@ namespace GI_MultiImage {
         TMultiImageImageGI* Image{};
         std::int32_t I{};
         if (Images != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Images) - 1); cpp_range.next(I); ) {
-                Image = pas::list_at<TMultiImageImageGI>(Images, I);
-                pas::free(Image);
+            {
+                const std::int32_t cpp_last = pas::list_count(Images) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Image = pas::list_at<TMultiImageImageGI>(Images, I);
+                        pas::free(Image);
+                    }
+                }
             }
             pas::list_clear(Images);
         }
@@ -411,17 +416,23 @@ namespace GI_MultiImage {
                             if (EC_Struct::IntersectRects(Intersection, Bounds, ClipRect)) {
                                 Data = EC_CacheGI::AcquireCachedGi(Image->ImageCache);
                                 {
-                                    pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                                    try {
+                                        if (GlobalsV::HardwareRenderingEnabled) {
+                                            pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Data->GetOrCreateSurface(
+                                                0, cpp_result), cpp_result);
+                                            std::int32_t top = Bounds.Top;
+                                            std::int32_t left = Bounds.Left;
+                                            GR_DX::DrawTexture(orCreateSurface, left, top, 255, GR_DX::RgbWhite,
+                                                &ClipRect, false, false);
+                                        } else {
+                                            Data->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left,
+                                                Bounds.Top, ClipRect, 0, 255);
+                                        }
+                                    } catch (...) {
                                         Image->ImageCache->Release();
-                                    };
-                                    if (GlobalsV::HardwareRenderingEnabled) {
-                                        pas::ComView<Direct3D9::IDirect3DTexture9_Tag> orCreateSurface = (Data->GetOrCreateSurface(0, cpp_result), cpp_result);
-                                        std::int32_t top = Bounds.Top;
-                                        std::int32_t left = Bounds.Left;
-                                        GR_DX::DrawTexture(orCreateSurface, left, top, 255, GR_DX::RgbWhite, &ClipRect, false, false);
-                                    } else {
-                                        Data->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, Bounds.Left, Bounds.Top, ClipRect, 0, 255);
+                                        throw;
                                     }
+                                    Image->ImageCache->Release();
                                 }
                             }
                             Item = Item->NextInColumn;
@@ -441,9 +452,14 @@ namespace GI_MultiImage {
     void TMultiImageGI::QueueImageLoad(pas::List* PendingLoads) {
         TMultiImageImageGI* Image{};
         std::int32_t I{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Images) - 1); cpp_range.next(I); ) {
-            Image = pas::list_at<TMultiImageImageGI>(Images, I);
-            Image->ImageCache->QueueLoadIfMissing(PendingLoads);
+        {
+            const std::int32_t cpp_last = pas::list_count(Images) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Image = pas::list_at<TMultiImageImageGI>(Images, I);
+                    Image->ImageCache->QueueLoadIfMissing(PendingLoads);
+                }
+            }
         }
     }
 

@@ -33,13 +33,13 @@ namespace CPVarClass {
         // Permits digits and uppercase E; not a syntax check.
         static std::uint8_t HasIntegerChars(pas::WideString& Text, std::int32_t TextLength);
         // Numeric conversions resample ranges; unknown tags return zero.
-        pas::Extended AsExtended();
+        double AsExtended();
         // Float conversion clamps at +/-2000000000; within bounds, uses System.Round(value + 1E-11).
         std::int32_t AsInteger();
         // Owned for every ValueKind.
         CPDiapClass::TCPDiapazone* Range;
-        pas::Extended FloatValue;
-        std::uint8_t cpp_padding[2];
+        double FloatValue;
+        std::uint8_t cpp_padding[4];
         std::int32_t IntValue;
         TCPValueKind ValueKind;
         std::uint8_t cpp_padding_2[3];

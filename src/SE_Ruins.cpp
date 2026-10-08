@@ -24,21 +24,28 @@
 namespace SE_Ruins {
     void TRuinsSE_Create(TRuinsSE* Self, pas::WideString GraphKey, Types::TPoint UnusedPosition) {
         if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
-            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv), UnusedPosition);
-            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
+            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv),
+                UnusedPosition);
+            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey),
+                    1, u","sv)));
         } else {
             SE_Space::TObjectSE_Create(Self, GraphKey, UnusedPosition);
             Self->AlphaLimit = 255;
         }
-        Self->HasTransitionImages = GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Self->ImagePath, u"To"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Self->ImagePath, u"From"}));
+        Self->HasTransitionImages = GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Self->ImagePath,
+                u"To"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({Self->ImagePath, u"From"}));
         Self->State = 0;
         Self->Alpha = 255;
     }
 
     void TRuinsSE::AttachToSpace(SE_Space::TSpaceSE* ASpace) {
         if (!IsAttachedToSpace()) {
-            ConfigureLoopSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
-            ConfigureRandomSound(pas::concat_wide({u"Ruins.", EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
+            ConfigureLoopSound(pas::concat_wide({u"Ruins.",
+                EC_Str::ExtractDelimitedPartW(pas::view(ImagePath),
+                    EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
+            ConfigureRandomSound(pas::concat_wide({u"Ruins.",
+                EC_Str::ExtractDelimitedPartW(pas::view(ImagePath),
+                    EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u"."sv) - 1, u"."sv)}));
             SE_Space::TObjectSE::AttachToSpace(ASpace);
             if (GlobalsV::AnimShipFull || GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle) {
                 Animation = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Space->MapPanel);
@@ -70,7 +77,9 @@ namespace SE_Ruins {
                 }
                 Animation->SetSequenceFrame(FrameIndex);
                 Animation->RestartPlayback();
-                Animation->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), Space->AlphaShift));
+                Animation->SetAlpha(pas::shr(
+                    std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                    Space->AlphaShift));
                 if (!KeepSize) {
                     Size = Animation->ClientSize;
                 }
@@ -86,22 +95,29 @@ namespace SE_Ruins {
                 StaticImage->SetDepthByName(DepthExpression);
                 StaticImage->SetPosition(EC_Struct::TruncatePointF(Position));
                 StaticImage->SetPositionModeW(true);
-                StaticImage->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), Space->AlphaShift));
+                StaticImage->SetAlpha(pas::shr(
+                    std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                    Space->AlphaShift));
                 if (State == 3) {
-                    FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20, pas::bind_method<&TRuinsSE::AdvanceFade>(this), 0);
+                    FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20,
+                            pas::bind_method<&TRuinsSE::AdvanceFade>(this), 0);
                     SetAlpha(0);
                 } else if (State == 2) {
-                    FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20, pas::bind_method<&TRuinsSE::AdvanceFade>(this), 0);
+                    FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20,
+                            pas::bind_method<&TRuinsSE::AdvanceFade>(this), 0);
                     SetAlpha(255);
                 }
                 if (!KeepSize) {
                     Size = StaticImage->ClientSize;
                 }
             }
-            MinimapImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+            MinimapImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                    Globals::SpaceObjectUiLoop->ContentPanel);
             MinimapImage->SetPositionModeW(true);
             MinimapImage->SetDepthByName(DepthExpression);
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
             MinimapImage->SetImagePath(MinimapImagePath);
             {
                 Types::TPoint contentSize_3 = MinimapImage->GetContentSize();
@@ -151,7 +167,8 @@ namespace SE_Ruins {
             }
         } else if (StaticImage != nullptr) {
             if (pas::in_set<2, 3>(State)) {
-                FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20, pas::bind_method<&TRuinsSE::AdvanceFade>(this), 0);
+                FadeTimer = Space->Screen->ScheduleCallbackTimer(20, 20, pas::bind_method<&TRuinsSE::AdvanceFade>(this),
+                        0);
             } else if (FadeTimer != nullptr) {
                 Space->Screen->CancelCallbackTimer(FadeTimer);
                 FadeTimer = nullptr;
@@ -209,7 +226,9 @@ namespace SE_Ruins {
             if (Animation != nullptr) {
                 Animation->SetPosition(EC_Struct::TruncatePointF(APosition));
             }
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
         }
     }
 
@@ -241,10 +260,14 @@ namespace SE_Ruins {
         Alpha = Value;
         if (IsAttachedToSpace()) {
             if (Animation != nullptr) {
-                Animation->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), Space->AlphaShift));
+                Animation->SetAlpha(pas::shr(
+                    std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                    Space->AlphaShift));
             }
             if (StaticImage != nullptr) {
-                StaticImage->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), Space->AlphaShift));
+                StaticImage->SetAlpha(pas::shr(
+                    std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                    Space->AlphaShift));
             }
         }
     }
@@ -252,7 +275,8 @@ namespace SE_Ruins {
     void TRuinsSE::DrawMap() {
         SE_Process::TProcessSE* CurrentProcess = pas::checked_cast<SE_Process::TProcessSE*>(Space->Process);
         if (CurrentProcess->RadarRange > 0) {
-            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
     }
 
@@ -264,8 +288,8 @@ namespace SE_Ruins {
             return Result;
         }
         Point = WeaponPorts[1 + pas::imod(pas::sqr(static_cast<std::int32_t>(Seed)) / 11, WeaponPortCount)];
-        Result.X = static_cast<long double>(Position.X) + Point.X;
-        Result.Y = static_cast<long double>(Position.Y) + Point.Y;
+        Result.X = static_cast<float>(static_cast<double>(Position.X) + Point.X);
+        Result.Y = static_cast<float>(static_cast<double>(Position.Y) + Point.Y);
         return Result;
     }
 
@@ -288,23 +312,28 @@ namespace SE_Ruins {
         auto ParseRuinsPoint = [&](const std::u16string_view& PointText) -> Types::TPoint {
             Types::TPoint Result{};
             if (EC_Str::CountDelimitedPartsW(PointText, u","sv) < 2) {
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetPointGI. tstr=", PointText}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"GetPointGI. tstr=", PointText}))));
             }
             Result = ([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","sv)));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","sv)));
-                return ClassesImports::Point(strToInt_2, strToInt);
-            }());
+                    std::int32_t strToInt = SysUtils::StrToInt(
+                        static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","sv)));
+                    std::int32_t strToInt_2 = SysUtils::StrToInt(
+                        static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","sv)));
+                    return ClassesImports::Point(strToInt_2, strToInt);
+                }());
             return Result;
         };
         auto ParseRuinsEnabled = [&](const std::u16string_view& Name) -> std::uint8_t {
-            return Name == u"Yes"sv || Name == u"yes"sv || Name == u"True"sv || Name == u"true"sv || Name == u"TRUE"sv || Name == u"1"sv;
+            return Name == u"Yes"sv || Name == u"yes"sv || Name == u"True"sv || Name == u"true"sv || Name ==
+                    u"TRUE"sv || Name == u"1"sv;
         };
         SE_Space::TObjectSE::LoadTemplate(Block);
         ImagePath = Block->GetParam(u"Image"sv);
         StaticImagePath = Block->GetParam(u"ImageI"sv);
         MinimapImagePath = Block->GetParam(u"ImageMap"sv);
-        HasTransitionImages = GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"To"})) && GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"From"}));
+        HasTransitionImages = GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"To"})) &&
+                GR_Main::CacheDataRoot->FileExistsByPath(pas::concat_wide({ImagePath, u"From"}));
         if (Block->CountParams(u"PanelPartnerImage"_wref.get()) > 0) {
             PanelPartnerImage = Block->GetParam(u"PanelPartnerImage"sv);
         } else {
@@ -320,7 +349,9 @@ namespace SE_Ruins {
             if (Block->CountParams(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)})) <= 0) {
                 break;
             }
-            WeaponPorts[Index] = EC_Struct::PointToPointF(ParseRuinsPoint(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
+            WeaponPorts[Index] =
+                EC_Struct::PointToPointF(ParseRuinsPoint(pas::view(Block->GetParam(pas::view(pas::concat_wide({
+                    u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
             ++WeaponPortCount;
         }
     }

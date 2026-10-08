@@ -38,7 +38,9 @@ namespace SE_Process {
         virtual void OpenSpace(GI_Panel::TPanelGI* MapPanel, GI_MessageLoop::TMessageLoopGI* Screen);
         virtual void BindMinimap(GI_MessageLoop::TObjectGI* Control);
         virtual void CloseSpace();
-        std::uint8_t IsSpaceOpen();
+        inline std::uint8_t IsSpaceOpen() {
+            return !(Space == nullptr);
+        }
         void PopulateAmbientObjects(std::int32_t Radius, std::int32_t BackgroundImage, std::uint32_t Seed);
         void StartBackgroundEffects();
         void StopBackgroundEffects();

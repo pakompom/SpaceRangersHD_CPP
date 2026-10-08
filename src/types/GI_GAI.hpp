@@ -79,7 +79,9 @@ namespace GI_GAI {
         void SetOneCycleDuration(std::int32_t DurationMs);
         void AdvanceAutoFrame(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void Invalidate() override;
-        void SetHardwareMirrorHorizontal(std::uint8_t Value);
+        inline void SetHardwareMirrorHorizontal(std::uint8_t Value) {
+            HardwareMirrorHorizontal = Value;
+        }
         void Draw(WindowsSdk::TRect ClipRect) override;
         // Skips the main GAI in FirstFrameOnly mode.
         void PrimeImageCaches();

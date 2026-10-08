@@ -23,7 +23,8 @@ namespace GI_RotateImage2 {
         Self->ImageDirty = true;
         Self->ImageCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->ImageCache);
-        Self->RotationCache = pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->RotationCache =
+            pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->RotationCache);
         Self->RotatedImage = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
         Self->RenderedAngle = 0;
@@ -75,25 +76,33 @@ namespace GI_RotateImage2 {
         ImageCache->SetCacheKey(pas::concat_wide({Path, EC_CacheBitmap::RgbaImagePathSuffix}));
         Image = EC_CacheBitmap::AcquireOrCreateBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                RotationCache->SetCacheKey(pas::concat_wide({pas::wide_int_to_str(ImageSize.X), u",",
+                    pas::wide_int_to_str(ImageSize.Y), u",",
+                    pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Width))),
+                    u",",
+                    pas::wide_int64_to_str(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(Image->Bitmap->Height))), u",",
+                    pas::wide_int_to_str(Pivot.X), u",", pas::wide_int_to_str(Pivot.Y)}));
+                Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
+                Radius = pas::real_max_scalar<double>(Radius,
+                        static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
+                Radius = MathImports::Floor(static_cast<float>(static_cast<float>(System::Sqrt(Radius) * 2.0) + 2.0));
+                SetSize(ClassesImports::Point(pas::real_trunc(Radius), pas::real_trunc(Radius)));
+                SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
+                if (RotatedImage->Width != ClientSize.X || RotatedImage->Height != ClientSize.Y) {
+                    RotatedImage->AllocateRgbaTight(ClientSize.X, ClientSize.Y);
+                }
+                ImageDirty = true;
+            } catch (...) {
                 ImageCache->Release();
-            };
-            RotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ImageSize.X), ",", SysUtils::IntToStr(ImageSize.Y), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Image->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Image->Bitmap->Height)), ",", SysUtils::IntToStr(Pivot.X), ",", SysUtils::IntToStr(Pivot.Y)})));
-            Radius = EC_Struct::SquaredDistanceToPoint(Pivot, 0, 0);
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, ImageSize.Y)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, ImageSize.X, 0)));
-            Radius = pas::real_max<double>(Radius, static_cast<double>(EC_Struct::SquaredDistanceToPoint(Pivot, 0, ImageSize.Y)));
-            Radius = MathImports::Floor(System::Sqrt(Radius) * 2.0L + 2.0L);
-            {
-                std::int32_t trunc = System::Trunc(Radius);
-                std::int32_t trunc_2 = System::Trunc(Radius);
-                SetSize(ClassesImports::Point(trunc_2, trunc));
+                throw;
             }
-            SetOrigin(ClassesImports::Point(ClientSize.X / 2, ClientSize.Y / 2));
-            if (RotatedImage->Width != ClientSize.X || RotatedImage->Height != ClientSize.Y) {
-                RotatedImage->AllocateRgbaTight(ClientSize.X, ClientSize.Y);
-            }
-            ImageDirty = true;
+            ImageCache->Release();
         }
         Invalidate();
     }
@@ -113,7 +122,8 @@ namespace GI_RotateImage2 {
     }
 
     void TRotateImage2GI::LoadImageProperties(EC_BlockPar::TBlockParEC* Block) {
-        if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0 && Block->CountParams(u"Sme"_wref.get()) > 0) {
+        if (Block->CountParams(u"Image"_wref.get()) > 0 && Block->CountParams(u"Size"_wref.get()) > 0 &&
+            Block->CountParams(u"Sme"_wref.get()) > 0) {
             Types::TPoint pointGI = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Sme"sv)));
             Types::TPoint pointGI_2 = GI_Main::GetPointGI(pas::view(Block->GetParam(u"Size"sv)));
             pas::WideString param = Block->GetParam(u"Image"sv);
@@ -130,7 +140,8 @@ namespace GI_RotateImage2 {
     void TRotateImage2GI::Draw(Types::TRect ClipRect) {
         EC_CacheBitmap::TCBitmapEC* Image{};
         EC_CacheRotateBuf::TCRotateBufEC* Rotation{};
-        if (HitTestBounds.Left + ClientSize.X < 0 || HitTestBounds.Left - ClientSize.X / 2 > GR_Main::GameScreenWidth || HitTestBounds.Top + ClientSize.Y < 0 || HitTestBounds.Top - ClientSize.Y / 2 > GR_Main::GameScreenHeight) {
+        if (HitTestBounds.Left + ClientSize.X < 0 || HitTestBounds.Left - ClientSize.X / 2 > GR_Main::GameScreenWidth ||
+            HitTestBounds.Top + ClientSize.Y < 0 || HitTestBounds.Top - ClientSize.Y / 2 > GR_Main::GameScreenHeight) {
             return;
         }
         if (RenderedAngle != Angle || ImageDirty == true) {
@@ -153,7 +164,8 @@ namespace GI_RotateImage2 {
                         void* pixels = Image->Bitmap->GetPixels();
                         void* pixels_2 = RotatedImage->GetPixels();
                         std::int32_t pitchBytes_2 = RotatedImage->PitchBytes;
-                        GR_Main::Ex_OKGR_RotateBuf_Draw_DWORD(pixels_2, pitchBytes_2, pixels, pitchBytes, x, y, angle, buffer);
+                        GR_Main::Ex_OKGR_RotateBuf_Draw_DWORD(pixels_2, pitchBytes_2, pixels, pitchBytes, x, y, angle,
+                            buffer);
                     }
                     if (Alpha != 255) {
                         std::int32_t width = RotatedImage->Width;

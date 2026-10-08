@@ -145,7 +145,8 @@ namespace aRanger {
         void SellCargoGoods();
         void BuyProfitableGoods();
         // Skips queue index 0. Leaves BestPlanet unchanged unless a candidate improves the score; UnitCost must be nonzero.
-        std::uint8_t FindBestQueuedSellPlanetProfitScore(std::uint8_t Good, aPlanet::TPlanet*& BestPlanet, double UnitCost);
+        std::uint8_t FindBestQueuedSellPlanetProfitScore(std::uint8_t Good, aPlanet::TPlanet*& BestPlanet,
+            double UnitCost);
         void ApplyIllegalGoodsTradeRelationsPenalty(std::int32_t TotalTradeValue);
         // Repairs eligible installed items even without sufficient money; subtracts cost only when Money is strictly greater.
         void RepairBrokenEquipmentAtLocation() override;
@@ -166,9 +167,11 @@ namespace aRanger {
         // Returns whether imprisonment blocks this turn; may imprison, release or update standing.
         std::uint8_t ProcessPrisonAndHostileCheck();
         // Scope filters by ship, star or sector; nil selects all. Bulk changes skip scripted ships for which HasScriptControl is true. Masks use ShipToHullType categories and owner IDs, not TShip.TypeId.
-        void ChangeShipRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
+        void ChangeShipRelations(pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount,
+            aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
         // Averages stored relations for matching ships; empty selection returns 50. A single ship uses its virtual RelationToRanger.
-        std::uint8_t GlobalRelationsShips(pas::Object* Scope, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
+        std::uint8_t GlobalRelationsShips(pas::Object* Scope, aConst::THullShipTypeMask HullTypeMask,
+            aGalaxyStruct::TOwnerMask OwnerMask);
         // Averages Coalition planets in matching stars/sectors; empty selection returns 50. A planet Scope does not narrow this native scan.
         std::uint8_t GlobalRelationsPlanets(pas::Object* Scope, aGalaxyStruct::TOwnerMask OwnerMask);
         void AssignWeaponTargetsInStar() override;
@@ -178,13 +181,19 @@ namespace aRanger {
         void ProcessCombatDialogue() override;
         // Can reduce ship/home-planet relations and adds pirate career activity to the requester.
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip,
+            pas::WideString& Response) override;
         // Acceptance transfers OfferedAmount from OtherShip to Self and establishes a truce.
-        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t OfferedAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response,
+            aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
         static pas::WideString GetProgramName(aGalaxyStruct::TProgramIndex ProgramIndex);
         pas::WideString GetProgramInfoText(aGalaxyStruct::TProgramIndex ProgramIndex);
         // Does not mask or validate ProgramIndex.
@@ -199,7 +208,8 @@ namespace aRanger {
         static std::int32_t GetProgramRewardCount(aGalaxyStruct::TProgramIndex ProgramIndex);
         float AdjustItemEvaluation(aItem::TItem* Item, std::uint8_t PriceMode, float Effectiveness) override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
-        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses, float BaseDamage) override;
+        float EvaluateWeaponDamage(aItem::TWeapon* Weapon, std::uint8_t IncludeAdditiveBonuses,
+            float BaseDamage) override;
         // Always true.
         std::uint8_t AcceptPickupItem(aItem::TItem* Item) override;
         std::uint8_t AcceptPickupDistance(aItem::TItem* Item, double Distance) override;

@@ -18,13 +18,23 @@ namespace SequenceClass {
         std::int32_t i{};
         LocationClass::TLocation* Location{};
         PathClass::TPath* Path{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->Locations) - 1); cpp_range.next(i); ) {
-            Location = pas::list_at<LocationClass::TLocation>(Self->Locations, i);
-            Location->Sequence = nullptr;
+        {
+            const std::int32_t cpp_last = pas::list_count(Self->Locations) - 1;
+            if (0 <= cpp_last) {
+                for (i = 0; i <= cpp_last; ++i) {
+                    Location = pas::list_at<LocationClass::TLocation>(Self->Locations, i);
+                    Location->Sequence = nullptr;
+                }
+            }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Self->Paths) - 1); cpp_range_2.next(i); ) {
-            Path = pas::list_at<PathClass::TPath>(Self->Paths, i);
-            Path->Sequence = nullptr;
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Self->Paths) - 1;
+            if (0 <= cpp_last_2) {
+                for (i = 0; i <= cpp_last_2; ++i) {
+                    Path = pas::list_at<PathClass::TPath>(Self->Paths, i);
+                    Path->Sequence = nullptr;
+                }
+            }
         }
         pas::list_clear(Self->Locations);
         pas::free(Self->Locations);
@@ -41,13 +51,23 @@ namespace SequenceClass {
         LocationClass::TLocation* Location{};
         PathClass::TPath* Path{};
         TraversalLimit = Value;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Locations) - 1); cpp_range.next(i); ) {
-            Location = pas::list_at<LocationClass::TLocation>(Locations, i);
-            Location->VisitLimit = TraversalLimit;
+        {
+            const std::int32_t cpp_last = pas::list_count(Locations) - 1;
+            if (0 <= cpp_last) {
+                for (i = 0; i <= cpp_last; ++i) {
+                    Location = pas::list_at<LocationClass::TLocation>(Locations, i);
+                    Location->VisitLimit = TraversalLimit;
+                }
+            }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Paths) - 1); cpp_range_2.next(i); ) {
-            Path = pas::list_at<PathClass::TPath>(Paths, i);
-            Path->TraversalLimit = TraversalLimit;
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Paths) - 1;
+            if (0 <= cpp_last_2) {
+                for (i = 0; i <= cpp_last_2; ++i) {
+                    Path = pas::list_at<PathClass::TPath>(Paths, i);
+                    Path->TraversalLimit = TraversalLimit;
+                }
+            }
         }
     }
 
@@ -57,19 +77,29 @@ namespace SequenceClass {
         LocationClass::TLocation* Location{};
         PathClass::TPath* Path{};
         TraversalLimit = 0;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Locations) - 1); cpp_range.next(i); ) {
-            Location = pas::list_at<LocationClass::TLocation>(Locations, i);
-            if (Location->VisitLimit > 0) {
-                if (TraversalLimit == 0 || Location->VisitLimit < TraversalLimit) {
-                    TraversalLimit = Location->VisitLimit;
+        {
+            const std::int32_t cpp_last = pas::list_count(Locations) - 1;
+            if (0 <= cpp_last) {
+                for (i = 0; i <= cpp_last; ++i) {
+                    Location = pas::list_at<LocationClass::TLocation>(Locations, i);
+                    if (Location->VisitLimit > 0) {
+                        if (TraversalLimit == 0 || Location->VisitLimit < TraversalLimit) {
+                            TraversalLimit = Location->VisitLimit;
+                        }
+                    }
                 }
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Paths) - 1); cpp_range_2.next(i); ) {
-            Path = pas::list_at<PathClass::TPath>(Paths, i);
-            if (Path->TraversalLimit > 0) {
-                if (TraversalLimit == 0 || Path->TraversalLimit < TraversalLimit) {
-                    TraversalLimit = Path->TraversalLimit;
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Paths) - 1;
+            if (0 <= cpp_last_2) {
+                for (i = 0; i <= cpp_last_2; ++i) {
+                    Path = pas::list_at<PathClass::TPath>(Paths, i);
+                    if (Path->TraversalLimit > 0) {
+                        if (TraversalLimit == 0 || Path->TraversalLimit < TraversalLimit) {
+                            TraversalLimit = Path->TraversalLimit;
+                        }
+                    }
                 }
             }
         }

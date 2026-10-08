@@ -14,7 +14,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/SE_Gate.hpp"
 #include "units/SE_Space.hpp"
-#include "units/System.hpp"
 
 namespace SE_Gate {
     void TGateSE_Create(TGateSE* Self, pas::WideString GraphKey, Types::TPoint UnusedPosition) {
@@ -37,29 +36,24 @@ namespace SE_Gate {
         ConfigureRandomSound(u"Gate"_wref.get());
         SE_Space::TObjectSE::AttachToSpace(ASpace);
         TickCount = 0;
-        Image = pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(GI_RotateImageGAI::TRotateImageGaiGI_Create, Space->MapPanel);
+        Image = pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(GI_RotateImageGAI::TRotateImageGaiGI_Create,
+                Space->MapPanel);
         Image->SetPositionModeW(true);
         Image->SetDepthByName(DepthExpression);
-        {
-            std::int32_t round = System::Round(Position.Y);
-            std::int32_t round_2 = System::Round(Position.X);
-            Image->SetPosition(ClassesImports::Point(round_2, round));
-        }
+        Image->SetPosition(ClassesImports::Point(pas::real_round(Position.X), pas::real_round(Position.Y)));
         Image->SetAngle(Angle + 128);
         Image->SetAlpha(255);
         std::int32_t ImageSize = GR_Main::GiScalePixels(std::min<std::int32_t>(200, Size.X));
-        Image->SetImage(u"Bm.Gate2.00?NoConvertPF"_w, ClassesImports::Point(ImageSize, ImageSize), ClassesImports::Point(ImageSize / 2, ImageSize / 2));
+        Image->SetImage(u"Bm.Gate2.00?NoConvertPF"_w, ClassesImports::Point(ImageSize, ImageSize),
+            ClassesImports::Point(ImageSize / 2, ImageSize / 2));
         TextLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Space->MapPanel);
         TextLabel->SetActive(false);
         TextLabel->SetFontName(GlobalsV::NormalFontName);
         TextLabel->SetPositionModeW(true);
         TextLabel->SetDepthByName(DepthExpression);
         TextLabel->SetSize(ClassesImports::Point(150, 20));
-        {
-            std::int32_t round_3 = System::Round(Position.Y + 5.0E+1L + ImageSize / 2 - 4.0E+1L);
-            std::int32_t round_4 = System::Round(Position.X - pas::real_divide(TextLabel->ClientSize.X, 2.0L));
-            TextLabel->SetPosition(ClassesImports::Point(round_4, round_3));
-        }
+        TextLabel->SetPosition(ClassesImports::Point(pas::real_round(static_cast<float>(Position.X - static_cast<float>(TextLabel->ClientSize.X / 2.0))),
+            pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(Position.Y + 5.0E+1) + ImageSize / 2) - 4.0E+1))));
         TextLabel->SetText(LabelText);
         TextLabel->SetWordWrapEnabled(false);
         TextLabel->SetTextAlignX(GI_Main::taxCenter);
@@ -170,7 +164,8 @@ namespace SE_Gate {
                 Image->SetActive(true);
                 Image->SetFrame(StateStep);
                 if (TextLabel != nullptr) {
-                    TextLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackNormalizedRgb(TextRed, TextGreen, TextBlue));
+                    TextLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackNormalizedRgb(TextRed, TextGreen,
+                        TextBlue));
                     TextLabel->SetActive(true);
                 }
             } else {
@@ -261,19 +256,17 @@ namespace SE_Gate {
         }
         SE_Space::TObjectSE::AttachToSpace(ASpace);
         TickCount = 0;
-        Image = pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(GI_RotateImageGAI::TRotateImageGaiGI_Create, Space->MapPanel);
+        Image = pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(GI_RotateImageGAI::TRotateImageGaiGI_Create,
+                Space->MapPanel);
         Image->SetPositionModeW(true);
         Image->SetDepthByName(DepthExpression);
-        {
-            std::int32_t round = System::Round(Position.Y);
-            std::int32_t round_2 = System::Round(Position.X);
-            Image->SetPosition(ClassesImports::Point(round_2, round));
-        }
+        Image->SetPosition(ClassesImports::Point(pas::real_round(Position.X), pas::real_round(Position.Y)));
         Image->SetAngle(Angle + 128);
         Image->SetAlpha(255);
         Image->SetActive(true);
         std::int32_t ImageSize = GR_Main::GiScalePixels(std::min<std::int32_t>(200, Size.X));
-        Image->SetImage(u"Bm.Gate2.GateEffect?NoConvertPF"_w, ClassesImports::Point(ImageSize, ImageSize), ClassesImports::Point(ImageSize / 2, ImageSize / 2));
+        Image->SetImage(u"Bm.Gate2.GateEffect?NoConvertPF"_w, ClassesImports::Point(ImageSize, ImageSize),
+            ClassesImports::Point(ImageSize / 2, ImageSize / 2));
         RebuildStateGraphics();
     }
 

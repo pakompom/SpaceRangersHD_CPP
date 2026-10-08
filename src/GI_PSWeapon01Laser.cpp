@@ -16,7 +16,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native laser particle beam, configurable width, duration and gradient palette.
@@ -38,7 +37,8 @@ namespace GI_PSWeapon01Laser {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         BeamLaserPalettes.set_length(Count);
         BeamLaserWidths.set_length(Count);
@@ -48,10 +48,13 @@ namespace GI_PSWeapon01Laser {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 2); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                            BeamLaserPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                            BeamLaserPalettes[Index][3 * ColorIndex + PartIndex] =
+                                EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                                    PartIndex, u","sv));
                         }
                     }
                 }
@@ -61,7 +64,8 @@ namespace GI_PSWeapon01Laser {
                     BeamLaserWidths[Index] = 2.0f;
                 }
                 if (PaletteBlock->CountParams(u"Time"_wref.get()) > 0) {
-                    BeamLaserDurations[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Time"sv)));
+                    BeamLaserDurations[Index] =
+                        EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Time"sv)));
                 } else {
                     BeamLaserDurations[Index] = 40;
                 }
@@ -106,20 +110,25 @@ namespace GI_PSWeapon01Laser {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = (-HalfWidth - 12.0L) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = (HalfWidth + 12.0L) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = (-HalfWidth - 12.0L) * Cosine;
-        float D = (HalfWidth + 12.0L) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = (-HalfWidth - 12.0L) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = (HalfWidth + 12.0L) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = (-HalfWidth - 12.0L) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>((static_cast<float>(-HalfWidth - 12.0)) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>((static_cast<float>(HalfWidth + 12.0)) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>((static_cast<float>(-HalfWidth - 12.0)) * Cosine);
+        float D = static_cast<float>((static_cast<float>(HalfWidth + 12.0)) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>((static_cast<float>(-HalfWidth - 12.0)) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>((static_cast<float>(HalfWidth + 12.0)) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>((static_cast<float>(-HalfWidth - 12.0)) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = (HalfWidth + 12.0L) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>((static_cast<float>(HalfWidth + 12.0)) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon01Laser::UpdateHitTestBounds() {
@@ -139,7 +148,8 @@ namespace GI_PSWeapon01Laser {
     }
 
     PBeamLaserParticle TPSWeapon01Laser::AddParticle() {
-        PBeamLaserParticle Particle = static_cast<PBeamLaserParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TBeamLaserParticle))));
+        PBeamLaserParticle Particle = static_cast<PBeamLaserParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TBeamLaserParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -183,7 +193,8 @@ namespace GI_PSWeapon01Laser {
     void TPSWeapon01Laser::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -207,30 +218,39 @@ namespace GI_PSWeapon01Laser {
         std::int32_t FadeThreshold = BeamLaserDurations[PaletteIndex] * 3 / 5;
         if (FirstParticle == nullptr && RemainingTicks >= FadeThreshold) {
             I = 0;
-            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
+            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y));
             OriginalLength = Distance;
-            if (OriginalLength == 0.0L) {
+            if (OriginalLength == 0.0) {
                 OriginalLength = 1.0;
             }
             LengthScale = 1.0;
             Angle = 0.0f;
             Alpha = 0;
-            while (static_cast<long double>(I) < Distance) {
+            while (static_cast<double>(I) < Distance) {
                 Particle = AddParticle();
-                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(System::Sin(pas::real_divide(SystemImports::Pi * Angle, 1.8E+2L)) * (HalfWidth - 0.0L), I));
-                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(BeamLaserPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 2.0L);
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(SystemImports::Pi * Angle) / 1.8E+2)) * (static_cast<float>(HalfWidth - 0.0))), I));
+                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                        pas::open_array(BeamLaserPalettes[PaletteIndex]), static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 2.0));
                 Particle->Alpha = Alpha;
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, 1.0E+1f));
                 Particle->State = 1;
                 Particle = AddParticle();
-                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(System::Sin(pas::real_divide((Angle + 9.0E+1L) * SystemImports::Pi, 1.8E+2L)) * (HalfWidth - 0.0L), I));
-                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(BeamLaserPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 2.0L);
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(
+                        static_cast<float>(System::Sin(static_cast<float>(static_cast<float>((static_cast<float>(Angle + 9.0E+1)) * SystemImports::Pi) / 1.8E+2)) * (static_cast<float>(HalfWidth - 0.0))), I));
+                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                        pas::open_array(BeamLaserPalettes[PaletteIndex]), static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 2.0));
                 Particle->Alpha = Alpha;
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, 1.0E+1f));
                 Particle->State = 1;
                 Particle = AddParticle();
-                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(System::Sin(pas::real_divide((Angle + 1.8E+2L) * SystemImports::Pi, 1.8E+2L)) * (HalfWidth - 0.0L), I));
-                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(BeamLaserPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 2.0L);
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                    EC_Struct::MakePointF(
+                        static_cast<float>(System::Sin(static_cast<float>(static_cast<float>((static_cast<float>(Angle + 1.8E+2)) * SystemImports::Pi) / 1.8E+2)) * (static_cast<float>(HalfWidth - 0.0))), I));
+                Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                        pas::open_array(BeamLaserPalettes[PaletteIndex]), static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 2.0));
                 Particle->Alpha = Alpha;
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(0.0f, 1.0E+1f));
                 Particle->State = 1;
@@ -240,11 +260,12 @@ namespace GI_PSWeapon01Laser {
                     Alpha = 255;
                 }
                 ++I;
-                Angle = Angle + 1.0E+1L;
+                Angle = static_cast<float>(Angle + 1.0E+1);
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -252,8 +273,8 @@ namespace GI_PSWeapon01Laser {
                 Particle = Particle->Next;
                 switch (Current->State) {
                     case 1: {
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
                         if (Current->Alpha + 4 < 255) {
                             Current->Alpha += 4;
                         } else {
@@ -265,10 +286,10 @@ namespace GI_PSWeapon01Laser {
                                 Spark->Position.X = Current->Position.X;
                                 Spark->Position.Y = Current->Position.Y;
                                 Spark->Color = Current->Color;
-                                Angle = pas::real_divide(pas::random(16, &System::RandSeed), 8.0L) * SystemImports::Pi;
+                                Angle = static_cast<float>(static_cast<float>(pas::random(16, &System::RandSeed) / 8.0) * SystemImports::Pi);
                                 Power = pas::random(50, &System::RandSeed);
-                                Spark->Velocity.X = pas::real_divide(System::Sin(Angle) * (Power + 50), 5.0E+1L);
-                                Spark->Velocity.Y = pas::real_divide(System::Cos(Angle) * (Power + 50), 5.0E+1L);
+                                Spark->Velocity.X = static_cast<float>(static_cast<float>(System::Sin(Angle) * (Power + 50)) / 5.0E+1);
+                                Spark->Velocity.Y = static_cast<float>(static_cast<float>(System::Cos(Angle) * (Power + 50)) / 5.0E+1);
                                 Spark->State = 2;
                                 {
                                     std::int32_t cpp_right = pas::random(100, &System::RandSeed);
@@ -279,7 +300,7 @@ namespace GI_PSWeapon01Laser {
                                 }
                                 Spark->Alpha = Power;
                             }
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) - Distance;
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) - Distance);
                             Current->Alpha = 0;
                         }
                         if (RemainingTicks < FadeThreshold) {
@@ -288,10 +309,10 @@ namespace GI_PSWeapon01Laser {
                         break;
                     }
                     case 2: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
                         if (Current->Alpha < 246) {
                             Current->Alpha += 16;
                         }
@@ -301,10 +322,10 @@ namespace GI_PSWeapon01Laser {
                         break;
                     }
                     case 3: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
                         if (Current->Alpha > 25) {
                             Current->Alpha -= 26;
                         }
@@ -333,20 +354,24 @@ namespace GI_PSWeapon01Laser {
         PBeamLaserParticle Particle = FirstParticle;
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
-                PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 Particle = Particle->Next;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
         } else {
             while (Particle != nullptr) {
-                PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                     GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                 }

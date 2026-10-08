@@ -44,8 +44,6 @@ namespace Rangers {
 
     extern pas::TextFile LanguageFile;
 
-    void TSteamCallbacksThread_Execute(TSteamCallbacksThread* Self);
-
     // Changes the process working directory and does not restore it; paths pass through the ANSI filesystem API.
     void ClearReadOnlyAttributesRecursive(pas::WideString DirectoryPath);
 

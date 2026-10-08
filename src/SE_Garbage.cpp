@@ -38,9 +38,11 @@ namespace SE_Garbage {
                 if (PreviousVirtualUsageMB != 0) {
                     Changed = true;
                     if (Usage > PreviousVirtualUsageMB) {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual memory usage is increasing (", SysUtils::Int64ToStr(Usage), " MB)"}));
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual memory usage is increasing (",
+                            SysUtils::Int64ToStr(Usage), " MB)"}));
                     } else {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual memory usage is decreasing (", SysUtils::Int64ToStr(Usage), " MB)"}));
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual memory usage is decreasing (",
+                            SysUtils::Int64ToStr(Usage), " MB)"}));
                     }
                 }
                 PreviousVirtualUsageMB = Usage;
@@ -53,9 +55,11 @@ namespace SE_Garbage {
                 if (PreviousPhysicalUsageMB != 0) {
                     Changed = true;
                     if (Usage > PreviousPhysicalUsageMB) {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical memory usage is increasing (", SysUtils::Int64ToStr(Usage), " MB)"}));
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical memory usage is increasing (",
+                            SysUtils::Int64ToStr(Usage), " MB)"}));
                     } else {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical memory usage is decreasing (", SysUtils::Int64ToStr(Usage), " MB)"}));
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical memory usage is decreasing (",
+                            SysUtils::Int64ToStr(Usage), " MB)"}));
                     }
                 }
                 PreviousPhysicalUsageMB = Usage;

@@ -10,6 +10,4 @@ namespace EC_Thread {
 
     void TThreadEC_Destroy(TThreadEC* Self);
 
-    void TThreadEC_Execute(TThreadEC* Self);
-
 } // namespace EC_Thread

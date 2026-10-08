@@ -31,6 +31,8 @@ namespace System {
 
     using TSystemThreadFuncProc = pas::Proc<void*(TThreadFunc, void*)>;
 
+    using PBoolean = std::uint8_t*;
+
     using TClass = pas::ClassRef<pas::Object>;
 
     using PWord = std::uint16_t*;

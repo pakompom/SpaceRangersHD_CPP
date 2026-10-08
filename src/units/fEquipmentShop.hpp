@@ -51,7 +51,7 @@ namespace fEquipmentShop {
     pas::WideString GetShopItemIconName(aItem::TItem* Item);
 
     // Owns Item while the location's shop list is detached, and frees remaining controls.
-    void TShopSlot_Create(TShopSlot* Self);
+    inline void TShopSlot_Create(TShopSlot* Self);
 
     void TShopSlot_Destroy(TShopSlot* Self);
 
@@ -60,3 +60,5 @@ namespace fEquipmentShop {
     void TfEquipmentShop_Destroy(TfEquipmentShop* Self);
 
 } // namespace fEquipmentShop
+
+#include "inline/fEquipmentShop.hpp"

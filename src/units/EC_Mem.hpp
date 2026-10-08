@@ -1,5 +1,5 @@
 #pragma once
-#include "runtime_support.hpp"
+#include "types/EC_Mem.hpp"
 
 namespace EC_Mem {
     // Uses the process heap; allocation failure can evict texture caches before raising.
@@ -10,9 +10,9 @@ namespace EC_Mem {
     // Nonpositive sizes free Data and return nil; allocation failure can evict texture caches.
     void* ReAllocREC(void* Data, std::int32_t ByteCount);
 
-    void FreeEC(void* Data);
+    inline void FreeEC(void* Data);
 
-    void FreeFromHeapEC(std::uint32_t Heap, void* Data);
+    inline void FreeFromHeapEC(std::uint32_t Heap, void* Data);
 
     // The diagnostics retain AllocEC/AllocClearEC/ReAllocREC for these explicit-heap variants.
     // Raises on allocation failure; does not evict caches.
@@ -24,7 +24,8 @@ namespace EC_Mem {
     // Nonpositive sizes free Data and return nil. Raises on allocation failure; does not evict caches.
     void* ReAllocFromHeapREC(std::uint32_t Heap, void* Data, std::int32_t ByteCount);
 
-    // These stack-ABI accessors are handwritten assembly in the native unit.
+    // Explicit Pascal implementations of the native stack-ABI scalar accessors.
+    // Typed pointer accesses preserve the stored bits, including unaligned values.
     // Integer(@PRecord(ByteOffset).Field) in callers derives a relative field offset
     // without reading memory, preserving these native calls and their argument order.
     inline void* AddPointerOffset(void* Data, std::int32_t ByteOffset);

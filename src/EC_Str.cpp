@@ -8,10 +8,8 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Str {
-    const EC_Str::THexDigits HexDigits = EC_Str::THexDigits{{
-        u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7',
-        u'8', u'9', u'a', u'b', u'c', u'd', u'e', u'f',
-    }};
+    const EC_Str::THexDigits HexDigits = EC_Str::THexDigits{{u'0', u'1', u'2', u'3', u'4', u'5', u'6', u'7', u'8', u'9',
+        u'a', u'b', u'c', u'd', u'e', u'f'}};
 
     // Delimiters is a set of separator characters, not a substring. Counts empty parts; empty Text returns zero.
     std::int32_t CountDelimitedPartsW(const std::u16string_view& Text, const std::u16string_view& Delimiters) {
@@ -35,7 +33,8 @@ namespace EC_Str {
     }
 
     // Zero-based part index, one-based character result. Nonpositive PartIndex returns 1; missing positive indexes raise.
-    std::int32_t GetDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters) {
+    std::int32_t GetDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex,
+        const std::u16string_view& Delimiters) {
         std::int32_t TextLength{};
         std::int32_t DelimiterCount{};
         std::int32_t i{};
@@ -54,13 +53,15 @@ namespace EC_Str {
                     }
                 }
             }
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetSmeParEC. Str=", Text, u" np=", pas::wide_int_to_str(PartIndex), u" raz=", Delimiters}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetSmeParEC. Str=", Text, u" np=", pas::wide_int_to_str(PartIndex), u" raz=", Delimiters}))));
         }
         return 1;
     }
 
     // One-based character result. Nonpositive PartIndex returns 1; 1 returns the position after the first delimiter or -1. Native early exit makes every PartIndex above 1 return -1.
-    std::int32_t GetCharDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, char16_t Delimiter) {
+    std::int32_t GetCharDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex,
+        char16_t Delimiter) {
         std::int32_t TextLength{};
         std::int32_t i{};
         if (PartIndex > 0) {
@@ -80,7 +81,8 @@ namespace EC_Str {
     }
 
     // StartIndex is a one-based character position, not a part index.
-    std::int32_t GetDelimitedPartLengthW(const std::u16string_view& Text, std::int32_t StartIndex, const std::u16string_view& Delimiters) {
+    std::int32_t GetDelimitedPartLengthW(const std::u16string_view& Text, std::int32_t StartIndex,
+        const std::u16string_view& Delimiters) {
         std::int32_t i{};
         std::int32_t j{};
         std::int32_t TextLength = static_cast<std::int32_t>(Text.length());
@@ -95,13 +97,15 @@ namespace EC_Str {
         return TextLength - StartIndex + 1;
     }
 
-    pas::WideString ExtractDelimitedPartW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters) {
+    pas::WideString ExtractDelimitedPartW(const std::u16string_view& Text, std::int32_t PartIndex,
+        const std::u16string_view& Delimiters) {
         std::int32_t StartIndex = EC_Str::GetDelimitedPartStartIndexW(Text, PartIndex, Delimiters);
         return pas::copy(Text, StartIndex, EC_Str::GetDelimitedPartLengthW(Text, StartIndex, Delimiters));
     }
 
     // Includes both zero-based part indexes and the separators between them.
-    pas::WideString ExtractDelimitedRangeW(const std::u16string_view& Text, std::int32_t FirstPart, std::int32_t LastPart, const std::u16string_view& Delimiters) {
+    pas::WideString ExtractDelimitedRangeW(const std::u16string_view& Text, std::int32_t FirstPart,
+        std::int32_t LastPart, const std::u16string_view& Delimiters) {
         std::int32_t StartIndex = EC_Str::GetDelimitedPartStartIndexW(Text, FirstPart, Delimiters);
         std::int32_t EndIndex = EC_Str::GetDelimitedPartStartIndexW(Text, LastPart, Delimiters);
         EndIndex += EC_Str::GetDelimitedPartLengthW(Text, EndIndex, Delimiters);
@@ -160,7 +164,8 @@ namespace EC_Str {
     }
 
     // Case-sensitive, non-overlapping replacement; empty Search returns Text unchanged.
-    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search, const std::u16string_view& Replacement) {
+    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search,
+        const std::u16string_view& Replacement) {
         pas::WideString Result{};
         std::int32_t j{};
         std::int32_t TextLength = Text.length();
@@ -172,7 +177,10 @@ namespace EC_Str {
         while (i <= TextLength - SearchLength) {
             j = 0;
             while (j < SearchLength) {
-                if (pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + (i + j)) != pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Search.data())) + j)) {
+                if (pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), i + j)) !=
+                    pas::load_unaligned<char16_t>(pas::pointer_add(
+                        static_cast<char16_t*>(static_cast<void*>(Search.data())), j))) {
                     break;
                 }
                 ++j;
@@ -181,7 +189,9 @@ namespace EC_Str {
                 Result = pas::concat_wide({Result, Replacement});
                 i += SearchLength;
             } else {
-                Result = pas::concat_wide({Result, pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i)});
+                Result = pas::concat_wide({Result,
+                        pas::load_unaligned<char16_t>(pas::pointer_add(
+                            static_cast<char16_t*>(static_cast<void*>(Text.data())), i))});
                 ++i;
             }
         }
@@ -205,14 +215,19 @@ namespace EC_Str {
         char16_t* SearchPtr = Search.pchar();
         if (SearchLength == 1) {
             while (StartIndex <= TextLength - SearchLength) {
-                if (pas::load_unaligned<char16_t>(reinterpret_cast<char16_t*>(StartIndex * static_cast<std::int32_t>(sizeof(char16_t)) + reinterpret_cast<std::uint8_t*>(TextPtr))) == pas::load_unaligned<char16_t>(SearchPtr)) {
+                if (pas::load_unaligned<char16_t>(reinterpret_cast<char16_t*>(pas::pointer_add(
+                    reinterpret_cast<std::uint8_t*>(TextPtr),
+                    StartIndex * static_cast<std::int32_t>(sizeof(char16_t))))) ==
+                    pas::load_unaligned<char16_t>(SearchPtr)) {
                     return StartIndex;
                 }
                 ++StartIndex;
             }
         } else {
             while (StartIndex <= TextLength - SearchLength) {
-                if (SysUtils::CompareMem(StartIndex * static_cast<std::int32_t>(sizeof(char16_t)) + reinterpret_cast<std::uint8_t*>(TextPtr), SearchPtr, SearchLength * 2)) {
+                if (SysUtils::CompareMem(
+                    pas::pointer_add(reinterpret_cast<std::uint8_t*>(TextPtr),
+                        StartIndex * static_cast<std::int32_t>(sizeof(char16_t))), SearchPtr, SearchLength * 2)) {
                     return StartIndex;
                 }
                 ++StartIndex;
@@ -283,9 +298,10 @@ namespace EC_Str {
         }
         float Value = 0.0f;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range.next(i); ) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), i));
             if (Code >= '0' && Code <= '9') {
-                Value = Value * 1.0E+1L + (Code - '0');
+                Value = static_cast<float>(static_cast<float>(Value * 1.0E+1) + (Code - '0'));
             } else if (Code == '.' || Code == ',') {
                 break;
             }
@@ -293,15 +309,17 @@ namespace EC_Str {
         ++i;
         float Divisor = 1.0E+1f;
         while (i < TextLength) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), i));
             if (Code >= '0' && Code <= '9') {
-                Value = pas::real_divide(Code - '0', Divisor) + Value;
-                Divisor = Divisor * 1.0E+1L;
+                Value = static_cast<float>(static_cast<float>(static_cast<double>(Code - '0') / Divisor) + Value);
+                Divisor = static_cast<float>(Divisor * 1.0E+1);
             }
             ++i;
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range_2.next(i); ) {
-            if (pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i) == '-') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Text.data())),
+                i)) == '-') {
                 Value = -Value;
                 break;
             }
@@ -319,9 +337,10 @@ namespace EC_Str {
         }
         float Value = 0.0f;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range.next(i); ) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), i));
             if (Code >= '0' && Code <= '9') {
-                Value = Value * 1.0E+1L + (Code - '0');
+                Value = static_cast<float>(static_cast<float>(Value * 1.0E+1) + (Code - '0'));
             } else if (Code == '.' || Code == ',') {
                 break;
             }
@@ -329,15 +348,17 @@ namespace EC_Str {
         ++i;
         float Divisor = 1.0E+1f;
         while (i < TextLength) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), i));
             if (Code >= '0' && Code <= '9') {
-                Value = pas::real_divide(Code - '0', Divisor) + Value;
-                Divisor = Divisor * 1.0E+1L;
+                Value = static_cast<float>(static_cast<float>(static_cast<double>(Code - '0') / Divisor) + Value);
+                Divisor = static_cast<float>(Divisor * 1.0E+1);
             }
             ++i;
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range_2.next(i); ) {
-            if (pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i) == '-') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Text.data())),
+                i)) == '-') {
                 Value = -Value;
                 break;
             }
@@ -350,7 +371,8 @@ namespace EC_Str {
         pas::WideString Result{};
         std::uint8_t SavedSeparator = SysUtils::DecimalSeparator;
         SysUtils::DecimalSeparator = '.';
-        Result = static_cast<pas::WideString>(pas::float_to_str(static_cast<pas::Extended>(Value), SysUtils::DecimalSeparator));
+        Result = static_cast<pas::WideString>(pas::float_to_str(static_cast<double>(Value),
+                SysUtils::DecimalSeparator));
         SysUtils::DecimalSeparator = SavedSeparator;
         return Result;
     }
@@ -421,7 +443,8 @@ namespace EC_Str {
         std::int32_t TextLength = Text.length();
         std::int32_t FirstIndex = 0;
         while (FirstIndex < TextLength) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + FirstIndex);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), FirstIndex));
             if (Code != ' ' && Code != 9 && Code != 13 && Code != 10 && Code != 0) {
                 break;
             }
@@ -432,7 +455,8 @@ namespace EC_Str {
         }
         std::int32_t LastIndex = TextLength - 1;
         while (LastIndex >= 0) {
-            Code = pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + LastIndex);
+            Code = pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Text.data())), LastIndex));
             if (Code != ' ' && Code != 9 && Code != 13 && Code != 10 && Code != 0) {
                 break;
             }
@@ -442,7 +466,8 @@ namespace EC_Str {
             return pas::WideString();
         }
         Result.set_length(LastIndex - FirstIndex + 1);
-        Windows::CopyMemory(Result.pchar(), EC_Mem::AddPointerOffset(Text.pchar(), FirstIndex * 2), (LastIndex - FirstIndex + 1) * 2);
+        Windows::CopyMemory(Result.pchar(), EC_Mem::AddPointerOffset(Text.pchar(), FirstIndex * 2),
+            (LastIndex - FirstIndex + 1) * 2);
         return Result;
     }
 
@@ -456,8 +481,12 @@ namespace EC_Str {
         std::int32_t PairCount = GR_Main::WideCaseTable.length() - 1 + 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range.next(i); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, PairCount - 1); cpp_range_2.next(j); ) {
-                if (pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Result.data())) + i) == GR_Main::WideCaseTable[j].LowerChar) {
-                    pas::store_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Result.data())) + i, GR_Main::WideCaseTable[j].UpperChar);
+                if (pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Result.data())), i)) ==
+                    GR_Main::WideCaseTable[j].LowerChar) {
+                    pas::store_unaligned<char16_t>(
+                        pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Result.data())), i),
+                        GR_Main::WideCaseTable[j].UpperChar);
                     break;
                 }
             }
@@ -475,8 +504,12 @@ namespace EC_Str {
         std::int32_t PairCount = GR_Main::WideCaseTable.length() - 1 + 1;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, TextLength - 1); cpp_range.next(i); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, PairCount - 1); cpp_range_2.next(j); ) {
-                if (pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Result.data())) + i) == GR_Main::WideCaseTable[j].UpperChar) {
-                    pas::store_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Result.data())) + i, GR_Main::WideCaseTable[j].LowerChar);
+                if (pas::load_unaligned<char16_t>(pas::pointer_add(
+                    static_cast<char16_t*>(static_cast<void*>(Result.data())), i)) ==
+                    GR_Main::WideCaseTable[j].UpperChar) {
+                    pas::store_unaligned<char16_t>(
+                        pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Result.data())), i),
+                        GR_Main::WideCaseTable[j].LowerChar);
                     break;
                 }
             }
@@ -529,15 +562,15 @@ namespace EC_Str {
         if (CharCount < 2) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) == u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) == u'<') {
             return 1;
         }
         std::int32_t i = 1;
         while (i < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + i) == u'>') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, i)) == u'>') {
                 break;
             }
             ++i;
@@ -549,7 +582,8 @@ namespace EC_Str {
     }
 
     // Requires leading < and equal-length patterns. Each character may match either pattern; no closing > or name boundary is required.
-    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern) {
+    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const std::u16string_view& Pattern,
+        const std::u16string_view& AlternatePattern) {
         std::int32_t i{};
         std::uint8_t Result = false;
         std::int32_t PatternLength = static_cast<std::int32_t>(Pattern.length());
@@ -559,11 +593,12 @@ namespace EC_Str {
         if (PatternLength + 1 > CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PatternLength - 1); cpp_range.next(i); ) {
-            if (pas::load_unaligned<char16_t>(Text + (1 + i)) != Pattern[1 + i - 1] && pas::load_unaligned<char16_t>(Text + (1 + i)) != AlternatePattern[1 + i - 1]) {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1 + i)) != Pattern[1 + i - 1] &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1 + i)) != AlternatePattern[1 + i - 1]) {
                 return Result;
             }
         }
@@ -572,40 +607,76 @@ namespace EC_Str {
 
     // Removes complete <...> tokens; leading << consumes one character and scanning resumes at the second <. Incomplete tags remain.
     pas::WideString RemoveTextTagsW(const pas::WideString& Text) {
-        pas::WideString Result{};
+        std::u16string Result{};
         std::int32_t TagLength{};
         std::int32_t i = 0;
         while (i < Text.length()) {
-            TagLength = EC_Str::GetTextTagLengthW(Text.pchar() + i, Text.length() - i);
+            TagLength = EC_Str::GetTextTagLengthW(pas::pointer_add(Text.pchar(), i), Text.length() - i);
             if (TagLength > 0) {
                 i += TagLength;
             } else {
-                Result = pas::concat_wide({Result, Text.read(i + 1)});
+                pas::append_wide_builder(Result, Text.read(i + 1));
                 ++i;
             }
         }
-        return Result;
+        return pas::finish_wide_builder(Result);
     }
 
     // Uses MatchTextTagPrefixW; opening and closing tags require separate patterns.
-    pas::WideString RemoveMatchingTextTagsW(pas::WideString Text, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern) {
-        pas::WideString Result{};
+    pas::WideString RemoveMatchingTextTagsW(const pas::WideString& Text, const std::u16string_view& Pattern,
+        const std::u16string_view& AlternatePattern) {
+        std::u16string Result{};
         std::int32_t TagLength{};
         std::int32_t i = 0;
         while (i < Text.length()) {
-            TagLength = EC_Str::GetTextTagLengthW(Text.pchar() + i, Text.length() - i);
+            TagLength = EC_Str::GetTextTagLengthW(pas::pointer_add(Text.pchar(), i), Text.length() - i);
             if (TagLength > 0) {
-                if (EC_Str::MatchTextTagPrefixW(Text.pchar() + i, Text.length() - i, Pattern, AlternatePattern)) {
+                if (EC_Str::MatchTextTagPrefixW(pas::pointer_add(Text.pchar(), i), Text.length() - i, Pattern,
+                    AlternatePattern)) {
                     i += TagLength;
                 } else {
-                    Result = pas::concat_wide({Result, pas::copy(Text, i + 1, TagLength)});
+                    pas::append_wide_builder(Result, {pas::copy(Text, i + 1, TagLength)});
                     i += TagLength;
                 }
             } else {
-                Result = pas::concat_wide({Result, pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i)});
+                pas::append_wide_builder(Result,
+                    pas::load_unaligned<char16_t>(pas::pointer_add(
+                        static_cast<char16_t*>(static_cast<void*>(Text.data())), i)));
                 ++i;
             }
         }
+        return pas::finish_wide_builder(Result);
+    }
+
+    // Case-sensitive NUL-terminated comparison returning -1, 0 or 1. Nil sorts before every nonnil pointer, including an empty string.
+    std::int32_t CompareWideChars(char16_t* Left, char16_t* Right) {
+        std::int32_t Result{};
+        std::uint16_t LeftWord{};
+        std::uint16_t RightWord{};
+        if (Left == nullptr) {
+            if (Right == nullptr) {
+                return 0;
+            }
+            return -1;
+        }
+        if (Right == nullptr) {
+            return 1;
+        }
+        do {
+            LeftWord = pas::load_unaligned<char16_t>(Left);
+            RightWord = pas::load_unaligned<char16_t>(Right);
+            if (LeftWord != RightWord) {
+                if (LeftWord < RightWord) {
+                    return -1;
+                }
+                return 1;
+            }
+            if (LeftWord == 0) {
+                return 0;
+            }
+            pas::inc(Left);
+            pas::inc(Right);
+        } while (!false);
         return Result;
     }
 
@@ -646,19 +717,21 @@ namespace EC_Str {
     // Game text obfuscation: EncodeTextW inserts a random character after each input
     // character; DecodeTextW discards those interleaved characters.
     // Keeps characters 1, 3, 5, ... using Delphi's one-based string indexing.
-    pas::WideString DecodeTextW(pas::WideString Text) {
-        pas::WideString Result{};
+    pas::WideString DecodeTextW(const pas::WideString& Text) {
+        std::u16string Result{};
         std::int32_t TextLength = Text.length();
         std::int32_t i = 0;
         while (i < TextLength) {
-            Result = pas::concat_wide({Result, pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i)});
+            pas::append_wide_builder(Result,
+                pas::load_unaligned<char16_t>(pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Text.data())),
+                    i)));
             i += 2;
         }
-        return Result;
+        return pas::finish_wide_builder(Result);
     }
 
     // One-based Index; unlike the RTL Copy helper, does not clamp Index or Count to the source. Requires a valid source span and nonnegative Count.
-    pas::WideString CopyWideStringUnchecked(pas::WideString Text, std::int32_t Index, std::int32_t Count) {
+    pas::WideString CopyWideStringUnchecked(const pas::WideString& Text, std::int32_t Index, std::int32_t Count) {
         pas::WideString Result{};
         Result.set_length(Count);
         Windows::CopyMemory(Result.pchar(), EC_Mem::AddPointerOffset(Text.pchar(), Index * 2 - 2), Count * 2);
@@ -666,15 +739,18 @@ namespace EC_Str {
     }
 
     // Creates with KEY_WRITE. Passes an ANSI-converted buffer and ANSI byte count to RegSetValueExW; preserves this native encoding mismatch.
-    void WriteRegistryStringLegacy(std::uint32_t RootKey, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString Value) {
+    void WriteRegistryStringLegacy(std::uint32_t RootKey, pas::WideString KeyPath, pas::WideString ValueName,
+        pas::WideString Value) {
         WindowsSdk::HKEY Key{};
         std::uint32_t Disposition{};
         pas::AnsiString AnsiValue{};
-        if (WindowsSdk::RegCreateKeyExW(RootKey, KeyPath.pchar(), 0u, nullptr, 0u, WindowsSdk::KEY_WRITE, nullptr, Key, &Disposition) != WindowsSdk::ERROR_SUCCESS) {
+        if (WindowsSdk::RegCreateKeyExW(RootKey, KeyPath.pchar(), 0u, nullptr, 0u, WindowsSdk::KEY_WRITE, nullptr, Key,
+            &Disposition) != WindowsSdk::ERROR_SUCCESS) {
             return;
         }
         AnsiValue = static_cast<pas::AnsiString>(Value);
-        if (WindowsSdk::RegSetValueExW(Key, ValueName.pchar(), 0u, WindowsSdk::REG_SZ, AnsiValue.pchar(), AnsiValue.length() + 1) != WindowsSdk::ERROR_SUCCESS) {
+        if (WindowsSdk::RegSetValueExW(Key, ValueName.pchar(), 0u, WindowsSdk::REG_SZ, AnsiValue.pchar(),
+            AnsiValue.length() + 1) != WindowsSdk::ERROR_SUCCESS) {
             WindowsSdk::RegCloseKey(Key);
             return;
         }
@@ -683,20 +759,24 @@ namespace EC_Str {
 
     // Inserts a random language-table character after each input character; requires a nonempty WideCaseTable.
     pas::WideString EncodeTextW(pas::WideString Text) {
-        pas::WideString Result{};
+        std::u16string Result{};
         std::int32_t TextLength = Text.length();
         std::int32_t LastPair = GR_Main::WideCaseTable.length() - 1;
         std::int32_t i = 0;
         while (i < TextLength) {
-            Result = pas::concat_wide({Result, pas::load_unaligned<char16_t>(static_cast<char16_t*>(static_cast<void*>(Text.data())) + i)});
+            pas::append_wide_builder(Result,
+                pas::load_unaligned<char16_t>(pas::pointer_add(static_cast<char16_t*>(static_cast<void*>(Text.data())),
+                    i)));
             if (pas::random(10, &System::RandSeed) >= 8) {
-                Result = pas::concat_wide({Result, GR_Main::WideCaseTable[pas::random(LastPair + 1, &System::RandSeed)].UpperChar});
+                pas::append_wide_builder(Result,
+                    GR_Main::WideCaseTable[pas::random(LastPair + 1, &System::RandSeed)].UpperChar);
             } else {
-                Result = pas::concat_wide({Result, GR_Main::WideCaseTable[pas::random(LastPair + 1, &System::RandSeed)].LowerChar});
+                pas::append_wide_builder(Result,
+                    GR_Main::WideCaseTable[pas::random(LastPair + 1, &System::RandSeed)].LowerChar);
             }
             ++i;
         }
-        return Result;
+        return pas::finish_wide_builder(Result);
     }
 
     // Applies the native ordered replacement table, including its unusual letter mappings.
@@ -771,10 +851,6 @@ namespace EC_Str {
         return EC_Str::ReplaceAllWideString(Result, u"\u044f"_wref.get(), u"ya"sv);
     }
 
-    void TStringsEC_Create(TStringsEC* Self) {
-        pas::object_create(Self);
-    }
-
     void TStringsEC_Destroy(TStringsEC* Self) {
         Self->Clear();
         pas::object_destroy(Self);
@@ -832,13 +908,15 @@ namespace EC_Str {
             --Index;
             Item = Item->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_Get. i=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_Get. i=",
+            SysUtils::IntToStr(Index)})));
     }
 
     // Creates missing entries; negative indexes raise.
     TStringsElEC* TStringsEC::EnsureElement(std::int32_t Index) {
         if (Index < 0) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_GetEx. i=", SysUtils::IntToStr(Index)})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TStringsEC.El_GetEx. i=",
+                SysUtils::IntToStr(Index)})));
         }
         TStringsElEC* Item = FirstElement;
         while (Item != nullptr) {
@@ -936,26 +1014,14 @@ namespace EC_Str {
         return CurrentElement->Data;
     }
 
-    std::uint8_t TStringsEC::IsAtEnd() {
-        return !(CurrentElement != nullptr);
-    }
-
     // Requires nonnil CurrentElement.
     std::uint8_t TStringsEC::IsAtLast() {
         return !(CurrentElement->Next != nullptr);
     }
 
-    void TStringsEC::First() {
-        CurrentElement = FirstElement;
-    }
-
     // Requires nonnil CurrentElement.
     void TStringsEC::Next() {
         CurrentElement = CurrentElement->Next;
-    }
-
-    std::uint8_t TStringsEC::IsEmpty() {
-        return FirstElement == nullptr;
     }
 
     // Splits CR, LF and CRLF lines; does not append an empty line after a trailing separator.
@@ -966,15 +1032,19 @@ namespace EC_Str {
         if (Cursor != nullptr) {
             while (pas::load_unaligned<char16_t>(Cursor) != u'\000') {
                 Start = Cursor;
-                while (pas::load_unaligned<char16_t>(Cursor) != u'\000' && pas::load_unaligned<char16_t>(Cursor) != u'\n' && pas::load_unaligned<char16_t>(Cursor) != u'\r') {
-                    ++Cursor;
+                while (pas::load_unaligned<char16_t>(Cursor) != u'\000' && pas::load_unaligned<char16_t>(Cursor) !=
+                        u'\n' && pas::load_unaligned<char16_t>(Cursor) != u'\r') {
+                    pas::inc(Cursor);
                 }
-                AddSlice(Start, pas::idiv(static_cast<std::int32_t>(reinterpret_cast<std::uint8_t*>(Cursor) - reinterpret_cast<std::uint8_t*>(Start)), static_cast<std::int32_t>(sizeof(char16_t))));
+                AddSlice(Start,
+                    pas::idiv(
+                        static_cast<std::int32_t>(reinterpret_cast<std::uint8_t*>(Cursor) -
+                            reinterpret_cast<std::uint8_t*>(Start)), static_cast<std::int32_t>(sizeof(char16_t))));
                 if (pas::load_unaligned<char16_t>(Cursor) == u'\r') {
-                    ++Cursor;
+                    pas::inc(Cursor);
                 }
                 if (pas::load_unaligned<char16_t>(Cursor) == u'\n') {
-                    ++Cursor;
+                    pas::inc(Cursor);
                 }
             }
         }
@@ -982,17 +1052,17 @@ namespace EC_Str {
 
     // Joins elements with CRLF, without a trailing separator.
     pas::WideString TStringsEC::GetText() {
-        pas::WideString Result{};
+        std::u16string Result{};
         TStringsElEC* Item = FirstElement;
         while (Item != nullptr) {
             if (Item->Next == nullptr) {
-                Result = pas::concat_wide({Result, Item->Text});
+                pas::append_wide_builder(Result, {Item->Text});
             } else {
-                Result = pas::concat_wide({Result, Item->Text, u"\r", u"\n"});
+                pas::append_wide_builder(Result, {Item->Text, u"\r", u"\n"});
             }
             Item = Item->Next;
         }
-        return Result;
+        return pas::finish_wide_builder(Result);
     }
 
     void TStringsEC::p_destroy() {

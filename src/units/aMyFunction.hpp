@@ -77,7 +77,7 @@ namespace aMyFunction {
     // Uses RandomFloatRange's endpoint quantization; chaotic mode ignores Seed.
     double SeededRandomFloatRange(std::uint32_t Seed, double BoundA, double BoundB);
 
-    std::uint32_t StepRandomSeed(std::uint32_t Seed);
+    inline std::uint32_t StepRandomSeed(std::uint32_t Seed);
 
     std::uint32_t AdvanceRandomSeed(std::uint32_t& Seed);
 
@@ -99,7 +99,7 @@ namespace aMyFunction {
     float PointDistanceSquared(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB);
 
     // Copies the 16-byte input; X = sin(angle)*radius, Y = -cos(angle)*radius.
-    inline EC_Struct::TPointF PolarToPoint(TPolarPoint Polar);
+    EC_Struct::TPointF PolarToPoint(TPolarPoint Polar);
 
     double PointDistance(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB);
 
@@ -121,22 +121,29 @@ namespace aMyFunction {
     // Original unit ownership of this formatting family (aMyFunction/MessageText) is unresolved.
     // ColorTag is a complete opening tag; empty disables coloring. Replacements are
     // case-sensitive and append </color> even when the replacement text is empty.
-    void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag);
+    void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement,
+        pas::WideString ColorTag);
 
-    pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag);
+    pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement,
+        pas::WideString ColorTag);
 
-    pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token, pas::WideString Replacement);
+    pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token,
+        pas::WideString Replacement);
 
     // Multiple replacements run in order, including matches in text inserted earlier.
-    pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2);
+    pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1,
+        pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2);
 
-    pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3, pas::WideString Replacement3);
+    pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1,
+        pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3,
+        pas::WideString Replacement3);
 
     // Returns Text unchanged when either argument is empty.
     pas::WideString WrapTextInColor(const std::u16string_view& Text, const std::u16string_view& ColorTag);
 
     // Normalizes the ray direction, rejects tangencies, and returns whether the selected intersection is ahead of StartPoint. No segment-length bound.
-    std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint, EC_Struct::TPointF& Intersection, float Radius);
+    std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint,
+        EC_Struct::TPointF& Intersection, float Radius);
 
     // Returns a decremented value, wrapping below Minimum to Maximum. Value is passed by value.
     std::int32_t DecrementWrappedValue(std::int32_t Value, std::int32_t Minimum, std::int32_t Maximum);
@@ -151,11 +158,11 @@ namespace aMyFunction {
     std::int32_t RoundAndTruncateToHundreds(double Value);
 
     // Angle is in radians, measured from the positive X axis.
-    inline EC_Struct::TPointF PointFromRadiusAngle(float Radius, float Angle);
+    EC_Struct::TPointF PointFromRadiusAngle(float Radius, float Angle);
 
-    inline EC_Struct::TPointF OffsetPointByRadiusAngle(EC_Struct::TPointF Origin, float Radius, float Angle);
+    EC_Struct::TPointF OffsetPointByRadiusAngle(EC_Struct::TPointF Origin, float Radius, float Angle);
 
-    inline EC_Struct::TPointF RotateAndTranslatePoint(EC_Struct::TPointF Point, EC_Struct::TPointF Translation, float Angle);
+    EC_Struct::TPointF RotateAndTranslatePoint(EC_Struct::TPointF Point, EC_Struct::TPointF Translation, float Angle);
 
     // Angle is ArcTan2(X,Y), measured from positive Y; squared radius uses signed 32-bit integer arithmetic.
     TPolarRadiansPoint IntegerPointToPolar(Types::TPoint Point);
@@ -174,28 +181,34 @@ namespace aMyFunction {
 
     EC_Struct::TPointF RotatePointQuarterTurn(EC_Struct::TPointF Center, EC_Struct::TPointF Point);
 
-    std::uint8_t IntersectLines(EC_Struct::TPointF A1, EC_Struct::TPointF A2, EC_Struct::TPointF B1, EC_Struct::TPointF B2, EC_Struct::TPointF& Intersection);
+    std::uint8_t IntersectLines(EC_Struct::TPointF A1, EC_Struct::TPointF A2, EC_Struct::TPointF B1,
+        EC_Struct::TPointF B2, EC_Struct::TPointF& Intersection);
 
     // Tests top, bottom, left, then right; returns the first edge hit, not the nearest. Corners must be ordered.
-    std::uint8_t SegmentIntersectsRectEdges(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF TopLeft, EC_Struct::TPointF BottomRight, EC_Struct::TPointF& Intersection);
+    std::uint8_t SegmentIntersectsRectEdges(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint,
+        EC_Struct::TPointF TopLeft, EC_Struct::TPointF BottomRight, EC_Struct::TPointF& Intersection);
 
     // Accepts a start inside the circle; rejects tangencies.
-    std::uint8_t SegmentIntersectsCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF Center, float Radius);
+    std::uint8_t SegmentIntersectsCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint,
+        EC_Struct::TPointF Center, float Radius);
 
     // Requires both endpoints outside and segment length at least the start's distance from the origin.
     std::uint8_t SegmentCrossesOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, float Radius);
 
     // Returns sin(Angle) times the radius of the circle through the endpoints tangent to Heading at StartPoint; angles are degrees.
-    double CalculateTangentArcOffset(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, double Heading, double Angle);
+    double CalculateTangentArcOffset(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, double Heading,
+        double Angle);
 
-    void CircleTangentPoints(EC_Struct::TPointF Point, float Radius, EC_Struct::TPointF& LeftPoint, EC_Struct::TPointF& RightPoint);
+    void CircleTangentPoints(EC_Struct::TPointF Point, float Radius, EC_Struct::TPointF& LeftPoint,
+        EC_Struct::TPointF& RightPoint);
 
     // Seed selects a heading offset in [90,269] degrees without advancing.
-    EC_Struct::TPointF PointBehindHeading(EC_Struct::TPointF Origin, double Heading, double Distance, std::uint32_t Seed);
+    EC_Struct::TPointF PointBehindHeading(EC_Struct::TPointF Origin, double Heading, double Distance,
+        std::uint32_t Seed);
 
     std::int32_t IntegerPointDistancePlusOne(Types::TPoint PointA, Types::TPoint PointB);
 
-    EC_Struct::TPointF MakeFloatPoint(std::int32_t X, std::int32_t Y);
+    inline EC_Struct::TPointF MakeFloatPoint(std::int32_t X, std::int32_t Y);
 
     pas::WideString NormalizeTextHighlightColors(pas::WideString Text);
 

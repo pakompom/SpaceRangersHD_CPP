@@ -106,7 +106,8 @@ namespace fRuinsTalk {
 
     void TfRuinsTalk_Destroy(TfRuinsTalk* Self);
 
-    inline void TfRuinsTalk_ProcessWindowMessage(fRuinsTalk::TfRuinsTalk* Self, std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam);
+    inline void TfRuinsTalk_ProcessWindowMessage(fRuinsTalk::TfRuinsTalk* Self, std::uint32_t Message,
+        std::uint32_t WParam, std::int32_t LParam);
 
 } // namespace fRuinsTalk
 

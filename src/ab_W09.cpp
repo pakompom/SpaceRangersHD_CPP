@@ -32,7 +32,8 @@ namespace ab_W09 {
         State = Owner->State;
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 120;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w09_f"_wref.get(), u"GAI,Bm.AB.w09_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w09_f"_wref.get(), u"GAI,Bm.AB.w09_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
@@ -40,13 +41,14 @@ namespace ab_W09 {
         SourceObject = Parent->SourceObject;
         Damage = Parent->Damage / 20;
         State = Parent->State;
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Angle);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + Angle));
         Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
         MaxSpeed = 1.0E+2;
         Thrust = 2.5;
         Phase = 2;
         ExpireTick = ab_Global::ArcadeTickCount + 20;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w09b_f"_wref.get(), u"GAI,Bm.AB.w09b_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w09b_f"_wref.get(), u"GAI,Bm.AB.w09b_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
@@ -59,16 +61,16 @@ namespace ab_W09 {
         if (Phase != 1 && Phase != 3) {
             ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
-        if (Phase == 0 && DistanceTravelled > 1.0E+2L) {
+        if (Phase == 0 && DistanceTravelled > 1.0E+2) {
             MaxSpeed = 13.0;
         }
-        if (Phase == 0 && DistanceTravelled > 3.0E+2L) {
+        if (Phase == 0 && DistanceTravelled > 3.0E+2) {
             MaxSpeed = 8.0;
         }
         ab_Object::TabObject* Collision = nullptr;
         if (Phase != 1 && Phase != 3) {
             Collision = FindCollision();
-            if (DistanceTravelled < 2.0E+2L && Phase == 0 && Collision == SourceObject) {
+            if (DistanceTravelled < 2.0E+2 && Phase == 0 && Collision == SourceObject) {
                 Collision = nullptr;
             }
         }
@@ -78,23 +80,30 @@ namespace ab_W09 {
             }
             if (Phase == 0) {
                 Phase = 1;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w09a_f"_wref.get(), u"GAI,Bm.AB.w09a_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w09a_f"_wref.get(),
+                    u"GAI,Bm.AB.w09a_s"_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
             } else {
                 Phase = 3;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w09c_f"_wref.get(), u"GAI,Bm.AB.w09c_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w09c_f"_wref.get(),
+                    u"GAI,Bm.AB.w09c_s"_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
             }
         } else if (Phase == 0 && ab_Global::ArcadeTickCount % 3 == 0 && SourceObject != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies) - 1); cpp_range.next(Index); ) {
-                Enemy = pas::list_at<ab_Ship::TabShip>(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies, Index);
-                cpp_with = BearingAndDistanceTo(Enemy);
-                if (cpp_with.Distance < 4.0E+2L && Enemy->Health > 0) {
-                    Child = pas::construct_call<TabW09>(TabW09_Create);
-                    ab_Object::ab_Object_Add(Child);
-                    Child->LaunchChild(this, cpp_with.BearingDeltaDegrees);
+            const std::int32_t cpp_last = pas::list_count(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies) -
+                1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Enemy = pas::list_at<ab_Ship::TabShip>(reinterpret_cast<ab_Ship::TabShip*>(SourceObject)->Enemies,
+                            Index);
+                    cpp_with = BearingAndDistanceTo(Enemy);
+                    if (cpp_with.Distance < 4.0E+2 && Enemy->Health > 0) {
+                        Child = pas::construct_call<TabW09>(TabW09_Create);
+                        ab_Object::ab_Object_Add(Child);
+                        Child->LaunchChild(this, cpp_with.BearingDeltaDegrees);
+                    }
                 }
             }
         } else if (Phase == 1 || Phase == 3) {

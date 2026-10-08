@@ -162,7 +162,8 @@ namespace ab_Global {
 
     extern float CargoPickupDistance;
 
-    TSphericalBearingState MakeSphericalBearingState(double LongitudeDegrees, double PolarAngleDegrees, double BearingDegrees);
+    inline TSphericalBearingState MakeSphericalBearingState(double LongitudeDegrees, double PolarAngleDegrees,
+        double BearingDegrees);
 
     EC_Struct::TVector3D SphericalToVector3D(double LongitudeRadians, double PolarAngleRadians, double Radius);
 
@@ -170,29 +171,37 @@ namespace ab_Global {
     void VectorToSphericalAngles(EC_Struct::TVector3D Vector, double& LongitudeDegrees, double& PolarAngleDegrees);
 
     // Negative distance moves backward. Longitude and bearing pass through Single precision when wrapped.
-    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees, pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance);
+    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees,
+        pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance);
 
     TSphericalBearingState AdvanceSphericalStateOnCurrentSphere(TSphericalBearingState Source, double ArcDistance);
 
     // Uses the current sphere radius; preserves the body's bearing relative to travel.
-    TSphericalBearingState AdvanceSphericalStateAlongBearing(TSphericalBearingState Source, double TravelBearingDegrees, double ArcDistance);
+    TSphericalBearingState AdvanceSphericalStateAlongBearing(TSphericalBearingState Source, double TravelBearingDegrees,
+        double ArcDistance);
 
     // Uses the current sphere radius; updates travel bearing and preserves the body's bearing relative to it.
-    TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source, double& TravelBearingDegrees, double ArcDistance);
+    TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source,
+        double& TravelBearingDegrees, double ArcDistance);
 
     // Bearing is relative to SourceBearingDegrees; coincident points return zero bearing delta and distance.
-    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
+    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance,
+        double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees,
+        double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
 
-    void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius);
+    void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees,
+        double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees,
+        double SphereRadius);
 
     // Uses the current sphere radius; ignores Target.BearingDegrees.
-    TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source, TSphericalBearingState Target);
+    TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source,
+        TSphericalBearingState Target);
 
     // Uses the shared sphere radius, camera distance, field of view and projection scale.
     void UpdateSphereProjectionMetrics();
 
     // Compares against the horizon depth set by UpdateSphereProjectionMetrics.
-    std::uint8_t IsDepthBeforeSphereHorizon(double ProjectedDepth);
+    inline std::uint8_t IsDepthBeforeSphereHorizon(double ProjectedDepth);
 
     // Requires a nonzero vector.
     EC_Struct::TVector3D NormalizeVector3D(const EC_Struct::TVector3D& Source);
@@ -209,10 +218,12 @@ namespace ab_Global {
     TMatrix4D BuildZAxisRotationMatrix(double AngleRadians);
 
     // Uses the same scale for X and Y; projects NearPlane to depth 0 and FarPlane to depth 1.
-    TMatrix4D BuildPerspectiveProjectionMatrix(double NearPlane, double FarPlane, double FovRadians, double ProjectionScale);
+    TMatrix4D BuildPerspectiveProjectionMatrix(double NearPlane, double FarPlane, double FovRadians,
+        double ProjectionScale);
 
     // CameraPos must differ from TargetPos; UpVector must not be parallel to the viewing direction.
-    TMatrix4D BuildLookAtMatrix(const EC_Struct::TVector3D& CameraPos, const EC_Struct::TVector3D& TargetPos, const EC_Struct::TVector3D& UpVector);
+    TMatrix4D BuildLookAtMatrix(const EC_Struct::TVector3D& CameraPos, const EC_Struct::TVector3D& TargetPos,
+        const EC_Struct::TVector3D& UpVector);
 
     // Does not report singularity; zero pivots are replaced by 1e-20.
     TMatrix4D InvertMatrix4D(const TMatrix4D& Matrix);
@@ -223,6 +234,9 @@ namespace ab_Global {
     EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source);
 
     // Ray points must differ. Rejects tangency. May write HitPoint on false; true requires forward distance greater than 0.001.
-    std::uint8_t TryIntersectRayWithSphere(EC_Struct::TVector3D RayOrigin, EC_Struct::TVector3D RayPointOnRay, EC_Struct::TVector3D SphereCenter, double SphereRadius, EC_Struct::TVector3D& HitPoint);
+    std::uint8_t TryIntersectRayWithSphere(EC_Struct::TVector3D RayOrigin, EC_Struct::TVector3D RayPointOnRay,
+        EC_Struct::TVector3D SphereCenter, double SphereRadius, EC_Struct::TVector3D& HitPoint);
 
 } // namespace ab_Global
+
+#include "inline/ab_Global.hpp"

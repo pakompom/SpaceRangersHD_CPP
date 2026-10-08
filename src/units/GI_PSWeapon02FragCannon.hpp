@@ -17,7 +17,8 @@ namespace GI_PSWeapon02FragCannon {
 
     void LoadFragCannonPalettes();
 
-    void TPSWeapon02FragCannon_Create(TPSWeapon02FragCannon* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon02FragCannon_Create(TPSWeapon02FragCannon* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon02FragCannon_Destroy(TPSWeapon02FragCannon* Self);
 

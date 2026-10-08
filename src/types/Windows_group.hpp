@@ -457,11 +457,15 @@ namespace WindowsSdk {
 
     inline constexpr std::int32_t KEY_WOW64_RES = 0x00000300;
 
-    inline constexpr std::int32_t KEY_READ = (WindowsSdk::STANDARD_RIGHTS_READ | WindowsSdk::KEY_QUERY_VALUE | WindowsSdk::KEY_ENUMERATE_SUB_KEYS | WindowsSdk::KEY_NOTIFY) & ~WindowsSdk::SYNCHRONIZE;
+    inline constexpr std::int32_t KEY_READ = (WindowsSdk::STANDARD_RIGHTS_READ | WindowsSdk::KEY_QUERY_VALUE |
+        WindowsSdk::KEY_ENUMERATE_SUB_KEYS | WindowsSdk::KEY_NOTIFY) & ~WindowsSdk::SYNCHRONIZE;
 
-    inline constexpr std::int32_t KEY_WRITE = (WindowsSdk::STANDARD_RIGHTS_WRITE | WindowsSdk::KEY_SET_VALUE | WindowsSdk::KEY_CREATE_SUB_KEY) & ~WindowsSdk::SYNCHRONIZE;
+    inline constexpr std::int32_t KEY_WRITE = (WindowsSdk::STANDARD_RIGHTS_WRITE | WindowsSdk::KEY_SET_VALUE |
+        WindowsSdk::KEY_CREATE_SUB_KEY) & ~WindowsSdk::SYNCHRONIZE;
 
-    inline constexpr std::int32_t KEY_ALL_ACCESS = (WindowsSdk::STANDARD_RIGHTS_ALL | WindowsSdk::KEY_QUERY_VALUE | WindowsSdk::KEY_SET_VALUE | WindowsSdk::KEY_CREATE_SUB_KEY | WindowsSdk::KEY_ENUMERATE_SUB_KEYS | WindowsSdk::KEY_NOTIFY | WindowsSdk::KEY_CREATE_LINK) & ~WindowsSdk::SYNCHRONIZE;
+    inline constexpr std::int32_t KEY_ALL_ACCESS = (WindowsSdk::STANDARD_RIGHTS_ALL | WindowsSdk::KEY_QUERY_VALUE |
+        WindowsSdk::KEY_SET_VALUE | WindowsSdk::KEY_CREATE_SUB_KEY | WindowsSdk::KEY_ENUMERATE_SUB_KEYS |
+        WindowsSdk::KEY_NOTIFY | WindowsSdk::KEY_CREATE_LINK) & ~WindowsSdk::SYNCHRONIZE;
 
     inline constexpr std::int32_t REG_SZ = 1;
 

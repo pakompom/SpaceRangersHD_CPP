@@ -3,7 +3,7 @@
 #include "units/CPVarClass.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
-#include "units/System.hpp"
+#include "units/NumericPorts.hpp"
 
 namespace CPVarClass {
     void TCPVariant_Create(TCPVariant* Self) {
@@ -21,7 +21,7 @@ namespace CPVarClass {
 
     // Resets to integer zero; retains the range object.
     void TCPVariant::Reset() {
-        FloatValue = 0.0L;
+        FloatValue = 0.0;
         IntValue = 0;
         Range->Clear();
         ValueKind = cpvkInteger;
@@ -51,7 +51,7 @@ namespace CPVarClass {
                 ValueKind = cpvkInteger;
                 Range->Clear();
                 IntValue = EC_Str::ExtractDigitsToIntW(pas::view(Text));
-                FloatValue = 0.0L;
+                FloatValue = 0.0;
                 return true;
             }
             ValueKind = cpvkFloat;
@@ -62,14 +62,15 @@ namespace CPVarClass {
         } else if (Count > 1 && Text.read(1) == u'[' && Text.read(Count) == u']') {
             for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
                 char16_t cpp_case = Text.read(i);
-                if (cpp_case >= u'0' && cpp_case <= u'9' || cpp_case == u'[' || cpp_case == u']' || cpp_case == u'h' || cpp_case == u';' || cpp_case == u'-') {
+                if (cpp_case >= u'0' && cpp_case <= u'9' || cpp_case == u'[' || cpp_case == u']' || cpp_case == u'h' ||
+                    cpp_case == u';' || cpp_case == u'-') {
                 } else {
                     return Result;
                 }
             }
             ValueKind = cpvkRange;
             Range->LoadFromText(Text);
-            FloatValue = 0.0L;
+            FloatValue = 0.0;
             IntValue = 0;
             return true;
         } else {
@@ -102,9 +103,9 @@ namespace CPVarClass {
     }
 
     // Numeric conversions resample ranges; unknown tags return zero.
-    pas::Extended TCPVariant::AsExtended() {
-        pas::Extended Result{};
-        Result = 0.0L;
+    double TCPVariant::AsExtended() {
+        double Result{};
+        Result = 0.0;
         if (ValueKind == cpvkRange) {
             return Range->GetRandomValue();
         } else if (ValueKind == cpvkFloat) {
@@ -122,12 +123,12 @@ namespace CPVarClass {
         if (ValueKind == cpvkRange) {
             return Range->GetRandomValue();
         } else if (ValueKind == cpvkFloat) {
-            if (FloatValue < pas::constant(static_cast<long double>(-QuestNumericLimit))) {
+            if (FloatValue < pas::constant(static_cast<double>(-QuestNumericLimit))) {
                 return -QuestNumericLimit;
-            } else if (FloatValue > pas::constant(static_cast<long double>(QuestNumericLimit))) {
+            } else if (FloatValue > pas::constant(static_cast<double>(QuestNumericLimit))) {
                 return QuestNumericLimit;
             } else {
-                return System::Round(FloatValue + 1.0E-11L);
+                return NumericPorts::QuestRound(FloatValue);
             }
         } else if (ValueKind == cpvkInteger) {
             return IntValue;

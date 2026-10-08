@@ -106,7 +106,8 @@ namespace aPlayer {
         void SaveToBlock(EC_BlockPar::TBlockParEC* Block) override;
         void LoadFromBlock(EC_BlockPar::TBlockParEC* Block) override;
         // Inherited ranger registration followed by player career/skill defaults; CharacterPreset is unused here.
-        void InitializePlayerAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
+        void InitializePlayerAtPlanet(aPlanet::TPlanet* Planet, std::int32_t InitialMoney,
+            std::int32_t CharacterPreset);
         // Twenty-five race/preset loadouts, stored cargo and initial planet relations. Planet is unused.
         void ApplyCharacterPreset(aPlanet::TPlanet* Planet, std::int32_t InitialMoney, std::int32_t CharacterPreset);
         void virtual_TShip_NextDay() override;
@@ -126,7 +127,9 @@ namespace aPlayer {
         // Requires a TKling victim; records its hull capacity even when no reward is due.
         std::uint8_t TryAwardDominatorPrograms(aShip::TShip* Victim);
         // Returns the highest-scoring visible Coalition trade route; retains output arguments on failure and excludes their previous endpoints.
-        std::uint8_t FindProfitableTradeRoute(std::uint8_t Nearby, std::uint32_t Seed, pas::Var<aPlanet::TPlanet*> PurchasePlanet, pas::Var<aPlanet::TPlanet*> SalePlanet, std::uint8_t& Good, aGalaxyStruct::TItemTypeMask GoodsMask);
+        std::uint8_t FindProfitableTradeRoute(std::uint8_t Nearby, std::uint32_t Seed,
+            pas::Var<aPlanet::TPlanet*> PurchasePlanet, pas::Var<aPlanet::TPlanet*> SalePlanet, std::uint8_t& Good,
+            aGalaxyStruct::TItemTypeMask GoodsMask);
         // Uses Self.Satellites.Count but reads the global player's list.
         std::uint8_t HasDeployedSatellites();
         // Requires Self=GetPlayer(): uses Self for the list count but fetches entries from the global player's deployed satellites.

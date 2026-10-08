@@ -25,8 +25,14 @@ namespace ab_W05 {
             Self->Image = nullptr;
         }
         if (Self->TrailImages != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->TrailImages) - 1); cpp_range.next(Index); ) {
-                ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(Self->TrailImages, Index));
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->TrailImages) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(
+                            Self->TrailImages, Index));
+                    }
+                }
             }
             pas::free(Self->TrailImages);
             Self->TrailImages = nullptr;
@@ -43,21 +49,24 @@ namespace ab_W05 {
         LastTrailPosition = GetWorldPosition();
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 25;
-        TurnDelta = pas::real_divide(Offset, 5.0L);
-        if (Offset != 0.0L) {
-            Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
+        TurnDelta = static_cast<float>(Offset / 5.0);
+        if (Offset != 0.0) {
+            Heading = aMyFunction::WrapHeadingDegrees(static_cast<float>(State.BearingDegrees + 9.0E+1));
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
-            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees),
+                pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius,
+                Offset);
+            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(Heading) + HeadingDelta));
         }
         TrailDistance = 0.0f;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w05_f"_wref.get(), u"GAI,Bm.AB.w05_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w05_f"_wref.get(), u"GAI,Bm.AB.w05_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
     void TabW05::Advance() {
         ab_Object::TabObject::Advance();
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + TurnDelta);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + TurnDelta));
         if (!Exploding) {
             ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
         }
@@ -68,12 +77,14 @@ namespace ab_W05 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^
+                1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, true);
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w05b_f"_wref.get(), u"GAI,Bm.AB.w05b_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w05b_f"_wref.get(),
+                u"GAI,Bm.AB.w05b_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Exploding) {
@@ -89,40 +100,50 @@ namespace ab_W05 {
         if (static_cast<std::uint8_t>(Exploding ^ 1) && DistanceTravelled > TrailDistance) {
             TrailDistance = 0.0f;
             Entry = nullptr;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(TrailImages) - 1); cpp_range.next(Index); ) {
-                Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
-                if (Entry->Finished) {
-                    break;
+            {
+                const std::int32_t cpp_last = pas::list_count(TrailImages) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
+                        if (Entry->Finished) {
+                            break;
+                        }
+                        Entry = nullptr;
+                    }
                 }
-                Entry = nullptr;
             }
             if (Entry == nullptr) {
-                Entry = ab_WorldImage::ab_WorldImage_Create(GetWorldPosition(), u"GAI,Bm.AB.w05a_f"_wref.get(), u""_wref.get(), false);
+                Entry = ab_WorldImage::ab_WorldImage_Create(GetWorldPosition(), u"GAI,Bm.AB.w05a_f"_wref.get(),
+                        u""_wref.get(), false);
                 ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
                 pas::list_add(TrailImages, static_cast<void*>(Entry));
             } else {
-                ab_WorldImage::ab_WorldImage_Set(Entry, GetWorldPosition(), u"GAI,Bm.AB.w05a_f"_wref.get(), u""_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Entry, GetWorldPosition(), u"GAI,Bm.AB.w05a_f"_wref.get(),
+                    u""_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
             }
             Entry = nullptr;
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(TrailImages) - 1); cpp_range_2.next(Index); ) {
-                Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
-                if (Entry->Finished) {
-                    break;
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(TrailImages) - 1;
+                if (0 <= cpp_last_2) {
+                    for (Index = 0; Index <= cpp_last_2; ++Index) {
+                        Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
+                        if (Entry->Finished) {
+                            break;
+                        }
+                        Entry = nullptr;
+                    }
                 }
-                Entry = nullptr;
             }
             Position = GetWorldPosition();
-            {
-                double cpp_arg = pas::real_divide(static_cast<long double>(Position.X) + LastTrailPosition.X, 2.0L);
-                double cpp_arg_2 = pas::real_divide(static_cast<long double>(Position.Y) + LastTrailPosition.Y, 2.0L);
-                double cpp_arg_3 = pas::real_divide(static_cast<long double>(Position.Z) + LastTrailPosition.Z, 2.0L);
-                Position = EC_Struct::MakeVector3D(cpp_arg, cpp_arg_2, cpp_arg_3);
-            }
+            Position = EC_Struct::MakeVector3D(static_cast<float>((static_cast<float>(static_cast<double>(Position.X) + LastTrailPosition.X)) / 2.0),
+                    static_cast<float>((static_cast<float>(static_cast<double>(Position.Y) + LastTrailPosition.Y)) / 2.0),
+                    static_cast<float>((static_cast<float>(static_cast<double>(Position.Z) + LastTrailPosition.Z)) / 2.0));
             if (Entry == nullptr) {
-                Entry = ab_WorldImage::ab_WorldImage_Create(Position, u"GAI,Bm.AB.w05a_f"_wref.get(), u""_wref.get(), false);
+                Entry = ab_WorldImage::ab_WorldImage_Create(Position, u"GAI,Bm.AB.w05a_f"_wref.get(), u""_wref.get(),
+                        false);
                 ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
                 pas::list_add(TrailImages, static_cast<void*>(Entry));

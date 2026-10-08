@@ -48,14 +48,17 @@ namespace fPlanetQuest {
         void AddChoice(pas::WideString Text, std::int32_t Value, TQuestChoiceEvent Callback);
         // Value and callback are ignored.
         void AddDisabledChoice(pas::WideString Text, std::int32_t Value, TQuestChoiceEvent Callback);
-        static GI_MessageLoop::TObjectGI* CreateChoiceInlineObject(GI_Label::TLabelGI* Sender, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateChoiceInlineObject(GI_Label::TLabelGI* Sender,
+            EC_CacheFont::PFontObjectEC Item);
         static void ChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         static void DisabledChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void DisabledChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        static void DisabledChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        static void DisabledChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         // Only exact deltas of +120 and -120 are handled.
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void FinishChoiceLayout();

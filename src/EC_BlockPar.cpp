@@ -207,7 +207,9 @@ namespace EC_BlockPar {
             if (Name.length() != PartLength) {
                 return false;
             }
-            return SysUtils::CompareMem(reinterpret_cast<std::uint8_t*>(Path.pchar()) + Start * static_cast<std::int32_t>(sizeof(char16_t)), Name.pchar(), PartLength * 2);
+            return SysUtils::CompareMem(
+                pas::pointer_add(reinterpret_cast<std::uint8_t*>(Path.pchar()),
+                    Start * static_cast<std::int32_t>(sizeof(char16_t))), Name.pchar(), PartLength * 2);
         };
         PathLength = Path.length();
         Cursor = 0;
@@ -246,7 +248,8 @@ namespace EC_BlockPar {
             }
             if (Entry == nullptr) {
                 if (RaiseIfMissing) {
-                    pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create, static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
+                    pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create,
+                        static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
                 }
                 return nullptr;
             }
@@ -255,7 +258,8 @@ namespace EC_BlockPar {
             }
             if (Entry->ItemType != bpkBlock) {
                 if (RaiseIfMissing) {
-                    pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create, static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
+                    pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create,
+                        static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
                 }
                 return nullptr;
             }
@@ -263,7 +267,8 @@ namespace EC_BlockPar {
         }
         if (Entry == nullptr) {
             if (RaiseIfMissing) {
-                pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create, static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
+                pas::raise(pas::construct_call<BlockParException::EBlockPar>(BlockParException::EBlockPar_Create,
+                    static_cast<pas::AnsiString>(pas::concat_wide({u"GetEl. Path=", Path})), false));
             }
             return nullptr;
         }
@@ -354,7 +359,8 @@ namespace EC_BlockPar {
             ++SortedEntryCount;
             return;
         }
-        Windows::MoveMemory(&SortedEntries[Index + 1], &SortedEntries[Index], (SortedEntryCount - Index) * static_cast<std::int32_t>(sizeof(TBlockParElEC*)));
+        Windows::MoveMemory(&SortedEntries[Index + 1], &SortedEntries[Index],
+            (SortedEntryCount - Index) * static_cast<std::int32_t>(sizeof(TBlockParElEC*)));
         SortedEntries[Index] = Entry;
         ++SortedEntryCount;
     }
@@ -367,7 +373,8 @@ namespace EC_BlockPar {
         while (Index < SortedEntryCount) {
             if (SortedEntries[Index] == Entry) {
                 Head = SortedEntries[Index - Entry->GroupIndex];
-                for (auto cpp_range = pas::for_to<std::int32_t>(Index + 1, Index - Entry->GroupIndex + Head->GroupCount - 1); cpp_range.next(i); ) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(Index + 1,
+                    Index - Entry->GroupIndex + Head->GroupCount - 1); cpp_range.next(i); ) {
                     --SortedEntries[i]->GroupIndex;
                 }
                 --Head->GroupCount;
@@ -377,7 +384,8 @@ namespace EC_BlockPar {
                     }
                 }
                 if (Index < SortedEntryCount - 1) {
-                    Windows::MoveMemory(&SortedEntries[Index], &SortedEntries[Index + 1], (SortedEntryCount - Index - 1) * static_cast<std::int32_t>(sizeof(TBlockParElEC*)));
+                    Windows::MoveMemory(&SortedEntries[Index], &SortedEntries[Index + 1],
+                        (SortedEntryCount - Index - 1) * static_cast<std::int32_t>(sizeof(TBlockParElEC*)));
                 }
                 --SortedEntryCount;
                 SortedEntries.set_length(SortedEntryCount);
@@ -393,7 +401,8 @@ namespace EC_BlockPar {
     pas::WideString TBlockParEC::GetParamByPath(const pas::WideString& Path) {
         TBlockParElEC* Entry = FindEntryByPath(Path, true);
         if (Entry->ItemType != bpkString) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Par_Get. Path=", Path}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Par_Get. Path=", Path}))));
         }
         return Entry->StringValue;
     }
@@ -450,7 +459,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Par_Set. name=", ParamName}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"TBlockParEC.Par_Set. name=", ParamName}))));
     }
 
     void TBlockParEC::SetOrAddParam(const pas::WideString& ParamName, const pas::WideString& ParamValue) {
@@ -478,7 +488,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Par_Delete. name=", ParamName}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"TBlockParEC.Par_Delete. name=", ParamName}))));
     }
 
     // Only the first match is affected; raises when absent.
@@ -494,7 +505,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Block_Delete. name=", BlockName}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"TBlockParEC.Block_Delete. name=", BlockName}))));
     }
 
     pas::WideString TBlockParEC::GetParam(const std::u16string_view& ParamName) {
@@ -505,7 +517,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Par_Get. name=", ParamName}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"TBlockParEC.Par_Get. name=", ParamName}))));
     }
 
     pas::WideString TBlockParEC::GetParamOrMarker(const std::u16string_view& ParamName) {
@@ -517,10 +530,6 @@ namespace EC_BlockPar {
             Entry = Entry->Next;
         }
         return pas::concat_wide({u"[", ParamName, u"]"});
-    }
-
-    std::int32_t TBlockParEC::GetParamCount() {
-        return StringParamCount;
     }
 
     std::int32_t TBlockParEC::CountParams(const pas::WideString& ParamName) {
@@ -570,7 +579,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Par_Get. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Par_Get. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     pas::WideString TBlockParEC::GetParamName(std::int32_t Index) {
@@ -587,7 +597,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Par_GetName. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Par_GetName. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     // Nested insertion updates the receiver's index and block count.
@@ -617,7 +628,8 @@ namespace EC_BlockPar {
     TBlockParEC* TBlockParEC::GetBlockByPath(const pas::WideString& Path) {
         TBlockParElEC* Entry = FindEntryByPath(Path, true);
         if (Entry->ItemType != bpkBlock) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.BlockPath_Get. Path=", Path}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"TBlockParEC.BlockPath_Get. Path=", Path}))));
         }
         return Entry->ChildBlock;
     }
@@ -658,7 +670,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.Block_Get. name=", BlockName}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"TBlockParEC.Block_Get. name=", BlockName}))));
     }
 
     TBlockParEC* TBlockParEC::FindBlock(const std::u16string_view& BlockName) {
@@ -670,10 +683,6 @@ namespace EC_BlockPar {
             Entry = Entry->Next;
         }
         return nullptr;
-    }
-
-    std::int32_t TBlockParEC::GetBlockCount() {
-        return ChildBlockCount;
     }
 
     std::int32_t TBlockParEC::CountBlocks(const pas::WideString& BlockName) {
@@ -721,7 +730,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Block_Get. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Block_Get. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     pas::WideString TBlockParEC::GetBlockNameByIndex(std::int32_t Index) {
@@ -738,11 +748,8 @@ namespace EC_BlockPar {
             }
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Block_GetName. no=", SysUtils::IntToStr(Index)})));
-    }
-
-    std::int32_t TBlockParEC::GetEntryCount() {
-        return EntryCount;
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.Block_GetName. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     // Mixed-kind indexes use the sorted array only when it covers every entry.
@@ -758,7 +765,8 @@ namespace EC_BlockPar {
             --Index;
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetTip. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetTip. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     TBlockParEC* TBlockParEC::GetEntryBlockByIndex(std::int32_t Index) {
@@ -781,7 +789,8 @@ namespace EC_BlockPar {
             --Index;
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetBlock. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetBlock. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     pas::WideString TBlockParEC::GetEntryStringByIndex(std::int32_t Index) {
@@ -804,7 +813,8 @@ namespace EC_BlockPar {
             --Index;
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetPar. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetPar. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     pas::WideString TBlockParEC::GetEntryNameByIndex(std::int32_t Index) {
@@ -827,7 +837,8 @@ namespace EC_BlockPar {
             --Index;
             Entry = Entry->Next;
         }
-        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetName. no=", SysUtils::IntToStr(Index)})));
+        pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"TBlockParEC.All_GetName. no=",
+            SysUtils::IntToStr(Index)})));
     }
 
     // Text writers append at Dest.Position. Sorted applies only with UseSortedIndex.
@@ -993,7 +1004,8 @@ namespace EC_BlockPar {
     }
 
     // Text parsers append entries; they do not clear the existing tree.
-    void TBlockParEC::ParseTextBuffer(EC_Buf::TBufEC* Buf, const pas::WideString& InitialText, std::uint8_t AnsiText, std::uint8_t PreserveComments) {
+    void TBlockParEC::ParseTextBuffer(EC_Buf::TBufEC* Buf, const pas::WideString& InitialText, std::uint8_t AnsiText,
+        std::uint8_t PreserveComments) {
         pas::WideString Text{};
         pas::WideString Name{};
         pas::WideString IncludeFile{};
@@ -1017,7 +1029,8 @@ namespace EC_BlockPar {
             if (PartCount > 1) {
                 Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"{"sv));
                 if (Name == u"") {
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TBlockParEC.LoadFromBuf_r. tstr=", Text}))));
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"TBlockParEC.LoadFromBuf_r. tstr=", Text}))));
                 }
                 ChildSorted = Name.read(Name.length()) == u'^';
                 if (ChildSorted) {
@@ -1037,7 +1050,8 @@ namespace EC_BlockPar {
                 }
                 Child = AddChildBlock(Name);
                 Child->UseSortedIndex = ChildSorted;
-                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"{"sv));
+                Name = EC_Str::TrimWideString(EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1,
+                        u"{"sv));
                 Child->ParseTextBuffer(Buf, Name, AnsiText, PreserveComments);
                 if (IncludeFile != u"") {
                     Child->LoadFromTextFileWithEncodingProbe(IncludeFile.pchar(), false);
@@ -1070,7 +1084,7 @@ namespace EC_BlockPar {
         if (Buf->DataSize - Buf->Position <= 2) {
             return;
         }
-        if (EC_Buf::TBufEC_GetWord(Buf) != 0x0000feff) {
+        if (Buf->GetWord() != 0x0000feff) {
             Buf->SetPosition(Buf->Position - 2);
             ParseTextBuffer(Buf, u""_wref.get(), true, PreserveComments);
         } else {
@@ -1159,16 +1173,16 @@ namespace EC_BlockPar {
 
     // Omits names and wraps child values in braces; text-only entries are not accepted.
     pas::WideString TBlockParEC::ConcatenateValues() {
-        pas::WideString Result{};
+        std::u16string Result{};
         std::int32_t i{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, GetEntryCount() - 1); cpp_range.next(i); ) {
             if (GetEntryKindByIndex(i) == bpkBlock) {
-                Result = pas::concat_wide({Result, u"{", GetEntryBlockByIndex(i)->ConcatenateValues(), u"}"});
+                pas::append_wide_builder(Result, {u"{", GetEntryBlockByIndex(i)->ConcatenateValues(), u"}"});
             } else {
-                Result = pas::concat_wide({Result, GetEntryStringByIndex(i)});
+                pas::append_wide_builder(Result, {GetEntryStringByIndex(i)});
             }
         }
-        return Result;
+        return pas::finish_wide_builder(Result);
     }
 
     // Replaces existing contents; trusts sorted-group metadata from the stream.
@@ -1176,8 +1190,8 @@ namespace EC_BlockPar {
         std::int32_t i{};
         TBlockParElEC* Entry{};
         Clear();
-        UseSortedIndex = EC_Buf::TBufEC_GetBoolean(Buf);
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Buf);
+        UseSortedIndex = Buf->GetBoolean();
+        std::int32_t Count = Buf->GetInt32();
         if (UseSortedIndex) {
             SortedEntryCount = Count;
             SortedEntries.set_length(Count);
@@ -1185,10 +1199,10 @@ namespace EC_BlockPar {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(i); ) {
             Entry = AddEntry();
             if (UseSortedIndex) {
-                Entry->GroupIndex = EC_Buf::TBufEC_GetInt32(Buf);
-                Entry->GroupCount = EC_Buf::TBufEC_GetInt32(Buf);
+                Entry->GroupIndex = Buf->GetInt32();
+                Entry->GroupCount = Buf->GetInt32();
             }
-            Entry->ItemType = static_cast<TBlockParKind>(EC_Buf::TBufEC_GetByte(Buf));
+            Entry->ItemType = static_cast<TBlockParKind>(Buf->GetByte());
             Entry->Name = Buf->ReadWideString();
             if (Entry->ItemType == bpkString) {
                 Entry->StringValue = Buf->ReadWideString();
@@ -1228,7 +1242,7 @@ namespace EC_BlockPar {
                 Buf = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
                 Buf->SetSize(ByteCount + 4);
                 Position = FileObj->GetPointer();
-                FileObj->ReadBuffer(static_cast<std::uint8_t*>(Buf->Data) + 4, Buf->DataSize - 4);
+                FileObj->ReadBuffer(pas::pointer_add(static_cast<std::uint8_t*>(Buf->Data), 4), Buf->DataSize - 4);
                 Crc = Buf->ComputeCrc32Range(4, Buf->DataSize) ^ BlockDatCrcKey1;
                 pas::store_unaligned<std::uint32_t>(static_cast<System::PCardinal>(Buf->Data), Crc);
                 Crc = Buf->ComputeCrc32() ^ BlockDatCrcKey2;

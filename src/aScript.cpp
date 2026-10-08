@@ -1,6 +1,8 @@
 #include "layout/aScript.hpp"
 #include "types/BreakMessageGIException.hpp"
 #include "types/EC_BlockPar.hpp"
+#include "types/EC_Buf.hpp"
+#include "types/EC_Thread.hpp"
 #include "types/GI_MessageLoop.hpp"
 #include "types/GI_XviD.hpp"
 #include "types/GR_Music.hpp"
@@ -17,14 +19,12 @@
 #include "types/fRuinsTalk.hpp"
 #include "types/fShip2.hpp"
 #include "types/fStarMap.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_CacheBuf.hpp"
 #include "units/EC_Ether.hpp"
 #include "units/EC_Expression.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
-#include "units/EC_Thread.hpp"
 #include "units/GI_MessageBox.hpp"
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
@@ -113,10 +113,12 @@ namespace aScript {
         while (Cell != nullptr && EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkFunction) {
             --Count;
             if (Count <= 0) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Non-function error at beginning or after return from user function ", Cell->Name})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Non-function error at beginning or after return from user function ", Cell->Name})));
                 return;
             }
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in user function ", Cell->Name})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in user function ",
+                Cell->Name})));
             Position = (Position - 1 + 20) % 20;
             Cell = EC_Expression::ScriptCallTrace[Position];
         }
@@ -124,12 +126,14 @@ namespace aScript {
         Position = (EC_Expression::ScriptCallTracePosition - EC_Expression::ScriptCallTraceCount + 20) % 20;
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
             if (EC_Expression::ScriptCallTrace[Position] != nullptr) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(EC_Expression::ScriptCallTrace[Position]->Name));
+                GR_Main::AppendLogLineThreadSafe(
+                    static_cast<pas::AnsiString>(EC_Expression::ScriptCallTrace[Position]->Name));
             }
             Position = (Position + 1) % 20;
         }
         if (aGalaxy::Galaxy != nullptr) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"current turn is ", EC_Str::IntToWideString(aGalaxy::Galaxy->CurrentTurn)})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"current turn is ",
+                EC_Str::IntToWideString(aGalaxy::Galaxy->CurrentTurn)})));
         }
     }
 
@@ -159,7 +163,9 @@ namespace aScript {
     }
 
     std::uint8_t HasPendingScriptRequests() {
-        return pas::list_count(QueuedArcadeBattles) > 0 || pas::list_count(QueuedTextQuests) > 0 || pas::list_count(QueuedPlanetaryBattles) > 0 || pas::list_count(QueuedVideos) > 0 || ScriptTakeoffRequested || ScriptEndTurnRequested;
+        return pas::list_count(QueuedArcadeBattles) > 0 || pas::list_count(QueuedTextQuests) > 0 ||
+            pas::list_count(QueuedPlanetaryBattles) > 0 || pas::list_count(QueuedVideos) > 0 ||
+            ScriptTakeoffRequested || ScriptEndTurnRequested;
     }
 
     std::uint8_t TryShowQueuedArcadeBattle() {
@@ -183,7 +189,8 @@ namespace aScript {
                 default: ScriptArcadeReturnScreenId = GlobalsV::CurrentScreenId; break;
             }
             GlobalsV::RequestedScreenId = GlobalsV::screenArcadeBattle;
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
             return true;
         }
         return Result;
@@ -208,7 +215,8 @@ namespace aScript {
                 default: GlobalsV::QuestReturnScreenId = GlobalsV::CurrentScreenId; break;
             }
             GlobalsV::RequestedScreenId = GlobalsV::screenPlanetQuest;
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
             return true;
         }
         return Result;
@@ -224,11 +232,13 @@ namespace aScript {
             Request = pas::list_at<TScriptPBRequest>(QueuedPlanetaryBattles, 0);
             try {
                 Failed = false;
-                Status = Robot::FRun(Request->MapName, Request->StartText, Request->SuccessText, Request->FailureText, Request->PlaceText);
+                Status = Robot::FRun(Request->MapName, Request->StartText, Request->SuccessText, Request->FailureText,
+                        Request->PlaceText);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                     Failed = true;
                 } else {
                     throw;
@@ -236,9 +246,12 @@ namespace aScript {
             }
             if (Failed) {
                 if (([&] {
-                    const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormGov.BattlePlanetQuestCrashed"_wref.get());
-                    GI_MessageLoop::TMessageLoopGI* cpp_arg = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
-                    return GI_MessageBox::ShowMessageBoxGI(cpp_arg, localizedColorText, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0);
+                    const pas::WideString& localizedColorText = aConst::LocalizedColorText(
+                        u"FormGov.BattlePlanetQuestCrashed"_wref.get());
+                    GI_MessageLoop::TMessageLoopGI* cpp_arg = reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+                    return GI_MessageBox::ShowMessageBoxGI(cpp_arg, localizedColorText,
+                        GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0);
                 }()) == GI_MessageBox::mbgResultOK) {
                     Status = 3;
                 } else {
@@ -250,7 +263,8 @@ namespace aScript {
             }
             if (Status == 1) {
                 GlobalsV::RequestedScreenId = GlobalsV::screenMainMenu;
-                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
                 return Result;
             }
             if (Status == 3) {
@@ -259,7 +273,8 @@ namespace aScript {
                 Status = 3;
             }
             GlobalsV::RequestedScreenId = GlobalsV::CurrentScreenId;
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
             aScript::CompleteQueuedPlanetaryBattle(Status);
             return true;
         }
@@ -272,8 +287,13 @@ namespace aScript {
         std::uint8_t Result = false;
         if (pas::list_count(QueuedVideos) > 0) {
             Request = pas::list_at<TScriptVDRequest>(QueuedVideos, 0);
-            if (static_cast<std::uint8_t>(Globals::SkipVideo ^ 1) && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) == Globals::RuinsTalkScreen) {
-                Video = pas::checked_cast<GI_XviD::TxvidGI*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->GetByName(u"Film"sv));
+            if (static_cast<std::uint8_t>(Globals::SkipVideo ^ 1) &&
+                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) == Globals::RuinsTalkScreen) {
+                Video =
+                    pas::checked_cast<GI_XviD::TxvidGI*>(
+                        reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                            GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->GetByName(u"Film"sv));
                 Video->SetActive(true);
                 if (Video->ImageOpen(Request->Video, false)) {
                     if (GlobalsV::MusicEnabled) {
@@ -293,7 +313,9 @@ namespace aScript {
                         Globals::RuinsTalkScreen->CancelCallbackTimer(Globals::RuinsTalkScreen->ScriptVideoTimer);
                         Globals::RuinsTalkScreen->ScriptVideoTimer = nullptr;
                     }
-                    Globals::RuinsTalkScreen->ScriptVideoTimer = Globals::RuinsTalkScreen->ScheduleCallbackTimer(5, 5, pas::bind_method<&fRuinsTalk::TfRuinsTalk::AdvanceScriptVideo>(Globals::RuinsTalkScreen), 0);
+                    Globals::RuinsTalkScreen->ScriptVideoTimer = Globals::RuinsTalkScreen->ScheduleCallbackTimer(5, 5,
+                            pas::bind_method<&fRuinsTalk::TfRuinsTalk::AdvanceScriptVideo>(Globals::RuinsTalkScreen),
+                            0);
                 } else {
                     aScript::CompleteQueuedVideo(3);
                 }
@@ -315,7 +337,8 @@ namespace aScript {
                 if (aPlayer::GetPlayer()->Order == aShip::soTakeoff) {
                     fHangar::TfHangar::TryTakeOff();
                     ScriptEndTurnRequested = false;
-                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
                     return true;
                 }
             }
@@ -328,13 +351,21 @@ namespace aScript {
         if (ScriptEndTurnRequested) {
             ScriptEndTurnRequested = false;
             if (GlobalsV::CurrentScreenId == GlobalsV::screenRuinsTalk) {
-                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
+                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenPlanet) {
-                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
+                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO) {
-                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
+                reinterpret_cast<fPanelMain::TMessageLoopGIWithMainPanel*>(
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->MainPanel->EndTurnClicked(nullptr);
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
-                reinterpret_cast<fStarMap::TfStarMap*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->EndTurnAfterOpen = true;
+                reinterpret_cast<fStarMap::TfStarMap*>(
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->EndTurnAfterOpen = true;
             }
             return true;
         }
@@ -355,48 +386,68 @@ namespace aScript {
         // Native code uses the text-quest record view for all four queues. The
         // $0C comparison is therefore not the Script field of the other records;
         // for video requests it even reads beyond their declared $0C allocation.
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(QueuedVideos) - 1); cpp_range.next(I); ) {
-            Video = pas::list_at<TScriptTQRequest>(QueuedVideos, I);
-            if (Video->Script == ResumingScript) {
-                if (I > 0) {
-                    pas::list_delete(QueuedVideos, I);
-                    pas::list_insert(QueuedVideos, 0, static_cast<void*>(Video));
+        {
+            const std::int32_t cpp_last = pas::list_count(QueuedVideos) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Video = pas::list_at<TScriptTQRequest>(QueuedVideos, I);
+                    if (Video->Script == ResumingScript) {
+                        if (I > 0) {
+                            pas::list_delete(QueuedVideos, I);
+                            pas::list_insert(QueuedVideos, 0, static_cast<void*>(Video));
+                        }
+                        aScript::TryShowQueuedVideo();
+                        return true;
+                    }
                 }
-                aScript::TryShowQueuedVideo();
-                return true;
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(QueuedTextQuests) - 1); cpp_range_2.next(I); ) {
-            Quest = pas::list_at<TScriptTQRequest>(QueuedTextQuests, I);
-            if (Quest->Script == ResumingScript) {
-                if (I > 0) {
-                    pas::list_delete(QueuedTextQuests, I);
-                    pas::list_insert(QueuedTextQuests, 0, static_cast<void*>(Quest));
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(QueuedTextQuests) - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    Quest = pas::list_at<TScriptTQRequest>(QueuedTextQuests, I);
+                    if (Quest->Script == ResumingScript) {
+                        if (I > 0) {
+                            pas::list_delete(QueuedTextQuests, I);
+                            pas::list_insert(QueuedTextQuests, 0, static_cast<void*>(Quest));
+                        }
+                        aScript::TryShowQueuedTextQuest();
+                        return true;
+                    }
                 }
-                aScript::TryShowQueuedTextQuest();
-                return true;
             }
         }
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(QueuedArcadeBattles) - 1); cpp_range_3.next(I); ) {
-            Arcade = pas::list_at<TScriptTQRequest>(QueuedArcadeBattles, I);
-            if (Arcade->Script == ResumingScript) {
-                if (I > 0) {
-                    pas::list_delete(QueuedArcadeBattles, I);
-                    pas::list_insert(QueuedArcadeBattles, 0, static_cast<void*>(Arcade));
+        {
+            const std::int32_t cpp_last_3 = pas::list_count(QueuedArcadeBattles) - 1;
+            if (0 <= cpp_last_3) {
+                for (I = 0; I <= cpp_last_3; ++I) {
+                    Arcade = pas::list_at<TScriptTQRequest>(QueuedArcadeBattles, I);
+                    if (Arcade->Script == ResumingScript) {
+                        if (I > 0) {
+                            pas::list_delete(QueuedArcadeBattles, I);
+                            pas::list_insert(QueuedArcadeBattles, 0, static_cast<void*>(Arcade));
+                        }
+                        aScript::TryShowQueuedArcadeBattle();
+                        return true;
+                    }
                 }
-                aScript::TryShowQueuedArcadeBattle();
-                return true;
             }
         }
-        for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(QueuedPlanetaryBattles) - 1); cpp_range_4.next(I); ) {
-            Planetary = pas::list_at<TScriptTQRequest>(QueuedPlanetaryBattles, I);
-            if (Planetary->Script == ResumingScript) {
-                if (I > 0) {
-                    pas::list_delete(QueuedPlanetaryBattles, I);
-                    pas::list_insert(QueuedPlanetaryBattles, 0, static_cast<void*>(Planetary));
+        {
+            const std::int32_t cpp_last_4 = pas::list_count(QueuedPlanetaryBattles) - 1;
+            if (0 <= cpp_last_4) {
+                for (I = 0; I <= cpp_last_4; ++I) {
+                    Planetary = pas::list_at<TScriptTQRequest>(QueuedPlanetaryBattles, I);
+                    if (Planetary->Script == ResumingScript) {
+                        if (I > 0) {
+                            pas::list_delete(QueuedPlanetaryBattles, I);
+                            pas::list_insert(QueuedPlanetaryBattles, 0, static_cast<void*>(Planetary));
+                        }
+                        aScript::TryRunQueuedPlanetaryBattle();
+                        return true;
+                    }
                 }
-                aScript::TryRunQueuedPlanetaryBattle();
-                return true;
             }
         }
         return Result;
@@ -463,9 +514,11 @@ namespace aScript {
         pas::list_delete(QueuedTextQuests, 0);
         ResumingScript = Request->Script;
         if (Request->Script != nullptr) {
-            Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->SetInt(static_cast<std::int32_t>(Status));
+            Request->Script->InitCode->LocalVar->GetVar(
+                u"GQuestStatus"_wref.get())->SetInt(static_cast<std::int32_t>(Status));
             aScript::TScript_RunTurnCode(Request->Script);
-            if (Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->GetInt() == static_cast<std::int32_t>(Status)) {
+            if (Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->GetInt() ==
+                static_cast<std::int32_t>(Status)) {
                 Request->Script->InitCode->LocalVar->GetVar(u"GQuestStatus"_wref.get())->SetInt(0);
             }
         }
@@ -515,7 +568,9 @@ namespace aScript {
     }
 
     void LogScriptStepCount(std::int32_t ExpressionCount) {
-        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({aScript::GetScriptContextDescription(), u" code expressions count ", EC_Str::IntToWideString(ExpressionCount)})));
+        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+            aScript::GetScriptContextDescription(), u" code expressions count ",
+            EC_Str::IntToWideString(ExpressionCount)})));
         if (ExpressionCount > 200000) {
             aScript::LogScriptCallHistory();
         }
@@ -544,33 +599,46 @@ namespace aScript {
         Globals::TScriptTemplUnit* Template{};
         std::int32_t I{};
         Globals::SharedScriptVariables->GetVar(u"GRunFrom"_wref.get())->SetInt(RunFrom);
-        Globals::SharedScriptVariables->GetVar(u"GRunStar"_wref.get())->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star)));
+        Globals::SharedScriptVariables->GetVar(
+            u"GRunStar"_wref.get())->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star)));
         pas::List* Candidates = pas::make_object<pas::List>();
         Globals::CollectInactiveScriptTemplates(Candidates);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Candidates) - 1); cpp_range.next(I); ) {
-            Template = pas::list_at<Globals::TScriptTemplUnit>(Candidates, I);
-            Globals::ScriptTemplateStartRequested = false;
-            try {
-                EC_Expression::TCodeEC_Run(Template->ConditionCode, ScriptProcess);
-            } catch (...) {
-                auto cpp_exception = pas::caught_object();
-                if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
-                } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
-                    aScript::LogScriptCallHistory();
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in global code of script ", Template->FileName}))));
-                } else {
-                    throw;
+        {
+            const std::int32_t cpp_last = pas::list_count(Candidates) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Template = pas::list_at<Globals::TScriptTemplUnit>(Candidates, I);
+                    Globals::ScriptTemplateStartRequested = false;
+                    try {
+                        EC_Expression::TCodeEC_Run(Template->ConditionCode, ScriptProcess);
+                    } catch (...) {
+                        auto cpp_exception = pas::caught_object();
+                        if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                            cpp_exception)) {
+                        } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
+                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ",
+                                E_2->message}));
+                            aScript::LogScriptCallHistory();
+                            pas::raise(
+                                pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                                    u"Error in global code of script ", Template->FileName}))));
+                        } else {
+                            throw;
+                        }
+                    }
+                    if (Globals::ScriptTemplateStartRequested) {
+                        aScript::TryStartScriptInstanceFromTemplate(Star, nullptr,
+                            pas::list_indexof(Globals::ScriptTemplates, reinterpret_cast<void*>(Template)));
+                    }
                 }
-            }
-            if (Globals::ScriptTemplateStartRequested) {
-                aScript::TryStartScriptInstanceFromTemplate(Star, nullptr, pas::list_indexof(Globals::ScriptTemplates, reinterpret_cast<void*>(Template)));
             }
         }
         pas::free(Candidates);
     }
 
-    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, const std::u16string_view& Name) {
+    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet,
+        const std::u16string_view& Name) {
         std::int32_t Index = Globals::FindScriptTemplateIndex(Name);
         if (Index < 0) {
             return false;
@@ -578,8 +646,10 @@ namespace aScript {
         return aScript::TryStartScriptInstanceFromTemplate(AnchorStar, AnchorPlanet, Index);
     }
 
-    std::uint8_t TryStartScriptInstanceFromTemplate(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, std::int32_t TemplateIndex) {
-        Globals::TScriptTemplUnit* Template = pas::list_at<Globals::TScriptTemplUnit>(Globals::ScriptTemplates, TemplateIndex);
+    std::uint8_t TryStartScriptInstanceFromTemplate(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet,
+        std::int32_t TemplateIndex) {
+        Globals::TScriptTemplUnit* Template = pas::list_at<Globals::TScriptTemplUnit>(Globals::ScriptTemplates,
+            TemplateIndex);
         TScript* Script = pas::construct_call<TScript>(TScript_Create);
         pas::list_add(aGalaxy::Galaxy->Scripts, reinterpret_cast<void*>(Script));
         Template->ActiveScriptIndex = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
@@ -652,13 +722,13 @@ namespace aScript {
                 Control->SetCacheKey(Template->FileName);
                 CachedBuffer = EC_CacheBuf::AcquireOrCreateBuffer(Control);
                 Buffer = CachedBuffer->Buffer;
-                Version = EC_Buf::TBufEC_GetUInt32(Buffer);
+                Version = Buffer->GetUInt32();
                 if (Version < 5 || Version > 8) {
                     GR_Main::RaiseWideMessage(u"Script file incorrect version"_wref.get());
                     cpp_flow = pas::FinallyFlow::Return;
                     goto cpp_cleanup;
                 }
-                EC_Buf::TBufEC_GetUInt32(Buffer);
+                Buffer->GetUInt32();
                 Globals::GlobalScriptVariables->AppendFromBuffer(Buffer);
                 Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(EC_Expression::TCodeAnalyzerEC_Create);
                 Analyzer->Tokenize(Buffer->ReadWideString(), 0);
@@ -672,7 +742,8 @@ namespace aScript {
                     GR_Main::RaiseWideMessage(pas::concat_wide({u"ScriptFirstLoad.Compiler. Error=", ErrorText}));
                 }
                 {
-                    EC_Expression::TVarEC* add = Template->ConditionCode->LocalVar->Add(u"GScriptName"_wref.get(), EC_Expression::vkString);
+                    EC_Expression::TVarEC* add = Template->ConditionCode->LocalVar->Add(u"GScriptName"_wref.get(),
+                        EC_Expression::vkString);
                     const pas::WideString& name = Template->Name;
                     add->SetString(name);
                 }
@@ -701,12 +772,22 @@ namespace aScript {
         if (Star->NoComeKling) {
             return true;
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
-            Script = pas::list_at<TScript>(aGalaxy::Galaxy->Scripts, I);
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Script->Stars) - 1); cpp_range_2.next(J); ) {
-                Binding = pas::list_at<TScriptStar>(Script->Stars, J);
-                if (Binding->ProtectStar && Binding->Star == Star) {
-                    return true;
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Script = pas::list_at<TScript>(aGalaxy::Galaxy->Scripts, I);
+                    {
+                        const std::int32_t cpp_last_2 = pas::list_count(Script->Stars) - 1;
+                        if (0 <= cpp_last_2) {
+                            for (J = 0; J <= cpp_last_2; ++J) {
+                                Binding = pas::list_at<TScriptStar>(Script->Stars, J);
+                                if (Binding->ProtectStar && Binding->Star == Star) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -775,7 +856,8 @@ namespace aScript {
             Result = Result + pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiPirate}});
         }
         if (aScript::ScriptDefinitionBit(Value, 9) && aPlayer::GetPlayer() != nullptr) {
-            Result = Result + pas::make_set<aGalaxyStruct::TOwnerMask>({{static_cast<std::int32_t>(aPlayer::GetPlayer()->OwnerId)}});
+            Result = Result + pas::make_set<aGalaxyStruct::TOwnerMask>({
+                        {static_cast<std::int32_t>(aPlayer::GetPlayer()->OwnerId)}});
         }
         return Result;
     }
@@ -783,7 +865,8 @@ namespace aScript {
     aGalaxyStruct::TPlanetEconomies DecodeScriptEconomyMask(std::uint32_t Value) {
         aGalaxyStruct::TPlanetEconomies Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({{aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial}});
+            Result = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({
+                    {aGalaxyStruct::peAgricultural, aGalaxyStruct::peIndustrial}});
             return Result;
         }
         Result = pas::constant_set<aGalaxyStruct::TPlanetEconomies>({});
@@ -802,7 +885,8 @@ namespace aScript {
     aGalaxyStruct::TPlanetGovernments DecodeScriptGovernmentMask(std::uint32_t Value) {
         aGalaxyStruct::TPlanetGovernments Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({{aGalaxyStruct::pgAnarchy, aGalaxyStruct::pgDemocracy}});
+            Result = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({
+                    {aGalaxyStruct::pgAnarchy, aGalaxyStruct::pgDemocracy}});
             return Result;
         }
         Result = pas::constant_set<aGalaxyStruct::TPlanetGovernments>({});
@@ -862,107 +946,133 @@ namespace aScript {
         return Result;
     }
 
-    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, aGalaxyStruct::TKlingType KlingType) {
+    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value,
+        aGalaxyStruct::TKlingType KlingType) {
         aGalaxyStruct::TDominatorSeriesMask Result{};
         if (!aScript::ScriptDefinitionBit(Value, 0)) {
-            Result = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}});
+            Result = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                    {aGalaxyStruct::dsBlazer, aGalaxyStruct::dsTerron}});
             return Result;
         }
         Result = pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({});
         switch (KlingType) {
             case aGalaxyStruct::ktBoss: {
                 if (aScript::ScriptDefinitionBit(Value, 7)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 13)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 19)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktEquantor: {
                 if (aScript::ScriptDefinitionBit(Value, 8)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 14)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 20)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktUrgant: {
                 if (aScript::ScriptDefinitionBit(Value, 9)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 15)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 21)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktSmersh: {
                 if (aScript::ScriptDefinitionBit(Value, 10)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 16)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 22)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktMenoc: {
                 if (aScript::ScriptDefinitionBit(Value, 11)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 17)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 23)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktShtip: {
                 if (aScript::ScriptDefinitionBit(Value, 12)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 18)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 24)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktBertor: {
                 if (aScript::ScriptDefinitionBit(Value, 26)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 28)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 30)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
             case aGalaxyStruct::ktKlig: {
                 if (aScript::ScriptDefinitionBit(Value, 27)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsBlazer}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsBlazer}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 29)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsKeller}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsKeller}});
                 }
                 if (aScript::ScriptDefinitionBit(Value, 31)) {
-                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({{aGalaxyStruct::dsTerron}});
+                    Result = Result + pas::constant_set<aGalaxyStruct::TDominatorSeriesMask>({
+                                {aGalaxyStruct::dsTerron}});
                 }
                 break;
             }
@@ -1011,7 +1121,8 @@ namespace aScript {
     }
 
     // DominatorMasks requires eight entries indexed by TKlingType. StationNames is a comma-separated filter when ship-type bit 8 is set.
-    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks) {
+    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask,
+        const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks) {
         auto cpp_array_copy = pas::copy_open_array(DominatorMasks);
         DominatorMasks = pas::open_array(cpp_array_copy);
         pas::WideString Name{};
@@ -1021,9 +1132,11 @@ namespace aScript {
         if (!pas::contains(ShipTypeMask, aConst::ShipToHullType(Ship))) {
             return Result;
         }
-        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && pas::contains(ShipTypeMask, aGalaxyStruct::htStation)) {
+        if (aRuins::TRuins* ruins = pas::class_cast_if<aRuins::TRuins*>(Ship); ruins != nullptr && pas::contains(
+                ShipTypeMask, aGalaxyStruct::htStation)) {
             Name = pas::WideString();
-            if (!pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter), static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
+            if (!pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::rstRangerCenter),
+                static_cast<std::int32_t>(aGalaxyStruct::rstCustomStation))) {
                 return Result;
             }
             if (ruins->NoLanding) {
@@ -1072,29 +1185,34 @@ namespace aScript {
             if (Ship->LiberationGroup != nullptr) {
                 continue;
             }
-            Strict = aPlayer::GetPlayer() != Ship && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) || static_cast<aKling::TKling*>(Ship)->KlingType != aGalaxyStruct::ktBoss);
+            Strict = aPlayer::GetPlayer() != Ship && (!(pas::class_cast_if<aKling::TKling*>(Ship) != nullptr) ||
+                        static_cast<aKling::TKling*>(Ship)->KlingType != aGalaxyStruct::ktBoss);
             if (Ship->ScriptShip != nullptr) {
                 continue;
             }
             if (Ship->AbsoluteScriptOrder > 0) {
                 continue;
             }
-            if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Ship); tranclucator != nullptr && tranclucator->OwnerShip != nullptr) {
+            if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(
+                Ship); tranclucator != nullptr && tranclucator->OwnerShip != nullptr) {
                 continue;
             }
             if (Strict && Ship->InHyperspace) {
                 continue;
             }
-            if (Strict && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && Ship->EnemyShip != nullptr && Ship->EnemyShip->CurrentStar == Ship->CurrentStar) {
+            if (Strict && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && Ship->EnemyShip != nullptr &&
+                Ship->EnemyShip->CurrentStar == Ship->CurrentStar) {
                 continue;
             }
             if (Strict && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && Ship->PartnerShip != nullptr) {
                 continue;
             }
-            if (Strict && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && Ship->GetHull()->HullPoints < Ship->GetHull()->Weight / 2) {
+            if (Strict && !(pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) && Ship->GetHull()->HullPoints <
+                    Ship->GetHull()->Weight / 2) {
                 continue;
             }
-            if (Strict && Ship->InNormalSpace() && pas::sqr(static_cast<pas::Extended>(Star->SafeRadius)) > aMyFunction::PointDistanceSquared(Ship->Position, EC_Struct::MakePointF(0.0f, 0.0f))) {
+            if (Strict && Ship->InNormalSpace() && pas::sqr(static_cast<double>(Star->SafeRadius)) >
+                    aMyFunction::PointDistanceSquared(Ship->Position, EC_Struct::MakePointF(0.0f, 0.0f))) {
                 continue;
             }
             if (Strict) {
@@ -1143,85 +1261,92 @@ namespace aScript {
         aShip::TShip* Ship{};
         EC_Struct::TPointF Point{};
         float DistanceSquared{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Candidates) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Candidates, I);
-            if (Ship->LiberationGroup != nullptr) {
-                continue;
+        {
+            const std::int32_t cpp_last = pas::list_count(Candidates) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(Candidates, I);
+                    if (Ship->LiberationGroup != nullptr) {
+                        continue;
+                    }
+                    if (!pas::contains(Group->OwnerMask, Ship->OwnerId)) {
+                        continue;
+                    }
+                    if (!aScript::ScriptShipMatchesType(Ship, Group->ShipTypeMask, pas::view(Group->StationNames),
+                        pas::open_array(Group->DominatorMasks))) {
+                        continue;
+                    }
+                    if (aPlayer::GetPlayer() == Ship) {
+                        continue;
+                    }
+                    if (aKling::BlazerShip != Ship && aKling::KellerShip != Ship && aKling::TerronShip != Ship) {
+                        if (Ship->Speed < Group->MinSpeed) {
+                            continue;
+                        }
+                        if (Ship->Speed > Group->MaxSpeed) {
+                            continue;
+                        }
+                    }
+                    if (Group->WeaponRequirement == 1 && Ship->WeaponCount <= 0) {
+                        continue;
+                    }
+                    if (Group->WeaponRequirement == 2 && Ship->WeaponCount > 0) {
+                        continue;
+                    }
+                    if (Group->MinCargoHookLevel > 0) {
+                        if (Ship->GetCargoHook() == nullptr) {
+                            continue;
+                        }
+                        if (Ship->GetCargoHook()->GetLevel() < Group->MinCargoHookLevel) {
+                            continue;
+                        }
+                    }
+                    if (Ship->CargoFreeSpace < Group->MinFreeCargoSpace) {
+                        continue;
+                    }
+                    if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
+                        if (ranger->CareerStatus[aGalaxyStruct::rcTrader] < Group->MinTraderStatus) {
+                            continue;
+                        }
+                        if (ranger->CareerStatus[aGalaxyStruct::rcTrader] > Group->MaxTraderStatus) {
+                            continue;
+                        }
+                        if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] < Group->MinWarriorStatus) {
+                            continue;
+                        }
+                        if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] > Group->MaxWarriorStatus) {
+                            continue;
+                        }
+                        if (ranger->CareerStatus[aGalaxyStruct::rcPirate] < Group->MinPirateStatus) {
+                            continue;
+                        }
+                        if (ranger->CareerStatus[aGalaxyStruct::rcPirate] > Group->MaxPirateStatus) {
+                            continue;
+                        }
+                    }
+                    if (Group->MaxDistanceFromPlanet < 10000 && Ship->CurrentPlanet != Group->Planet) {
+                        Point = Group->Planet->GetPosition();
+                        if (Ship->CurrentPlanet != nullptr) {
+                            DistanceSquared = aMyFunction::PointDistanceSquared(Point,
+                                    Ship->CurrentPlanet->GetPosition());
+                        } else {
+                            DistanceSquared = aMyFunction::PointDistanceSquared(Point, Ship->Position);
+                        }
+                        if (static_cast<double>(DistanceSquared) > pas::sqr(Group->MaxDistanceFromPlanet)) {
+                            continue;
+                        }
+                    }
+                    if (Group->MinStrength != 0.0 || Group->MaxStrength != 0.0) {
+                        if (Ship->StrengthInBestRanger < Group->MinStrength) {
+                            continue;
+                        }
+                        if (Ship->StrengthInBestRanger > Group->MaxStrength) {
+                            continue;
+                        }
+                    }
+                    return Ship;
+                }
             }
-            if (!pas::contains(Group->OwnerMask, Ship->OwnerId)) {
-                continue;
-            }
-            if (!aScript::ScriptShipMatchesType(Ship, Group->ShipTypeMask, pas::view(Group->StationNames), pas::open_array(Group->DominatorMasks))) {
-                continue;
-            }
-            if (aPlayer::GetPlayer() == Ship) {
-                continue;
-            }
-            if (aKling::BlazerShip != Ship && aKling::KellerShip != Ship && aKling::TerronShip != Ship) {
-                if (Ship->Speed < Group->MinSpeed) {
-                    continue;
-                }
-                if (Ship->Speed > Group->MaxSpeed) {
-                    continue;
-                }
-            }
-            if (Group->WeaponRequirement == 1 && Ship->WeaponCount <= 0) {
-                continue;
-            }
-            if (Group->WeaponRequirement == 2 && Ship->WeaponCount > 0) {
-                continue;
-            }
-            if (Group->MinCargoHookLevel > 0) {
-                if (Ship->GetCargoHook() == nullptr) {
-                    continue;
-                }
-                if (Ship->GetCargoHook()->GetLevel() < Group->MinCargoHookLevel) {
-                    continue;
-                }
-            }
-            if (Ship->CargoFreeSpace < Group->MinFreeCargoSpace) {
-                continue;
-            }
-            if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
-                if (ranger->CareerStatus[aGalaxyStruct::rcTrader] < Group->MinTraderStatus) {
-                    continue;
-                }
-                if (ranger->CareerStatus[aGalaxyStruct::rcTrader] > Group->MaxTraderStatus) {
-                    continue;
-                }
-                if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] < Group->MinWarriorStatus) {
-                    continue;
-                }
-                if (ranger->CareerStatus[aGalaxyStruct::rcWarrior] > Group->MaxWarriorStatus) {
-                    continue;
-                }
-                if (ranger->CareerStatus[aGalaxyStruct::rcPirate] < Group->MinPirateStatus) {
-                    continue;
-                }
-                if (ranger->CareerStatus[aGalaxyStruct::rcPirate] > Group->MaxPirateStatus) {
-                    continue;
-                }
-            }
-            if (Group->MaxDistanceFromPlanet < 10000 && Ship->CurrentPlanet != Group->Planet) {
-                Point = Group->Planet->GetPosition();
-                if (Ship->CurrentPlanet != nullptr) {
-                    DistanceSquared = aMyFunction::PointDistanceSquared(Point, Ship->CurrentPlanet->GetPosition());
-                } else {
-                    DistanceSquared = aMyFunction::PointDistanceSquared(Point, Ship->Position);
-                }
-                if (static_cast<long double>(DistanceSquared) > pas::sqr(Group->MaxDistanceFromPlanet)) {
-                    continue;
-                }
-            }
-            if (Group->MinStrength != 0.0L || Group->MaxStrength != 0.0L) {
-                if (Ship->StrengthInBestRanger < Group->MinStrength) {
-                    continue;
-                }
-                if (Ship->StrengthInBestRanger > Group->MaxStrength) {
-                    continue;
-                }
-            }
-            return Ship;
         }
         return nullptr;
     }
@@ -1231,12 +1356,17 @@ namespace aScript {
         std::int32_t I{};
         TScriptShip* Result = nullptr;
         if (aPlayer::TPlayer* player = pas::class_cast_if<aPlayer::TPlayer*>(Ship)) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(player->ScriptShipBindings) - 1); cpp_range.next(I); ) {
-                Result = pas::list_at<TScriptShip>(player->ScriptShipBindings, I);
-                if (Result->Script == Script) {
-                    break;
+            {
+                const std::int32_t cpp_last = pas::list_count(player->ScriptShipBindings) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Result = pas::list_at<TScriptShip>(player->ScriptShipBindings, I);
+                        if (Result->Script == Script) {
+                            break;
+                        }
+                        Result = nullptr;
+                    }
                 }
-                Result = nullptr;
             }
             return Result;
         }
@@ -1300,15 +1430,18 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
                 GR_Main::AppendLogLineThreadSafe("Error while executing code from string: "_a);
                 if (SourceText.length() <= 256) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(SourceText));
                 } else {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({pas::copy(SourceText, 1, 256), u" ..."})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        pas::copy(SourceText, 1, 256), u" ..."})));
                 }
                 throw;
             } else {
@@ -1323,7 +1456,8 @@ namespace aScript {
     EC_Expression::TCodeEC* CompileScriptText(pas::WideString SourceText) {
         pas::WideString ErrorText{};
         pas::WideString DelimiterError{};
-        EC_Expression::TCodeAnalyzerEC* Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(EC_Expression::TCodeAnalyzerEC_Create);
+        EC_Expression::TCodeAnalyzerEC* Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(
+            EC_Expression::TCodeAnalyzerEC_Create);
         Analyzer->Tokenize(SourceText, 0);
         Analyzer->RemoveComments();
         Analyzer->RemoveNewlines();
@@ -1332,7 +1466,8 @@ namespace aScript {
         EC_Expression::TCodeEC* Result = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
         Result->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
         if (ErrorText != u"") {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Compiler. Error=", ErrorText})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Compiler. Error=",
+                ErrorText})));
             GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(SourceText));
             GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
@@ -1355,15 +1490,18 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
                 GR_Main::AppendLogLineThreadSafe("Error while executing code from string: "_a);
                 if (ContextName.length() <= 128) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(ContextName));
                 } else {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({pas::copy(ContextName, 1, 128), u" ..."})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        pas::copy(ContextName, 1, 128), u" ..."})));
                 }
                 pas::raise(pas::make_exception<pas::Exception>(pas::AnsiString()));
             } else {
@@ -1372,7 +1510,8 @@ namespace aScript {
         }
     }
 
-    TScriptCacheUnit* GetCachedActionCode(TScriptCache*& Cache, pas::WideString Name, EC_BlockPar::TBlockParEC* Config) {
+    TScriptCacheUnit* GetCachedActionCode(TScriptCache*& Cache, pas::WideString Name,
+        EC_BlockPar::TBlockParEC* Config) {
         TScriptCacheUnit* Result = nullptr;
         if (Config == nullptr) {
             return Result;
@@ -1427,16 +1566,19 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
                 GR_Main::AppendLogLineThreadSafe("Error while executing GI code:"_a);
                 Text = Entry->SourceText;
                 if (Text.length() <= 256) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Text));
                 } else {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({pas::copy(Text, 1, 256), u" ..."})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        pas::copy(Text, 1, 256), u" ..."})));
                 }
                 throw;
             } else {
@@ -1459,7 +1601,9 @@ namespace aScript {
         CurrentScript = Snapshot.Script;
         if (CurrentScript != nullptr) {
             CurrentScript->CurrentShip = Snapshot.CurrentShip;
-            CurrentScript->InitCode->LocalVar->GetVar(u"CurShip"_wref.get())->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Snapshot.CurrentShip)));
+            CurrentScript->InitCode->LocalVar->GetVar(
+                u"CurShip"_wref.get())->SetDword(
+                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Snapshot.CurrentShip)));
             CurrentScript->InitCode->LocalVar->GetVar(u"EndState"_wref.get())->SetInt(Snapshot.EndState);
         }
     }
@@ -1493,7 +1637,8 @@ namespace aScript {
             Script = Binding->Script;
             CurrentScript = Script;
             Script->CurrentShip = Ship;
-            Script->InitCode->LocalVar->GetVar(u"CurShip"_wref.get())->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
+            Script->InitCode->LocalVar->GetVar(
+                u"CurShip"_wref.get())->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Ship)));
             ParentCode = Script->InitCode;
         }
         if (Text != u"") {
@@ -1504,7 +1649,8 @@ namespace aScript {
             } else {
                 aScript::ExecuteScriptText(Text, nullptr);
             }
-            Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
+            Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                    Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
             pas::list_delete(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1);
             pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
         }
@@ -1514,7 +1660,8 @@ namespace aScript {
     }
 
     // Uses artifact or useless-item configuration code. Object slots can carry event-specific integers.
-    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
+    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, aGalaxyStruct::TScriptActionType ActionType,
+        aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptItem* Binding{};
         EC_Expression::TCodeEC* ParentCode{};
         TScriptContextSnapshot Snapshot{};
@@ -1534,10 +1681,13 @@ namespace aScript {
                     try {
                         pas::list_add(Globals::ScriptItemContextStack, reinterpret_cast<void*>(Item));
                         pas::list_add(Globals::ScriptItemInfoContextStack, nullptr);
-                        pas::list_add(Globals::ScriptActionTypeStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
+                        pas::list_add(Globals::ScriptActionTypeStack,
+                            reinterpret_cast<void*>(
+                                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
                         pas::list_add(Globals::ScriptActionObject1Stack, reinterpret_cast<void*>(Object1));
                         pas::list_add(Globals::ScriptActionObject2Stack, reinterpret_cast<void*>(Object2));
-                        pas::list_add(Globals::ScriptActionParamStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
+                        pas::list_add(Globals::ScriptActionParamStack,
+                            reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
                         pas::list_add(Globals::ScriptActionShipStack, reinterpret_cast<void*>(Ship));
                         aScript::ScriptSnap(Snapshot);
                         if (Binding != nullptr && Binding->Script != nullptr) {
@@ -1546,22 +1696,33 @@ namespace aScript {
                         }
                         aScript::RunScriptCode(Entry->SourceText, Entry->Code, ParentCode);
                         aScript::ScriptUnSnap(Snapshot);
-                        Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
-                        pas::list_delete(Globals::ScriptActionTypeStack, pas::list_count(Globals::ScriptActionTypeStack) - 1);
-                        pas::list_delete(Globals::ScriptActionObject1Stack, pas::list_count(Globals::ScriptActionObject1Stack) - 1);
-                        pas::list_delete(Globals::ScriptActionObject2Stack, pas::list_count(Globals::ScriptActionObject2Stack) - 1);
-                        pas::list_delete(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1);
-                        pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
-                        pas::list_delete(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
-                        pas::list_delete(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemContextStack) - 1);
+                        Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                Globals::ScriptActionParamStack,
+                                pas::list_count(Globals::ScriptActionParamStack) - 1)));
+                        pas::list_delete(Globals::ScriptActionTypeStack,
+                            pas::list_count(Globals::ScriptActionTypeStack) - 1);
+                        pas::list_delete(Globals::ScriptActionObject1Stack,
+                            pas::list_count(Globals::ScriptActionObject1Stack) - 1);
+                        pas::list_delete(Globals::ScriptActionObject2Stack,
+                            pas::list_count(Globals::ScriptActionObject2Stack) - 1);
+                        pas::list_delete(Globals::ScriptActionParamStack,
+                            pas::list_count(Globals::ScriptActionParamStack) - 1);
+                        pas::list_delete(Globals::ScriptActionShipStack,
+                            pas::list_count(Globals::ScriptActionShipStack) - 1);
+                        pas::list_delete(Globals::ScriptItemInfoContextStack,
+                            pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+                        pas::list_delete(Globals::ScriptItemContextStack,
+                            pas::list_count(Globals::ScriptItemContextStack) - 1);
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();
                         if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                             GR_Main::AppendLogLineThreadSafe("Error in item actcode, item="_a);
                             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Item->GetDisplayName()));
                             if (Item->ScriptItem != nullptr) {
-                                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"script name - ", reinterpret_cast<TScriptItem*>(Item->ScriptItem)->Name})));
+                                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                                    u"script name - ", reinterpret_cast<TScriptItem*>(Item->ScriptItem)->Name})));
                             }
                             throw;
                         } else {
@@ -1575,21 +1736,27 @@ namespace aScript {
     }
 
     // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
+    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, aGalaxyStruct::TScriptActionType ActionType,
+        aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         EC_BlockPar::TBlockParEC* Config{};
         TScriptContextSnapshot Snapshot{};
         std::int32_t Result = Param;
         TScriptCacheUnit* Entry = static_cast<TScriptCacheUnit*>(Info->ActionCode);
         if (!Info->ActionCodeInitialized) {
             Info->ActionCodeInitialized = true;
-            Config = GR_Main::LanguageDataConfig->GetBlock(u"ShipInfo"sv)->GetBlock(u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName));
+            Config =
+                GR_Main::LanguageDataConfig->GetBlock(
+                    u"ShipInfo"sv)->GetBlock(
+                    u"AddInfo"sv)->GetBlock(u"CustomInfos"sv)->GetBlock(pas::view(Info->TypeName));
             try {
                 Entry = aScript::GetCachedActionCode(CustomShipInfoScriptCache, Info->TypeName, Config);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in actcode, info=", Info->TypeName})));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Error in actcode, info=", Info->TypeName})));
                     aScript::LogScriptCallHistory();
                     throw;
                 } else {
@@ -1603,10 +1770,12 @@ namespace aScript {
                 if (ActionType != aGalaxyStruct::satOnStep || pas::contains(Entry->StepTypeMask, Param)) {
                     pas::list_add(Globals::ScriptItemContextStack, nullptr);
                     pas::list_add(Globals::ScriptItemInfoContextStack, static_cast<void*>(Info));
-                    pas::list_add(Globals::ScriptActionTypeStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
+                    pas::list_add(Globals::ScriptActionTypeStack,
+                        reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
                     pas::list_add(Globals::ScriptActionObject1Stack, reinterpret_cast<void*>(Object1));
                     pas::list_add(Globals::ScriptActionObject2Stack, reinterpret_cast<void*>(Object2));
-                    pas::list_add(Globals::ScriptActionParamStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
+                    pas::list_add(Globals::ScriptActionParamStack,
+                        reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
                     pas::list_add(Globals::ScriptActionShipStack, reinterpret_cast<void*>(Ship));
                     try {
                         aScript::ScriptSnap(Snapshot);
@@ -1615,22 +1784,33 @@ namespace aScript {
                     } catch (...) {
                         auto cpp_exception_2 = pas::caught_object();
                         if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
-                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
-                            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in actcode, info=", Info->TypeName})));
+                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ",
+                                E_2->message}));
+                            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                                u"Error in actcode, info=", Info->TypeName})));
                             aScript::LogScriptCallHistory();
                             throw;
                         } else {
                             throw;
                         }
                     }
-                    Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
-                    pas::list_delete(Globals::ScriptActionTypeStack, pas::list_count(Globals::ScriptActionTypeStack) - 1);
-                    pas::list_delete(Globals::ScriptActionObject1Stack, pas::list_count(Globals::ScriptActionObject1Stack) - 1);
-                    pas::list_delete(Globals::ScriptActionObject2Stack, pas::list_count(Globals::ScriptActionObject2Stack) - 1);
-                    pas::list_delete(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1);
-                    pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
-                    pas::list_delete(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
-                    pas::list_delete(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemContextStack) - 1);
+                    Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                            Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
+                    pas::list_delete(Globals::ScriptActionTypeStack,
+                        pas::list_count(Globals::ScriptActionTypeStack) - 1);
+                    pas::list_delete(Globals::ScriptActionObject1Stack,
+                        pas::list_count(Globals::ScriptActionObject1Stack) - 1);
+                    pas::list_delete(Globals::ScriptActionObject2Stack,
+                        pas::list_count(Globals::ScriptActionObject2Stack) - 1);
+                    pas::list_delete(Globals::ScriptActionParamStack,
+                        pas::list_count(Globals::ScriptActionParamStack) - 1);
+                    pas::list_delete(Globals::ScriptActionShipStack,
+                        pas::list_count(Globals::ScriptActionShipStack) - 1);
+                    pas::list_delete(Globals::ScriptItemInfoContextStack,
+                        pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+                    pas::list_delete(Globals::ScriptItemContextStack,
+                        pas::list_count(Globals::ScriptItemContextStack) - 1);
                 }
             }
         }
@@ -1643,16 +1823,19 @@ namespace aScript {
         aItem::TItem* Item{};
         TScriptItem* Binding{};
         if (pas::list_count(Globals::ScriptItemContextStack) > 0) {
-            Info = pas::list_at<aShip::TCustomShipInfo>(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+            Info = pas::list_at<aShip::TCustomShipInfo>(Globals::ScriptItemInfoContextStack,
+                    pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
             if (Info != nullptr) {
                 return Info->TypeName;
             }
-            Item = pas::list_at<aItem::TItem>(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+            Item = pas::list_at<aItem::TItem>(Globals::ScriptItemContextStack,
+                    pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
             if (Item != nullptr) {
                 Binding = reinterpret_cast<TScriptItem*>(Item->ScriptItem);
                 if (Binding != nullptr) {
                     if (Binding->Script != nullptr) {
-                        return pas::concat_wide({Item->GetDisplayName(), u" (", Binding->Name, u", ", Binding->Script->ScriptFileName, u")"});
+                        return pas::concat_wide({Item->GetDisplayName(), u" (", Binding->Name, u", ",
+                            Binding->Script->ScriptFileName, u")"});
                     }
                     return pas::concat_wide({Item->GetDisplayName(), u" (", Binding->Name, u", unknown script)"});
                 }
@@ -1669,9 +1852,11 @@ namespace aScript {
             Binding = reinterpret_cast<TScriptItem*>(Globals::ScriptUseItem->ScriptItem);
             if (Binding != nullptr) {
                 if (Binding->Script != nullptr) {
-                    return pas::concat_wide({Globals::ScriptUseItem->GetDisplayName(), u" (", Binding->Name, u", ", Binding->Script->ScriptFileName, u")"});
+                    return pas::concat_wide({Globals::ScriptUseItem->GetDisplayName(), u" (", Binding->Name, u", ",
+                        Binding->Script->ScriptFileName, u")"});
                 }
-                return pas::concat_wide({Globals::ScriptUseItem->GetDisplayName(), u" (", Binding->Name, u", unknown script)"});
+                return pas::concat_wide({Globals::ScriptUseItem->GetDisplayName(), u" (", Binding->Name,
+                    u", unknown script)"});
             }
             return Globals::ScriptUseItem->GetDisplayName();
         } else {
@@ -1679,18 +1864,16 @@ namespace aScript {
         }
     }
 
-    void TScriptThread_Create(TScriptThread* Self) {
-        EC_Thread::TThreadEC_Create(Self);
-    }
-
-    void TScriptThread_Execute(TScriptThread* Self) {
+    void TScriptThread::Execute() {
         if (Globals::TurnCalculationThread != nullptr && Globals::TurnCalculationThread->IsRunning()) {
             Globals::TurnCalculationThread->WaitForIdle(WindowsSdk::INFINITE);
         }
         if (aScript::HasPendingScriptRequests()) {
             if (GlobalsV::CurrentScreenId == GlobalsV::screenShip) {
                 GlobalsV::ShipReturnScreenId = GlobalsV::screenStarMap;
-                reinterpret_cast<fShip2::TfShip2*>(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->CloseClicked(nullptr);
+                reinterpret_cast<fShip2::TfShip2*>(
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]))->CloseClicked(nullptr);
                 return;
             }
             if (aPlayer::GetPlayer()->DockedTo != nullptr) {
@@ -1704,7 +1887,8 @@ namespace aScript {
             } else {
                 GlobalsV::RequestedScreenId = GlobalsV::screenStarMap;
             }
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
         }
     }
 
@@ -1764,64 +1948,88 @@ namespace aScript {
         EC_Struct::TPointF Center{};
         if (PlaceKind == spkPolar) {
             Angle = aMyFunction::HeadingDegreesToRadians(AngleOffset);
-            Distance = pas::real_divide(OriginStar->MapDiameter, 2.0L) * DistanceScale;
-            Result.X = System::Sin(Angle) * Distance;
-            Result.Y = System::Cos(Angle) * -Distance;
+            Distance = static_cast<float>(static_cast<float>(OriginStar->MapDiameter / 2.0) * DistanceScale);
+            Result.X = static_cast<float>(System::Sin(Angle) * Distance);
+            Result.Y = static_cast<float>(System::Cos(Angle) * -Distance);
         } else if (PlaceKind == spkPlanetPosition) {
-            Result = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->GetPosition();
+            Result =
+                reinterpret_cast<aPlanet::TPlanet*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->GetPosition();
         } else if (PlaceKind == spkDockedPlanet) {
             Result = EC_Struct::MakePointF(0.0f, 0.0f);
         } else if (PlaceKind == spkStarDirection) {
-            Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(aMyFunction::PointBearingDegrees(OriginStar->Position, reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Position)) + AngleOffset));
-            Distance = pas::real_divide(OriginStar->MapDiameter, 2.0L) * DistanceScale;
-            Result.X = System::Sin(Angle) * Distance;
-            Result.Y = System::Cos(Angle) * -Distance;
+            Angle =
+                aMyFunction::HeadingDegreesToRadians(
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(aMyFunction::PointBearingDegrees(
+                        OriginStar->Position,
+                        reinterpret_cast<aGalaxy::TStar*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Position)) +
+                        AngleOffset)));
+            Distance = static_cast<float>(static_cast<float>(OriginStar->MapDiameter / 2.0) * DistanceScale);
+            Result.X = static_cast<float>(System::Sin(Angle) * Distance);
+            Result.Y = static_cast<float>(System::Cos(Angle) * -Distance);
         } else if (PlaceKind == spkScriptItem) {
-            if (reinterpret_cast<TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Item == nullptr) {
+            if (reinterpret_cast<TScriptItem*>(
+                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Item == nullptr) {
                 Result = EC_Struct::MakePointF(0.0f, 0.0f);
             } else {
-                Result = reinterpret_cast<TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Item->Position;
+                Result =
+                    reinterpret_cast<TScriptItem*>(
+                        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->Item->Position;
             }
         } else if (PlaceKind == spkGroupCentroid) {
             Count = 0;
             Center = EC_Struct::MakePointF(0.0f, 0.0f);
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Script->Ships) - 1); cpp_range.next(I); ) {
-                Binding = pas::list_at<TScriptShip>(Script->Ships, I);
-                if (Binding->GroupIndex == static_cast<std::int32_t>(TargetValue)) {
-                    Center = EC_Struct::AddPointsF(Center, Binding->Ship->Position);
-                    ++Count;
+            {
+                const std::int32_t cpp_last = pas::list_count(Script->Ships) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Binding = pas::list_at<TScriptShip>(Script->Ships, I);
+                        if (Binding->GroupIndex == static_cast<std::int32_t>(TargetValue)) {
+                            Center = EC_Struct::AddPointsF(Center, Binding->Ship->Position);
+                            ++Count;
+                        }
+                    }
                 }
             }
             if (Count < 1) {
                 Result = EC_Struct::MakePointF(0.0f, 0.0f);
             } else {
-                Center.X = pas::real_divide(Center.X, Count);
-                Center.Y = pas::real_divide(Center.Y, Count);
-                Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(aMyFunction::PointBearingDegrees(Center, EC_Struct::MakePointF(0.0f, 0.0f))) + AngleOffset));
-                Distance = pas::real_divide(OriginStar->MapDiameter, 2.0L) * DistanceScale;
-                Result.X = System::Sin(Angle) * Distance + Center.X;
-                Result.Y = Center.Y - System::Cos(Angle) * Distance;
+                Center.X = static_cast<float>(static_cast<double>(Center.X) / Count);
+                Center.Y = static_cast<float>(static_cast<double>(Center.Y) / Count);
+                Angle =
+                    aMyFunction::HeadingDegreesToRadians(
+                        aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(aMyFunction::PointBearingDegrees(Center,
+                            EC_Struct::MakePointF(0.0f, 0.0f))) + AngleOffset)));
+                Distance = static_cast<float>(static_cast<float>(OriginStar->MapDiameter / 2.0) * DistanceScale);
+                Result.X = static_cast<float>(static_cast<float>(System::Sin(Angle) * Distance) + Center.X);
+                Result.Y = static_cast<float>(Center.Y - static_cast<float>(System::Cos(Angle) * Distance));
             }
         } else if (PlaceKind == spkCoordinates) {
             {
-                float pasfloat = reinterpret_cast<EC_Expression::TVarEC*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->GetFloat();
+                float pasfloat = reinterpret_cast<EC_Expression::TVarEC*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)))->GetFloat();
                 float pasfloat_2 = TargetValue2->GetFloat();
                 Center = EC_Struct::MakePointF(pasfloat, pasfloat_2);
             }
-            Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(aMyFunction::PointBearingDegrees(Center, EC_Struct::MakePointF(0.0f, 0.0f))) + AngleOffset));
-            Distance = pas::real_divide(OriginStar->MapDiameter, 2.0L) * DistanceScale;
-            Result.X = System::Sin(Angle) * Distance + Center.X;
-            Result.Y = Center.Y - System::Cos(Angle) * Distance;
+            Angle =
+                aMyFunction::HeadingDegreesToRadians(
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(aMyFunction::PointBearingDegrees(Center,
+                        EC_Struct::MakePointF(0.0f, 0.0f))) + AngleOffset)));
+            Distance = static_cast<float>(static_cast<float>(OriginStar->MapDiameter / 2.0) * DistanceScale);
+            Result.X = static_cast<float>(static_cast<float>(System::Sin(Angle) * Distance) + Center.X);
+            Result.Y = static_cast<float>(Center.Y - static_cast<float>(System::Cos(Angle) * Distance));
         }
         if (pas::is_one_of<spkScriptItem, spkGroupCentroid>(PlaceKind)) {
-            if (static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 1.0E-4L) {
+            if (static_cast<float>(static_cast<float>(static_cast<double>(Result.X) * Result.X) + static_cast<float>(static_cast<double>(Result.Y) * Result.Y)) < 1.0E-4) {
                 Angle = aMyFunction::HeadingDegreesToRadians(0.0);
-                Result.X = System::Sin(Angle) * (OriginStar->SafeRadius * 1.5L);
-                Result.Y = System::Cos(Angle) * (OriginStar->SafeRadius * 1.5L);
+                Result.X = static_cast<float>(System::Sin(Angle) * (static_cast<float>(OriginStar->SafeRadius * 1.5)));
+                Result.Y = static_cast<float>(System::Cos(Angle) * (static_cast<float>(OriginStar->SafeRadius * 1.5)));
             } else {
-                while (static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 2.0L * OriginStar->SafeRadius * OriginStar->SafeRadius) {
-                    Result.X = Result.X * 1.05L;
-                    Result.Y = Result.Y * 1.05L;
+                while (static_cast<float>(static_cast<float>(static_cast<double>(Result.X) * Result.X) + static_cast<float>(static_cast<double>(Result.Y) * Result.Y)) < static_cast<float>(static_cast<float>(2.0 *
+                        OriginStar->SafeRadius) * OriginStar->SafeRadius)) {
+                    Result.X = static_cast<float>(Result.X * 0x1.0ccccccccccccp+0);
+                    Result.Y = static_cast<float>(Result.Y * 0x1.0ccccccccccccp+0);
                 }
             }
         }
@@ -1834,11 +2042,12 @@ namespace aScript {
         Result = GetPoint();
         if (Radius != 0) {
             Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::SeededRandomIntRange(0, 360, Seed));
-            Result.X = Result.X + System::Sin(Angle) * (Radius * 0.9L);
-            Result.Y = Result.Y + -System::Cos(Angle) * (Radius * 0.9L);
-            if (pas::is_one_of<spkScriptItem, spkGroupCentroid>(PlaceKind) && static_cast<long double>(Result.X) * Result.X + static_cast<long double>(Result.Y) * Result.Y < 2.0L * OriginStar->SafeRadius * OriginStar->SafeRadius) {
-                Result.X = Result.X - System::Sin(Angle) * (Radius * 1.8L);
-                Result.Y = Result.Y - -System::Cos(Angle) * (Radius * 1.8L);
+            Result.X = static_cast<float>(Result.X + static_cast<float>(System::Sin(Angle) * (static_cast<float>(Radius * 0x1.ccccccccccccbp-1))));
+            Result.Y = static_cast<float>(Result.Y + static_cast<float>(-System::Cos(Angle) * (static_cast<float>(Radius * 0x1.ccccccccccccbp-1))));
+            if (pas::is_one_of<spkScriptItem, spkGroupCentroid>(PlaceKind) && static_cast<float>(static_cast<float>(static_cast<double>(Result.X) * Result.X) +
+                    static_cast<float>(static_cast<double>(Result.Y) * Result.Y)) < static_cast<float>(static_cast<float>(2.0 * OriginStar->SafeRadius) * OriginStar->SafeRadius)) {
+                Result.X = static_cast<float>(Result.X - static_cast<float>(System::Sin(Angle) * (static_cast<float>(Radius * 0x1.ccccccccccccbp+0))));
+                Result.Y = static_cast<float>(Result.Y - static_cast<float>(-System::Cos(Angle) * (static_cast<float>(Radius * 0x1.ccccccccccccbp+0))));
             }
         }
         return Result;
@@ -1847,11 +2056,14 @@ namespace aScript {
     // Kind 2 requires docking at the bound planet; other kinds require normal space.
     std::uint8_t TScriptPlace::ShipInPlace(aShip::TShip* Ship) {
         if (PlaceKind == spkDockedPlanet) {
-            return Ship->CurrentPlanet == reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)));
+            return Ship->CurrentPlanet ==
+                reinterpret_cast<aPlanet::TPlanet*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(TargetValue)));
         } else if (!Ship->InNormalSpace()) {
             return false;
         } else {
-            return static_cast<long double>(aMyFunction::PointDistanceSquared(GetPoint(), Ship->Position)) <= pas::sqr(Radius);
+            return static_cast<double>(aMyFunction::PointDistanceSquared(GetPoint(), Ship->Position)) <=
+                pas::sqr(Radius);
         }
     }
 
@@ -2064,58 +2276,103 @@ namespace aScript {
             pas::list_clear(States);
         }
         if (Groups != nullptr) {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Groups) - 1); cpp_range_2.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(Groups, I));
+            {
+                const std::int32_t cpp_last = pas::list_count(Groups) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        pas::free(pas::list_at<pas::Object>(Groups, I));
+                    }
+                }
             }
             pas::list_clear(Groups);
         }
         if (Items != nullptr) {
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Items) - 1); cpp_range_3.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(Items, I));
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(Items) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        pas::free(pas::list_at<pas::Object>(Items, I));
+                    }
+                }
             }
             pas::list_clear(Items);
         }
         if (Places != nullptr) {
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Places) - 1); cpp_range_4.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(Places, I));
+            {
+                const std::int32_t cpp_last_3 = pas::list_count(Places) - 1;
+                if (0 <= cpp_last_3) {
+                    for (I = 0; I <= cpp_last_3; ++I) {
+                        pas::free(pas::list_at<pas::Object>(Places, I));
+                    }
+                }
             }
             pas::list_clear(Places);
         }
         if (Stars != nullptr) {
-            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, pas::list_count(Stars) - 1); cpp_range_5.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(Stars, I));
+            {
+                const std::int32_t cpp_last_4 = pas::list_count(Stars) - 1;
+                if (0 <= cpp_last_4) {
+                    for (I = 0; I <= cpp_last_4; ++I) {
+                        pas::free(pas::list_at<pas::Object>(Stars, I));
+                    }
+                }
             }
             pas::list_clear(Stars);
         }
         if (Constellations != nullptr) {
-            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(Constellations) - 1); cpp_range_6.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(Constellations, I));
+            {
+                const std::int32_t cpp_last_5 = pas::list_count(Constellations) - 1;
+                if (0 <= cpp_last_5) {
+                    for (I = 0; I <= cpp_last_5; ++I) {
+                        pas::free(pas::list_at<pas::Object>(Constellations, I));
+                    }
+                }
             }
             pas::list_clear(Constellations);
         }
         if (Ships != nullptr) {
-            for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range_7.next(I); ) {
-                Binding = pas::list_at<TScriptShip>(Ships, I);
-                pas::free(Binding);
+            {
+                const std::int32_t cpp_last_6 = pas::list_count(Ships) - 1;
+                if (0 <= cpp_last_6) {
+                    for (I = 0; I <= cpp_last_6; ++I) {
+                        Binding = pas::list_at<TScriptShip>(Ships, I);
+                        pas::free(Binding);
+                    }
+                }
             }
             pas::list_clear(Ships);
         }
         if (Dialogs != nullptr) {
-            for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, pas::list_count(Dialogs) - 1); cpp_range_8.next(I); ) {
-                Dialog = pas::list_at<TScriptDialog>(Dialogs, I);
-                pas::free(Dialog);
+            {
+                const std::int32_t cpp_last_7 = pas::list_count(Dialogs) - 1;
+                if (0 <= cpp_last_7) {
+                    for (I = 0; I <= cpp_last_7; ++I) {
+                        Dialog = pas::list_at<TScriptDialog>(Dialogs, I);
+                        pas::free(Dialog);
+                    }
+                }
             }
             pas::list_clear(Dialogs);
         }
         if (DialogMessages != nullptr) {
-            for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, pas::list_count(DialogMessages) - 1); cpp_range_9.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(DialogMessages, I));
+            {
+                const std::int32_t cpp_last_8 = pas::list_count(DialogMessages) - 1;
+                if (0 <= cpp_last_8) {
+                    for (I = 0; I <= cpp_last_8; ++I) {
+                        pas::free(pas::list_at<pas::Object>(DialogMessages, I));
+                    }
+                }
             }
             pas::list_clear(DialogMessages);
         }
         if (DialogAnswers != nullptr) {
-            for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, pas::list_count(DialogAnswers) - 1); cpp_range_10.next(I); ) {
-                pas::free(pas::list_at<pas::Object>(DialogAnswers, I));
+            {
+                const std::int32_t cpp_last_9 = pas::list_count(DialogAnswers) - 1;
+                if (0 <= cpp_last_9) {
+                    for (I = 0; I <= cpp_last_9; ++I) {
+                        pas::free(pas::list_at<pas::Object>(DialogAnswers, I));
+                    }
+                }
             }
             pas::list_clear(DialogAnswers);
         }
@@ -2174,7 +2431,8 @@ namespace aScript {
                 return Star;
             }
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found star =", Name}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"Error.Script. Not found star =", Name}))));
     }
 
     // Raises when absent.
@@ -2186,27 +2444,35 @@ namespace aScript {
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Star = pas::list_at<TScriptStar>(Stars, I);
             if (Star->Planets != nullptr) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Star->Planets.length() - 1); cpp_range_2.next(J); ) {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                    Star->Planets.length() - 1); cpp_range_2.next(J); ) {
                     if (Name == Star->Planets[J].Name) {
                         return &Star->Planets[J];
                     }
                 }
             }
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found planet =", Name}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"Error.Script. Not found planet =", Name}))));
     }
 
     // Raises when absent.
     TScriptItem* TScript::GetItem(const std::u16string_view& Name) {
         TScriptItem* Item{};
         std::int32_t I{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Items) - 1); cpp_range.next(I); ) {
-            Item = pas::list_at<TScriptItem>(Items, I);
-            if (pas::view(Item->Name) == Name) {
-                return Item;
+        {
+            const std::int32_t cpp_last = pas::list_count(Items) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Item = pas::list_at<TScriptItem>(Items, I);
+                    if (pas::view(Item->Name) == Name) {
+                        return Item;
+                    }
+                }
             }
         }
-        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script. Not found item =", Name}))));
+        pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+            u"Error.Script. Not found item =", Name}))));
     }
 
     void TScript_RunShipState(TScript* Self, TScriptShip* Binding) {
@@ -2226,11 +2492,16 @@ namespace aScript {
             }
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in state code of script ", Self->ScriptFileName, u" state #", pas::wide_int_to_str(pas::list_indexof(Self->States, reinterpret_cast<void*>(State))), u"(", State->Name, u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in state code of script ", Self->ScriptFileName, u" state #",
+                    pas::wide_int_to_str(pas::list_indexof(Self->States, reinterpret_cast<void*>(State))), u"(",
+                    State->Name, u")"}))));
             } else {
                 throw;
             }
@@ -2243,11 +2514,14 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(Self->TurnCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in turn code of script ", Self->ScriptFileName}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in turn code of script ", Self->ScriptFileName}))));
             } else {
                 throw;
             }
@@ -2260,11 +2534,14 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(Self->DialogCode, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in dialog code of script ", Self->ScriptFileName}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in dialog code of script ", Self->ScriptFileName}))));
             } else {
                 throw;
             }
@@ -2273,7 +2550,8 @@ namespace aScript {
 
     void TScript_CallDialog(TScript* Self, std::int32_t Index) {
         if (Index < 0 || Index >= pas::list_count(Self->Dialogs)) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialog ", EC_Str::IntToWideString(Index), u" ", Self->ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Error.Script.CallDialog ", EC_Str::IntToWideString(Index), u" ", Self->ScriptFileName}))));
         }
         CurrentScript = Self;
         Self->CurrentDialog = Index;
@@ -2283,11 +2561,15 @@ namespace aScript {
             EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in call dialog code of script ", Self->ScriptFileName, u" (", pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Name, u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in call dialog code of script ", Self->ScriptFileName, u" (",
+                    pas::list_at<TScriptDialog>(Self->Dialogs, Index)->Name, u")"}))));
             } else {
                 throw;
             }
@@ -2297,24 +2579,30 @@ namespace aScript {
     void TScript::CallDialogByVariable(pas::WideString Name) {
         EC_Expression::TVarEC* Cell = InitCode->LocalVar->GetVarNE(Name);
         if (Cell == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ", Name, u" not found in script ", ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Dialog ",
+                Name, u" not found in script ", ScriptFileName}))));
         }
         aScript::TScript_CallDialog(this, Cell->GetInt());
     }
 
     void TScript::CallDialogMessage(std::int32_t Index) {
         if (Index < 0 || Index >= pas::list_count(DialogMessages)) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialogMsg ", ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Error.Script.CallDialogMsg ", ScriptFileName}))));
         }
         try {
             EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogMsg>(DialogMessages, Index)->Code, ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in call dialog message code of script ", ScriptFileName, u" (message ", EC_Str::IntToWideString(Index), u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in call dialog message code of script ", ScriptFileName, u" (message ",
+                    EC_Str::IntToWideString(Index), u")"}))));
             } else {
                 throw;
             }
@@ -2323,19 +2611,25 @@ namespace aScript {
 
     void TScript::BuildDialogAnswer(std::int32_t Index) {
         if (Index < 0 || Index >= pas::list_count(DialogAnswers)) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialogAnswerAnswer ", ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Error.Script.CallDialogAnswerAnswer ", ScriptFileName}))));
         }
         CurrentAnswer = Index;
         try {
-            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->AnswerCode, ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->AnswerCode,
+                ScriptProcess);
             CurrentAnswer = -1;
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in call answer code of script ", ScriptFileName, u" (answer ", EC_Str::IntToWideString(Index), u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in call answer code of script ", ScriptFileName, u" (answer ",
+                    EC_Str::IntToWideString(Index), u")"}))));
             } else {
                 throw;
             }
@@ -2348,17 +2642,23 @@ namespace aScript {
             return;
         }
         if (Index < 0 || Index >= pas::list_count(DialogAnswers)) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error.Script.CallDialogAnswerCode ", ScriptFileName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Error.Script.CallDialogAnswerCode ", ScriptFileName}))));
         }
         try {
-            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->ActionCode, ScriptProcess);
+            EC_Expression::TCodeEC_Run(pas::list_at<TScriptDialogAnswer>(DialogAnswers, Index)->ActionCode,
+                ScriptProcess);
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+            if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                cpp_exception)) {
             } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                 aScript::LogScriptCallHistory();
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in add answer code of script ", ScriptFileName, u" (answer ", EC_Str::IntToWideString(Index), u")"}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Error in add answer code of script ", ScriptFileName, u" (answer ",
+                    EC_Str::IntToWideString(Index), u")"}))));
             } else {
                 throw;
             }
@@ -2377,7 +2677,8 @@ namespace aScript {
         } else {
             Ship->ScriptShip = Binding;
         }
-        if (pas::class_cast_if<aWarrior::TWarrior*>(Ship) != nullptr && pas::list_indexof(Ship->CurrentStar->Ships, reinterpret_cast<void*>(Ship)) == -1) {
+        if (pas::class_cast_if<aWarrior::TWarrior*>(Ship) != nullptr && pas::list_indexof(Ship->CurrentStar->Ships,
+                reinterpret_cast<void*>(Ship)) == -1) {
             pas::list_add(Ship->CurrentStar->Ships, reinterpret_cast<void*>(Ship));
         }
     }
@@ -2389,7 +2690,8 @@ namespace aScript {
         if (pas::class_cast_if<aPlayer::TPlayer*>(Ship) != nullptr) {
             I = 0;
             while (I < pas::list_count(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings)) {
-                Index = pas::list_indexof(Ships, pas::list_get(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings, I));
+                Index = pas::list_indexof(Ships,
+                        pas::list_get(reinterpret_cast<aPlayer::TPlayer*>(Ship)->ScriptShipBindings, I));
                 if (Index >= 0) {
                     Binding = pas::list_at<TScriptShip>(Ships, Index);
                     pas::free(Binding);
@@ -2461,7 +2763,8 @@ namespace aScript {
     }
 
     // Changes source ships' relations to ranger members of the target group.
-    void TScript::SetGroupRelation(std::int32_t SourceGroup, std::int32_t TargetGroup, aGalaxyStruct::TRelationLevel Level) {
+    void TScript::SetGroupRelation(std::int32_t SourceGroup, std::int32_t TargetGroup,
+        aGalaxyStruct::TRelationLevel Level) {
         TScriptShip* Source{};
         TScriptShip* Target{};
         std::int32_t I{};
@@ -2469,26 +2772,43 @@ namespace aScript {
         if (SourceGroup == TargetGroup) {
             return;
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
-            Source = pas::list_at<TScriptShip>(Ships, I);
-            if (Source->GroupIndex == SourceGroup) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range_2.next(J); ) {
-                    Target = pas::list_at<TScriptShip>(Ships, J);
-                    if (Target->GroupIndex == TargetGroup && pas::class_cast_if<aRanger::TRanger*>(Target->Ship) != nullptr) {
-                        Source->Ship->SetStoredRangerRelationLevel(static_cast<aRanger::TRanger*>(Target->Ship), Level);
+        {
+            const std::int32_t cpp_last = pas::list_count(Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Source = pas::list_at<TScriptShip>(Ships, I);
+                    if (Source->GroupIndex == SourceGroup) {
+                        const std::int32_t cpp_last_2 = pas::list_count(Ships) - 1;
+                        if (0 <= cpp_last_2) {
+                            for (J = 0; J <= cpp_last_2; ++J) {
+                                Target = pas::list_at<TScriptShip>(Ships, J);
+                                if (Target->GroupIndex == TargetGroup &&
+                                    pas::class_cast_if<aRanger::TRanger*>(Target->Ship) != nullptr) {
+                                    Source->Ship->SetStoredRangerRelationLevel(
+                                        static_cast<aRanger::TRanger*>(Target->Ship), Level);
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    void TScript::SetPlanetRelation(std::int32_t GroupIndex, aPlanet::TPlanet* Planet, aGalaxyStruct::TRelationLevel Level) {
+    void TScript::SetPlanetRelation(std::int32_t GroupIndex, aPlanet::TPlanet* Planet,
+        aGalaxyStruct::TRelationLevel Level) {
         TScriptShip* Binding{};
         std::int32_t I{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
-            Binding = pas::list_at<TScriptShip>(Ships, I);
-            if (Binding->GroupIndex == GroupIndex && pas::class_cast_if<aRanger::TRanger*>(Binding->Ship) != nullptr) {
-                Planet->SetRelationLevelToRanger(static_cast<aRanger::TRanger*>(Binding->Ship), Level);
+        {
+            const std::int32_t cpp_last = pas::list_count(Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Binding = pas::list_at<TScriptShip>(Ships, I);
+                    if (Binding->GroupIndex == GroupIndex && pas::class_cast_if<aRanger::TRanger*>(Binding->Ship) !=
+                            nullptr) {
+                        Planet->SetRelationLevelToRanger(static_cast<aRanger::TRanger*>(Binding->Ship), Level);
+                    }
+                }
             }
         }
     }
@@ -2512,10 +2832,10 @@ namespace aScript {
         aPlanet::TPlanet* Planet{};
         aShip::TShip* Ship{};
         PScriptShipRequirement Requirement{};
-        pas::WideString Indent{};
+        std::u16string Indent{};
         TScriptStarConstraint Constraint{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, StarIndex - 1); cpp_range.next(J); ) {
-            Indent = pas::concat_wide({Indent, u"    "});
+            pas::append_wide_builder(Indent, {u"    "});
         }
         std::uint8_t Result = false;
         Binding = pas::list_at<TScriptStar>(Stars, StarIndex);
@@ -2553,8 +2873,10 @@ namespace aScript {
                         }
                     }
                     if (Constraint.MinDistance > 0 || Constraint.MaxDistance < 150) {
-                        DistanceSquared = System::Round(aMyFunction::PointDistanceSquared(Star->Position, Constraint.OtherStar->Star->Position));
-                        if (DistanceSquared < pas::sqr(Constraint.MinDistance) || DistanceSquared > pas::sqr(Constraint.MaxDistance)) {
+                        DistanceSquared = pas::real_round(aMyFunction::PointDistanceSquared(Star->Position,
+                                Constraint.OtherStar->Star->Position));
+                        if (DistanceSquared < pas::sqr(Constraint.MinDistance) || DistanceSquared >
+                                pas::sqr(Constraint.MaxDistance)) {
                             return Result;
                         }
                     }
@@ -2570,52 +2892,54 @@ namespace aScript {
                     if (Star->Status.CustomFaction != u"") {
                         return Result;
                     }
-                    MinOrbitSquared = pas::sqr(([&] {
-                        pas::Extended cpp_left = pas::real_divide(Binding->Planets[K].MinOrbitPercent, 1.0E+2L);
-                        return cpp_left * pas::real_divide(Star->MapDiameter, 2.0L);
-                    }()));
-                    MaxOrbitSquared = pas::sqr(([&] {
-                        pas::Extended cpp_left_2 = pas::real_divide(Binding->Planets[K].MaxOrbitPercent, 1.0E+2L);
-                        return cpp_left_2 * pas::real_divide(Star->MapDiameter, 2.0L);
-                    }()));
+                    MinOrbitSquared = pas::sqr(static_cast<float>(static_cast<float>(Binding->Planets[K].MinOrbitPercent / 1.0E+2) * (static_cast<float>(Star->MapDiameter /
+                                2.0))));
+                    MaxOrbitSquared = pas::sqr(static_cast<float>(static_cast<float>(Binding->Planets[K].MaxOrbitPercent / 1.0E+2) * (static_cast<float>(Star->MapDiameter /
+                                2.0))));
                     Binding->Planets[K].Planet = nullptr;
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_3.next(J); ) {
-                        Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                        if (Planet->NoLanding) {
-                            continue;
-                        }
-                        if (!pas::contains(Binding->Planets[K].RaceMask, Planet->RaceId)) {
-                            continue;
-                        }
-                        if (!pas::contains(Binding->Planets[K].OwnerMask, Planet->OwnerId)) {
-                            continue;
-                        }
-                        if (!pas::contains(Binding->Planets[K].EconomyMask, Planet->Economy)) {
-                            continue;
-                        }
-                        if (!pas::contains(Binding->Planets[K].GovernmentMask, Planet->Government)) {
-                            continue;
-                        }
-                        I = 0;
-                        while (I < K) {
-                            if (Binding->Planets[I].Planet == Planet) {
+                    {
+                        const std::int32_t cpp_last_2 = pas::list_count(Star->Planets) - 1;
+                        if (0 <= cpp_last_2) {
+                            for (J = 0; J <= cpp_last_2; ++J) {
+                                Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
+                                if (Planet->NoLanding) {
+                                    continue;
+                                }
+                                if (!pas::contains(Binding->Planets[K].RaceMask, Planet->RaceId)) {
+                                    continue;
+                                }
+                                if (!pas::contains(Binding->Planets[K].OwnerMask, Planet->OwnerId)) {
+                                    continue;
+                                }
+                                if (!pas::contains(Binding->Planets[K].EconomyMask, Planet->Economy)) {
+                                    continue;
+                                }
+                                if (!pas::contains(Binding->Planets[K].GovernmentMask, Planet->Government)) {
+                                    continue;
+                                }
+                                I = 0;
+                                while (I < K) {
+                                    if (Binding->Planets[I].Planet == Planet) {
+                                        break;
+                                    }
+                                    ++I;
+                                }
+                                if (I < K) {
+                                    continue;
+                                }
+                                OrbitSquared = aMyFunction::PointDistanceSquared(Planet->GetPosition(),
+                                        EC_Struct::MakePointF(0.0f, 0.0f));
+                                if (OrbitSquared < MinOrbitSquared) {
+                                    continue;
+                                }
+                                // Native search stops at the first eligible orbit beyond the upper bound.
+                                if (OrbitSquared > MaxOrbitSquared) {
+                                    break;
+                                }
+                                Binding->Planets[K].Planet = Planet;
                                 break;
                             }
-                            ++I;
                         }
-                        if (I < K) {
-                            continue;
-                        }
-                        OrbitSquared = aMyFunction::PointDistanceSquared(Planet->GetPosition(), EC_Struct::MakePointF(0.0f, 0.0f));
-                        if (OrbitSquared < MinOrbitSquared) {
-                            continue;
-                        }
-                        // Native search stops at the first eligible orbit beyond the upper bound.
-                        if (OrbitSquared > MaxOrbitSquared) {
-                            break;
-                        }
-                        Binding->Planets[K].Planet = Planet;
-                        break;
                     }
                     if (Binding->Planets[K].Planet == nullptr) {
                         return Result;
@@ -2630,9 +2954,9 @@ namespace aScript {
             if (pas::list_count(Candidates) < Count) {
                 return Result;
             }
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(K); ) {
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(K); ) {
                 Requirement = &Binding->ShipRequirements[K];
-                for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Requirement->Count - 1); cpp_range_5.next(J); ) {
+                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Requirement->Count - 1); cpp_range_4.next(J); ) {
                     I = 0;
                     while (I < pas::list_count(Candidates)) {
                         Ship = pas::list_at<aShip::TShip>(Candidates, I);
@@ -2646,7 +2970,10 @@ namespace aScript {
                         if (!pas::contains(Requirement->OwnerMask, Ship->OwnerId)) {
                             continue;
                         }
-                        if (!aScript::ScriptShipMatchesType(Ship, Requirement->ShipTypeMask, pas::view(Requirement->StationNames), pas::open_array(pas::load_unaligned<TScriptDominatorMasks>(&Requirement->DominatorMasks)))) {
+                        if (!aScript::ScriptShipMatchesType(Ship, Requirement->ShipTypeMask,
+                            pas::view(Requirement->StationNames),
+                            pas::open_array(
+                                pas::load_unaligned<TScriptDominatorMasks>(&Requirement->DominatorMasks)))) {
                             continue;
                         }
                         if (Ship->Speed < Requirement->MinSpeed) {
@@ -2672,7 +2999,8 @@ namespace aScript {
                         if (Ship->CargoFreeSpace < Requirement->MinFreeCargoSpace && aPlayer::GetPlayer() != Ship) {
                             continue;
                         }
-                        if (Ship->CargoFreeSpace < Requirement->MinFreeCargoSpace && Requirement->MinFreeCargoSpace > 0) {
+                        if (Ship->CargoFreeSpace < Requirement->MinFreeCargoSpace && Requirement->MinFreeCargoSpace >
+                                0) {
                             continue;
                         }
                         if (aRanger::TRanger* ranger = pas::class_cast_if<aRanger::TRanger*>(Ship)) {
@@ -2695,7 +3023,7 @@ namespace aScript {
                                 continue;
                             }
                         }
-                        if (Requirement->MinStrength != 0.0L || Requirement->MaxStrength != 0.0L) {
+                        if (Requirement->MinStrength != 0.0 || Requirement->MaxStrength != 0.0) {
                             if (Ship->StrengthInBestRanger < Requirement->MinStrength) {
                                 continue;
                             }
@@ -2722,7 +3050,7 @@ namespace aScript {
         Binding = pas::list_at<TScriptStar>(Stars, StarIndex);
         if (Binding->ConstellationIndex == -1) {
             Count = pas::list_count(aGalaxy::Galaxy->Stars);
-            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(K); ) {
+            for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(K); ) {
                 Star = pas::list_at<TScriptStar>(Stars, 0)->Star->StarDistances[K].Star;
                 if (Binding->RejectHostilePresence && Star->HasHostilePresenceForScriptBinding()) {
                     continue;
@@ -2743,9 +3071,10 @@ namespace aScript {
                     return Result;
                 }
             }
-        } else if (Binding->ConstellationIndex >= 0 && pas::list_at<TScriptConstellation>(Constellations, Binding->ConstellationIndex)->Constellation == nullptr) {
+        } else if (Binding->ConstellationIndex >= 0 && pas::list_at<TScriptConstellation>(Constellations,
+                Binding->ConstellationIndex)->Constellation == nullptr) {
             Count = pas::list_count(aGalaxy::Galaxy->Stars);
-            for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(K); ) {
+            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(K); ) {
                 Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, K);
                 if (Binding->RejectHostilePresence && Star->HasHostilePresenceForScriptBinding()) {
                     continue;
@@ -2783,10 +3112,12 @@ namespace aScript {
                 ConstellationBinding->Constellation = nullptr;
             }
         } else if (Binding->ConstellationIndex >= 0) {
-            if (pas::list_at<TScriptConstellation>(Constellations, Binding->ConstellationIndex)->Constellation != nullptr) {
-                Constellation = pas::list_at<TScriptConstellation>(Constellations, Binding->ConstellationIndex)->Constellation;
+            if (pas::list_at<TScriptConstellation>(Constellations, Binding->ConstellationIndex)->Constellation !=
+                nullptr) {
+                Constellation = pas::list_at<TScriptConstellation>(Constellations,
+                        Binding->ConstellationIndex)->Constellation;
                 Count = pas::list_count(Constellation->Stars);
-                for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_8.next(K); ) {
+                for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(K); ) {
                     Star = pas::list_at<aGalaxy::TStar>(Constellation->Stars, K);
                     if (Binding->RejectHostilePresence && Star->HasHostilePresenceForScriptBinding()) {
                         continue;
@@ -2813,7 +3144,8 @@ namespace aScript {
     }
 
     // Accepts script-definition versions 5 through 8.
-    std::uint8_t TScript::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
+    std::uint8_t TScript::LoadFromBuffer(EC_Buf::TBufEC* Buffer, aGalaxy::TStar* AnchorStar,
+        aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
         pas::List* Candidates{};
         std::int32_t I{};
         std::int32_t Count{};
@@ -2854,13 +3186,15 @@ namespace aScript {
             aGalaxyStruct::TScriptActionType Action{};
             if (State->OnActionText.read(1) == u'[') {
                 I = EC_Str::FindTextPosW(u"]"_wref.get(), State->OnActionText);
-                SourceText = EC_Str::CopyWideStringUnchecked(State->OnActionText, I + 1, State->OnActionText.length() - I);
+                SourceText = EC_Str::CopyWideStringUnchecked(State->OnActionText, I + 1,
+                        State->OnActionText.length() - I);
                 ActionTypes = EC_Str::CopyWideStringUnchecked(State->OnActionText, 2, I - 2);
                 StepTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 1, u"|"sv);
                 ActionTypes = EC_Str::ExtractDelimitedPartW(pas::view(ActionTypes), 0, u"|"sv);
                 State->ActionCode = aScript::CompileScriptText(SourceText);
                 if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
+                    State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({
+                            {aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
                 } else if (ActionTypes == u"") {
                     State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep}});
                 } else {
@@ -2870,8 +3204,11 @@ namespace aScript {
                         State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
                     }
                     ActionTypes = pas::concat_wide({u",", ActionTypes, u","});
-                    for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(static_cast<aGalaxyStruct::TScriptActionType>(0), static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
-                        if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) > 0) {
+                    for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(
+                        static_cast<aGalaxyStruct::TScriptActionType>(0),
+                        static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
+                        if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}),
+                            ActionTypes) > 0) {
                             pas::include_at(&State->ActionTypeMask, Action);
                         }
                     }
@@ -2882,7 +3219,8 @@ namespace aScript {
                     State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
                     Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
-                        Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
+                        Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes),
+                                I, u","sv)));
                         if (pas::in_range(Step, 0, 11)) {
                             pas::include_at(&State->StepTypeMask, Step);
                         }
@@ -2890,7 +3228,8 @@ namespace aScript {
                 }
             } else {
                 State->ActionCode = aScript::CompileScriptText(State->OnActionText);
-                State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
+                State->ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({
+                        {aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
                 State->StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
             }
             State->ActionCode->LinkAll(ScriptFunctionScope, false);
@@ -2901,13 +3240,13 @@ namespace aScript {
         Clear();
         AnchorPlanet = FirstPlanet;
         std::uint8_t Result = false;
-        std::uint32_t Version = EC_Buf::TBufEC_GetUInt32(Buffer);
+        std::uint32_t Version = Buffer->GetUInt32();
         if (Version < 5 || Version > 8) {
             GR_Main::RaiseWideMessage(u"Script file incorrect version"_wref.get());
             return Result;
         }
         {
-            std::int32_t word = EC_Buf::TBufEC_GetWord(Buffer);
+            std::int32_t word = Buffer->GetWord();
             EC_Buf::TBufEC* buffer = Buffer;
             buffer->SetPosition(word);
         }
@@ -2921,108 +3260,112 @@ namespace aScript {
             Text = GR_Main::GameDataConfig->GetParamByPath(Text);
             Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                TLibraryHandler* lib = ScriptLibraryCache->GetLib(EC_Str::ExtractDelimitedPartW(pas::view(Text), I, u","sv));
+                TLibraryHandler* lib = ScriptLibraryCache->GetLib(EC_Str::ExtractDelimitedPartW(pas::view(Text), I,
+                    u","sv));
                 EC_Expression::TVarArrayEC* localVar = InitCode->LocalVar;
                 lib->InitAllFunctions(localVar);
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
             Constellation = pas::construct_call<TScriptConstellation>(TScriptConstellation_Create);
             pas::list_add(Constellations, reinterpret_cast<void*>(Constellation));
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(I); ) {
             Star = pas::construct_call<TScriptStar>(TScriptStar_Create);
             pas::list_add(Stars, reinterpret_cast<void*>(Star));
             Star->Name = Buffer->ReadWideString();
-            Star->ConstellationIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            Star->ConstellationIndex = Buffer->GetInt32();
             if (Version < 7) {
-                EC_Buf::TBufEC_GetBoolean(Buffer);
+                Buffer->GetBoolean();
             }
-            Star->RejectHostilePresence = EC_Buf::TBufEC_GetBoolean(Buffer);
-            Star->ProtectStar = EC_Buf::TBufEC_GetBoolean(Buffer);
-            SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
+            Star->RejectHostilePresence = Buffer->GetBoolean();
+            Star->ProtectStar = Buffer->GetBoolean();
+            SubCount = Buffer->GetInt32();
             if (SubCount > 0) {
                 Star->Constraints.set_length(SubCount);
                 if (Version >= 7) {
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_4.next(J); ) {
                         {
-                            std::int32_t int32 = EC_Buf::TBufEC_GetInt32(Buffer);
+                            std::int32_t int32 = Buffer->GetInt32();
                             pas::List* stars = Stars;
                             Star->Constraints[J].OtherStar = pas::list_at<TScriptStar>(stars, int32);
                         }
-                        Star->Constraints[J].MinDistance = EC_Buf::TBufEC_GetInt32(Buffer);
-                        Star->Constraints[J].MaxDistance = EC_Buf::TBufEC_GetInt32(Buffer);
-                        Star->Constraints[J].RequireBlackHole = EC_Buf::TBufEC_GetBoolean(Buffer);
+                        Star->Constraints[J].MinDistance = Buffer->GetInt32();
+                        Star->Constraints[J].MaxDistance = Buffer->GetInt32();
+                        Star->Constraints[J].RequireBlackHole = Buffer->GetBoolean();
                     }
                 } else {
                     for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_5.next(J); ) {
                         {
-                            std::int32_t int32_2 = EC_Buf::TBufEC_GetInt32(Buffer);
+                            std::int32_t int32_2 = Buffer->GetInt32();
                             pas::List* stars_2 = Stars;
                             Star->Constraints[J].OtherStar = pas::list_at<TScriptStar>(stars_2, int32_2);
                         }
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        Star->Constraints[J].MinDistance = EC_Buf::TBufEC_GetInt32(Buffer);
-                        Star->Constraints[J].MaxDistance = EC_Buf::TBufEC_GetInt32(Buffer);
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        Star->Constraints[J].RequireBlackHole = EC_Buf::TBufEC_GetBoolean(Buffer);
+                        Buffer->GetInt32();
+                        Star->Constraints[J].MinDistance = Buffer->GetInt32();
+                        Star->Constraints[J].MaxDistance = Buffer->GetInt32();
+                        Buffer->GetInt32();
+                        Buffer->GetInt32();
+                        Buffer->GetInt32();
+                        Star->Constraints[J].RequireBlackHole = Buffer->GetBoolean();
                     }
                 }
             }
-            SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
+            SubCount = Buffer->GetInt32();
             if (SubCount > 0) {
                 Star->Planets.set_length(SubCount);
                 for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_6.next(J); ) {
                     Star->Planets[J].Name = Buffer->ReadWideString();
-                    Star->Planets[J].RaceMask = aScript::DecodeScriptRaceMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-                    Star->Planets[J].OwnerMask = aScript::DecodeScriptOwnerMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-                    Star->Planets[J].EconomyMask = aScript::DecodeScriptEconomyMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-                    Star->Planets[J].GovernmentMask = aScript::DecodeScriptGovernmentMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-                    Star->Planets[J].MinOrbitPercent = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->Planets[J].MaxOrbitPercent = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Star->Planets[J].RaceMask = aScript::DecodeScriptRaceMask(Buffer->GetUInt32());
+                    Star->Planets[J].OwnerMask = aScript::DecodeScriptOwnerMask(Buffer->GetUInt32());
+                    Star->Planets[J].EconomyMask = aScript::DecodeScriptEconomyMask(Buffer->GetUInt32());
+                    Star->Planets[J].GovernmentMask = aScript::DecodeScriptGovernmentMask(Buffer->GetUInt32());
+                    Star->Planets[J].MinOrbitPercent = Buffer->GetInt32();
+                    Star->Planets[J].MaxOrbitPercent = Buffer->GetInt32();
                     Star->Planets[J].DialogChoiceText = Buffer->ReadWideString();
                 }
             }
-            SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
+            SubCount = Buffer->GetInt32();
             if (SubCount > 0) {
                 Star->ShipRequirements.set_length(SubCount);
                 for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_7.next(J); ) {
-                    Star->ShipRequirements[J].Count = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].OwnerMask = aScript::DecodeScriptOwnerMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-                    Mask = EC_Buf::TBufEC_GetUInt32(Buffer);
+                    Star->ShipRequirements[J].Count = Buffer->GetInt32();
+                    Star->ShipRequirements[J].OwnerMask = aScript::DecodeScriptOwnerMask(Buffer->GetUInt32());
+                    Mask = Buffer->GetUInt32();
                     Star->ShipRequirements[J].ShipTypeMask = aScript::DecodeScriptShipTypeMask(Mask);
-                    for (auto cpp_range_8 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_8.next(KlingType); ) {
-                        Star->ShipRequirements[J].DominatorMasks[KlingType] = aScript::DecodeScriptDominatorMask(Mask, KlingType);
+                    for (auto cpp_range_8 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss,
+                        aGalaxyStruct::ktKlig); cpp_range_8.next(KlingType); ) {
+                        Star->ShipRequirements[J].DominatorMasks[KlingType] = aScript::DecodeScriptDominatorMask(Mask,
+                                KlingType);
                     }
-                    Star->ShipRequirements[J].PlayerOnly = EC_Buf::TBufEC_GetBoolean(Buffer);
-                    Star->ShipRequirements[J].MinSpeed = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MaxSpeed = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].WeaponRequirement = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MinCargoHookLevel = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MinFreeCargoSpace = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Star->ShipRequirements[J].PlayerOnly = Buffer->GetBoolean();
+                    Star->ShipRequirements[J].MinSpeed = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MaxSpeed = Buffer->GetInt32();
+                    Star->ShipRequirements[J].WeaponRequirement = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MinCargoHookLevel = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MinFreeCargoSpace = Buffer->GetInt32();
                     if (Version < 7) {
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        EC_Buf::TBufEC_GetInt32(Buffer);
+                        Buffer->GetInt32();
+                        Buffer->GetInt32();
                     }
-                    Star->ShipRequirements[J].MinTraderStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MaxTraderStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MinWarriorStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MaxWarriorStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MinPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-                    Star->ShipRequirements[J].MaxPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Star->ShipRequirements[J].MinTraderStatus = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MaxTraderStatus = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MinWarriorStatus = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MaxWarriorStatus = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MinPirateStatus = Buffer->GetInt32();
+                    Star->ShipRequirements[J].MaxPirateStatus = Buffer->GetInt32();
                     if (Version < 7) {
-                        EC_Buf::TBufEC_GetInt32(Buffer);
-                        EC_Buf::TBufEC_GetInt32(Buffer);
+                        Buffer->GetInt32();
+                        Buffer->GetInt32();
                     }
-                    Star->ShipRequirements[J].MinStrength = EC_Buf::TBufEC_GetSingle(Buffer);
-                    Star->ShipRequirements[J].MaxStrength = EC_Buf::TBufEC_GetSingle(Buffer);
+                    Star->ShipRequirements[J].MinStrength = Buffer->GetSingle();
+                    Star->ShipRequirements[J].MaxStrength = Buffer->GetSingle();
                     Star->ShipRequirements[J].StationNames = EC_Str::TrimWideString(Buffer->ReadWideString());
                     if (Star->ShipRequirements[J].StationNames != u"") {
-                        Star->ShipRequirements[J].ShipTypeMask = Star->ShipRequirements[J].ShipTypeMask + pas::constant_set<TScriptShipTypeMask>({{aGalaxyStruct::htStation}});
+                        Star->ShipRequirements[J].ShipTypeMask = Star->ShipRequirements[J].ShipTypeMask +
+                                pas::constant_set<TScriptShipTypeMask>({{aGalaxyStruct::htStation}});
                     }
                 }
             }
@@ -3037,59 +3380,67 @@ namespace aScript {
             if (!TryBindStars(0)) {
                 return Result;
             }
-            for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, pas::list_count(Stars) - 1); cpp_range_9.next(I); ) {
-                Star = pas::list_at<TScriptStar>(Stars, I);
-                {
-                    EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Star->Name);
-                    std::uint32_t star = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star->Star));
-                    var->SetDword(star);
-                }
-                if (Star->Planets != nullptr) {
-                    for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Star->Planets.length() - 1); cpp_range_10.next(J); ) {
-                        PlanetBinding = &Star->Planets[J];
+            {
+                const std::int32_t cpp_last = pas::list_count(Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Star = pas::list_at<TScriptStar>(Stars, I);
                         {
-                            EC_Expression::TVarEC* var_2 = InitCode->LocalVar->GetVar(PlanetBinding->Name);
-                            std::uint32_t planet = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PlanetBinding->Planet));
-                            var_2->SetDword(planet);
+                            EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Star->Name);
+                            std::uint32_t star = static_cast<std::uint32_t>(
+                                reinterpret_cast<std::uintptr_t>(Star->Star));
+                            var->SetDword(star);
+                        }
+                        if (Star->Planets != nullptr) {
+                            for (auto cpp_range_9 = pas::for_to<std::int32_t>(0,
+                                Star->Planets.length() - 1); cpp_range_9.next(J); ) {
+                                PlanetBinding = &Star->Planets[J];
+                                {
+                                    EC_Expression::TVarEC* var_2 = InitCode->LocalVar->GetVar(PlanetBinding->Name);
+                                    std::uint32_t planet = static_cast<std::uint32_t>(
+                                        reinterpret_cast<std::uintptr_t>(PlanetBinding->Planet));
+                                    var_2->SetDword(planet);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_10.next(I); ) {
             Place = pas::construct_call<TScriptPlace>(TScriptPlace_Create);
             pas::list_add(Places, reinterpret_cast<void*>(Place));
             Place->Script = this;
             Place->Name = Buffer->ReadWideString();
             Place->OriginVarName = Buffer->ReadWideString();
-            Place->PlaceKind = EC_Buf::TBufEC_GetInt32(Buffer);
+            Place->PlaceKind = Buffer->GetInt32();
             if (Place->PlaceKind == spkPolar) {
-                Place->AngleOffset = EC_Buf::TBufEC_GetSingle(Buffer);
-                Place->DistanceScale = EC_Buf::TBufEC_GetSingle(Buffer);
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
+                Place->AngleOffset = Buffer->GetSingle();
+                Place->DistanceScale = Buffer->GetSingle();
+                Place->Radius = Buffer->GetInt32();
             } else if (Place->PlaceKind == spkPlanetPosition) {
                 Place->TargetVarName = Buffer->ReadWideString();
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
+                Place->Radius = Buffer->GetInt32();
             } else if (Place->PlaceKind == spkDockedPlanet) {
                 Place->TargetVarName = Buffer->ReadWideString();
             } else if (Place->PlaceKind == spkStarDirection) {
                 Place->TargetVarName = Buffer->ReadWideString();
-                Place->DistanceScale = EC_Buf::TBufEC_GetSingle(Buffer);
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
-                Place->AngleOffset = EC_Buf::TBufEC_GetSingle(Buffer);
+                Place->DistanceScale = Buffer->GetSingle();
+                Place->Radius = Buffer->GetInt32();
+                Place->AngleOffset = Buffer->GetSingle();
             } else if (Place->PlaceKind == spkScriptItem) {
                 Place->TargetVarName = Buffer->ReadWideString();
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
+                Place->Radius = Buffer->GetInt32();
             } else if (Place->PlaceKind == spkGroupCentroid) {
                 Place->TargetVarName = Buffer->ReadWideString();
-                Place->DistanceScale = EC_Buf::TBufEC_GetSingle(Buffer);
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
-                Place->AngleOffset = EC_Buf::TBufEC_GetSingle(Buffer);
+                Place->DistanceScale = Buffer->GetSingle();
+                Place->Radius = Buffer->GetInt32();
+                Place->AngleOffset = Buffer->GetSingle();
             } else if (Place->PlaceKind == spkCoordinates) {
                 Place->TargetVarName = Buffer->ReadWideString();
                 Place->TargetVarName2 = Buffer->ReadWideString();
-                Place->Radius = EC_Buf::TBufEC_GetInt32(Buffer);
+                Place->Radius = Buffer->GetInt32();
             } else {
                 GR_Main::RaiseWideMessage(u"Script.Place.Type"_wref.get());
             }
@@ -3099,19 +3450,19 @@ namespace aScript {
                 var_3->SetDword(place);
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_12.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(I); ) {
             ScriptItem = pas::construct_call<TScriptItem>(TScriptItem_Create);
             ScriptItem->Script = this;
             pas::list_add(Items, reinterpret_cast<void*>(ScriptItem));
             ScriptItem->Name = Buffer->ReadWideString();
             ScriptItem->LocationVarName = Buffer->ReadWideString();
-            ScriptItem->DefinitionKind = EC_Buf::TBufEC_GetInt32(Buffer);
-            ScriptItem->DefinitionType = EC_Buf::TBufEC_GetInt32(Buffer);
-            ScriptItem->Weight = EC_Buf::TBufEC_GetInt32(Buffer);
-            ScriptItem->Level = EC_Buf::TBufEC_GetInt32(Buffer);
-            ScriptItem->DefinitionValue1C = EC_Buf::TBufEC_GetInt32(Buffer);
-            ScriptItem->OwnerId = aScript::DecodeScriptItemOwner(EC_Buf::TBufEC_GetInt32(Buffer));
+            ScriptItem->DefinitionKind = Buffer->GetInt32();
+            ScriptItem->DefinitionType = Buffer->GetInt32();
+            ScriptItem->Weight = Buffer->GetInt32();
+            ScriptItem->Level = Buffer->GetInt32();
+            ScriptItem->DefinitionValue1C = Buffer->GetInt32();
+            ScriptItem->OwnerId = aScript::DecodeScriptItemOwner(Buffer->GetInt32());
             ScriptItem->ConfigName = Buffer->ReadWideString();
             ScriptItem->CanSell = false;
             ScriptItem->Data[1] = 0;
@@ -3128,103 +3479,117 @@ namespace aScript {
                 var_4->SetDword(scriptItem);
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_13.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_12.next(I); ) {
             Group = pas::construct_call<TScriptGroup>(TScriptGroup_Create);
             pas::list_add(Groups, reinterpret_cast<void*>(Group));
             Group->Name = Buffer->ReadWideString();
             Group->PlanetVarName = Buffer->ReadWideString();
-            Group->InitialStateIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->OwnerMask = aScript::DecodeScriptOwnerMask(EC_Buf::TBufEC_GetUInt32(Buffer));
-            Mask = EC_Buf::TBufEC_GetUInt32(Buffer);
+            Group->InitialStateIndex = Buffer->GetInt32();
+            Group->OwnerMask = aScript::DecodeScriptOwnerMask(Buffer->GetUInt32());
+            Mask = Buffer->GetUInt32();
             Group->ShipTypeMask = aScript::DecodeScriptShipTypeMask(Mask);
-            for (auto cpp_range_14 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss, aGalaxyStruct::ktKlig); cpp_range_14.next(KlingType); ) {
+            for (auto cpp_range_13 = pas::for_to<aGalaxyStruct::TKlingType>(aGalaxyStruct::ktBoss,
+                aGalaxyStruct::ktKlig); cpp_range_13.next(KlingType); ) {
                 Group->DominatorMasks[KlingType] = aScript::DecodeScriptDominatorMask(Mask, KlingType);
             }
-            Group->MinCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MinSpeed = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxSpeed = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->WeaponRequirement = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MinCargoHookLevel = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MinFreeCargoSpace = EC_Buf::TBufEC_GetInt32(Buffer);
+            Group->MinCount = Buffer->GetInt32();
+            Group->MaxCount = Buffer->GetInt32();
+            Group->MinSpeed = Buffer->GetInt32();
+            Group->MaxSpeed = Buffer->GetInt32();
+            Group->WeaponRequirement = Buffer->GetInt32();
+            Group->MinCargoHookLevel = Buffer->GetInt32();
+            Group->MinFreeCargoSpace = Buffer->GetInt32();
             if (Version < 7) {
-                EC_Buf::TBufEC_GetInt32(Buffer);
+                Buffer->GetInt32();
             }
-            Group->IncludePlayer = EC_Buf::TBufEC_GetBoolean(Buffer);
+            Group->IncludePlayer = Buffer->GetBoolean();
             if (Version < 7) {
-                EC_Buf::TBufEC_GetInt32(Buffer);
-                EC_Buf::TBufEC_GetInt32(Buffer);
-                EC_Buf::TBufEC_GetInt32(Buffer);
-                EC_Buf::TBufEC_GetInt32(Buffer);
+                Buffer->GetInt32();
+                Buffer->GetInt32();
+                Buffer->GetInt32();
+                Buffer->GetInt32();
             }
-            Group->MinTraderStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxTraderStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MinWarriorStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxWarriorStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MinPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxPirateStatus = EC_Buf::TBufEC_GetInt32(Buffer);
-            Group->MaxDistanceFromPlanet = EC_Buf::TBufEC_GetInt32(Buffer);
+            Group->MinTraderStatus = Buffer->GetInt32();
+            Group->MaxTraderStatus = Buffer->GetInt32();
+            Group->MinWarriorStatus = Buffer->GetInt32();
+            Group->MaxWarriorStatus = Buffer->GetInt32();
+            Group->MinPirateStatus = Buffer->GetInt32();
+            Group->MaxPirateStatus = Buffer->GetInt32();
+            Group->MaxDistanceFromPlanet = Buffer->GetInt32();
             Group->StationDialogVariable = Buffer->ReadWideString();
-            Group->MinStrength = EC_Buf::TBufEC_GetSingle(Buffer);
-            Group->MaxStrength = EC_Buf::TBufEC_GetSingle(Buffer);
+            Group->MinStrength = Buffer->GetSingle();
+            Group->MaxStrength = Buffer->GetSingle();
             Group->StationNames = EC_Str::TrimWideString(Buffer->ReadWideString());
             if (Group->StationNames != u"") {
-                Group->ShipTypeMask = Group->ShipTypeMask + pas::constant_set<TScriptShipTypeMask>({{aGalaxyStruct::htStation}});
+                Group->ShipTypeMask = Group->ShipTypeMask + pas::constant_set<TScriptShipTypeMask>({
+                            {aGalaxyStruct::htStation}});
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         if (Count > 0) {
             GroupRelations.set_length(Count);
-            for (auto cpp_range_15 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_15.next(I); ) {
-                GroupRelations[I].Group1 = EC_Buf::TBufEC_GetInt32(Buffer);
-                GroupRelations[I].Group2 = EC_Buf::TBufEC_GetInt32(Buffer);
-                GroupRelations[I].Relation1To2 = EC_Buf::TBufEC_GetInt32(Buffer);
-                GroupRelations[I].Relation2To1 = EC_Buf::TBufEC_GetInt32(Buffer);
-                GroupRelations[I].MinCombatBalance = EC_Buf::TBufEC_GetSingle(Buffer);
-                GroupRelations[I].MaxCombatBalance = EC_Buf::TBufEC_GetSingle(Buffer);
+            for (auto cpp_range_14 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_14.next(I); ) {
+                GroupRelations[I].Group1 = Buffer->GetInt32();
+                GroupRelations[I].Group2 = Buffer->GetInt32();
+                GroupRelations[I].Relation1To2 = Buffer->GetInt32();
+                GroupRelations[I].Relation2To1 = Buffer->GetInt32();
+                GroupRelations[I].MinCombatBalance = Buffer->GetSingle();
+                GroupRelations[I].MaxCombatBalance = Buffer->GetSingle();
             }
         }
         if (CreateObjects) {
-            for (auto cpp_range_16 = pas::for_to<std::int32_t>(0, pas::list_count(Groups) - 1); cpp_range_16.next(I); ) {
-                Group = pas::list_at<TScriptGroup>(Groups, I);
-                Group->Ships = pas::make_object<pas::List>();
-                Group->Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(Group->PlanetVarName)->GetDword())));
-                Candidates = aScript::CollectScriptCandidateShips(Group->Planet->CurrentStar);
-                SubCount = Group->MinCount;
-                if (Group->IncludePlayer) {
-                    --SubCount;
-                }
-                for (auto cpp_range_17 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_17.next(J); ) {
-                    Ship = aScript::FindScriptGroupCandidate(Candidates, Group);
-                    if (Ship == nullptr) {
-                        Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Group->Planet->GenerateShipForScriptGroup(Group)));
-                        if (Ship == nullptr) {
-                            pas::free(Candidates);
-                            return Result;
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(Groups) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        Group = pas::list_at<TScriptGroup>(Groups, I);
+                        Group->Ships = pas::make_object<pas::List>();
+                        Group->Planet =
+                            reinterpret_cast<aPlanet::TPlanet*>(
+                                static_cast<std::uintptr_t>(
+                                    static_cast<std::uint32_t>(
+                                    InitCode->LocalVar->GetVar(Group->PlanetVarName)->GetDword())));
+                        Candidates = aScript::CollectScriptCandidateShips(Group->Planet->CurrentStar);
+                        SubCount = Group->MinCount;
+                        if (Group->IncludePlayer) {
+                            --SubCount;
                         }
-                    }
-                    BindShip(I, Ship);
-                    pas::list_add(Group->Ships, reinterpret_cast<void*>(Ship));
-                    if (pas::list_indexof(Candidates, reinterpret_cast<void*>(Ship)) >= 0) {
-                        pas::list_delete(Candidates, pas::list_indexof(Candidates, reinterpret_cast<void*>(Ship)));
+                        for (auto cpp_range_15 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_15.next(J); ) {
+                            Ship = aScript::FindScriptGroupCandidate(Candidates, Group);
+                            if (Ship == nullptr) {
+                                Ship =
+                                    pas::checked_cast<aShip::TShip*>(
+                                        static_cast<pas::Object*>(Group->Planet->GenerateShipForScriptGroup(Group)));
+                                if (Ship == nullptr) {
+                                    pas::free(Candidates);
+                                    return Result;
+                                }
+                            }
+                            BindShip(I, Ship);
+                            pas::list_add(Group->Ships, reinterpret_cast<void*>(Ship));
+                            if (pas::list_indexof(Candidates, reinterpret_cast<void*>(Ship)) >= 0) {
+                                pas::list_delete(Candidates,
+                                    pas::list_indexof(Candidates, reinterpret_cast<void*>(Ship)));
+                            }
+                        }
+                        if (Group->IncludePlayer) {
+                            BindShip(I, aPlayer::GetPlayer());
+                        }
+                        pas::free(Candidates);
                     }
                 }
-                if (Group->IncludePlayer) {
-                    BindShip(I, aPlayer::GetPlayer());
-                }
-                pas::free(Candidates);
             }
             while (true) {
                 I = 0;
                 Group = nullptr;
                 while (I <= GroupRelations.length() - 1) {
-                    if (GroupRelations[I].MinCombatBalance > 0.0L || GroupRelations[I].MaxCombatBalance < 1.0E+3L) {
-                        Balance = ([&] {
+                    if (GroupRelations[I].MinCombatBalance > 0.0 || GroupRelations[I].MaxCombatBalance < 1.0E+3) {
+                        {
                             pas::List* ships = pas::list_at<TScriptGroup>(Groups, GroupRelations[I].Group2)->Ships;
                             pas::List* ships_2 = pas::list_at<TScriptGroup>(Groups, GroupRelations[I].Group1)->Ships;
-                            return aShip::CompareShipGroupsStrength(ships_2, ships);
-                        }());
+                            Balance = aShip::CompareShipGroupsStrength(ships_2, ships);
+                        }
                         if (Balance < GroupRelations[I].MinCombatBalance) {
                             Group = pas::list_at<TScriptGroup>(Groups, GroupRelations[I].Group1);
                             if (pas::list_count(Group->Ships) < Group->MaxCount) {
@@ -3246,7 +3611,9 @@ namespace aScript {
                 Candidates = aScript::CollectScriptCandidateShips(Group->Planet->CurrentStar);
                 Ship = aScript::FindScriptGroupCandidate(Candidates, Group);
                 if (Ship == nullptr) {
-                    Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Group->Planet->GenerateShipForScriptGroup(Group)));
+                    Ship =
+                        pas::checked_cast<aShip::TShip*>(
+                            static_cast<pas::Object*>(Group->Planet->GenerateShipForScriptGroup(Group)));
                     if (Ship == nullptr) {
                         pas::free(Candidates);
                         return Result;
@@ -3257,16 +3624,19 @@ namespace aScript {
                 pas::free(Candidates);
             }
             {
-                const std::int32_t cpp_last = GroupRelations.length() - 1;
-                if (0 <= cpp_last) {
-                    for (I = 0; I <= cpp_last; ++I) {
-                        if (GroupRelations[I].MinCombatBalance > 0.0L || GroupRelations[I].MaxCombatBalance < 1.0E+3L) {
-                            Balance = ([&] {
-                                pas::List* ships_3 = pas::list_at<TScriptGroup>(Groups, GroupRelations[I].Group2)->Ships;
-                                pas::List* ships_4 = pas::list_at<TScriptGroup>(Groups, GroupRelations[I].Group1)->Ships;
-                                return aShip::CompareShipGroupsStrength(ships_4, ships_3);
-                            }());
-                            if (Balance < GroupRelations[I].MinCombatBalance || Balance > GroupRelations[I].MaxCombatBalance) {
+                const std::int32_t cpp_last_3 = GroupRelations.length() - 1;
+                if (0 <= cpp_last_3) {
+                    for (I = 0; I <= cpp_last_3; ++I) {
+                        if (GroupRelations[I].MinCombatBalance > 0.0 || GroupRelations[I].MaxCombatBalance < 1.0E+3) {
+                            {
+                                pas::List* ships_3 = pas::list_at<TScriptGroup>(Groups,
+                                    GroupRelations[I].Group2)->Ships;
+                                pas::List* ships_4 = pas::list_at<TScriptGroup>(Groups,
+                                    GroupRelations[I].Group1)->Ships;
+                                Balance = aShip::CompareShipGroupsStrength(ships_4, ships_3);
+                            }
+                            if (Balance < GroupRelations[I].MinCombatBalance || Balance >
+                                    GroupRelations[I].MaxCombatBalance) {
                                 return Result;
                             }
                         }
@@ -3275,19 +3645,22 @@ namespace aScript {
             }
         }
         if (CreateObjects) {
-            const std::int32_t cpp_last_2 = GroupRelations.length() - 1;
-            if (0 <= cpp_last_2) {
-                for (I = 0; I <= cpp_last_2; ++I) {
+            const std::int32_t cpp_last_4 = GroupRelations.length() - 1;
+            if (0 <= cpp_last_4) {
+                for (I = 0; I <= cpp_last_4; ++I) {
                     if (GroupRelations[I].Relation1To2 != 5) {
-                        SetGroupRelation(GroupRelations[I].Group1, GroupRelations[I].Group2, aScript::DecodeScriptRelationLevel(GroupRelations[I].Relation1To2));
+                        SetGroupRelation(GroupRelations[I].Group1, GroupRelations[I].Group2,
+                            aScript::DecodeScriptRelationLevel(GroupRelations[I].Relation1To2));
                     }
                     if (GroupRelations[I].Relation2To1 != 5) {
-                        SetGroupRelation(GroupRelations[I].Group2, GroupRelations[I].Group1, aScript::DecodeScriptRelationLevel(GroupRelations[I].Relation2To1));
+                        SetGroupRelation(GroupRelations[I].Group2, GroupRelations[I].Group1,
+                            aScript::DecodeScriptRelationLevel(GroupRelations[I].Relation2To1));
                     }
                 }
             }
         }
-        EC_Expression::TCodeAnalyzerEC* Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(EC_Expression::TCodeAnalyzerEC_Create);
+        EC_Expression::TCodeAnalyzerEC* Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(
+            EC_Expression::TCodeAnalyzerEC_Create);
         Analyzer->Tokenize(Buffer->ReadWideString(), 0);
         Analyzer->RemoveComments();
         Analyzer->RemoveNewlines();
@@ -3314,11 +3687,14 @@ namespace aScript {
                 EC_Expression::TCodeEC_Run(InitCode, ScriptProcess);
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
-                if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(cpp_exception)) {
+                if (BreakMessageGIException::EBreakMessageGI* E = pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(
+                    cpp_exception)) {
                 } else if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
                     aScript::LogScriptCallHistory();
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error in init code of script ", ScriptFileName}))));
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Error in init code of script ", ScriptFileName}))));
                 } else {
                     throw;
                 }
@@ -3356,30 +3732,35 @@ namespace aScript {
             DialogCode->LinkAll(InitCode->LocalVar, false);
             DialogCode->ScriptFunLinked = true;
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_18 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_18.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_16 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_16.next(I); ) {
             State = pas::construct_call<TScriptState>(TScriptState_Create);
             pas::list_add(States, reinterpret_cast<void*>(State));
             State->Name = Buffer->ReadWideString();
-            State->StateKind = EC_Buf::TBufEC_GetInt32(Buffer);
+            State->StateKind = Buffer->GetInt32();
             if (State->StateKind != sskIdle && State->StateKind != sskNormalAI) {
                 State->TargetVarName = Buffer->ReadWideString();
             }
-            SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
+            SubCount = Buffer->GetInt32();
             if (SubCount > 0) {
                 State->EnemyGroupNames.set_length(SubCount);
                 State->EnemyGroupIndices.set_length(SubCount);
-                for (auto cpp_range_19 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_19.next(J); ) {
+                for (auto cpp_range_17 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_17.next(J); ) {
                     State->EnemyGroupNames[J] = Buffer->ReadWideString();
                 }
             }
             State->PickupItemVarName = Buffer->ReadWideString();
             if (State->PickupItemVarName != u"") {
-                State->PickupItem = reinterpret_cast<TScriptItem*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(State->PickupItemVarName)->GetDword())));
+                State->PickupItem =
+                    reinterpret_cast<TScriptItem*>(
+                        static_cast<std::uintptr_t>(
+                            static_cast<std::uint32_t>(
+                            InitCode->LocalVar->GetVar(State->PickupItemVarName)->GetDword())));
             }
-            State->PickUpNearbyItems = EC_Buf::TBufEC_GetBoolean(Buffer);
+            State->PickUpNearbyItems = Buffer->GetBoolean();
             State->DialogTextOrVariable = Buffer->ReadWideString();
-            if (State->DialogTextOrVariable != u"" && InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) == nullptr) {
+            if (State->DialogTextOrVariable != u"" && InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) ==
+                    nullptr) {
                 State->DialogCode = pas::construct_call<EC_Expression::TCodeEC>(EC_Expression::TCodeEC_Create);
                 Analyzer = pas::construct_call<EC_Expression::TCodeAnalyzerEC>(EC_Expression::TCodeAnalyzerEC_Create);
                 Analyzer->Tokenize(State->DialogTextOrVariable, 0);
@@ -3390,7 +3771,8 @@ namespace aScript {
                 State->DialogCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
                 pas::free(Analyzer);
                 if (ErrorText != u"") {
-                    GR_Main::RaiseWideMessage(pas::concat_wide({u"StateCodeText.Compiler. Error=", ErrorText, u" State=", State->Name}));
+                    GR_Main::RaiseWideMessage(pas::concat_wide({u"StateCodeText.Compiler. Error=", ErrorText,
+                        u" State=", State->Name}));
                 }
                 State->DialogCode->LinkAll(ScriptFunctionScope, false);
                 State->DialogCode->LinkAll(Globals::SharedScriptVariables, false);
@@ -3398,7 +3780,8 @@ namespace aScript {
                 State->DialogCode->ScriptFunLinked = true;
             }
             State->OnActionText = Buffer->ReadWideString();
-            if (State->OnActionText != u"" && State->OnActionText.length() < 32 && InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) != nullptr) {
+            if (State->OnActionText != u"" && State->OnActionText.length() < 32 &&
+                InitCode->LocalVar->GetVarNE(State->DialogTextOrVariable) != nullptr) {
                 State->OnActionText = pas::WideString();
             }
             if (State->OnActionText != u"") {
@@ -3416,7 +3799,8 @@ namespace aScript {
                 State->EntryCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
                 pas::free(Analyzer);
                 if (ErrorText != u"") {
-                    GR_Main::RaiseWideMessage(pas::concat_wide({u"StateCodeEther.Compiler. Error=", ErrorText, u" State=", State->Name}));
+                    GR_Main::RaiseWideMessage(pas::concat_wide({u"StateCodeEther.Compiler. Error=", ErrorText,
+                        u" State=", State->Name}));
                 }
                 State->EntryCode->LinkAll(ScriptFunctionScope, false);
                 State->EntryCode->LinkAll(Globals::SharedScriptVariables, false);
@@ -3432,15 +3816,16 @@ namespace aScript {
             State->StateCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
-                GR_Main::RaiseWideMessage(pas::concat_wide({u"StateTurn.Compiler. Error=", ErrorText, u" State=", State->Name}));
+                GR_Main::RaiseWideMessage(pas::concat_wide({u"StateTurn.Compiler. Error=", ErrorText, u" State=",
+                    State->Name}));
             }
             State->StateCode->LinkAll(ScriptFunctionScope, false);
             State->StateCode->LinkAll(Globals::SharedScriptVariables, false);
             State->StateCode->LinkAll(InitCode->LocalVar, false);
             State->StateCode->ScriptFunLinked = true;
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_20 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_20.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_18 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_18.next(I); ) {
             Dialog = pas::construct_call<TScriptDialog>(TScriptDialog_Create);
             pas::list_add(Dialogs, reinterpret_cast<void*>(Dialog));
             Dialog->Name = Buffer->ReadWideString();
@@ -3453,7 +3838,8 @@ namespace aScript {
             Dialog->Code->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
-                GR_Main::RaiseWideMessage(pas::concat_wide({u"Dialog.Code.Compiler. Error=", ErrorText, u" State=", Dialog->Name}));
+                GR_Main::RaiseWideMessage(pas::concat_wide({u"Dialog.Code.Compiler. Error=", ErrorText, u" State=",
+                    Dialog->Name}));
             }
             Dialog->Code->LinkAll(ScriptFunctionScope, false);
             Dialog->Code->LinkAll(Globals::SharedScriptVariables, false);
@@ -3461,8 +3847,8 @@ namespace aScript {
             Dialog->Code->ScriptFunLinked = true;
             InitCode->LocalVar->GetVar(Dialog->Name)->SetInt(I);
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_21 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_21.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_19 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_19.next(I); ) {
             DialogMessage = pas::construct_call<TScriptDialogMsg>(TScriptDialogMsg_Create);
             pas::list_add(DialogMessages, reinterpret_cast<void*>(DialogMessage));
             DialogMessage->Name = Buffer->ReadWideString();
@@ -3475,15 +3861,16 @@ namespace aScript {
             DialogMessage->Code->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
-                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogMsg.Code.Compiler. Error=", ErrorText, u" State=", DialogMessage->Name}));
+                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogMsg.Code.Compiler. Error=", ErrorText, u" State=",
+                    DialogMessage->Name}));
             }
             DialogMessage->Code->LinkAll(ScriptFunctionScope, false);
             DialogMessage->Code->LinkAll(Globals::SharedScriptVariables, false);
             DialogMessage->Code->LinkAll(InitCode->LocalVar, false);
             DialogMessage->Code->ScriptFunLinked = true;
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_22 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_22.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_20 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_20.next(I); ) {
             DialogAnswer = pas::construct_call<TScriptDialogAnswer>(TScriptDialogAnswer_Create);
             pas::list_add(DialogAnswers, reinterpret_cast<void*>(DialogAnswer));
             DialogAnswer->Name = Buffer->ReadWideString();
@@ -3496,7 +3883,8 @@ namespace aScript {
             DialogAnswer->AnswerCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
-                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogAnswer.CodeAnswer.Compiler. Error=", ErrorText, u" State=", DialogAnswer->Name}));
+                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogAnswer.CodeAnswer.Compiler. Error=", ErrorText,
+                    u" State=", DialogAnswer->Name}));
             }
             DialogAnswer->AnswerCode->LinkAll(ScriptFunctionScope, false);
             DialogAnswer->AnswerCode->LinkAll(Globals::SharedScriptVariables, false);
@@ -3511,7 +3899,8 @@ namespace aScript {
             DialogAnswer->ActionCode->Compile(Analyzer, nullptr, nullptr, nullptr, nullptr, ErrorText);
             pas::free(Analyzer);
             if (ErrorText != u"") {
-                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogAnswer.Code.Compiler. Error=", ErrorText, u" State=", DialogAnswer->Name}));
+                GR_Main::RaiseWideMessage(pas::concat_wide({u"DialogAnswer.Code.Compiler. Error=", ErrorText,
+                    u" State=", DialogAnswer->Name}));
             }
             DialogAnswer->ActionCode->LinkAll(ScriptFunctionScope, false);
             DialogAnswer->ActionCode->LinkAll(Globals::SharedScriptVariables, false);
@@ -3519,201 +3908,280 @@ namespace aScript {
             DialogAnswer->ActionCode->ScriptFunLinked = true;
         }
         if (CreateObjects) {
-            for (auto cpp_range_23 = pas::for_to<std::int32_t>(0, pas::list_count(States) - 1); cpp_range_23.next(I); ) {
-                State = pas::list_at<TScriptState>(States, I);
-                if (State->TargetVarName != u"") {
-                    State->TargetValue = InitCode->LocalVar->GetVar(State->TargetVarName)->GetDword();
-                }
-                if (State->EnemyGroupIndices != nullptr) {
-                    for (auto cpp_range_24 = pas::for_to<std::int32_t>(0, State->EnemyGroupIndices.length() - 1); cpp_range_24.next(J); ) {
-                        State->EnemyGroupIndices[J] = InitCode->LocalVar->GetVar(State->EnemyGroupNames[J])->GetInt();
+            {
+                const std::int32_t cpp_last_5 = pas::list_count(States) - 1;
+                if (0 <= cpp_last_5) {
+                    for (I = 0; I <= cpp_last_5; ++I) {
+                        State = pas::list_at<TScriptState>(States, I);
+                        if (State->TargetVarName != u"") {
+                            State->TargetValue = InitCode->LocalVar->GetVar(State->TargetVarName)->GetDword();
+                        }
+                        if (State->EnemyGroupIndices != nullptr) {
+                            for (auto cpp_range_21 = pas::for_to<std::int32_t>(0,
+                                State->EnemyGroupIndices.length() - 1); cpp_range_21.next(J); ) {
+                                State->EnemyGroupIndices[J] =
+                                    InitCode->LocalVar->GetVar(State->EnemyGroupNames[J])->GetInt();
+                            }
+                        }
                     }
                 }
             }
-            for (auto cpp_range_25 = pas::for_to<std::int32_t>(0, pas::list_count(Places) - 1); cpp_range_25.next(I); ) {
-                Place = pas::list_at<TScriptPlace>(Places, I);
-                if (Place->OriginVarName != u"") {
-                    Place->OriginStar = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(Place->OriginVarName)->GetDword())));
-                }
-                if (Place->PlaceKind == spkCoordinates) {
-                    if (Place->TargetVarName != u"") {
-                        Place->TargetValue = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(InitCode->LocalVar->GetVar(Place->TargetVarName)));
+            {
+                const std::int32_t cpp_last_6 = pas::list_count(Places) - 1;
+                if (0 <= cpp_last_6) {
+                    for (I = 0; I <= cpp_last_6; ++I) {
+                        Place = pas::list_at<TScriptPlace>(Places, I);
+                        if (Place->OriginVarName != u"") {
+                            Place->OriginStar =
+                                reinterpret_cast<aGalaxy::TStar*>(
+                                    static_cast<std::uintptr_t>(
+                                        static_cast<std::uint32_t>(
+                                        InitCode->LocalVar->GetVar(Place->OriginVarName)->GetDword())));
+                        }
+                        if (Place->PlaceKind == spkCoordinates) {
+                            if (Place->TargetVarName != u"") {
+                                Place->TargetValue =
+                                    static_cast<std::uint32_t>(
+                                        reinterpret_cast<std::uintptr_t>(
+                                            InitCode->LocalVar->GetVar(Place->TargetVarName)));
+                            }
+                            if (Place->TargetVarName2 != u"") {
+                                Place->TargetValue2 = InitCode->LocalVar->GetVar(Place->TargetVarName2);
+                            }
+                        } else if (Place->TargetVarName != u"") {
+                            Place->TargetValue = InitCode->LocalVar->GetVar(Place->TargetVarName)->GetDword();
+                        }
                     }
-                    if (Place->TargetVarName2 != u"") {
-                        Place->TargetValue2 = InitCode->LocalVar->GetVar(Place->TargetVarName2);
-                    }
-                } else if (Place->TargetVarName != u"") {
-                    Place->TargetValue = InitCode->LocalVar->GetVar(Place->TargetVarName)->GetDword();
                 }
             }
-            for (auto cpp_range_26 = pas::for_to<std::int32_t>(0, pas::list_count(Items) - 1); cpp_range_26.next(I); ) {
-                ScriptItem = pas::list_at<TScriptItem>(Items, I);
-                if (ScriptItem->Name == u"") {
-                    continue;
-                }
-                Item = nullptr;
-                if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 0) {
-                    Item = pas::construct_call<aItem::TFuelTanks>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TFuelTanks*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 1) {
-                    Item = pas::construct_call<aItem::TEngine>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TEngine*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 2) {
-                    Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TRadar*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 3) {
-                    Item = pas::construct_call<aItem::TScaner>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TScaner*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 4) {
-                    Item = pas::construct_call<aItem::TRepairRobot>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TRepairRobot*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 5) {
-                    Item = pas::construct_call<aItem::TCargoHook>(aItem::TCargoHook_Create);
-                    pas::checked_cast<aItem::TCargoHook*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 6) {
-                    Item = pas::construct_call<aItem::TDefGenerator>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TDefGenerator*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 0) {
-                    GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
-                } else if (ScriptItem->DefinitionKind == 1 && ScriptItem->DefinitionType >= 0 && ScriptItem->DefinitionType < aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}))) {
-                    Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
-                    pas::checked_cast<aItem::TWeapon*>(Item)->Init(static_cast<aConst::TItemType>(aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}), ScriptItem->DefinitionType + 1)), ScriptItem->Weight, ScriptItem->Level, ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 1) {
-                    GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
-                } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType >= 0 && ScriptItem->DefinitionType <= 8) {
-                    Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
-                    pas::checked_cast<aItem::TGoods*>(Item)->Init(static_cast<aConst::TItemType>(static_cast<std::uint8_t>(ScriptItem->DefinitionType) - static_cast<std::uint8_t>(ScriptItem->DefinitionType > 4)), ScriptItem->Weight);
-                    static_cast<aItem::TGoods*>(Item)->NaturalFlag = ScriptItem->DefinitionType == 5;
-                } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType == 9) {
-                    GR_Main::RaiseWideMessage(u"Script. Protoplasm not support"_wref.get());
-                } else if (ScriptItem->DefinitionKind == 2) {
-                    GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
-                } else if (ScriptItem->DefinitionKind == 3 && ScriptItem->DefinitionType >= 0 && ScriptItem->DefinitionType < aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({{10, 41}}))) {
-                    Item = aItem::CreateConfiguredArtefactByItemType(static_cast<aConst::TItemType>(aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{10, 41}}), ScriptItem->DefinitionType + 1)), ScriptItem->OwnerId);
-                } else if (ScriptItem->DefinitionKind == 3) {
-                    GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
-                } else if (ScriptItem->DefinitionKind == 4) {
-                    Item = pas::construct_call<aItem::TUselessItem>(aItem::TUselessItem_Create);
-                    pas::checked_cast<aItem::TUselessItem*>(Item)->Init(ScriptItem->ConfigName, aGalaxyStruct::dsBlazer, 0u, false);
-                } else if (ScriptItem->DefinitionKind == 5) {
-                    continue;
-                } else {
-                    GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
-                }
-                Item->ScriptItem = ScriptItem;
-                if (InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword() < 255) {
-                    Group = ([&] {
-                        std::int32_t dword = static_cast<std::int32_t>(InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword());
-                        pas::List* groups = Groups;
-                        return pas::list_at<TScriptGroup>(groups, dword);
-                    }());
-                    J = 0;
-                    while (J < pas::list_count(Group->Ships)) {
-                        Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
-                        if (Ship->CargoFreeSpace >= Item->Weight) {
-                            break;
+            {
+                const std::int32_t cpp_last_7 = pas::list_count(Items) - 1;
+                if (0 <= cpp_last_7) {
+                    for (I = 0; I <= cpp_last_7; ++I) {
+                        ScriptItem = pas::list_at<TScriptItem>(Items, I);
+                        if (ScriptItem->Name == u"") {
+                            continue;
                         }
-                        ++J;
-                    }
-                    if (J < pas::list_count(Group->Ships)) {
-                        Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
-                        if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
-                            Ship->CargoGoods[Item->ItemType].Count += goods->Quantity;
-                            pas::free(Item);
-                            Item = nullptr;
-                        } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
-                            pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
-                            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Item)) {
-                                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = Ship;
-                            }
-                        } else {
-                            pas::list_add(Ship->Inventory, reinterpret_cast<void*>(Item));
-                            Ship->EquipItem(pas::checked_cast<aItem::TEquipment*>(Item));
-                        }
-                        Ship->RefreshDerivedStats(true);
-                    } else if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
-                        for (auto cpp_range_27 = pas::for_to<std::int32_t>(0, pas::list_count(Group->Ships) - 1); cpp_range_27.next(J); ) {
-                            Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
-                            if (Ship->CargoFreeSpace < reinterpret_cast<aItem::TGoods*>(Item)->Quantity) {
-                                Ship->CargoGoods[Item->ItemType].Count += Ship->CargoFreeSpace;
-                                // Native code adds free space to the remaining quantity here.
-                                reinterpret_cast<aItem::TGoods*>(Item)->Quantity += Ship->CargoFreeSpace;
-                                Ship->RefreshDerivedStats(true);
-                            } else {
-                                Ship->CargoGoods[Item->ItemType].Count += reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
-                                reinterpret_cast<aItem::TGoods*>(Item)->Quantity = 0;
-                                Ship->RefreshDerivedStats(true);
-                                break;
-                            }
-                        }
-                        if (reinterpret_cast<aItem::TGoods*>(Item)->Quantity > 0) {
-                            Ship = pas::list_at<aShip::TShip>(Group->Ships, 0);
-                            Ship->CargoGoods[Item->ItemType].Count += reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
-                        }
-                        pas::free(Item);
                         Item = nullptr;
-                    } else {
-                        Ship = pas::list_at<aShip::TShip>(Group->Ships, 0);
-                        if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
-                            pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
+                        if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 0) {
+                            Item = pas::construct_call<aItem::TFuelTanks>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TFuelTanks*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 1) {
+                            Item = pas::construct_call<aItem::TEngine>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TEngine*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 2) {
+                            Item = pas::construct_call<aItem::TRadar>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TRadar*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 3) {
+                            Item = pas::construct_call<aItem::TScaner>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TScaner*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 4) {
+                            Item = pas::construct_call<aItem::TRepairRobot>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TRepairRobot*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 5) {
+                            Item = pas::construct_call<aItem::TCargoHook>(aItem::TCargoHook_Create);
+                            pas::checked_cast<aItem::TCargoHook*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0 && ScriptItem->DefinitionType == 6) {
+                            Item = pas::construct_call<aItem::TDefGenerator>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TDefGenerator*>(Item)->Init(ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 0) {
+                            GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
+                        } else if (ScriptItem->DefinitionKind == 1 && ScriptItem->DefinitionType >= 0 &&
+                            ScriptItem->DefinitionType <
+                                aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({
+                                    {50, 67}}))) {
+                            Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
+                            pas::checked_cast<aItem::TWeapon*>(Item)->Init(
+                                static_cast<aConst::TItemType>(aConst::GetItemTypeFromMask(
+                                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}),
+                                    ScriptItem->DefinitionType + 1)), ScriptItem->Weight, ScriptItem->Level,
+                                ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 1) {
+                            GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
+                        } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType >= 0 &&
+                            ScriptItem->DefinitionType <= 8) {
+                            Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
+                            pas::checked_cast<aItem::TGoods*>(Item)->Init(
+                                static_cast<aConst::TItemType>(static_cast<std::uint8_t>(ScriptItem->DefinitionType) -
+                                    static_cast<std::uint8_t>(ScriptItem->DefinitionType > 4)), ScriptItem->Weight);
+                            static_cast<aItem::TGoods*>(Item)->NaturalFlag = ScriptItem->DefinitionType == 5;
+                        } else if (ScriptItem->DefinitionKind == 2 && ScriptItem->DefinitionType == 9) {
+                            GR_Main::RaiseWideMessage(u"Script. Protoplasm not support"_wref.get());
+                        } else if (ScriptItem->DefinitionKind == 2) {
+                            GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
+                        } else if (ScriptItem->DefinitionKind == 3 && ScriptItem->DefinitionType >= 0 &&
+                            ScriptItem->DefinitionType <
+                                aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({
+                                    {10, 41}}))) {
+                            Item = aItem::CreateConfiguredArtefactByItemType(
+                                    static_cast<aConst::TItemType>(aConst::GetItemTypeFromMask(
+                                        pas::constant_set<aConst::TItemTypeSelection>({{10, 41}}),
+                                        ScriptItem->DefinitionType + 1)), ScriptItem->OwnerId);
+                        } else if (ScriptItem->DefinitionKind == 3) {
+                            GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
+                        } else if (ScriptItem->DefinitionKind == 4) {
+                            Item = pas::construct_call<aItem::TUselessItem>(aItem::TUselessItem_Create);
+                            pas::checked_cast<aItem::TUselessItem*>(Item)->Init(ScriptItem->ConfigName,
+                                aGalaxyStruct::dsBlazer, 0u, false);
+                        } else if (ScriptItem->DefinitionKind == 5) {
+                            continue;
                         } else {
-                            pas::list_add(Ship->Inventory, reinterpret_cast<void*>(Item));
-                            Ship->EquipItem(pas::checked_cast<aItem::TEquipment*>(Item));
+                            GR_Main::RaiseWideMessage(u"Script unknow item type"_wref.get());
                         }
-                        Ship->RefreshDerivedStats(true);
-                    }
-                } else if (pas::class_cast_if<aPlanet::TPlanet*>(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())))) != nullptr) {
-                    Planet = reinterpret_cast<aPlanet::TPlanet*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())));
-                    pas::list_add(Planet->EquipmentShop, reinterpret_cast<void*>(Item));
-                } else {
-                    Place = reinterpret_cast<TScriptPlace*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())));
-                    if (Place->PlaceKind != spkPolar && Place->PlaceKind != spkPlanetPosition && Place->PlaceKind != spkStarDirection && Place->PlaceKind != spkGroupCentroid) {
-                        GR_Main::RaiseWideMessage(u"Script error place type"_wref.get());
-                    }
-                    Item->Position = Place->GetPoint();
-                    for (K = 0; K <= 3; ++K) {
-                        SubCount = pas::list_count(Place->OriginStar->Items);
-                        J = 0;
-                        while (J < SubCount) {
-                            OtherItem = pas::list_at<aItem::TItem>(Place->OriginStar->Items, J);
-                            if (static_cast<long double>(aMyFunction::PointDistanceSquared(Item->Position, OtherItem->Position)) < 16 - 2 * K) {
-                                break;
+                        Item->ScriptItem = ScriptItem;
+                        if (InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword() < 255) {
+                            {
+                                std::int32_t dword = static_cast<std::int32_t>(
+                                    InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword());
+                                pas::List* groups = Groups;
+                                Group = pas::list_at<TScriptGroup>(groups, dword);
                             }
-                            ++J;
+                            J = 0;
+                            while (J < pas::list_count(Group->Ships)) {
+                                Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
+                                if (Ship->CargoFreeSpace >= Item->Weight) {
+                                    break;
+                                }
+                                ++J;
+                            }
+                            if (J < pas::list_count(Group->Ships)) {
+                                Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
+                                if (aItem::TGoods* goods = pas::class_cast_if<aItem::TGoods*>(Item)) {
+                                    Ship->CargoGoods[Item->ItemType].Count += goods->Quantity;
+                                    pas::free(Item);
+                                    Item = nullptr;
+                                } else if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
+                                    pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
+                                    if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(
+                                        Item)) {
+                                        pas::checked_cast<aTranclucator::TTranclucator*>(
+                                            static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = Ship;
+                                    }
+                                } else {
+                                    pas::list_add(Ship->Inventory, reinterpret_cast<void*>(Item));
+                                    Ship->EquipItem(pas::checked_cast<aItem::TEquipment*>(Item));
+                                }
+                                Ship->RefreshDerivedStats(true);
+                            } else if (pas::class_cast_if<aItem::TGoods*>(Item) != nullptr) {
+                                for (auto cpp_range_22 = pas::for_to<std::int32_t>(0,
+                                    pas::list_count(Group->Ships) - 1); cpp_range_22.next(J); ) {
+                                    Ship = pas::list_at<aShip::TShip>(Group->Ships, J);
+                                    if (Ship->CargoFreeSpace < reinterpret_cast<aItem::TGoods*>(Item)->Quantity) {
+                                        Ship->CargoGoods[Item->ItemType].Count += Ship->CargoFreeSpace;
+                                        // Native code adds free space to the remaining quantity here.
+                                        reinterpret_cast<aItem::TGoods*>(Item)->Quantity += Ship->CargoFreeSpace;
+                                        Ship->RefreshDerivedStats(true);
+                                    } else {
+                                        Ship->CargoGoods[Item->ItemType].Count +=
+                                            reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
+                                        reinterpret_cast<aItem::TGoods*>(Item)->Quantity = 0;
+                                        Ship->RefreshDerivedStats(true);
+                                        break;
+                                    }
+                                }
+                                if (reinterpret_cast<aItem::TGoods*>(Item)->Quantity > 0) {
+                                    Ship = pas::list_at<aShip::TShip>(Group->Ships, 0);
+                                    Ship->CargoGoods[Item->ItemType].Count +=
+                                        reinterpret_cast<aItem::TGoods*>(Item)->Quantity;
+                                }
+                                pas::free(Item);
+                                Item = nullptr;
+                            } else {
+                                Ship = pas::list_at<aShip::TShip>(Group->Ships, 0);
+                                if (pas::class_cast_if<aItem::TArtefact*>(Item) != nullptr) {
+                                    pas::list_add(Ship->Artefacts, reinterpret_cast<void*>(Item));
+                                } else {
+                                    pas::list_add(Ship->Inventory, reinterpret_cast<void*>(Item));
+                                    Ship->EquipItem(pas::checked_cast<aItem::TEquipment*>(Item));
+                                }
+                                Ship->RefreshDerivedStats(true);
+                            }
+                        } else if (pas::class_cast_if<aPlanet::TPlanet*>(
+                            reinterpret_cast<pas::Object*>(
+                                static_cast<std::uintptr_t>(
+                                    static_cast<std::uint32_t>(
+                                    InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())))) !=
+                            nullptr) {
+                            Planet =
+                                reinterpret_cast<aPlanet::TPlanet*>(
+                                    static_cast<std::uintptr_t>(
+                                        static_cast<std::uint32_t>(
+                                        InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())));
+                            pas::list_add(Planet->EquipmentShop, reinterpret_cast<void*>(Item));
+                        } else {
+                            Place =
+                                reinterpret_cast<TScriptPlace*>(
+                                    static_cast<std::uintptr_t>(
+                                        static_cast<std::uint32_t>(
+                                        InitCode->LocalVar->GetVar(ScriptItem->LocationVarName)->GetDword())));
+                            if (Place->PlaceKind != spkPolar && Place->PlaceKind != spkPlanetPosition &&
+                                Place->PlaceKind != spkStarDirection && Place->PlaceKind != spkGroupCentroid) {
+                                GR_Main::RaiseWideMessage(u"Script error place type"_wref.get());
+                            }
+                            Item->Position = Place->GetPoint();
+                            for (K = 0; K <= 3; ++K) {
+                                SubCount = pas::list_count(Place->OriginStar->Items);
+                                J = 0;
+                                while (J < SubCount) {
+                                    OtherItem = pas::list_at<aItem::TItem>(Place->OriginStar->Items, J);
+                                    if (static_cast<double>(aMyFunction::PointDistanceSquared(Item->Position,
+                                        OtherItem->Position)) < 16 - 2 * K) {
+                                        break;
+                                    }
+                                    ++J;
+                                }
+                                if (J >= SubCount) {
+                                    break;
+                                }
+                                Balance = aMyFunction::HeadingDegreesToRadians(aMyFunction::SeededRandomIntRange(0, 360,
+                                        aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn * (I + K + 1)));
+                                Radius = aMyFunction::SeededRandomIntRange(0, Place->Radius,
+                                        aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn * (I + K + 1 +
+                                            457) * 341);
+                                Item->Position = Place->GetPoint();
+                                Item->Position.X = static_cast<float>(Item->Position.X + static_cast<float>(System::Sin(Balance) * Radius));
+                                Item->Position.Y = static_cast<float>(Item->Position.Y - static_cast<float>(System::Cos(Balance) * Radius));
+                            }
+                            pas::list_add(Place->OriginStar->Items, reinterpret_cast<void*>(Item));
                         }
-                        if (J >= SubCount) {
-                            break;
-                        }
-                        Balance = aMyFunction::HeadingDegreesToRadians(aMyFunction::SeededRandomIntRange(0, 360, aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn * (I + K + 1)));
-                        Radius = aMyFunction::SeededRandomIntRange(0, Place->Radius, aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn * (I + K + 1 + 457) * 341);
-                        Item->Position = Place->GetPoint();
-                        Item->Position.X = Item->Position.X + System::Sin(Balance) * Radius;
-                        Item->Position.Y = Item->Position.Y - System::Cos(Balance) * Radius;
+                        ScriptItem->Item = Item;
                     }
-                    pas::list_add(Place->OriginStar->Items, reinterpret_cast<void*>(Item));
                 }
-                ScriptItem->Item = Item;
             }
             {
                 const std::int32_t cpp_first = pas::list_count(Ships) - 1;
                 if (cpp_first >= 0) {
                     for (I = cpp_first; I >= 0; --I) {
                         Binding = pas::list_at<TScriptShip>(Ships, I);
-                        ChangeState(Binding, pas::list_at<TScriptGroup>(Groups, Binding->GroupIndex)->InitialStateIndex);
+                        ChangeState(Binding,
+                            pas::list_at<TScriptGroup>(Groups, Binding->GroupIndex)->InitialStateIndex);
                     }
                 }
             }
-            for (auto cpp_range_28 = pas::for_to<std::int32_t>(0, pas::list_count(Stars) - 1); cpp_range_28.next(I); ) {
-                Star = pas::list_at<TScriptStar>(Stars, I);
-                if (Star->ProtectStar) {
-                    aGalaxy::Galaxy->CancelEnemyJumpsToStar(Star->Star);
+            {
+                const std::int32_t cpp_last_8 = pas::list_count(Stars) - 1;
+                if (0 <= cpp_last_8) {
+                    for (I = 0; I <= cpp_last_8; ++I) {
+                        Star = pas::list_at<TScriptStar>(Stars, I);
+                        if (Star->ProtectStar) {
+                            aGalaxy::Galaxy->CancelEnemyJumpsToStar(Star->Star);
+                        }
+                    }
                 }
             }
         }
         return true;
     }
 
-    std::uint8_t TScript::LoadFromFile(pas::WideString FileName, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
+    std::uint8_t TScript::LoadFromFile(pas::WideString FileName, aGalaxy::TStar* AnchorStar,
+        aPlanet::TPlanet* FirstPlanet, std::uint8_t CreateObjects) {
         std::uint8_t Result{};
         EC_CacheBuf::TCBufEC* CachedBuffer{};
         EC_CacheBuf::TCBufControlEC* Control = nullptr;
@@ -3737,7 +4205,8 @@ namespace aScript {
                 pas::free(Control);
             }
             if (Failed) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load script: ", FileName})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Failed to load script: ", FileName})));
             }
             if (cpp_error) {
                 std::rethrow_exception(cpp_error);
@@ -3760,7 +4229,7 @@ namespace aScript {
         std::int32_t Count = InitCode->LocalVar->Count;
         Buffer->AddWideChar(Count);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            Cell = EC_Expression::TVarArrayEC_GetItem(InitCode->LocalVar, I);
+            Cell = InitCode->LocalVar->GetItem(I);
             Kind = Cell->Kind;
             if (Kind == EC_Expression::vkEmpty) {
                 Buffer->AddWideStringZ(Cell->Name);
@@ -3798,7 +4267,7 @@ namespace aScript {
         Count = TurnCode->LocalVar->Count;
         Buffer->AddWideChar(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
-            Cell = EC_Expression::TVarArrayEC_GetItem(TurnCode->LocalVar, I);
+            Cell = TurnCode->LocalVar->GetItem(I);
             Kind = Cell->Kind;
             if (Kind == EC_Expression::vkEmpty) {
                 Buffer->AddWideStringZ(Cell->Name);
@@ -3842,7 +4311,8 @@ namespace aScript {
                 Buffer->AddIntegerValue(0);
             } else {
                 Buffer->AddIntegerValue(Star->Planets.length() - 1 + 1);
-                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Star->Planets.length() - 1); cpp_range_4.next(J); ) {
+                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0,
+                    Star->Planets.length() - 1); cpp_range_4.next(J); ) {
                     Buffer->AddWideStringZ(Star->Planets[J].Name);
                     Buffer->AddDWord(Star->Planets[J].Planet->Id);
                 }
@@ -3921,31 +4391,42 @@ namespace aScript {
         }
         Ether->LoadFromBuffer(Buffer);
         std::uint8_t TemporaryCell = false;
-        std::int32_t Count = EC_Buf::TBufEC_GetWord(Buffer);
+        std::int32_t Count = Buffer->GetWord();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Name = Buffer->ReadWideString();
             Cell = InitCode->LocalVar->GetVarNE(Name);
             if (Cell == nullptr) {
                 Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
                 TemporaryCell = true;
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning.Script.GameLoad variable not found: ", Name, u" (", ScriptFileName, u")"})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Warning.Script.GameLoad variable not found: ", Name, u" (", ScriptFileName, u")"})));
             }
-            Kind = static_cast<EC_Expression::TVarKind>(EC_Buf::TBufEC_GetByte(Buffer));
+            Kind = static_cast<EC_Expression::TVarKind>(Buffer->GetByte());
             // Definition-owned dialog/group handles must not be overwritten by saved pointers.
             if (Kind == EC_Expression::vkDword && static_cast<std::uint8_t>(TemporaryCell ^ 1)) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Dialogs) - 1); cpp_range_2.next(J); ) {
-                    if (pas::list_at<TScriptDialog>(Dialogs, J)->Name == Name) {
-                        Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
-                        TemporaryCell = true;
-                        break;
+                {
+                    const std::int32_t cpp_last = pas::list_count(Dialogs) - 1;
+                    if (0 <= cpp_last) {
+                        for (J = 0; J <= cpp_last; ++J) {
+                            if (pas::list_at<TScriptDialog>(Dialogs, J)->Name == Name) {
+                                Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create,
+                                        EC_Expression::vkEmpty);
+                                TemporaryCell = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 if (!TemporaryCell) {
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Groups) - 1); cpp_range_3.next(J); ) {
-                        if (pas::list_at<TScriptGroup>(Groups, J)->Name == Name) {
-                            Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
-                            TemporaryCell = true;
-                            break;
+                    const std::int32_t cpp_last_2 = pas::list_count(Groups) - 1;
+                    if (0 <= cpp_last_2) {
+                        for (J = 0; J <= cpp_last_2; ++J) {
+                            if (pas::list_at<TScriptGroup>(Groups, J)->Name == Name) {
+                                Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create,
+                                        EC_Expression::vkEmpty);
+                                TemporaryCell = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -3956,9 +4437,9 @@ namespace aScript {
             }
             if (!(Kind == EC_Expression::vkEmpty)) {
                 if (Kind == EC_Expression::vkInt) {
-                    Cell->SetInt(EC_Buf::TBufEC_GetInt32(Buffer));
+                    Cell->SetInt(Buffer->GetInt32());
                 } else if (Kind == EC_Expression::vkDword) {
-                    Cell->SetDword(EC_Buf::TBufEC_GetUInt32(Buffer));
+                    Cell->SetDword(Buffer->GetUInt32());
                 } else if (Kind == EC_Expression::vkFloat) {
                     Cell->SetFloat(Buffer->GetDouble());
                 } else if (Kind == EC_Expression::vkString) {
@@ -3976,7 +4457,8 @@ namespace aScript {
                     try {
                         ScriptLibraryCache->InitFunction(Cell);
                     } catch (...) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load function ", Name})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Failed to load function ", Name})));
                         Cell->ConvertToKind(EC_Expression::vkEmpty);
                     }
                 } else {
@@ -3991,25 +4473,26 @@ namespace aScript {
                 TemporaryCell = false;
             }
         }
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
-        for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(I); ) {
+        Count = Buffer->GetWord();
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
             Name = Buffer->ReadWideString();
             Cell = TurnCode->LocalVar->GetVarNE(Name);
             if (Cell == nullptr) {
                 Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
                 TemporaryCell = true;
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning.Script.GameLoad variable not found: ", Name, u" (", ScriptFileName, u")"})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Warning.Script.GameLoad variable not found: ", Name, u" (", ScriptFileName, u")"})));
             }
-            Kind = static_cast<EC_Expression::TVarKind>(EC_Buf::TBufEC_GetByte(Buffer));
+            Kind = static_cast<EC_Expression::TVarKind>(Buffer->GetByte());
             if (Kind == EC_Expression::vkLibraryFun && static_cast<std::uint8_t>(TemporaryCell ^ 1)) {
                 Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkEmpty);
                 TemporaryCell = true;
             }
             if (!(Kind == EC_Expression::vkEmpty)) {
                 if (Kind == EC_Expression::vkInt) {
-                    Cell->SetInt(EC_Buf::TBufEC_GetInt32(Buffer));
+                    Cell->SetInt(Buffer->GetInt32());
                 } else if (Kind == EC_Expression::vkDword) {
-                    Cell->SetDword(EC_Buf::TBufEC_GetUInt32(Buffer));
+                    Cell->SetDword(Buffer->GetUInt32());
                 } else if (Kind == EC_Expression::vkFloat) {
                     Cell->SetFloat(Buffer->GetDouble());
                 } else if (Kind == EC_Expression::vkString) {
@@ -4027,7 +4510,8 @@ namespace aScript {
                     try {
                         ScriptLibraryCache->InitFunction(Cell);
                     } catch (...) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load function ", Name})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            u"Failed to load function ", Name})));
                         Cell->ConvertToKind(EC_Expression::vkEmpty);
                     }
                 } else {
@@ -4042,31 +4526,35 @@ namespace aScript {
                 TemporaryCell = false;
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(I); ) {
             Name = Buffer->ReadWideString();
             Star = GetStar(pas::view(Name));
-            Star->Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(EC_Buf::TBufEC_GetUInt32(Buffer))));
+            Star->Star =
+                pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(Buffer->GetUInt32())));
             {
                 EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Star->Name);
                 std::uint32_t star = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star->Star));
                 var->SetDword(star);
             }
-            SubCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_6.next(K); ) {
+            SubCount = Buffer->GetInt32();
+            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, SubCount - 1); cpp_range_4.next(K); ) {
                 Name = Buffer->ReadWideString();
                 PlanetBinding = GetPlanetBinding(Name);
-                PlanetBinding->Planet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(EC_Buf::TBufEC_GetUInt32(Buffer), true)));
+                PlanetBinding->Planet =
+                    pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(
+                        Buffer->GetUInt32(), true)));
                 {
                     EC_Expression::TVarEC* var_2 = InitCode->LocalVar->GetVar(PlanetBinding->Name);
-                    std::uint32_t planet = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PlanetBinding->Planet));
+                    std::uint32_t planet = static_cast<std::uint32_t>(
+                        reinterpret_cast<std::uintptr_t>(PlanetBinding->Planet));
                     var_2->SetDword(planet);
                 }
             }
-            EC_Buf::TBufEC_GetInt32(Buffer);
+            Buffer->GetInt32();
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
-        for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(I); ) {
+        Count = Buffer->GetInt32();
+        for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
             Name = Buffer->ReadWideString();
             if (Name == u"") {
                 ScriptItem = pas::construct_call<TScriptItem>(TScriptItem_Create);
@@ -4076,12 +4564,12 @@ namespace aScript {
                 ScriptItem = GetItem(pas::view(Name));
             }
             if (GlobalsV::LoadedSaveVersion >= 162) {
-                ScriptItem->CanSell = EC_Buf::TBufEC_GetBoolean(Buffer);
+                ScriptItem->CanSell = Buffer->GetBoolean();
             }
             if (GlobalsV::LoadedSaveVersion >= 123) {
-                ScriptItem->Data[1] = EC_Buf::TBufEC_GetInt32(Buffer);
-                ScriptItem->Data[2] = EC_Buf::TBufEC_GetInt32(Buffer);
-                ScriptItem->Data[3] = EC_Buf::TBufEC_GetInt32(Buffer);
+                ScriptItem->Data[1] = Buffer->GetInt32();
+                ScriptItem->Data[2] = Buffer->GetInt32();
+                ScriptItem->Data[3] = Buffer->GetInt32();
                 ScriptItem->TextData1 = Buffer->ReadWideString();
                 ScriptItem->TextData2 = Buffer->ReadWideString();
                 ScriptItem->TextData3 = Buffer->ReadWideString();
@@ -4097,15 +4585,19 @@ namespace aScript {
                 ScriptItem->OnActionText = pas::WideString();
             }
             if (Name != u"") {
-                InitCode->LocalVar->GetVar(Name)->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(ScriptItem)));
+                InitCode->LocalVar->GetVar(
+                    Name)->SetDword(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(ScriptItem)));
             }
             try {
-                ScriptItem->Item = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(EC_Buf::TBufEC_GetUInt32(Buffer), true)));
+                ScriptItem->Item = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(
+                        Buffer->GetUInt32(), true)));
             } catch (...) {
                 auto cpp_exception_3 = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception_3)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load script item <", Name, u"> for script ", ScriptFileName}))));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Failed to load script item <", Name, u"> for script ", ScriptFileName}))));
                 } else {
                     throw;
                 }
@@ -4114,19 +4606,21 @@ namespace aScript {
                 ScriptItem->Item->ScriptItem = ScriptItem;
             }
         }
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
-        for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_8.next(I); ) {
+        Count = Buffer->GetWord();
+        for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_6.next(I); ) {
             Binding = pas::construct_call<TScriptShip>(TScriptShip_Create);
             pas::list_add(Ships, reinterpret_cast<void*>(Binding));
             Binding->Script = this;
-            Binding->GroupIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            Binding->GroupIndex = Buffer->GetInt32();
             // Kept as an ID until ResolveLoadedReferences runs after ship loading.
-            Binding->Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-            Binding->Data[0] = EC_Buf::TBufEC_GetUInt32(Buffer);
-            Binding->Data[1] = EC_Buf::TBufEC_GetUInt32(Buffer);
-            Binding->Data[2] = EC_Buf::TBufEC_GetUInt32(Buffer);
-            Binding->Data[3] = EC_Buf::TBufEC_GetUInt32(Buffer);
-            StateIndex = EC_Buf::TBufEC_GetInt32(Buffer);
+            Binding->Ship =
+                reinterpret_cast<aShip::TShip*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
+            Binding->Data[0] = Buffer->GetUInt32();
+            Binding->Data[1] = Buffer->GetUInt32();
+            Binding->Data[2] = Buffer->GetUInt32();
+            Binding->Data[3] = Buffer->GetUInt32();
+            StateIndex = Buffer->GetInt32();
             if (StateIndex >= 0) {
                 Binding->State = pas::list_at<TScriptState>(States, StateIndex);
             } else {
@@ -4135,17 +4629,17 @@ namespace aScript {
             if (GlobalsV::LoadedSaveVersion >= 149) {
                 Binding->StateText = Buffer->ReadWideString();
                 if (GlobalsV::LoadedSaveVersion < 151) {
-                    EC_Buf::TBufEC_GetByte(Buffer);
+                    Buffer->GetByte();
                 }
             } else {
                 Binding->StateText = pas::WideString();
             }
-            Binding->Hit = EC_Buf::TBufEC_GetBoolean(Buffer);
-            Binding->HitPlayer = EC_Buf::TBufEC_GetBoolean(Buffer);
+            Binding->Hit = Buffer->GetBoolean();
+            Binding->HitPlayer = Buffer->GetBoolean();
         }
         EtherIds->Clear();
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
-        for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_9.next(I); ) {
+        Count = Buffer->GetWord();
+        for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_7.next(I); ) {
             const pas::WideString& readWideString_2 = Buffer->ReadWideString();
             EC_Str::TStringsEC* etherIds = EtherIds;
             etherIds->Add(readWideString_2);
@@ -4156,7 +4650,7 @@ namespace aScript {
         std::int32_t I{};
         EC_Expression::TVarEC* Cell{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, InitCode->LocalVar->Count - 1); cpp_range.next(I); ) {
-            Cell = EC_Expression::TVarArrayEC_GetItemByNameOrder(InitCode->LocalVar, I);
+            Cell = InitCode->LocalVar->GetItemByNameOrder(I);
             if (EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
                 if (ScriptLibraryCache == nullptr) {
                     ScriptLibraryCache = pas::construct_call<TLibraryCache>(TLibraryCache_Create);
@@ -4164,13 +4658,14 @@ namespace aScript {
                 try {
                     ScriptLibraryCache->InitFunction(Cell);
                 } catch (...) {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load function ", Cell->Name})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Failed to load function ", Cell->Name})));
                     Cell->ConvertToKind(EC_Expression::vkEmpty);
                 }
             }
         }
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, TurnCode->LocalVar->Count - 1); cpp_range_2.next(I); ) {
-            Cell = EC_Expression::TVarArrayEC_GetItemByNameOrder(TurnCode->LocalVar, I);
+            Cell = TurnCode->LocalVar->GetItemByNameOrder(I);
             if (EC_Expression::TVarEC_RealVType(Cell) == EC_Expression::vkLibraryFun && Cell->GetString() != u"") {
                 if (ScriptLibraryCache == nullptr) {
                     ScriptLibraryCache = pas::construct_call<TLibraryCache>(TLibraryCache_Create);
@@ -4178,7 +4673,8 @@ namespace aScript {
                 try {
                     ScriptLibraryCache->InitFunction(Cell);
                 } catch (...) {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load function ", Cell->Name})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"Failed to load function ", Cell->Name})));
                     Cell->ConvertToKind(EC_Expression::vkEmpty);
                 }
             }
@@ -4195,48 +4691,68 @@ namespace aScript {
         std::int32_t Count = pas::list_count(Ships);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Binding = pas::list_at<TScriptShip>(Ships, I);
-            Binding->Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Binding->Ship)), true)));
+            Binding->Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Binding->Ship)), true)));
             if (aPlayer::TPlayer* player = pas::class_cast_if<aPlayer::TPlayer*>(Binding->Ship)) {
                 pas::list_add(player->ScriptShipBindings, reinterpret_cast<void*>(Binding));
             } else {
                 Binding->Ship->ScriptShip = Binding;
             }
         }
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Places) - 1); cpp_range_2.next(I); ) {
-            Place = pas::list_at<TScriptPlace>(Places, I);
-            {
-                EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Place->Name);
-                std::uint32_t place = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Place));
-                var->SetDword(place);
-            }
-            if (Place->OriginVarName != u"") {
-                Place->OriginStar = reinterpret_cast<aGalaxy::TStar*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(InitCode->LocalVar->GetVar(Place->OriginVarName)->GetDword())));
-            }
-            if (Place->PlaceKind == spkCoordinates) {
-                if (Place->TargetVarName != u"") {
-                    Place->TargetValue = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(InitCode->LocalVar->GetVar(Place->TargetVarName)));
+        {
+            const std::int32_t cpp_last = pas::list_count(Places) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Place = pas::list_at<TScriptPlace>(Places, I);
+                    {
+                        EC_Expression::TVarEC* var = InitCode->LocalVar->GetVar(Place->Name);
+                        std::uint32_t place = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Place));
+                        var->SetDword(place);
+                    }
+                    if (Place->OriginVarName != u"") {
+                        Place->OriginStar =
+                            reinterpret_cast<aGalaxy::TStar*>(
+                                static_cast<std::uintptr_t>(
+                                    static_cast<std::uint32_t>(
+                                    InitCode->LocalVar->GetVar(Place->OriginVarName)->GetDword())));
+                    }
+                    if (Place->PlaceKind == spkCoordinates) {
+                        if (Place->TargetVarName != u"") {
+                            Place->TargetValue =
+                                static_cast<std::uint32_t>(
+                                    reinterpret_cast<std::uintptr_t>(InitCode->LocalVar->GetVar(Place->TargetVarName)));
+                        }
+                        if (Place->TargetVarName2 != u"") {
+                            Place->TargetValue2 = InitCode->LocalVar->GetVar(Place->TargetVarName2);
+                        }
+                    } else if (Place->TargetVarName != u"") {
+                        Place->TargetValue = InitCode->LocalVar->GetVar(Place->TargetVarName)->GetDword();
+                    }
                 }
-                if (Place->TargetVarName2 != u"") {
-                    Place->TargetValue2 = InitCode->LocalVar->GetVar(Place->TargetVarName2);
-                }
-            } else if (Place->TargetVarName != u"") {
-                Place->TargetValue = InitCode->LocalVar->GetVar(Place->TargetVarName)->GetDword();
             }
         }
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(States) - 1); cpp_range_3.next(I); ) {
-            State = pas::list_at<TScriptState>(States, I);
-            if (State->TargetVarName != u"") {
-                State->TargetValue = InitCode->LocalVar->GetVar(State->TargetVarName)->GetDword();
-            }
-            if (State->EnemyGroupIndices != nullptr) {
-                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, State->EnemyGroupIndices.length() - 1); cpp_range_4.next(J); ) {
-                    State->EnemyGroupIndices[J] = InitCode->LocalVar->GetVar(State->EnemyGroupNames[J])->GetInt();
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(States) - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    State = pas::list_at<TScriptState>(States, I);
+                    if (State->TargetVarName != u"") {
+                        State->TargetValue = InitCode->LocalVar->GetVar(State->TargetVarName)->GetDword();
+                    }
+                    if (State->EnemyGroupIndices != nullptr) {
+                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                            State->EnemyGroupIndices.length() - 1); cpp_range_2.next(J); ) {
+                            State->EnemyGroupIndices[J] =
+                                InitCode->LocalVar->GetVar(State->EnemyGroupNames[J])->GetInt();
+                        }
+                    }
                 }
             }
         }
     }
 
-    void TLibraryHandler_Create(TLibraryHandler* Self, pas::WideString LibraryName, std::uint32_t ModuleHandle, EC_BlockPar::TBlockParEC* DefinitionBlock) {
+    void TLibraryHandler_Create(TLibraryHandler* Self, pas::WideString LibraryName, std::uint32_t ModuleHandle,
+        EC_BlockPar::TBlockParEC* DefinitionBlock) {
         pas::object_create(Self);
         Self->LibraryName = std::move(LibraryName);
         Self->ModuleHandle = ModuleHandle;
@@ -4262,15 +4778,18 @@ namespace aScript {
         Text = DefinitionBlock->GetParam(pas::view(Name));
         std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Text), u","sv);
         if (Count < 2) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to init library function ", Name, u" from ", LibraryName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Failed to init library function ", Name, u" from ", LibraryName}))));
         }
         void* Proc = ([&] {
-            std::uint8_t* cpp_arg = (cpp_text = static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)), cpp_text.pchar());
+            std::uint8_t* cpp_arg = (cpp_text = static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)), cpp_text.pchar());
             std::uint32_t moduleHandle = ModuleHandle;
             return WindowsImports::GetProcAddress(moduleHandle, cpp_arg);
         }());
         if (Proc == nullptr) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to find library function ", Name, u" in ", LibraryName}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Failed to find library function ", Name, u" in ", LibraryName}))));
         }
         Signature.set_length(Count);
         Kind = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv);
@@ -4301,7 +4820,8 @@ namespace aScript {
             } else if (Kind == u"code") {
                 Signature[I] = EC_Expression::lvCode;
             } else {
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to init library function ", Name, u" from ", LibraryName, u" - unknown type ", Kind}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Failed to init library function ", Name, u" from ", LibraryName, u" - unknown type ", Kind}))));
             }
         }
         Cell->SetLibrarySignature(pas::open_array(Signature));
@@ -4320,7 +4840,8 @@ namespace aScript {
             }
             Cell = Scope->GetVarNE(Name);
             if (Cell == nullptr) {
-                Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create, EC_Expression::vkLibraryFun);
+                Cell = pas::construct_call<EC_Expression::TVarEC>(EC_Expression::TVarEC_Create,
+                        EC_Expression::vkLibraryFun);
                 Cell->Name = Name;
                 Scope->AddItem(Cell);
             }
@@ -4349,13 +4870,16 @@ namespace aScript {
         auto LoadHandler = [&]() -> TLibraryHandler* {
             pas::WideString cpp_text{};
             TLibraryHandler* Result = nullptr;
-            EC_BlockPar::TBlockParEC* Definition = GR_Main::GameDataConfig->FindBlockByPath(pas::concat_wide({u"ScriptLibs.", Name}));
+            EC_BlockPar::TBlockParEC* Definition = GR_Main::GameDataConfig->FindBlockByPath(pas::concat_wide({
+                u"ScriptLibs.", Name}));
             if (Definition == nullptr) {
                 return Result;
             }
-            std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"sv), cpp_text.pchar()));
+            std::uint32_t Module = WindowsSdk::LoadLibraryW((cpp_text = Definition->GetParam(u"Path"sv),
+                cpp_text.pchar()));
             if (Module == 0) {
-                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Failed to load library ", Name}))));
+                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Failed to load library ", Name}))));
             }
             return pas::construct_call<TLibraryHandler>(TLibraryHandler_Create, Name, Module, Definition);
         };
@@ -4620,7 +5144,8 @@ namespace aScript {
         pas::object_destroy(Self);
     }
 
-    void TScriptCacheUnit::Initialize(pas::WideString Name, pas::WideString SourceText, pas::WideString ActionTypes, pas::WideString StepTypes) {
+    void TScriptCacheUnit::Initialize(pas::WideString Name, pas::WideString SourceText, pas::WideString ActionTypes,
+        pas::WideString StepTypes) {
         aGalaxyStruct::TScriptActionType Action{};
         std::int32_t I{};
         std::uint32_t Step{};
@@ -4629,7 +5154,8 @@ namespace aScript {
         this->SourceText = SourceText;
         Code = aScript::CompileScriptText(SourceText);
         if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
+            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({
+                    {aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
         } else if (ActionTypes == u"") {
             ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep}});
         } else {
@@ -4639,7 +5165,9 @@ namespace aScript {
                 ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
             }
             ActionTypes = pas::concat_wide({u",", ActionTypes, u","});
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(static_cast<aGalaxyStruct::TScriptActionType>(0), static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(
+                static_cast<aGalaxyStruct::TScriptActionType>(0),
+                static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
                 if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) > 0) {
                     pas::include_at(&ActionTypeMask, Action);
                 }
@@ -4651,7 +5179,8 @@ namespace aScript {
             StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
             Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
-                Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
+                Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I,
+                        u","sv)));
                 if (pas::in_range(Step, 0, 11)) {
                     pas::include_at(&StepTypeMask, Step);
                 }
@@ -4702,7 +5231,8 @@ namespace aScript {
             }
             ActionCode->ScriptFunLinked = true;
             if (ActionTypes == u"" && StepTypes == u"" || ActionTypes == u"Any") {
-                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
+                ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({
+                        {aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
             } else if (ActionTypes == u"") {
                 ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep}});
             } else {
@@ -4712,8 +5242,11 @@ namespace aScript {
                     ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({});
                 }
                 ActionTypes = pas::concat_wide({u",", ActionTypes, u","});
-                for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(static_cast<aGalaxyStruct::TScriptActionType>(0), static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
-                    if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) > 0) {
+                for (auto cpp_range = pas::for_to<aGalaxyStruct::TScriptActionType>(
+                    static_cast<aGalaxyStruct::TScriptActionType>(0),
+                    static_cast<aGalaxyStruct::TScriptActionType>(61)); cpp_range.next(Action); ) {
+                    if (pas::pos(pas::concat_wide({u",", aConst::ScriptActionTypeNames[Action], u","}), ActionTypes) >
+                        0) {
                         pas::include_at(&ActionTypeMask, Action);
                     }
                 }
@@ -4724,7 +5257,8 @@ namespace aScript {
                 StepTypeMask = pas::constant_set<TScriptStepTypeSet>({});
                 Count = EC_Str::CountDelimitedPartsW(pas::view(StepTypes), u","sv);
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
-                    Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I, u","sv)));
+                    Step = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(StepTypes), I,
+                            u","sv)));
                     if (pas::in_range(Step, 0, 11)) {
                         pas::include_at(&StepTypeMask, Step);
                     }
@@ -4732,13 +5266,15 @@ namespace aScript {
             }
         } else {
             ActionCode = aScript::CompileScriptText(OnActionText);
-            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({{aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
+            ActionTypeMask = pas::constant_set<TScriptActionTypeSet>({
+                    {aGalaxyStruct::satOnStep, aGalaxyStruct::satOnDeath}});
             StepTypeMask = pas::constant_set<TScriptStepTypeSet>({{0, 11}});
         }
     }
 
     // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-    std::int32_t TScriptItem::RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
+    std::int32_t TScriptItem::RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship,
+        pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptContextSnapshot Snapshot{};
         std::int32_t Result = Param;
         if (ActionCode != nullptr && static_cast<std::uint8_t>(ActionCodeInitialized ^ 1)) {
@@ -4753,7 +5289,7 @@ namespace aScript {
                 if (!pas::contains(ActionTypeMask, ActionType)) {
                     return Result;
                 }
-                if (ActionType == aGalaxyStruct::satOnStep && static_cast<std::uint8_t>(pas::contains(StepTypeMask, Param) ^ 1)) {
+                if (ActionType == aGalaxyStruct::satOnStep && !pas::contains(StepTypeMask, Param)) {
                     return Result;
                 }
                 if (Script != nullptr) {
@@ -4761,29 +5297,41 @@ namespace aScript {
                     Script->PublishCurrentShip(Ship);
                     pas::list_add(Globals::ScriptItemContextStack, reinterpret_cast<void*>(Item));
                     pas::list_add(Globals::ScriptItemInfoContextStack, nullptr);
-                    pas::list_add(Globals::ScriptActionTypeStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
+                    pas::list_add(Globals::ScriptActionTypeStack,
+                        reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
                     pas::list_add(Globals::ScriptActionObject1Stack, reinterpret_cast<void*>(Object1));
                     pas::list_add(Globals::ScriptActionObject2Stack, reinterpret_cast<void*>(Object2));
-                    pas::list_add(Globals::ScriptActionParamStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
+                    pas::list_add(Globals::ScriptActionParamStack,
+                        reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
                     pas::list_add(Globals::ScriptActionShipStack, reinterpret_cast<void*>(Ship));
                     aScript::RunScriptCode(OnActionText, ActionCode, Script->InitCode);
                     aScript::ScriptUnSnap(Snapshot);
-                    Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
-                    pas::list_delete(Globals::ScriptActionTypeStack, pas::list_count(Globals::ScriptActionTypeStack) - 1);
-                    pas::list_delete(Globals::ScriptActionObject1Stack, pas::list_count(Globals::ScriptActionObject1Stack) - 1);
-                    pas::list_delete(Globals::ScriptActionObject2Stack, pas::list_count(Globals::ScriptActionObject2Stack) - 1);
-                    pas::list_delete(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1);
-                    pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
-                    pas::list_delete(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
-                    pas::list_delete(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemContextStack) - 1);
+                    Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                            Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
+                    pas::list_delete(Globals::ScriptActionTypeStack,
+                        pas::list_count(Globals::ScriptActionTypeStack) - 1);
+                    pas::list_delete(Globals::ScriptActionObject1Stack,
+                        pas::list_count(Globals::ScriptActionObject1Stack) - 1);
+                    pas::list_delete(Globals::ScriptActionObject2Stack,
+                        pas::list_count(Globals::ScriptActionObject2Stack) - 1);
+                    pas::list_delete(Globals::ScriptActionParamStack,
+                        pas::list_count(Globals::ScriptActionParamStack) - 1);
+                    pas::list_delete(Globals::ScriptActionShipStack,
+                        pas::list_count(Globals::ScriptActionShipStack) - 1);
+                    pas::list_delete(Globals::ScriptItemInfoContextStack,
+                        pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+                    pas::list_delete(Globals::ScriptItemContextStack,
+                        pas::list_count(Globals::ScriptItemContextStack) - 1);
                     return Result;
                 }
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                     GR_Main::AppendLogLineThreadSafe("Error in script item actcode, item="_a);
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Item->GetDisplayName(), u", script name - ", Name})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                        Item->GetDisplayName(), u", script name - ", Name})));
                     throw;
                 } else {
                     throw;
@@ -4794,7 +5342,8 @@ namespace aScript {
     }
 
     // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-    std::int32_t TScriptShip::RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
+    std::int32_t TScriptShip::RunActionCode(aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship,
+        pas::Object* Object1, pas::Object* Object2, std::int32_t Param) {
         TScriptContextSnapshot Snapshot{};
         std::int32_t Result = Param;
         if (State != nullptr && State->OnActionText != u"") {
@@ -4805,29 +5354,43 @@ namespace aScript {
                         Script->PublishCurrentShip(Ship);
                         pas::list_add(Globals::ScriptItemContextStack, nullptr);
                         pas::list_add(Globals::ScriptItemInfoContextStack, nullptr);
-                        pas::list_add(Globals::ScriptActionTypeStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
+                        pas::list_add(Globals::ScriptActionTypeStack,
+                            reinterpret_cast<void*>(
+                                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(ActionType))));
                         pas::list_add(Globals::ScriptActionObject1Stack, reinterpret_cast<void*>(Object1));
                         pas::list_add(Globals::ScriptActionObject2Stack, reinterpret_cast<void*>(Object2));
-                        pas::list_add(Globals::ScriptActionParamStack, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
+                        pas::list_add(Globals::ScriptActionParamStack,
+                            reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Param))));
                         pas::list_add(Globals::ScriptActionShipStack, reinterpret_cast<void*>(Ship));
                         aScript::RunScriptCode(State->OnActionText, State->ActionCode, Script->InitCode);
                         aScript::ScriptUnSnap(Snapshot);
-                        Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));
-                        pas::list_delete(Globals::ScriptActionTypeStack, pas::list_count(Globals::ScriptActionTypeStack) - 1);
-                        pas::list_delete(Globals::ScriptActionObject1Stack, pas::list_count(Globals::ScriptActionObject1Stack) - 1);
-                        pas::list_delete(Globals::ScriptActionObject2Stack, pas::list_count(Globals::ScriptActionObject2Stack) - 1);
-                        pas::list_delete(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1);
-                        pas::list_delete(Globals::ScriptActionShipStack, pas::list_count(Globals::ScriptActionShipStack) - 1);
-                        pas::list_delete(Globals::ScriptItemInfoContextStack, pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
-                        pas::list_delete(Globals::ScriptItemContextStack, pas::list_count(Globals::ScriptItemContextStack) - 1);
+                        Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                Globals::ScriptActionParamStack,
+                                pas::list_count(Globals::ScriptActionParamStack) - 1)));
+                        pas::list_delete(Globals::ScriptActionTypeStack,
+                            pas::list_count(Globals::ScriptActionTypeStack) - 1);
+                        pas::list_delete(Globals::ScriptActionObject1Stack,
+                            pas::list_count(Globals::ScriptActionObject1Stack) - 1);
+                        pas::list_delete(Globals::ScriptActionObject2Stack,
+                            pas::list_count(Globals::ScriptActionObject2Stack) - 1);
+                        pas::list_delete(Globals::ScriptActionParamStack,
+                            pas::list_count(Globals::ScriptActionParamStack) - 1);
+                        pas::list_delete(Globals::ScriptActionShipStack,
+                            pas::list_count(Globals::ScriptActionShipStack) - 1);
+                        pas::list_delete(Globals::ScriptItemInfoContextStack,
+                            pas::list_count(Globals::ScriptItemInfoContextStack) - 1);
+                        pas::list_delete(Globals::ScriptItemContextStack,
+                            pas::list_count(Globals::ScriptItemContextStack) - 1);
                         // Native Exit leaves the compiler's dormant normal SEH unlink.
                         return Result;
                     } catch (...) {
                         auto cpp_exception = pas::caught_object();
                         if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                                static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                             GR_Main::AppendLogLineThreadSafe("Error in script ship actcode"_a);
-                            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({State->Name, u", script - ", Script->ScriptFileName})));
+                            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({State->Name,
+                                u", script - ", Script->ScriptFileName})));
                             throw;
                         } else {
                             throw;
@@ -4917,10 +5480,6 @@ namespace aScript {
 
     void TLibraryCache::p_destroy() {
         aScript::TLibraryCache_Destroy(this);
-    }
-
-    void TScriptThread::virtual_TThreadEC_Execute() {
-        aScript::TScriptThread_Execute(this);
     }
 
 } // namespace aScript

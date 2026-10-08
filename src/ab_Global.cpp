@@ -125,17 +125,17 @@ namespace ab_Global {
     float ExplosionBackDepth = 28.0f;
 
     // Six colors for each of six difficulty appearances.
-    pas::Array<std::uint32_t, 0, 35> ArcadeMapPalette = pas::Array<std::uint32_t, 0, 35>{{
-        0xff28ac00u, 0x8028ac00u, 0xc028ac00u, 0x0028ac00u, 0xc028ac00u, 0xc0ffffffu, 0xff003cffu, 0x80003cffu,
-        0xc0003cffu, 0x00003cffu, 0xc0003cffu, 0xc0ffffffu, 0xffffff00u, 0x80ffff00u, 0xc0ffff00u, 0x00ffff00u,
-        0xc0ffff00u, 0xc0ffffffu, 0xffffa636u, 0x80ffa636u, 0xc0ffa636u, 0x00ffa636u, 0xc0ffa636u, 0xc0ffffffu,
-        0xffc80000u, 0x80c80000u, 0xc0c80000u, 0x00c80000u, 0xc0c80000u, 0xc0ffffffu, 0xffa6002bu, 0x80a6002bu,
-        0xc0a6002bu, 0x00a6002bu, 0xc0a6002bu, 0xc0ffffffu,
-    }};
+    pas::Array<std::uint32_t, 0, 35> ArcadeMapPalette = pas::Array<std::uint32_t, 0, 35>{{0xff28ac00u, 0x8028ac00u,
+        0xc028ac00u, 0x0028ac00u, 0xc028ac00u, 0xc0ffffffu, 0xff003cffu, 0x80003cffu, 0xc0003cffu, 0x00003cffu,
+        0xc0003cffu, 0xc0ffffffu, 0xffffff00u, 0x80ffff00u, 0xc0ffff00u, 0x00ffff00u, 0xc0ffff00u, 0xc0ffffffu,
+        0xffffa636u, 0x80ffa636u, 0xc0ffa636u, 0x00ffa636u, 0xc0ffa636u, 0xc0ffffffu, 0xffc80000u, 0x80c80000u,
+        0xc0c80000u, 0x00c80000u, 0xc0c80000u, 0xc0ffffffu, 0xffa6002bu, 0x80a6002bu, 0xc0a6002bu, 0x00a6002bu,
+        0xc0a6002bu, 0xc0ffffffu}};
 
     pas::Array<std::int32_t, 0, 5> BonusRespawnSeconds = pas::Array<std::int32_t, 0, 5>{{40, 60, 80, 100, 100, 150}};
 
-    pas::Array<std::int32_t, 0, 7> BonusDurationSeconds = pas::Array<std::int32_t, 0, 7>{{12, 50, 40, 50, 40, 50, 60, 60}};
+    pas::Array<std::int32_t, 0, 7> BonusDurationSeconds = pas::Array<std::int32_t, 0, 7>{{12, 50, 40, 50, 40, 50, 60,
+        60}};
 
     std::int32_t RegenerationHealthPerTick = 1;
 
@@ -163,184 +163,197 @@ namespace ab_Global {
 
     float CargoPickupDistance = 8.0E+1f;
 
-    TSphericalBearingState MakeSphericalBearingState(double LongitudeDegrees, double PolarAngleDegrees, double BearingDegrees) {
-        TSphericalBearingState Result{};
-        Result.LongitudeDegrees = LongitudeDegrees;
-        Result.PolarAngleDegrees = PolarAngleDegrees;
-        Result.BearingDegrees = BearingDegrees;
-        return Result;
-    }
-
     EC_Struct::TVector3D SphericalToVector3D(double LongitudeRadians, double PolarAngleRadians, double Radius) {
         EC_Struct::TVector3D Result{};
         EC_Struct::TVector3D V{};
-        V.X = System::Sin(PolarAngleRadians) * Radius;
-        V.Y = -System::Cos(PolarAngleRadians) * Radius;
+        V.X = static_cast<float>(System::Sin(PolarAngleRadians) * Radius);
+        V.Y = static_cast<float>(-System::Cos(PolarAngleRadians) * Radius);
         V.Z = 0.0;
-        Result.X = System::Sin(LongitudeRadians) * V.X;
+        Result.X = static_cast<float>(System::Sin(LongitudeRadians) * V.X);
         Result.Y = V.Y;
-        Result.Z = -System::Cos(LongitudeRadians) * V.X;
+        Result.Z = static_cast<float>(-System::Cos(LongitudeRadians) * V.X);
         return Result;
     }
 
     // Requires a nonzero vector.
     void VectorToSphericalAngles(EC_Struct::TVector3D Vector, double& LongitudeDegrees, double& PolarAngleDegrees) {
-        double Radius = System::Sqrt(pas::sqr(static_cast<pas::Extended>(Vector.X)) + pas::sqr(static_cast<pas::Extended>(Vector.Y)) + pas::sqr(static_cast<pas::Extended>(Vector.Z)));
-        PolarAngleDegrees = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcCos(pas::real_divide(-Vector.Y, Radius)));
-        LongitudeDegrees = aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi - Math::ArcTan2(Vector.X, Vector.Z));
+        double Radius = System::Sqrt(static_cast<float>(static_cast<float>(pas::sqr(static_cast<double>(Vector.X)) + pas::sqr(static_cast<double>(Vector.Y))) +
+            pas::sqr(static_cast<double>(Vector.Z))));
+        PolarAngleDegrees = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcCos(static_cast<float>(static_cast<double>(-Vector.Y) /
+                Radius)));
+        LongitudeDegrees = aMyFunction::RadiansToHeadingDegrees(static_cast<float>(SystemImports::Pi - Math::ArcTan2(Vector.X, Vector.Z)));
     }
 
     // Negative distance moves backward. Longitude and bearing pass through Single precision when wrapped.
-    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees, pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance) {
+    void AdvanceSphericalBearingState(pas::Var<double> LongitudeDegrees, pas::Var<double> PolarAngleDegrees,
+        pas::Var<double> BearingDegrees, double SphereRadius, double ArcDistance) {
         double InvSin{};
         std::uint8_t Reverse{};
-        if (ArcDistance < 0.0L) {
+        if (ArcDistance < 0.0) {
             Reverse = true;
             ArcDistance = -ArcDistance;
-            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2L)));
+            pas::store_unaligned<double>(BearingDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2))));
         } else {
             Reverse = false;
         }
         double OldBearing = aMyFunction::HeadingDegreesToRadians(pas::load_unaligned<double>(BearingDegrees.address));
-        double ArcAngle = pas::real_divide(ArcDistance, pas::constant(2.0L * SystemImports::Pi) * SphereRadius) * SystemImports::Pi * 2.0L;
+        double ArcAngle = static_cast<float>(static_cast<float>(static_cast<float>(ArcDistance / (static_cast<float>(pas::constant(2.0 * SystemImports::Pi) * SphereRadius))) * SystemImports::Pi) *
+            2.0);
         double OldPolar = aMyFunction::HeadingDegreesToRadians(pas::load_unaligned<double>(PolarAngleDegrees.address));
-        pas::Extended cpp_left_2 = System::Cos(OldPolar);
-        pas::Extended cpp_left = cpp_left_2 * System::Cos(ArcAngle);
-        pas::Extended cpp_left_4 = System::Sin(OldPolar);
-        pas::Extended cpp_left_3 = cpp_left_4 * System::Sin(ArcAngle);
-        double NewPolar = MathImports::ArcCos(cpp_left + cpp_left_3 * System::Cos(OldBearing));
-        if (NewPolar < 1.0E-5L) {
+        double NewPolar = MathImports::ArcCos(static_cast<float>(static_cast<float>(System::Cos(OldPolar) * System::Cos(ArcAngle)) + static_cast<float>(static_cast<float>(System::Sin(OldPolar) *
+                System::Sin(ArcAngle)) * System::Cos(OldBearing))));
+        if (NewPolar < 1.0E-5) {
             InvSin = 99999999.0;
         } else {
-            InvSin = pas::real_divide(1.0L, System::Sin(NewPolar));
+            InvSin = static_cast<float>(1.0 / System::Sin(NewPolar));
         }
-        pas::Extended cpp_left_6 = System::Sin(OldPolar);
-        pas::Extended cpp_left_5 = cpp_left_6 * System::Cos(ArcAngle);
-        pas::Extended cpp_left_8 = System::Cos(OldPolar);
-        pas::Extended cpp_left_7 = cpp_left_8 * System::Sin(ArcAngle);
-        double Value = (cpp_left_5 - cpp_left_7 * System::Cos(OldBearing)) * InvSin;
-        if (Value < -1.0L) {
+        double Value = static_cast<float>((static_cast<float>(static_cast<float>(System::Sin(OldPolar) * System::Cos(ArcAngle)) - static_cast<float>(static_cast<float>(System::Cos(OldPolar) * System::Sin(ArcAngle)) *
+                System::Cos(OldBearing)))) * InvSin);
+        if (Value < -1.0) {
             Value = -1.0;
-        } else if (Value > 1.0L) {
+        } else if (Value > 1.0) {
             Value = 1.0;
         }
         double LongitudeDelta = MathImports::ArcCos(Value);
-        {
-            pas::Extended cpp_left_10 = System::Sin(ArcAngle);
-            pas::Extended cpp_left_9 = cpp_left_10 * System::Cos(OldPolar);
-            pas::Extended cpp_left_12 = System::Cos(ArcAngle);
-            pas::Extended cpp_left_11 = cpp_left_12 * System::Sin(OldPolar);
-            Value = (cpp_left_9 - cpp_left_11 * System::Cos(OldBearing)) * InvSin;
-        }
-        if (Value < -1.0L) {
+        Value = static_cast<float>((static_cast<float>(static_cast<float>(System::Sin(ArcAngle) * System::Cos(OldPolar)) - static_cast<float>(static_cast<float>(System::Cos(ArcAngle) * System::Sin(OldPolar)) *
+                    System::Cos(OldBearing)))) * InvSin);
+        if (Value < -1.0) {
             Value = -1.0;
-        } else if (Value > 1.0L) {
+        } else if (Value > 1.0) {
             Value = 1.0;
         }
         double NewBearing = MathImports::ArcCos(Value);
-        if (pas::load_unaligned<double>(BearingDegrees.address) > 1.8E+2L) {
-            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi + NewBearing))));
-            pas::store_unaligned<double>(LongitudeDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(static_cast<long double>(pas::load_unaligned<double>(LongitudeDegrees.address)) - aMyFunction::RadiansToHeadingDegrees(LongitudeDelta))));
+        if (pas::load_unaligned<double>(BearingDegrees.address) > 1.8E+2) {
+            pas::store_unaligned<double>(BearingDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(static_cast<float>(SystemImports::Pi +
+                        NewBearing)))));
+            pas::store_unaligned<double>(LongitudeDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(
+                        static_cast<float>(static_cast<double>(pas::load_unaligned<double>(LongitudeDegrees.address)) -
+                        aMyFunction::RadiansToHeadingDegrees(LongitudeDelta)))));
         } else {
-            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(SystemImports::Pi - NewBearing))));
-            pas::store_unaligned<double>(LongitudeDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(static_cast<long double>(pas::load_unaligned<double>(LongitudeDegrees.address)) + aMyFunction::RadiansToHeadingDegrees(LongitudeDelta))));
+            pas::store_unaligned<double>(BearingDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(aMyFunction::RadiansToHeadingDegrees(static_cast<float>(SystemImports::Pi -
+                        NewBearing)))));
+            pas::store_unaligned<double>(LongitudeDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(
+                        static_cast<float>(static_cast<double>(pas::load_unaligned<double>(LongitudeDegrees.address)) +
+                        aMyFunction::RadiansToHeadingDegrees(LongitudeDelta)))));
         }
         pas::store_unaligned<double>(PolarAngleDegrees.address, aMyFunction::RadiansToHeadingDegrees(NewPolar));
         if (Reverse) {
-            pas::store_unaligned<double>(BearingDegrees.address, static_cast<double>(aMyFunction::WrapHeadingDegrees(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2L)));
+            pas::store_unaligned<double>(BearingDegrees.address,
+                static_cast<double>(
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(pas::load_unaligned<double>(BearingDegrees.address) + 1.8E+2))));
         }
     }
 
     TSphericalBearingState AdvanceSphericalStateOnCurrentSphere(TSphericalBearingState Source, double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
-        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&Result.BearingDegrees), SphereRadius, ArcDistance);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees),
+            pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&Result.BearingDegrees), SphereRadius,
+            ArcDistance);
         return Result;
     }
 
     // Uses the current sphere radius; preserves the body's bearing relative to travel.
-    TSphericalBearingState AdvanceSphericalStateAlongBearing(TSphericalBearingState Source, double TravelBearingDegrees, double ArcDistance) {
+    TSphericalBearingState AdvanceSphericalStateAlongBearing(TSphericalBearingState Source, double TravelBearingDegrees,
+        double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
         double RelativeBearing = aMyFunction::HeadingDifferenceDegrees(TravelBearingDegrees, Result.BearingDegrees);
-        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius, ArcDistance);
-        Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearingDegrees) + RelativeBearing);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees),
+            pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius,
+            ArcDistance);
+        Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(TravelBearingDegrees) +
+                RelativeBearing));
         return Result;
     }
 
     // Uses the current sphere radius; updates travel bearing and preserves the body's bearing relative to it.
-    TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source, double& TravelBearingDegrees, double ArcDistance) {
+    TSphericalBearingState AdvanceSphericalStateAndTravelBearing(TSphericalBearingState Source,
+        double& TravelBearingDegrees, double ArcDistance) {
         TSphericalBearingState Result{};
         Result = Source;
         double RelativeBearing = aMyFunction::HeadingDifferenceDegrees(TravelBearingDegrees, Result.BearingDegrees);
-        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees), pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius, ArcDistance);
-        Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(TravelBearingDegrees) + RelativeBearing);
+        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&Result.LongitudeDegrees),
+            pas::Var<double>(&Result.PolarAngleDegrees), pas::Var<double>(&TravelBearingDegrees), SphereRadius,
+            ArcDistance);
+        Result.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(TravelBearingDegrees) +
+                RelativeBearing));
         return Result;
     }
 
     // Bearing is relative to SourceBearingDegrees; coincident points return zero bearing delta and distance.
-    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
+    void ComputeSphericalBearingAndDistance(pas::Var<double> BearingDeltaDegrees, pas::Var<double> Distance,
+        double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double SourceBearingDegrees,
+        double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
         double TargetPolar = aMyFunction::HeadingDegreesToRadians(TargetPolarAngleDegrees);
         double SourcePolar = aMyFunction::HeadingDegreesToRadians(SourcePolarAngleDegrees);
-        double LongitudeDelta = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(TargetLongitudeDegrees) - SourceLongitudeDegrees));
-        pas::Extended cpp_left_2 = System::Cos(TargetPolar);
-        pas::Extended cpp_left = cpp_left_2 * System::Cos(SourcePolar);
-        pas::Extended cpp_left_4 = System::Sin(TargetPolar);
-        pas::Extended cpp_left_3 = cpp_left_4 * System::Sin(SourcePolar);
-        double Value = cpp_left + cpp_left_3 * System::Cos(LongitudeDelta);
-        if (Value < -1.0L) {
+        double LongitudeDelta = aMyFunction::HeadingDegreesToRadians(
+            aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(TargetLongitudeDegrees) - SourceLongitudeDegrees)));
+        double Value = static_cast<float>(static_cast<float>(System::Cos(TargetPolar) * System::Cos(SourcePolar)) + static_cast<float>(static_cast<float>(System::Sin(TargetPolar) *
+                System::Sin(SourcePolar)) * System::Cos(LongitudeDelta)));
+        if (Value < -1.0) {
             Value = -1.0;
-        } else if (Value > 1.0L) {
+        } else if (Value > 1.0) {
             Value = 1.0;
         }
         double ArcAngle = MathImports::ArcCos(Value);
-        pas::store_unaligned<double>(Distance.address, static_cast<double>(pas::real_divide(ArcAngle, pas::constant(2.0L * SystemImports::Pi)) * 2.0L * SystemImports::Pi * SphereRadius));
-        if (ArcAngle == 0.0L) {
+        pas::store_unaligned<double>(Distance.address,
+            static_cast<double>(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(ArcAngle / pas::constant(2.0 * SystemImports::Pi)) * 2.0) * SystemImports::Pi) *
+                SphereRadius)));
+        if (ArcAngle == 0.0) {
             pas::store_unaligned<double>(BearingDeltaDegrees.address, 0.0);
             return;
         }
-        {
-            pas::Extended cpp_left_7 = System::Sin(SourcePolar);
-            pas::Extended cpp_left_6 = cpp_left_7 * System::Cos(TargetPolar);
-            pas::Extended cpp_left_9 = System::Cos(SourcePolar);
-            pas::Extended cpp_left_8 = cpp_left_9 * System::Sin(TargetPolar);
-            pas::Extended cpp_left_5 = cpp_left_6 - cpp_left_8 * System::Cos(LongitudeDelta);
-            Value = pas::real_divide(cpp_left_5, System::Sin(ArcAngle));
-        }
-        if (Value < -1.0L) {
+        Value = static_cast<float>((static_cast<float>(static_cast<float>(System::Sin(SourcePolar) * System::Cos(TargetPolar)) - static_cast<float>(static_cast<float>(System::Cos(SourcePolar) *
+                    System::Sin(TargetPolar)) * System::Cos(LongitudeDelta)))) / System::Sin(ArcAngle));
+        if (Value < -1.0) {
             Value = -1.0;
-        } else if (Value > 1.0L) {
+        } else if (Value > 1.0) {
             Value = 1.0;
         }
         double Bearing = MathImports::ArcCos(Value);
-        if (aMyFunction::HeadingDifferenceDegrees(SourceLongitudeDegrees, TargetLongitudeDegrees) < 0.0L) {
+        if (aMyFunction::HeadingDifferenceDegrees(SourceLongitudeDegrees, TargetLongitudeDegrees) < 0.0) {
             Bearing = -Bearing;
         }
-        pas::store_unaligned<double>(BearingDeltaDegrees.address, aMyFunction::HeadingDifferenceDegrees(SourceBearingDegrees, aMyFunction::RadiansToHeadingDegrees(Bearing)));
+        pas::store_unaligned<double>(BearingDeltaDegrees.address,
+            aMyFunction::HeadingDifferenceDegrees(SourceBearingDegrees, aMyFunction::RadiansToHeadingDegrees(Bearing)));
     }
 
-    void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees, double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees, double SphereRadius) {
+    void ComputeSphericalDistance(double& Distance, double SourceLongitudeDegrees, double SourcePolarAngleDegrees,
+        double UnusedSourceBearingDegrees, double TargetLongitudeDegrees, double TargetPolarAngleDegrees,
+        double SphereRadius) {
         double TargetPolar = aMyFunction::HeadingDegreesToRadians(TargetPolarAngleDegrees);
         double SourcePolar = aMyFunction::HeadingDegreesToRadians(SourcePolarAngleDegrees);
-        double LongitudeDelta = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<long double>(TargetLongitudeDegrees) - SourceLongitudeDegrees));
-        pas::Extended cpp_left_2 = System::Cos(TargetPolar);
-        pas::Extended cpp_left = cpp_left_2 * System::Cos(SourcePolar);
-        pas::Extended cpp_left_4 = System::Sin(TargetPolar);
-        pas::Extended cpp_left_3 = cpp_left_4 * System::Sin(SourcePolar);
-        double Value = cpp_left + cpp_left_3 * System::Cos(LongitudeDelta);
-        if (Value < -1.0L) {
+        double LongitudeDelta = aMyFunction::HeadingDegreesToRadians(
+            aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(TargetLongitudeDegrees) - SourceLongitudeDegrees)));
+        double Value = static_cast<float>(static_cast<float>(System::Cos(TargetPolar) * System::Cos(SourcePolar)) + static_cast<float>(static_cast<float>(System::Sin(TargetPolar) *
+                System::Sin(SourcePolar)) * System::Cos(LongitudeDelta)));
+        if (Value < -1.0) {
             Value = -1.0;
-        } else if (Value > 1.0L) {
+        } else if (Value > 1.0) {
             Value = 1.0;
         }
         double ArcAngle = MathImports::ArcCos(Value);
-        Distance = pas::real_divide(ArcAngle, pas::constant(2.0L * SystemImports::Pi)) * 2.0L * SystemImports::Pi * SphereRadius;
+        Distance = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(ArcAngle / pas::constant(2.0 * SystemImports::Pi)) * 2.0) * SystemImports::Pi) * SphereRadius);
     }
 
     // Uses the current sphere radius; ignores Target.BearingDegrees.
-    TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source, TSphericalBearingState Target) {
+    TSphericalBearingDistance GetSphericalBearingAndDistance(TSphericalBearingState Source,
+        TSphericalBearingState Target) {
         TSphericalBearingDistance Result{};
-        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Result.BearingDeltaDegrees), pas::Var<double>(&Result.Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Target.LongitudeDegrees, Target.PolarAngleDegrees, SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Result.BearingDeltaDegrees),
+            pas::Var<double>(&Result.Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees,
+            Source.BearingDegrees, Target.LongitudeDegrees, Target.PolarAngleDegrees, SphereRadius);
         return Result;
     }
 
@@ -356,48 +369,53 @@ namespace ab_Global {
         Target = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
         Up = EC_Struct::MakeVector3D(0.0, 1.0, 0.0);
         View = ab_Global::BuildLookAtMatrix(V, Target, Up);
-        Projection = ab_Global::BuildPerspectiveProjectionMatrix(static_cast<long double>(SphereCameraDistance) - SphereRadius - 1.0E+2L, static_cast<long double>(SphereCameraDistance) + SphereRadius + 1.0E+2L, aMyFunction::HeadingDegreesToRadians(SphereFieldOfView), static_cast<std::uint32_t>(GR_Main::GameScreenWidth));
+        Projection = ab_Global::BuildPerspectiveProjectionMatrix(
+                static_cast<float>(static_cast<float>(static_cast<double>(SphereCameraDistance) - SphereRadius) - 1.0E+2),
+                static_cast<float>(static_cast<float>(static_cast<double>(SphereCameraDistance) + SphereRadius) + 1.0E+2),
+                aMyFunction::HeadingDegreesToRadians(SphereFieldOfView),
+                static_cast<std::uint32_t>(GR_Main::GameScreenWidth));
         Combined = ab_Global::MultiplyMatrix4D(Projection, View);
-        double Angle = 9.0E+1L - (9.0E+1L - aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(SphereRadius, SphereCameraDistance))));
-        V = EC_Struct::MakeVector3D(0.0, 0.0, System::Sin(aMyFunction::HeadingDegreesToRadians(Angle)) * SphereRadius);
+        double Angle = static_cast<float>(9.0E+1 - (static_cast<float>(9.0E+1 -
+                aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(static_cast<float>(static_cast<double>(SphereRadius) /
+                    SphereCameraDistance))))));
+        V = EC_Struct::MakeVector3D(0.0, 0.0, static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(Angle)) * SphereRadius));
         V = ab_Global::ProjectPointByMatrix(Combined, pas::ConstRef<EC_Struct::TVector3D>(&V));
         SphereHorizonDepth = V.Z;
-        V = EC_Struct::MakeVector3D(0.0, 0.0, System::Sin(aMyFunction::HeadingDegreesToRadians(Angle - 15.0L)) * SphereRadius);
+        V = EC_Struct::MakeVector3D(0.0, 0.0,
+                static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(static_cast<float>(Angle - 15.0))) * SphereRadius));
         V = ab_Global::ProjectPointByMatrix(Combined, pas::ConstRef<EC_Struct::TVector3D>(&V));
         SphereNearHorizonDepth = V.Z;
-        V = EC_Struct::MakeVector3D(0.0, 0.0, System::Sin(aMyFunction::HeadingDegreesToRadians(Angle + 15.0L)) * SphereRadius);
+        V = EC_Struct::MakeVector3D(0.0, 0.0,
+                static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(static_cast<float>(Angle + 15.0))) * SphereRadius));
         V = ab_Global::ProjectPointByMatrix(Combined, pas::ConstRef<EC_Struct::TVector3D>(&V));
         SphereFarHorizonDepth = V.Z;
         V = EC_Struct::MakeVector3D(SphereRadius, 0.0, 0.0);
         V = ab_Global::ProjectPointByMatrix(Combined, pas::ConstRef<EC_Struct::TVector3D>(&V));
-        SphereProjectedRadius = pas::real_max<pas::Extended>(std::fabs(static_cast<pas::Extended>(V.X)), std::fabs(static_cast<pas::Extended>(V.Y)));
-    }
-
-    // Compares against the horizon depth set by UpdateSphereProjectionMetrics.
-    std::uint8_t IsDepthBeforeSphereHorizon(double ProjectedDepth) {
-        return ProjectedDepth < SphereHorizonDepth;
+        SphereProjectedRadius = pas::real_max<double>(std::fabs(static_cast<double>(V.X)),
+                std::fabs(static_cast<double>(V.Y)));
     }
 
     // Requires a nonzero vector.
     EC_Struct::TVector3D NormalizeVector3D(const EC_Struct::TVector3D& Source) {
         EC_Struct::TVector3D Result{};
-        double Scale = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Source.X) * Source.X + static_cast<long double>(Source.Y) * Source.Y + static_cast<long double>(Source.Z) * Source.Z));
-        Result.X = static_cast<long double>(Source.X) * Scale;
-        Result.Y = static_cast<long double>(Source.Y) * Scale;
-        Result.Z = static_cast<long double>(Source.Z) * Scale;
+        double Scale = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Source.X) * Source.X) + static_cast<float>(static_cast<double>(Source.Y) *
+                    Source.Y)) + static_cast<float>(static_cast<double>(Source.Z) * Source.Z))));
+        Result.X = static_cast<float>(static_cast<double>(Source.X) * Scale);
+        Result.Y = static_cast<float>(static_cast<double>(Source.Y) * Scale);
+        Result.Z = static_cast<float>(static_cast<double>(Source.Z) * Scale);
         return Result;
     }
 
     EC_Struct::TVector3D CrossProduct3D(const EC_Struct::TVector3D& A, const EC_Struct::TVector3D& B) {
         EC_Struct::TVector3D Result{};
-        Result.X = static_cast<long double>(A.Y) * B.Z - static_cast<long double>(A.Z) * B.Y;
-        Result.Y = static_cast<long double>(A.Z) * B.X - static_cast<long double>(A.X) * B.Z;
-        Result.Z = static_cast<long double>(A.X) * B.Y - static_cast<long double>(A.Y) * B.X;
+        Result.X = static_cast<float>(static_cast<float>(static_cast<double>(A.Y) * B.Z) - static_cast<float>(static_cast<double>(A.Z) * B.Y));
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<double>(A.Z) * B.X) - static_cast<float>(static_cast<double>(A.X) * B.Z));
+        Result.Z = static_cast<float>(static_cast<float>(static_cast<double>(A.X) * B.Y) - static_cast<float>(static_cast<double>(A.Y) * B.X));
         return Result;
     }
 
     double DotProduct3D(const EC_Struct::TVector3D& A, const EC_Struct::TVector3D& B) {
-        return static_cast<long double>(A.X) * B.X + static_cast<long double>(A.Y) * B.Y + static_cast<long double>(A.Z) * B.Z;
+        return static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(A.X) * B.X) + static_cast<float>(static_cast<double>(A.Y) * B.Y)) + static_cast<float>(static_cast<double>(A.Z) * B.Z));
     }
 
     void ClearMatrix4D(TMatrix4D& Matrix) {
@@ -443,28 +461,31 @@ namespace ab_Global {
     }
 
     // Uses the same scale for X and Y; projects NearPlane to depth 0 and FarPlane to depth 1.
-    TMatrix4D BuildPerspectiveProjectionMatrix(double NearPlane, double FarPlane, double FovRadians, double ProjectionScale) {
+    TMatrix4D BuildPerspectiveProjectionMatrix(double NearPlane, double FarPlane, double FovRadians,
+        double ProjectionScale) {
         TMatrix4D Result{};
-        double C = System::Cos(FovRadians * 0.5L);
-        double S = System::Sin(FovRadians * 0.5L);
-        double Q = pas::real_divide(S, 1.0L - pas::real_divide(NearPlane, FarPlane));
+        double C = System::Cos(static_cast<float>(FovRadians * 0.5));
+        double S = System::Sin(static_cast<float>(FovRadians * 0.5));
+        double Q = static_cast<float>(S / (static_cast<float>(1.0 - static_cast<float>(static_cast<double>(NearPlane) / FarPlane))));
         ab_Global::ClearMatrix4D(Result);
-        Result[0][0] = static_cast<long double>(C) * ProjectionScale;
-        Result[1][1] = static_cast<long double>(C) * ProjectionScale;
+        Result[0][0] = static_cast<float>(static_cast<double>(C) * ProjectionScale);
+        Result[1][1] = static_cast<float>(static_cast<double>(C) * ProjectionScale);
         Result[2][2] = Q;
-        Result[3][2] = static_cast<long double>(-Q) * NearPlane;
+        Result[3][2] = static_cast<float>(static_cast<double>(-Q) * NearPlane);
         Result[2][3] = S;
         return Result;
     }
 
     // CameraPos must differ from TargetPos; UpVector must not be parallel to the viewing direction.
-    TMatrix4D BuildLookAtMatrix(const EC_Struct::TVector3D& CameraPos, const EC_Struct::TVector3D& TargetPos, const EC_Struct::TVector3D& UpVector) {
+    TMatrix4D BuildLookAtMatrix(const EC_Struct::TVector3D& CameraPos, const EC_Struct::TVector3D& TargetPos,
+        const EC_Struct::TVector3D& UpVector) {
         TMatrix4D Result{};
         EC_Struct::TVector3D Forward{};
         EC_Struct::TVector3D Right{};
         EC_Struct::TVector3D Up{};
         ab_Global::SetIdentityMatrix4D(Result);
-        Forward = EC_Struct::MakeVector3D(static_cast<long double>(TargetPos.X) - CameraPos.X, static_cast<long double>(TargetPos.Y) - CameraPos.Y, static_cast<long double>(TargetPos.Z) - CameraPos.Z);
+        Forward = EC_Struct::MakeVector3D(static_cast<float>(static_cast<double>(TargetPos.X) - CameraPos.X),
+                static_cast<float>(static_cast<double>(TargetPos.Y) - CameraPos.Y), static_cast<float>(static_cast<double>(TargetPos.Z) - CameraPos.Z));
         Forward = ab_Global::NormalizeVector3D(Forward);
         Right = ab_Global::CrossProduct3D(UpVector, Forward);
         Up = ab_Global::CrossProduct3D(Forward, Right);
@@ -506,9 +527,9 @@ namespace ab_Global {
                 Solution[Pivot] = Solution[I];
                 if (FirstNonzero >= 0) {
                     for (auto cpp_range = pas::for_to<std::int32_t>(FirstNonzero, I - 1); cpp_range.next(J); ) {
-                        Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
+                        Sum = static_cast<float>(Sum - static_cast<float>(static_cast<double>(Factors[I][J]) * Solution[J]));
                     }
-                } else if (Sum != 0.0L) {
+                } else if (Sum != 0.0) {
                     FirstNonzero = I;
                 }
                 Solution[I] = Sum;
@@ -519,11 +540,11 @@ namespace ab_Global {
                     const std::int32_t cpp_first = I + 1;
                     if (cpp_first <= 3) {
                         for (J = cpp_first; J <= 3; ++J) {
-                            Sum = Sum - static_cast<long double>(Factors[I][J]) * Solution[J];
+                            Sum = static_cast<float>(Sum - static_cast<float>(static_cast<double>(Factors[I][J]) * Solution[J]));
                         }
                     }
                 }
-                Solution[I] = pas::real_divide(Sum, Factors[I][I]);
+                Solution[I] = static_cast<float>(static_cast<double>(Sum) / Factors[I][I]);
             }
         };
         auto DecomposeMatrix4DLu = [&](TMatrix4D& Matrix, double& PermutationSign) -> void {
@@ -540,12 +561,12 @@ namespace ab_Global {
             for (I = 0; I <= 3; ++I) {
                 Big = 0.0;
                 for (J = 0; J <= 3; ++J) {
-                    Magnitude = std::fabs(static_cast<pas::Extended>(Matrix[I][J]));
+                    Magnitude = std::fabs(static_cast<double>(Matrix[I][J]));
                     if (Magnitude > Big) {
                         Big = Magnitude;
                     }
                 }
-                Scales[I] = pas::real_divide(1.0L, Big);
+                Scales[I] = static_cast<float>(1.0 / Big);
             }
             for (J = 0; J <= 3; ++J) {
                 I = 0;
@@ -553,7 +574,7 @@ namespace ab_Global {
                     Sum = Matrix[I][J];
                     K = 0;
                     while (K < I) {
-                        Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
+                        Sum = static_cast<float>(Sum - static_cast<float>(static_cast<double>(Matrix[I][K]) * Matrix[K][J]));
                         ++K;
                     }
                     Matrix[I][J] = Sum;
@@ -568,11 +589,11 @@ namespace ab_Global {
                             Sum = Matrix[I][J];
                             K = 0;
                             while (K < J) {
-                                Sum = Sum - static_cast<long double>(Matrix[I][K]) * Matrix[K][J];
+                                Sum = static_cast<float>(Sum - static_cast<float>(static_cast<double>(Matrix[I][K]) * Matrix[K][J]));
                                 ++K;
                             }
                             Matrix[I][J] = Sum;
-                            Temp = std::fabs(static_cast<pas::Extended>(Sum)) * Scales[I];
+                            Temp = static_cast<float>(std::fabs(static_cast<double>(Sum)) * Scales[I]);
                             if (Temp >= Big) {
                                 Big = Temp;
                                 Pivot = I;
@@ -590,16 +611,16 @@ namespace ab_Global {
                     Scales[Pivot] = Scales[J];
                 }
                 Permutations[J] = Pivot;
-                if (Matrix[J][J] == 0.0L) {
+                if (Matrix[J][J] == 0.0) {
                     Matrix[J][J] = 1.0E-20;
                 }
                 if (J != 3) {
-                    Temp = pas::real_divide(1.0L, Matrix[J][J]);
+                    Temp = static_cast<float>(1.0 / Matrix[J][J]);
                     {
                         const std::int32_t cpp_first_2 = J + 1;
                         if (cpp_first_2 <= 3) {
                             for (I = cpp_first_2; I <= 3; ++I) {
-                                Matrix[I][J] = static_cast<long double>(Matrix[I][J]) * Temp;
+                                Matrix[I][J] = static_cast<float>(static_cast<double>(Matrix[I][J]) * Temp);
                             }
                         }
                     }
@@ -630,7 +651,7 @@ namespace ab_Global {
         for (I = 0; I <= 3; ++I) {
             for (J = 0; J <= 3; ++J) {
                 for (K = 0; K <= 3; ++K) {
-                    Result[I][J] = static_cast<long double>(Left[K][J]) * Right[I][K] + Result[I][J];
+                    Result[I][J] = static_cast<float>(static_cast<float>(static_cast<double>(Left[K][J]) * Right[I][K]) + Result[I][J]);
                 }
             }
         }
@@ -640,57 +661,62 @@ namespace ab_Global {
     // Includes perspective division; homogeneous W must be nonzero.
     EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {
         EC_Struct::TVector3D Result{};
-        pas::Extended X{};
-        pas::Extended Y{};
-        pas::Extended Z{};
-        pas::Extended ReciprocalW{};
+        double X{};
+        double Y{};
+        double Z{};
+        double ReciprocalW{};
         // Manual x87 port. Keep extended intermediates and the native Z summation order.
         X = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).X;
         Y = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).Y;
         Z = pas::load_unaligned<EC_Struct::TVector3D>(Source.address).Z;
-        ReciprocalW = pas::real_divide(1.0L, Matrix[0][3] * X + Matrix[1][3] * Y + Matrix[2][3] * Z + Matrix[3][3]);
-        Result.X = (Matrix[0][0] * X + Matrix[1][0] * Y + Matrix[2][0] * Z + Matrix[3][0]) * ReciprocalW;
-        Result.Y = (Matrix[0][1] * X + Matrix[1][1] * Y + Matrix[2][1] * Z + Matrix[3][1]) * ReciprocalW;
-        Result.Z = (Matrix[1][2] * Y + (Matrix[0][2] * X + (Matrix[2][2] * Z + Matrix[3][2]))) * ReciprocalW;
+        ReciprocalW = static_cast<float>(1.0 / (static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(Matrix[0][3] * X) + static_cast<float>(Matrix[1][3] * Y)) + static_cast<float>(Matrix[2][3] * Z)) + Matrix[3][3])));
+        Result.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(Matrix[0][0] * X) + static_cast<float>(Matrix[1][0] * Y)) + static_cast<float>(Matrix[2][0] * Z)) + Matrix[3][0])) * ReciprocalW);
+        Result.Y = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(Matrix[0][1] * X) + static_cast<float>(Matrix[1][1] * Y)) + static_cast<float>(Matrix[2][1] * Z)) + Matrix[3][1])) * ReciprocalW);
+        Result.Z = static_cast<float>((static_cast<float>(static_cast<float>(Matrix[1][2] * Y) + (static_cast<float>(static_cast<float>(Matrix[0][2] * X) + (static_cast<float>(static_cast<float>(Matrix[2][2] * Z) + Matrix[3][2])))))) * ReciprocalW);
         return Result;
     }
 
     // Ray points must differ. Rejects tangency. May write HitPoint on false; true requires forward distance greater than 0.001.
-    std::uint8_t TryIntersectRayWithSphere(EC_Struct::TVector3D RayOrigin, EC_Struct::TVector3D RayPointOnRay, EC_Struct::TVector3D SphereCenter, double SphereRadius, EC_Struct::TVector3D& HitPoint) {
+    std::uint8_t TryIntersectRayWithSphere(EC_Struct::TVector3D RayOrigin, EC_Struct::TVector3D RayPointOnRay,
+        EC_Struct::TVector3D SphereCenter, double SphereRadius, EC_Struct::TVector3D& HitPoint) {
         double OtherT{};
         EC_Struct::TVector3D Direction{};
         EC_Struct::TVector3D CenterDelta{};
-        Direction.X = static_cast<long double>(RayPointOnRay.X) - RayOrigin.X;
-        Direction.Y = static_cast<long double>(RayPointOnRay.Y) - RayOrigin.Y;
-        Direction.Z = static_cast<long double>(RayPointOnRay.Z) - RayOrigin.Z;
-        double T = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Direction.X) * Direction.X + static_cast<long double>(Direction.Y) * Direction.Y + static_cast<long double>(Direction.Z) * Direction.Z));
-        Direction.X = static_cast<long double>(Direction.X) * T;
-        Direction.Y = static_cast<long double>(Direction.Y) * T;
-        Direction.Z = static_cast<long double>(Direction.Z) * T;
-        CenterDelta.X = static_cast<long double>(SphereCenter.X) - RayOrigin.X;
-        CenterDelta.Y = static_cast<long double>(SphereCenter.Y) - RayOrigin.Y;
-        CenterDelta.Z = static_cast<long double>(SphereCenter.Z) - RayOrigin.Z;
-        double DistanceSquared = static_cast<long double>(CenterDelta.X) * CenterDelta.X + static_cast<long double>(CenterDelta.Y) * CenterDelta.Y + static_cast<long double>(CenterDelta.Z) * CenterDelta.Z;
-        double Projection = static_cast<long double>(CenterDelta.X) * Direction.X + static_cast<long double>(CenterDelta.Y) * Direction.Y + static_cast<long double>(CenterDelta.Z) * Direction.Z;
-        double Discriminant = pas::sqr(static_cast<pas::Extended>(SphereRadius)) - DistanceSquared + static_cast<long double>(Projection) * Projection;
-        if (Discriminant <= 0.0L) {
+        Direction.X = static_cast<float>(static_cast<double>(RayPointOnRay.X) - RayOrigin.X);
+        Direction.Y = static_cast<float>(static_cast<double>(RayPointOnRay.Y) - RayOrigin.Y);
+        Direction.Z = static_cast<float>(static_cast<double>(RayPointOnRay.Z) - RayOrigin.Z);
+        double T = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Direction.X) * Direction.X) +
+                static_cast<float>(static_cast<double>(Direction.Y) * Direction.Y)) + static_cast<float>(static_cast<double>(Direction.Z) * Direction.Z))));
+        Direction.X = static_cast<float>(static_cast<double>(Direction.X) * T);
+        Direction.Y = static_cast<float>(static_cast<double>(Direction.Y) * T);
+        Direction.Z = static_cast<float>(static_cast<double>(Direction.Z) * T);
+        CenterDelta.X = static_cast<float>(static_cast<double>(SphereCenter.X) - RayOrigin.X);
+        CenterDelta.Y = static_cast<float>(static_cast<double>(SphereCenter.Y) - RayOrigin.Y);
+        CenterDelta.Z = static_cast<float>(static_cast<double>(SphereCenter.Z) - RayOrigin.Z);
+        double DistanceSquared = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(CenterDelta.X) * CenterDelta.X) +
+            static_cast<float>(static_cast<double>(CenterDelta.Y) * CenterDelta.Y)) + static_cast<float>(static_cast<double>(CenterDelta.Z) * CenterDelta.Z));
+        double Projection = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(CenterDelta.X) * Direction.X) + static_cast<float>(static_cast<double>(CenterDelta.Y) *
+                Direction.Y)) + static_cast<float>(static_cast<double>(CenterDelta.Z) * Direction.Z));
+        double Discriminant = static_cast<float>(static_cast<float>(pas::sqr(static_cast<double>(SphereRadius)) - DistanceSquared) +
+            static_cast<float>(static_cast<double>(Projection) * Projection));
+        if (Discriminant <= 0.0) {
             return false;
         }
         Discriminant = System::Sqrt(Discriminant);
         if (Projection < Discriminant) {
-            T = static_cast<long double>(Projection) + Discriminant;
-            OtherT = static_cast<long double>(Projection) - Discriminant;
+            T = static_cast<float>(static_cast<double>(Projection) + Discriminant);
+            OtherT = static_cast<float>(static_cast<double>(Projection) - Discriminant);
         } else {
-            T = static_cast<long double>(Projection) - Discriminant;
-            OtherT = static_cast<long double>(Projection) + Discriminant;
+            T = static_cast<float>(static_cast<double>(Projection) - Discriminant);
+            OtherT = static_cast<float>(static_cast<double>(Projection) + Discriminant);
         }
-        if (std::fabs(static_cast<pas::Extended>(T)) < 0.001L) {
+        if (std::fabs(static_cast<double>(T)) < 0.001) {
             T = OtherT;
         }
-        HitPoint.X = static_cast<long double>(Direction.X) * T + RayOrigin.X;
-        HitPoint.Y = static_cast<long double>(Direction.Y) * T + RayOrigin.Y;
-        HitPoint.Z = static_cast<long double>(Direction.Z) * T + RayOrigin.Z;
-        return T > 0.001L;
+        HitPoint.X = static_cast<float>(static_cast<float>(static_cast<double>(Direction.X) * T) + RayOrigin.X);
+        HitPoint.Y = static_cast<float>(static_cast<float>(static_cast<double>(Direction.Y) * T) + RayOrigin.Y);
+        HitPoint.Z = static_cast<float>(static_cast<float>(static_cast<double>(Direction.Z) * T) + RayOrigin.Z);
+        return T > 0.001;
     }
 
 } // namespace ab_Global

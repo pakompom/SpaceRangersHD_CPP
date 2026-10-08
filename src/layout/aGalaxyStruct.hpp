@@ -24,7 +24,8 @@ namespace aGalaxyStruct {
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, ArcadeDamageModifier) == 18);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, AIJunkTolerance) == 19);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, ChaoticRandom) == 20);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, UnrestrictedEquipmentKnowledge) == 21);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, UnrestrictedEquipmentKnowledge) ==
+            21);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, StationsNearStars) == 22);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, FullStationTargeting) == 23);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyCustomRules, SpecialShips) == 24);
@@ -78,21 +79,29 @@ namespace aGalaxyStruct {
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TCargoHookLevelStats, MinPullSpeed) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TCargoHookLevelStats, MaxPullSpeed) == 12);
     static_assert(sizeof(void*) != 4 || sizeof(aGalaxyStruct::TGalaxyDifficultyTuning) == 56);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, GoodsEventDurationFactor) == 0);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, QuestTimeAndExperienceFactor) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, GoodsEventDurationFactor) ==
+            0);
+    static_assert(sizeof(void*) != 4 ||
+        offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, QuestTimeAndExperienceFactor) == 4);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, EquipmentWearFactor) == 8);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, InventionProgressScale) == 12);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, ArcadeRewardScale) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, QuestMoneyFactor) == 20);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, StartingPlayerMoney) == 24);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, InitialPirateControlPercent) == 28);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, InitialPirateControlPercent) ==
+            28);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MarketPriceBandSqueeze) == 32);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, RandomHoleSpawnRollMaximum) == 36);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumDominatorResearchRate) == 40);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumResearchMaterialConsumption) == 44);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumQuestProgramRewardCount) == 45);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, RandomHoleSpawnRollMaximum) ==
+            36);
+    static_assert(sizeof(void*) != 4 ||
+        offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumDominatorResearchRate) == 40);
+    static_assert(sizeof(void*) != 4 ||
+        offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumResearchMaterialConsumption) == 44);
+    static_assert(sizeof(void*) != 4 ||
+        offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, MaximumQuestProgramRewardCount) == 45);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, ArcadeDamageTakenScale) == 48);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, CoalitionToPirateBalanceRatio) == 52);
+    static_assert(sizeof(void*) != 4 ||
+        offsetof(aGalaxyStruct::TGalaxyDifficultyTuning, CoalitionToPirateBalanceRatio) == 52);
     static_assert(sizeof(void*) != 4 || sizeof(aGalaxyStruct::TPlanetGoodsFactors) == 16);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetGoodsFactors, PriceFactor) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetGoodsFactors, StockFactor) == 8);
@@ -106,9 +115,11 @@ namespace aGalaxyStruct {
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetOwnerMasks, PirateClan) == 2);
     static_assert(sizeof(void*) != 4 || sizeof(aGalaxyStruct::TPlanetRaceMarketInfo) == 168);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, InventionProgressScale) == 0);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, InitialInventionBoostCount) == 4);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, InitialInventionBoostCount) ==
+            4);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, GoodsFactors) == 8);
-    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, GovernmentRollThresholds) == 136);
+    static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, GovernmentRollThresholds) ==
+            136);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, RevolutionChance) == 144);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, FriendlyRelationScale) == 148);
     static_assert(sizeof(void*) != 4 || offsetof(aGalaxyStruct::TPlanetRaceMarketInfo, PirateRelationFactor) == 152);

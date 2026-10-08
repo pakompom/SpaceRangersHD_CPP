@@ -6,11 +6,16 @@ namespace pas {
 class List : public Object {
 public:
   PAS_CLASS_META(List, Object, "TList", 16)
+  static constexpr Integer max_size = 0x07ffffff;
+
+private:
+  // Valid lists maintain 0 <= count <= capacity <= max_size. Item-storage
+  // exposure does not expose these bookkeeping slots; changes use setters.
   void **p_list = nullptr;
   Integer p_count = 0;
   Integer p_capacity = 0;
-  static constexpr Integer max_size = 0x07ffffff;
 
+public:
   [[noreturn]] static void list_error(const char *message, Integer value);
   void check_index(Integer i) const {
     if (i < 0 || i >= p_count)

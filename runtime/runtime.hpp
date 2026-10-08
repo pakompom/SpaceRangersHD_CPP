@@ -26,6 +26,14 @@
 #include <type_traits>
 #include <utility>
 
+#if defined(_MSC_VER)
+#define PAS_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+#define PAS_NOINLINE __attribute__((noinline))
+#else
+#define PAS_NOINLINE
+#endif
+
 namespace pas {
 // Delphi PChar literals have static storage, despite their writable pointer type.
 inline std::uint8_t* literal_pointer(const char* value) {
@@ -36,6 +44,16 @@ inline char16_t* literal_pointer(const char16_t* value) {
 }
 using Integer = std::int32_t;
 using Cardinal = std::uint32_t;
+inline Integer string_length(std::size_t size) {
+  if (size > std::size_t(std::numeric_limits<Integer>::max()))
+    throw std::length_error("string length overflow");
+  return Integer(size);
+}
+inline Integer string_length_sum(Integer left, Integer right) {
+  if (left < 0 || right < 0 || right > std::numeric_limits<Integer>::max() - left)
+    throw std::length_error("string length overflow");
+  return left + right;
+}
 // Source constants stay compile-time values, independent of runtime FPU mode.
 template<class T> consteval T constant(T value) { return value; }
 // Delphi loads a managed argument's pointer before taking value-parameter
@@ -79,6 +97,22 @@ inline void *byte_offset(void *data, Integer offset) {
 inline const void *byte_offset(const void *data, Integer offset) {
   return reinterpret_cast<const void *>(reinterpret_cast<std::uintptr_t>(data) + std::intptr_t(offset));
 }
+// Delphi pointer arithmetic is scaled address arithmetic, including nil-based
+// offsets and wraparound. C++ pointer arithmetic requires an existing array.
+template<class T, class Step> T* pointer_add(T* data, Step step) noexcept {
+  static_assert(std::is_integral_v<Step>);
+  constexpr auto stride = [] { if constexpr (std::is_void_v<T>) return std::size_t{1};
+                              else return sizeof(T); }();
+  return reinterpret_cast<T*>(reinterpret_cast<std::uintptr_t>(data) +
+                              std::uintptr_t(step) * stride);
+}
+template<class T, class Step> T* pointer_sub(T* data, Step step) noexcept {
+  static_assert(std::is_integral_v<Step>);
+  constexpr auto stride = [] { if constexpr (std::is_void_v<T>) return std::size_t{1};
+                              else return sizeof(T); }();
+  return reinterpret_cast<T*>(reinterpret_cast<std::uintptr_t>(data) -
+                              std::uintptr_t(step) * stride);
+}
 template <class T> T load_unaligned(const void *source) {
   static_assert(std::is_trivially_copyable_v<T>);
   T value;
@@ -111,12 +145,6 @@ template<class T> struct ConstRef { const void* address; };
 // loaded with memcpy like an unmanaged scalar or record.
 template<class T> T& storage_ref(void* address) { return *static_cast<T*>(address); }
 template<class T> const T& storage_ref(const void* address) { return *static_cast<const T*>(address); }
-template<class T> Integer index_in_slots(const T* data, std::uint32_t count, T value) {
-  const auto* bytes = reinterpret_cast<const std::uint8_t*>(data);
-  for (std::uint32_t i = 0; i < count; ++i)
-    if (load_unaligned<T>(bytes + i * sizeof(T)) == value) return Integer(i);
-  return -1;
-}
 template <class T> void store_unaligned(void *dest, const T &value) {
   static_assert(std::is_trivially_copyable_v<T>);
   std::memcpy(dest, &value, sizeof(T));
@@ -124,12 +152,14 @@ template <class T> void store_unaligned(void *dest, const T &value) {
 template <class T, class Step> void inc_unaligned(void *slot, Step step) {
   auto value = load_unaligned<T>(slot);
   if constexpr (std::is_enum_v<T>) value = T(value + step);
+  else if constexpr (std::is_pointer_v<T>) value = pointer_add(value, step);
   else value += step;
   store_unaligned(slot, value);
 }
 template <class T, class Step> void dec_unaligned(void *slot, Step step) {
   auto value = load_unaligned<T>(slot);
   if constexpr (std::is_enum_v<T>) value = T(value - step);
+  else if constexpr (std::is_pointer_v<T>) value = pointer_sub(value, step);
   else value -= step;
   store_unaligned(slot, value);
 }
@@ -154,13 +184,6 @@ template <class String, class Char> String array_text(const Char *text, Integer 
   while (count < capacity && load_unaligned<Char>(bytes + std::size_t(count) * sizeof(Char)))
     ++count;
   return String(text, count);
-}
-// Port of scalar readers whose asm advances the cursor before the load.
-// Snapshot the address first: data can alias the cursor's own storage.
-template <class T> T read_and_advance(void *data, Integer *position) {
-  void *source = byte_offset(data, *position);
-  *position += Integer(sizeof(T));
-  return load_unaligned<T>(source);
 }
 enum class FinallyFlow { Normal, Return, Break, Continue };
 struct ControlFlow {};
@@ -360,8 +383,7 @@ public:
   static WideString uninitialized(Integer n);
   void set_length(Integer n);
   friend WideString operator+(const WideString &a, const WideString &b) {
-    WideString s;
-    s.set_length(a.length() + b.length());
+    auto s = WideString::uninitialized(string_length_sum(a.length(), b.length()));
     if (a.length())
       std::copy_n(a.data_.get(), a.length(), s.data_.get());
     if (b.length())
@@ -543,11 +565,9 @@ inline ClassRef<Object> class_type(const Object *value) {
 template <class To> To class_cast_if(Object *value) {
   if (!value)
     return nullptr;
-  auto *target = &class_info<std::remove_pointer_t<To>>();
-  for (auto *type = value->p_class_type(); type; type = type->parent)
-    if (type == target)
-      return static_cast<To>(value);
-  return nullptr;
+  return class_inherits<std::remove_pointer_t<To>>(value->p_class_type())
+             ? static_cast<To>(value)
+             : nullptr;
 }
 template <class T, class Destroy> void destroy(T *p, Destroy cleanup) {
   try {
@@ -608,6 +628,8 @@ template <class T> void dispose(T *p) {
 template <class T, class N> void inc(T &p, N n) {
   if constexpr (std::is_enum_v<T>)
     p = T(p + n);
+  else if constexpr (std::is_pointer_v<T>)
+    p = pointer_add(p, n);
   else
     p += n;
 }
@@ -617,6 +639,8 @@ template <class T> void inc(T &p) { inc(p, 1); }
 template <class T, class N> void dec(T &p, N n) {
   if constexpr (std::is_enum_v<T>)
     p = T(p - n);
+  else if constexpr (std::is_pointer_v<T>)
+    p = pointer_sub(p, n);
   else
     p -= n;
 }
@@ -679,19 +703,24 @@ template <class... T> void write(const T &...values) {
 } // namespace pas
 
 namespace pas {
-template <class T> auto sqr(T value) { return value * value; }
+template <class T> auto sqr(T value) {
+  if constexpr (std::is_floating_point_v<T>)
+    return T(static_cast<float>(value * value));
+  else
+    return value * value;
+}
 template <class T> auto abs(T value) { return value < 0 ? -value : value; }
 template <class T> std::int64_t trunc(T value) {
-  auto result = std::trunc(static_cast<long double>(value));
-  if (!std::isfinite(result) || result < -9223372036854775808.0L ||
-      result >= 9223372036854775808.0L)
+  auto result = std::trunc(static_cast<Real>(value));
+  if (!std::isfinite(result) || result < -9223372036854775808.0 ||
+      result >= 9223372036854775808.0)
     return std::numeric_limits<std::int64_t>::min();
   return std::int64_t(result);
 }
 template <class T> std::int64_t round(T value) {
-  auto result = std::nearbyint(static_cast<long double>(value));
-  if (!std::isfinite(result) || result < -9223372036854775808.0L ||
-      result >= 9223372036854775808.0L)
+  auto result = std::nearbyint(static_cast<Real>(value));
+  if (!std::isfinite(result) || result < -9223372036854775808.0 ||
+      result >= 9223372036854775808.0)
     return std::numeric_limits<std::int64_t>::min();
   return std::int64_t(result);
 }
@@ -788,6 +817,7 @@ class AnsiString {
   PointerSlot<std::uint8_t> data_;
   Header *header() const { return reinterpret_cast<Header *>(data_.get()) - 1; }
   static std::uint8_t *alloc(Integer n, const std::uint8_t *source = nullptr);
+  void resize(Integer n, bool clear_growth);
   void release() {
     if (data_ && header()->refs > 0 && --header()->refs == 0)
       std::free(header());
@@ -840,9 +870,15 @@ public:
   std::uint8_t operator[](Integer i) const { return read(i); }
   static AnsiString uninitialized(Integer n);
   void set_length(Integer n);
+  // The source may be a slice of this allocation, including its terminator.
+  void append(const std::uint8_t *source, Integer count);
+  void append(const AnsiString &source) { append(source.data(), source.length()); }
+  void append(std::uint8_t character) { append(&character, 1); }
+  void append(std::string_view source) {
+    append(reinterpret_cast<const std::uint8_t *>(source.data()), string_length(source.size()));
+  }
   friend AnsiString operator+(const AnsiString &a, const AnsiString &b) {
-    AnsiString s;
-    s.set_length(a.length() + b.length());
+    auto s = AnsiString::uninitialized(string_length_sum(a.length(), b.length()));
     if (a.length())
       std::copy_n(a.data_.get(), a.length(), s.data_.get());
     if (b.length())
@@ -918,14 +954,14 @@ template <class String, class Char> struct StringPart {
   StringPart(Char value) : data(nullptr), size(1), character(value) {}
   StringPart(const String &value)
       : data(reinterpret_cast<const Char *>(value.data())), size(value.length()) {}
-  StringPart(std::basic_string_view<Char> value) : data(value.data()), size(Integer(value.size())) {}
+  StringPart(std::basic_string_view<Char> value) : data(value.data()), size(string_length(value.size())) {}
   template <std::size_t N> StringPart(const Char (&value)[N])
-      : data(value), size(Integer(N - 1)) {}
+      : data(value), size(string_length(N - 1)) {}
 };
 template <class String, class Char>
 String concat_parts(std::initializer_list<StringPart<String, Char>> parts, bool reverse = false) {
   Integer size = 0;
-  for (auto part : parts) size += part.size;
+  for (auto part : parts) size = string_length_sum(size, part.size);
   auto result = String::uninitialized(size);
   auto *cursor = result.data();
   for (std::size_t i = 0; i < parts.size(); ++i) {
@@ -950,6 +986,36 @@ inline AnsiString concat_ansi_reverse(std::initializer_list<StringPart<AnsiStrin
 }
 inline WideString concat_wide_reverse(std::initializer_list<StringPart<WideString, char16_t>> parts) {
   return concat_parts<WideString, char16_t>(parts, true);
+}
+
+// Eligible source accumulators keep their representation private. Prepare all
+// suffix owners/characters before this call; their storage must be disjoint from
+// the builder and stay alive through it. Lowering's eligibility proof supplies
+// that contract. Resize is the only mutation that can fail, so a failed append
+// retains the previous text. Standard string capacity makes repeated growth
+// amortized while ordinary WideString resizing keeps its original ownership.
+inline void append_wide_builder(std::u16string& builder, char16_t character) {
+  string_length_sum(string_length(builder.size()), 1);
+  builder.push_back(character);
+}
+inline void append_wide_builder(
+    std::u16string& builder,
+    std::initializer_list<StringPart<WideString, char16_t>> parts) {
+  Integer size = string_length(builder.size());
+  for (auto part : parts) size = string_length_sum(size, part.size);
+  const auto old_size = builder.size();
+  builder.resize(std::size_t(size));
+  auto* cursor = builder.data() + old_size;
+  for (auto part : parts) {
+    if (part.size) {
+      std::memcpy(cursor, part.data ? part.data : &part.character,
+                  std::size_t(part.size) * sizeof(char16_t));
+      cursor += part.size;
+    }
+  }
+}
+inline WideString finish_wide_builder(const std::u16string& builder) {
+  return WideString(builder.data(), string_length(builder.size()));
 }
 
 
@@ -1077,6 +1143,9 @@ struct ZeroDivide : MathError {
 struct Overflow : MathError {
   PAS_CLASS_META(Overflow, MathError, "EOverflow", 16)
 };
+struct Underflow : MathError {
+  PAS_CLASS_META(Underflow, MathError, "EUnderflow", 16)
+};
 struct ConvertError : Exception {
   PAS_CLASS_META(ConvertError, Exception, "EConvertError", 12)
 };
@@ -1107,6 +1176,9 @@ struct Raised : std::exception {
   const char *what() const noexcept override;
 };
 [[noreturn]] void raise(Object *exception);
+// Register the game's global RaiseExceptionProc slot before installing its
+// logging wrapper. The default adapter throws the owning C++ exception payload.
+void install_raise_exception_hook(void *&hook);
 Object *caught_object() noexcept;
 [[noreturn]] void raise_os_error(const AnsiString &message, Integer code);
 [[noreturn]] void invalid_class_cast();

@@ -71,7 +71,7 @@ namespace aGalaxy {
 
     void THole_Destroy(THole* Self);
 
-    void TCustomSystemInfo_Create(TCustomSystemInfo* Self);
+    inline void TCustomSystemInfo_Create(TCustomSystemInfo* Self);
 
     void TCustomSystemInfo_Destroy(TCustomSystemInfo* Self);
 
@@ -84,29 +84,30 @@ namespace aGalaxy {
     void TConstellation_Destroy(TConstellation* Self);
 
     // Constant arguments preserve evaluation order; computed arguments stay at their call sites.
-    void CreateFilmEffect(const pas::WideString& GraphKey, std::int32_t ShotVisual, SE_Space::TObjectSE*& Effect, aEFilm::TEFilmObj*& EffectFilm);
+    void CreateFilmEffect(const pas::WideString& GraphKey, std::int32_t ShotVisual, SE_Space::TObjectSE*& Effect,
+        aEFilm::TEFilmObj*& EffectFilm);
 
-    void TInterfaceStateOverride_Create(TInterfaceStateOverride* Self);
+    inline void TInterfaceStateOverride_Create(TInterfaceStateOverride* Self);
 
     // Restores the original control value when the control still exists.
     void TInterfaceStateOverride_Destroy(TInterfaceStateOverride* Self);
 
-    void TInterfaceTextOverride_Create(TInterfaceTextOverride* Self);
+    inline void TInterfaceTextOverride_Create(TInterfaceTextOverride* Self);
 
     // Restores the original control value when the control still exists.
     void TInterfaceTextOverride_Destroy(TInterfaceTextOverride* Self);
 
-    void TInterfaceImageOverride_Create(TInterfaceImageOverride* Self);
+    inline void TInterfaceImageOverride_Create(TInterfaceImageOverride* Self);
 
     // Restores the original value when the control still exists; an empty original style is not restored.
     void TInterfaceImageOverride_Destroy(TInterfaceImageOverride* Self);
 
-    void TInterfacePosOverride_Create(TInterfacePosOverride* Self);
+    inline void TInterfacePosOverride_Create(TInterfacePosOverride* Self);
 
     // Restores the original control value when the control still exists.
     void TInterfacePosOverride_Destroy(TInterfacePosOverride* Self);
 
-    void TInterfaceSizeOverride_Create(TInterfaceSizeOverride* Self);
+    inline void TInterfaceSizeOverride_Create(TInterfaceSizeOverride* Self);
 
     // Restores the original control value when the control still exists.
     void TInterfaceSizeOverride_Destroy(TInterfaceSizeOverride* Self);
@@ -118,3 +119,5 @@ namespace aGalaxy {
     void TStoredItem_Destroy(TStoredItem* Self);
 
 } // namespace aGalaxy
+
+#include "inline/aGalaxy.hpp"

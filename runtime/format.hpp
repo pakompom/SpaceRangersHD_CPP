@@ -6,9 +6,9 @@
 namespace pas {
 // The literal Format modes present in this game: integers, text and real values.
 // Other modes are rejected by the binder at their source location.
-using FormatValue = std::variant<std::int64_t, long double, AnsiString>;
+using FormatValue = std::variant<std::int64_t, Real, AnsiString>;
 template<class T> FormatValue format_value(T value) {
-  if constexpr (is_real_v<T>) return static_cast<long double>(value);
+  if constexpr (is_real_v<T>) return static_cast<Real>(value);
   else return static_cast<std::int64_t>(value);
 }
 inline FormatValue format_value(const AnsiString& value) { return value; }
@@ -50,8 +50,11 @@ template<class... Args> AnsiString format(const AnsiString& pattern, const Args&
       spec += "lld";
       append(static_cast<long long>(std::get<std::int64_t>(value)));
     } else {
-      spec += 'L'; spec += mode;
-      append(std::get<long double>(value));
+#if !SRHD_NATIVE_REALS
+      spec += 'L';
+#endif
+      spec += mode;
+      append(std::get<Real>(value));
     }
   }
   return AnsiString(result.data(), std::int32_t(result.size()));

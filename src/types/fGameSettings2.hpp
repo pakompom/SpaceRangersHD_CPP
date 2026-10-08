@@ -38,7 +38,8 @@ namespace fGameSettings2 {
         void InitializeLayout() override;
         void OnOpen() override;
         void OnClose() override;
-        void AddIronWillChoice(std::int32_t Value, std::int32_t X, std::int32_t Y, pas::WideString Caption, pas::WideString Help, std::uint8_t Selected, std::uint8_t Disabled);
+        void AddIronWillChoice(std::int32_t Value, std::int32_t X, std::int32_t Y, pas::WideString Caption,
+            pas::WideString Help, std::uint8_t Selected, std::uint8_t Disabled);
         void IronWillMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         static void IronWillMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void IronWillMouseLeave(GI_MessageLoop::TObjectGI* Sender);
@@ -59,7 +60,8 @@ namespace fGameSettings2 {
         void DifficultyComponentClicked(GI_MessageLoop::TObjectGI* Sender);
         void DifficultyPresetClicked(GI_MessageLoop::TObjectGI* Sender);
         void CustomDifficultyClicked(GI_MessageLoop::TObjectGI* Sender);
-        void CustomDifficultyMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void CustomDifficultyMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void StartNewGameGeneration();
         void ApplyClicked(GI_MessageLoop::TObjectGI* Sender);
         void CancelClicked(GI_MessageLoop::TObjectGI* Sender);
@@ -76,11 +78,15 @@ namespace fGameSettings2 {
         void ResetExtendedSettingsClicked(GI_MessageLoop::TObjectGI* Sender);
         void ExtendedGroupClicked(GI_MessageLoop::TObjectGI* Sender);
         void RefreshExtendedGroup();
-        GI_Label::TLabelGI* AddExtendedOptionLabel(pas::WideString OptionName, pas::WideString Caption, std::uint8_t UnusedFlag);
-        void AddExtendedOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected, std::uint8_t Disabled);
-        void ExtendedChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        GI_Label::TLabelGI* AddExtendedOptionLabel(pas::WideString OptionName, pas::WideString Caption,
+            std::uint8_t UnusedFlag);
+        void AddExtendedOptionChoice(std::int32_t Value, pas::WideString Caption, std::uint8_t Selected,
+            std::uint8_t Disabled);
+        void ExtendedChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         // Invokes Callback immediately with the new slider.
-        void AddExtendedOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum, std::int32_t Position, std::int32_t UnusedStep, TNewGameSliderEvent Callback);
+        void AddExtendedOptionSlider(GI_Label::TLabelGI* ValueLabel, std::int32_t Minimum, std::int32_t Maximum,
+            std::int32_t Position, std::int32_t UnusedStep, TNewGameSliderEvent Callback);
         // Searches only the active extended group; raises when no value is found.
         std::int32_t GetExtendedOptionValue(const std::u16string_view& OptionName);
         // Searches only the active extended group; missing options are ignored.

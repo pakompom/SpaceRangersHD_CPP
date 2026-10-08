@@ -39,7 +39,9 @@ namespace EC_Data {
     struct TDataEC : EC_Struct::TObjectEx {
         PAS_CLASS_META(TDataEC, EC_Struct::TObjectEx, "TDataEC", 44)
         void p_destroy() override;
-        std::uint8_t IsEmpty();
+        inline std::uint8_t IsEmpty() {
+            return FirstEntry == nullptr;
+        }
         // Frees owned files; linked-list head/tail fields remain unchanged.
         void Clear();
         // Caller must update the index. Child subtrees share the interned-file list.

@@ -24,8 +24,12 @@ namespace SE_GAIEffect {
         void p_destroy() override;
         void AttachToSpace(SE_Space::TSpaceSE* ASpace) override;
         void DetachFromSpace() override;
-        void SetImagePosition(Types::TPoint Value);
-        void SetDurationScale(float Value);
+        inline void SetImagePosition(Types::TPoint Value) {
+            ImagePosition = Value;
+        }
+        inline void SetDurationScale(float Value) {
+            DurationScale = Value;
+        }
         void Advance() override;
         void LoadTemplate(EC_BlockPar::TBlockParEC* Block) override;
         pas::WideString SoundPath;

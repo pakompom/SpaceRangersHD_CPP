@@ -24,7 +24,9 @@ namespace EC_Buf {
         void Clear();
         // Nonpositive sizes clear the buffer; shrinking clamps Position.
         void SetSize(std::int32_t NewSize);
-        std::uint8_t IsAtEnd();
+        inline std::uint8_t IsAtEnd() {
+            return Position >= DataSize;
+        }
         void SetPosition(std::int32_t NewPosition);
         // AddedBytes must be positive. Extends DataSize without advancing Position.
         void EnsureWriteCapacity(std::int32_t AddedBytes);
@@ -61,9 +63,17 @@ namespace EC_Buf {
         void* ReadBytes(void* Dest, std::int32_t ByteCount);
         // Consumes the terminating zero; an empty scan advances Position by two even at the buffer end.
         char16_t* ReadWideStringToBuffer(char16_t* Dest);
+        // Scalar readers snapshot the address, then advance before loading: Data can alias Position.
+        std::uint8_t GetByte();
         char16_t GetWideChar();
+        std::uint16_t GetWord();
+        std::uint32_t GetUInt32();
+        std::int32_t GetInt32();
+        // Replaces NaN with zero.
+        float GetSingle();
         // Replaces NaN with zero.
         double GetDouble();
+        std::uint8_t GetBoolean();
         // Dest.Position is preserved unless it exceeds the new size.
         void ReadLengthPrefixedBuffer(TBufEC* Dest);
         // Lengths count characters, stop at the buffer end, and leave Position unchanged.

@@ -3,6 +3,15 @@
 #include "units/WindowsSdk.hpp"
 
 namespace WindowsSdk {
+    inline THandle PAS_STDCALL HeapCreate(std::uint32_t flOptions, std::uint32_t dwInitialSize,
+        std::uint32_t dwMaximumSize) {
+        return pas::win::heap_create(flOptions, dwInitialSize, dwMaximumSize);
+    }
+
+    inline BOOL PAS_STDCALL HeapDestroy(THandle hHeap) {
+        return pas::win::heap_destroy(hHeap);
+    }
+
     inline void* PAS_STDCALL HeapAlloc(THandle hHeap, std::uint32_t dwFlags, std::uint32_t dwBytes) {
         return pas::win::heap_alloc(hHeap, dwFlags, dwBytes);
     }

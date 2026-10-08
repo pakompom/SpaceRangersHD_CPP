@@ -67,7 +67,8 @@ namespace GI_Main {
         if (Name == u"Panel"sv) {
             return pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, Owner);
         } else if (Name == u"PanelScrollBar"sv) {
-            return pas::construct_call<GI_PanelScrollBar::TPanelScrollBarGI>(GI_PanelScrollBar::TPanelScrollBarGI_Create, Owner);
+            return pas::construct_call<GI_PanelScrollBar::TPanelScrollBarGI>(
+                GI_PanelScrollBar::TPanelScrollBarGI_Create, Owner);
         } else if (Name == u"Window"sv) {
             return pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create, Owner);
         } else if (Name == u"SimpleImage"sv) {
@@ -79,15 +80,19 @@ namespace GI_Main {
         } else if (Name == u"RotateImage"sv) {
             return pas::construct_call<GI_RotateImage::TRotateImageGI>(GI_RotateImage::TRotateImageGI_Create, Owner);
         } else if (Name == u"RotateImage2"sv) {
-            return pas::construct_call<GI_RotateImage2::TRotateImage2GI>(GI_RotateImage2::TRotateImage2GI_Create, Owner);
+            return pas::construct_call<GI_RotateImage2::TRotateImage2GI>(GI_RotateImage2::TRotateImage2GI_Create,
+                Owner);
         } else if (Name == u"RotateImage5"sv) {
-            return pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, Owner);
+            return pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create,
+                Owner);
         } else if (Name == u"RotateImageGAI"sv) {
-            return pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(GI_RotateImageGAI::TRotateImageGaiGI_Create, Owner);
+            return pas::construct_call<GI_RotateImageGAI::TRotateImageGaiGI>(
+                GI_RotateImageGAI::TRotateImageGaiGI_Create, Owner);
         } else if (Name == u"Image"sv) {
             return pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Owner);
         } else if (Name == u"InfiniteImage"sv) {
-            return pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(GI_InfiniteImage::TInfiniteImageGI_Create, Owner);
+            return pas::construct_call<GI_InfiniteImage::TInfiniteImageGI>(GI_InfiniteImage::TInfiniteImageGI_Create,
+                Owner);
         } else if (Name == u"AImage"sv) {
             return pas::construct_call<GI_AImage::TAImageGI>(GI_AImage::TAImageGI_Create, Owner);
         } else if (Name == u"GI"sv) {
@@ -101,7 +106,8 @@ namespace GI_Main {
         } else if (Name == u"Door"sv) {
             return pas::construct_call<GI_Door::TDoorGI>(GI_Door::TDoorGI_Create, Owner);
         } else if (Name == u"SimpleButton"sv) {
-            return pas::construct_call<GI_SimpleButton::TSimpleButtonGI>(GI_SimpleButton::TSimpleButtonGI_Create, Owner);
+            return pas::construct_call<GI_SimpleButton::TSimpleButtonGI>(GI_SimpleButton::TSimpleButtonGI_Create,
+                Owner);
         } else if (Name == u"TextButton"sv) {
             return pas::construct_call<GI_TextButton::TTextButtonGI>(GI_TextButton::TTextButtonGI_Create, Owner);
         } else if (Name == u"GraphButton"sv) {
@@ -123,7 +129,8 @@ namespace GI_Main {
         } else if (Name == u"Planet"sv) {
             return pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Owner);
         } else if (Name == u"PlanetButton"sv) {
-            return pas::construct_call<GI_PlanetButton::TPlanetButtonGI>(GI_PlanetButton::TPlanetButtonGI_Create, Owner);
+            return pas::construct_call<GI_PlanetButton::TPlanetButtonGI>(GI_PlanetButton::TPlanetButtonGI_Create,
+                Owner);
         } else if (Name == u"CheckBox"sv) {
             return pas::construct_call<GI_CheckBox::TCheckBoxGI>(GI_CheckBox::TCheckBoxGI_Create, Owner);
         } else if (Name == u"RadioGroup"sv) {
@@ -145,7 +152,8 @@ namespace GI_Main {
         } else if (Name == u"StarFieldM"sv) {
             return pas::construct_call<GI_StarFieldM::TStarFieldMGI>(GI_StarFieldM::TStarFieldMGI_Create, Owner);
         } else if (Name == u"StarFieldImg"sv) {
-            return pas::construct_call<GI_StarFieldImg::TStarFieldImgGI>(GI_StarFieldImg::TStarFieldImgGI_Create, Owner);
+            return pas::construct_call<GI_StarFieldImg::TStarFieldImgGI>(GI_StarFieldImg::TStarFieldImgGI_Create,
+                Owner);
         } else if (Name == u"SpaceCircle"sv) {
             return pas::construct_call<GI_SpaceCircle::TSpaceCircleGI>(GI_SpaceCircle::TSpaceCircleGI_Create, Owner);
         } else if (Name == u"SpaceImg"sv) {
@@ -174,7 +182,8 @@ namespace GI_Main {
         } else if (Name == u"Right"sv) {
             return ikxRight;
         } else {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetITDXbyNameGI. name=", Name}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetITDXbyNameGI. name=", Name}))));
         }
     }
 
@@ -193,7 +202,8 @@ namespace GI_Main {
         } else if (Name == u"Bottom"sv) {
             return ikyBottom;
         } else {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetITDYbyNameGI. name=", Name}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetITDYbyNameGI. name=", Name}))));
         }
     }
 
@@ -207,7 +217,8 @@ namespace GI_Main {
         } else if (Name == u"Auto"sv) {
             return taxAuto;
         } else {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetTTAXbyNameGI. name=", Name}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetTTAXbyNameGI. name=", Name}))));
         }
     }
 
@@ -223,36 +234,45 @@ namespace GI_Main {
         } else if (Name == u"Auto"sv) {
             return tayAuto;
         } else {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetTTAYbyNameGI. name=", Name}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetTTAYbyNameGI. name=", Name}))));
         }
     }
 
     // True only for Yes, yes, True, true, TRUE or 1.
     std::uint8_t ParseEnabledNameGI(const std::u16string_view& Name) {
-        return Name == u"Yes"sv || Name == u"yes"sv || Name == u"True"sv || Name == u"true"sv || Name == u"TRUE"sv || Name == u"1"sv;
+        return Name == u"Yes"sv || Name == u"yes"sv || Name == u"True"sv || Name == u"true"sv || Name == u"TRUE"sv ||
+            Name == u"1"sv;
     }
 
     // At least three comma-separated components are required; only their low bytes are used.
     std::uint32_t GetColorGI(const std::u16string_view& ColorText) {
         if (EC_Str::CountDelimitedPartsW(ColorText, u","sv) < 3) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetColorGI. color=", ColorText}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetColorGI. color=", ColorText}))));
         }
-        std::uint8_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 2, u","sv)));
-        std::uint8_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 1, u","sv)));
-        std::uint8_t strToInt_3 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText, 0, u","sv)));
+        std::uint8_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(ColorText,
+            2, u","sv)));
+        std::uint8_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+            ColorText, 1, u","sv)));
+        std::uint8_t strToInt_3 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+            ColorText, 0, u","sv)));
         return GR_Main::CurrentPixelFormat->PackRgbBytes(strToInt_3, strToInt_2, strToInt);
     }
 
     Types::TPoint GetPointGI(const std::u16string_view& PointText) {
         Types::TPoint Result{};
         if (EC_Str::CountDelimitedPartsW(PointText, u","sv) < 2) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetPointGI. tstr=", PointText}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetPointGI. tstr=", PointText}))));
         }
         Result = ([&] {
-            std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 1, u","sv)));
-            std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(PointText, 0, u","sv)));
-            return ClassesImports::Point(strToInt_2, strToInt);
-        }());
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    PointText, 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    PointText, 0, u","sv)));
+                return ClassesImports::Point(strToInt_2, strToInt);
+            }());
         return Result;
     }
 
@@ -263,7 +283,8 @@ namespace GI_Main {
         std::int32_t Flags = 0;
         std::int32_t Count = EC_Str::CountDelimitedPartsW(pas::view(Values), u","sv);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            Part = EC_Str::LowerCaseWideString(EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Values), Index, u","sv)));
+            Part = EC_Str::LowerCaseWideString(EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Values),
+                    Index, u","sv)));
             if (Part == u"pos") {
                 Flags |= agfPosition;
             } else if (Part == u"size") {
@@ -276,25 +297,33 @@ namespace GI_Main {
     EC_Struct::TPointF GetFloatPointGI(const std::u16string_view& PointText) {
         EC_Struct::TPointF Result{};
         if (EC_Str::CountDelimitedPartsW(PointText, u","sv) < 2) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetFloatPointGI. tstr=", PointText}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetFloatPointGI. tstr=", PointText}))));
         }
         Result = ([&] {
-            float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(PointText, 0, u","sv));
-            float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(PointText, 1, u","sv));
-            return EC_Struct::MakePointF(extractDecimalToSingleW, extractDecimalToSingleW_2);
-        }());
+                float extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(PointText,
+                    0, u","sv));
+                float extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(
+                    PointText, 1, u","sv));
+                return EC_Struct::MakePointF(extractDecimalToSingleW, extractDecimalToSingleW_2);
+            }());
         return Result;
     }
 
     Types::TRect GetRectGI(const std::u16string_view& RectText) {
         Types::TRect Result{};
         if (EC_Str::CountDelimitedPartsW(RectText, u","sv) < 4) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"GetRectGI. tstr=", RectText}))));
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"GetRectGI. tstr=", RectText}))));
         }
-        Result.Left = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 0, u","sv)));
-        Result.Top = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 1, u","sv)));
-        Result.Right = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 2, u","sv)));
-        Result.Bottom = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 3, u","sv)));
+        Result.Left = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 0,
+                u","sv)));
+        Result.Top = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 1,
+                u","sv)));
+        Result.Right = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 2,
+                u","sv)));
+        Result.Bottom = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(RectText, 3,
+                u","sv)));
         return Result;
     }
 

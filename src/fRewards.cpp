@@ -23,7 +23,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/System.hpp"
 #include "units/aConst.hpp"
 #include "units/aMyFunction.hpp"
 #include "units/aPlayer.hpp"
@@ -62,15 +61,19 @@ namespace fRewards {
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* RewardPanel = MainPanel->FindByNameRecursive(u"RewardPanel"sv);
-                RewardPanel->SetPosition(ClassesImports::Point(RewardPanel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, RewardPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                RewardPanel->SetPosition(ClassesImports::Point(
+                    RewardPanel->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    RewardPanel->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfRewards::MainPanelKeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->UpCallback = pas::bind_method<&TfRewards::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->UpCallback = pas::bind_method<
+                &TfRewards::CloseClicked>(this);
         AwardsPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
     }
 
@@ -81,11 +84,13 @@ namespace fRewards {
             Ship->AwardVisibleCount = pas::list_count(Ship->AwardIds);
         }
         GR_Main::CaptureScreenBackground(false, 0);
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PTable"sv));
             PTable->ScrollAxis = GI_Panel::psaVertical;
-            PTable->VerticalScrollBar->SetSmallChange(System::Round(pas::real_divide(PTable->ClientSize.Y, 5.0E+1L)));
+            PTable->VerticalScrollBar->SetSmallChange(pas::real_round(static_cast<float>(PTable->ClientSize.Y / 5.0E+1)));
             PTable->VerticalScrollBar->SetLargeChange(PTable->ClientSize.Y);
             PTable->VerticalScrollBar->SetPageSize(PTable->ClientSize.Y);
         }
@@ -94,12 +99,14 @@ namespace fRewards {
             RewardCount->SetActive(CanEditAwards());
         }
         {
-            GI_GraphButton::TGraphButtonGI* Add = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv));
+            GI_GraphButton::TGraphButtonGI* Add = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Add"sv));
             Add->DownCallback = pas::bind_method<&TfRewards::IncreaseVisibleCount>(this);
             Add->SetActive(CanEditAwards());
         }
         {
-            GI_GraphButton::TGraphButtonGI* Sub = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv));
+            GI_GraphButton::TGraphButtonGI* Sub = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"Sub"sv));
             Sub->DownCallback = pas::bind_method<&TfRewards::DecreaseVisibleCount>(this);
             Sub->SetActive(CanEditAwards());
         }
@@ -132,21 +139,25 @@ namespace fRewards {
 
     pas::WideString TfRewards::GetAwardImagePath(std::int32_t AwardId) {
         if (AwardId < 10) {
-            return pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(AwardId)});
+            return pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_0",
+                pas::wide_int_to_str(AwardId)});
         }
-        return pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_", pas::wide_int_to_str(AwardId)});
+        return pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_",
+            pas::wide_int_to_str(AwardId)});
     }
 
     void TfRewards::PlatformMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
         aConst::TRewardInfo cpp_result{};
         aConst::TRewardInfo cpp_result_2{};
         std::int32_t AwardId{};
-        GI_Image::TImageGI* Platform = reinterpret_cast<GI_Image::TImageGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+        GI_Image::TImageGI* Platform = reinterpret_cast<GI_Image::TImageGI*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         AwardId = Sender->UserIndex;
         {
             GI_Label::TLabelGI* InfoZag = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoZag"sv));
             if (AwardId != 255) {
-                InfoZag->SetText((static_cast<void>(pas::checked_cast<aNormalShip::TNormalShip*>(Ship)), aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result), cpp_result).Name);
+                InfoZag->SetText((static_cast<void>(pas::checked_cast<aNormalShip::TNormalShip*>(Ship)),
+                    aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result), cpp_result).Name);
             } else {
                 InfoZag->SetText(u""_wref.get());
             }
@@ -154,7 +165,8 @@ namespace fRewards {
         {
             GI_Label::TLabelGI* Info = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Info"sv));
             if (AwardId != 255) {
-                Info->SetText((static_cast<void>(pas::checked_cast<aNormalShip::TNormalShip*>(Ship)), aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result_2), cpp_result_2).Text);
+                Info->SetText((static_cast<void>(pas::checked_cast<aNormalShip::TNormalShip*>(Ship)),
+                    aNormalShip::TNormalShip::GetAwardInfo(AwardId, cpp_result_2), cpp_result_2).Text);
             } else {
                 Info->SetText(u""_wref.get());
             }
@@ -162,11 +174,13 @@ namespace fRewards {
         GI_MessageLoop::TObjectGI* Obj = AwardsPanel->FirstChild;
         while (Obj != nullptr) {
             if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Obj); imageGI != nullptr && ([&] {
-                pas::WideString cpp_string = imageGI->GetImagePath();
-                pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"PlatformA"});
-                return cpp_string == cpp_string_2;
-            }())) {
-                imageGI->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"PlatformN"}));
+                    pas::WideString cpp_string = imageGI->GetImagePath();
+                    pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                        u"PlatformA"});
+                    return cpp_string == cpp_string_2;
+                }())) {
+                imageGI->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                    u"PlatformN"}));
             }
             Obj = Obj->NextSibling;
         }
@@ -197,18 +211,21 @@ namespace fRewards {
         GI_MessageLoop::TObjectGI* Obj = AwardsPanel->FirstChild;
         while (Obj != nullptr) {
             if (GI_Image::TImageGI* imageGI = pas::class_cast_if<GI_Image::TImageGI*>(Obj); imageGI != nullptr && ([&] {
-                pas::WideString cpp_string = imageGI->GetImagePath();
-                pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"PlatformA"});
-                return cpp_string == cpp_string_2;
-            }())) {
-                imageGI->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"PlatformN"}));
+                    pas::WideString cpp_string = imageGI->GetImagePath();
+                    pas::WideString cpp_string_2 = pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                        u"PlatformA"});
+                    return cpp_string == cpp_string_2;
+                }())) {
+                imageGI->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                    u"PlatformN"}));
             }
             Obj = Obj->NextSibling;
         }
         UpdateActionCursor(false);
     }
 
-    void TfRewards::AwardMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfRewards::AwardMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         std::int32_t Temp{};
         if (DraggedAward == nullptr) {
             DraggedAward = Sender;
@@ -219,9 +236,15 @@ namespace fRewards {
             Temp = Sender->UserIndex;
             Sender->UserIndex = DraggedAward->UserIndex;
             DraggedAward->UserIndex = Temp;
-            Temp = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)))->UserIndex;
-            reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)))->UserIndex = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(DraggedAward->UserValue)))->UserIndex;
-            reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(DraggedAward->UserValue)))->UserIndex = Temp;
+            Temp =
+                reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)))->UserIndex;
+            reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)))->UserIndex =
+                reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(DraggedAward->UserValue)))->UserIndex;
+            reinterpret_cast<GI_MessageLoop::TObjectGI*>(
+                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(DraggedAward->UserValue)))->UserIndex = Temp;
             {
                 GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(Sender);
                 cpp_with->SetImagePath(TfRewards::GetAwardImagePath(Sender->UserIndex));
@@ -259,8 +282,10 @@ namespace fRewards {
             GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"RewardCount"sv));
             cpp_arg->SetText(intToStr);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv))->SetDisabled(Ship->AwardVisibleCount <= 1);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv))->SetDisabled(Ship->AwardVisibleCount >= pas::list_count(Ship->AwardIds));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Sub"sv))->SetDisabled(Ship->AwardVisibleCount <=
+            1);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Add"sv))->SetDisabled(Ship->AwardVisibleCount >=
+            pas::list_count(Ship->AwardIds));
     }
 
     void TfRewards::BuildAwardControls() {
@@ -280,14 +305,16 @@ namespace fRewards {
             Count = (Count + 2) / 3 * 3;
         }
         {
-            GI_MessageLoop::TObjectGI* cpp_with = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, AwardsPanel);
+            GI_MessageLoop::TObjectGI* cpp_with = pas::construct_call<GI_MessageLoop::TObjectGI>(
+                GI_MessageLoop::TObjectGI_Create, AwardsPanel);
             cpp_with->SetPosition(ClassesImports::Point(0, 0));
             cpp_with->SetSize(ClassesImports::Point(1, 1));
             cpp_with->SetPositionModeW(true);
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Platform = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, AwardsPanel);
-            Platform->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"PlatformN"}));
+            Platform->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                u"PlatformN"}));
             Platform->SetSize(Platform->GetContentSize());
             Platform->SetOrigin(EC_Struct::HalfPoint(Platform->ClientSize));
             X = AwardsPanel->ClientSize.X / 3;
@@ -309,10 +336,12 @@ namespace fRewards {
             if (Ship->AwardIds != nullptr && I < pas::list_count(Ship->AwardIds)) {
                 AwardId = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, I)));
                 {
-                    GI_Image::TImageGI* cpp_with_2 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, AwardsPanel);
+                    GI_Image::TImageGI* cpp_with_2 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                        AwardsPanel);
                     cpp_with_2->SetImagePath(TfRewards::GetAwardImagePath(AwardId));
                     cpp_with_2->SetSize(cpp_with_2->GetContentSize());
-                    cpp_with_2->SetOrigin(ClassesImports::Point(cpp_with_2->ClientSize.X / 2, cpp_with_2->ClientSize.Y));
+                    cpp_with_2->SetOrigin(ClassesImports::Point(cpp_with_2->ClientSize.X / 2,
+                        cpp_with_2->ClientSize.Y));
                     cpp_with_2->SetPositionModeW(true);
                     cpp_with_2->SetPosition(ClassesImports::Point(X, Y));
                     cpp_with_2->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Platform));
@@ -353,20 +382,26 @@ namespace fRewards {
     }
 
     void TfRewards::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
+        if (!GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+            !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             if (Key == WindowsSdk::VK_ESCAPE || Key == WindowsSdk::VK_RETURN || Key == 'R') {
                 CloseClicked(nullptr);
             }
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
+                GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                    GetByName(u"PTable"sv));
                 if (Key == WindowsSdk::VK_UP) {
-                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position - PTable->VerticalScrollBar->SmallChange);
+                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position -
+                        PTable->VerticalScrollBar->SmallChange);
                 } else if (Key == WindowsSdk::VK_DOWN) {
-                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position + PTable->VerticalScrollBar->SmallChange);
+                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position +
+                        PTable->VerticalScrollBar->SmallChange);
                 } else if (Key == WindowsSdk::VK_PRIOR) {
-                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position - PTable->VerticalScrollBar->LargeChange);
+                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position -
+                        PTable->VerticalScrollBar->LargeChange);
                 } else if (Key == WindowsSdk::VK_NEXT) {
-                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position + PTable->VerticalScrollBar->LargeChange);
+                    PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position +
+                        PTable->VerticalScrollBar->LargeChange);
                 }
             }
         }
@@ -380,20 +415,28 @@ namespace fRewards {
                 GR_Main::MusicManager->RequestFadeOut();
             } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                        u"Pirate"}));
                 } else {
                     GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                 }
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
             if (!GlobalsV::MusicInPlanetEnabled) {
                 GR_Main::MusicManager->RequestFadeOut();
-            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+            } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                    u"Pirate"}));
             } else {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
             }
         } else if (aPlayer::GetPlayer()->InNormalSpace()) {
             if (GlobalsV::MusicInSpaceEnabled) {
@@ -412,11 +455,15 @@ namespace fRewards {
 
     void TfRewards::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         if (Delta == WindowsSdk::WHEEL_DELTA) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
-            PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position - PTable->VerticalScrollBar->SmallChange * 5);
+            GI_PanelScrollBar::TPanelScrollBarGI* PTable = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PTable"sv));
+            PTable->VerticalScrollBar->SetPosition_2(PTable->VerticalScrollBar->Position -
+                PTable->VerticalScrollBar->SmallChange * 5);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PTable_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PTable"sv));
-            PTable_2->VerticalScrollBar->SetPosition_2(PTable_2->VerticalScrollBar->Position + PTable_2->VerticalScrollBar->SmallChange * 5);
+            GI_PanelScrollBar::TPanelScrollBarGI* PTable_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PTable"sv));
+            PTable_2->VerticalScrollBar->SetPosition_2(PTable_2->VerticalScrollBar->Position +
+                PTable_2->VerticalScrollBar->SmallChange * 5);
         }
     }
 

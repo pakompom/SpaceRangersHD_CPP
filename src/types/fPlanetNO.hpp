@@ -103,10 +103,12 @@ namespace fPlanetNO {
         void ScrollSatellitePageRight(GI_MessageLoop::TObjectGI* Sender);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void MainPanelMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
-        void SatelliteInventoryMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void SatelliteInventoryMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         // Collects accessible surface loot or exchanges the held probe with the selected orbit.
         void ResearchMapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
-        void MainPanelRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void MainPanelRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void UpdateActionCursor(std::uint8_t ForceHand) override;
         void ReturnHeldSatellite();
         // Borrowed probe on the current planet, or nil; -1 always returns nil.

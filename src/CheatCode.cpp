@@ -115,7 +115,9 @@ namespace CheatCode {
                 CheatPrefixSum = 0;
                 return;
             }
-            if (CheatEntries->GetEntry(CheatCandidateIndex)->Text.length() >= CheatPrefixLength + 1 && CheatEntries->GetEntry(CheatCandidateIndex)->Text.read(CheatPrefixLength + 1) == Key && SumCheatPrefix(CheatCandidateIndex, CheatPrefixLength) == CheatPrefixSum) {
+            if (CheatEntries->GetEntry(CheatCandidateIndex)->Text.length() >= CheatPrefixLength + 1 &&
+                CheatEntries->GetEntry(CheatCandidateIndex)->Text.read(CheatPrefixLength + 1) == Key && SumCheatPrefix(
+                    CheatCandidateIndex, CheatPrefixLength) == CheatPrefixSum) {
                 break;
             }
             ++CheatCandidateIndex;
@@ -148,7 +150,8 @@ namespace CheatCode {
         aGalaxyEvent::TGalaxyEvent* Event{};
         Text = aConst::LocalizedColorText(u"Cheat.Info"_wref.get());
         aMyFunction::ReplaceTextToken(Text, u"<Name>"_w, Name, aMyFunction::TextHighlightColorTag);
-        aMyFunction::ReplaceTextToken(Text, u"<CheatPoints>"_w, pas::wide_int_to_str(Points), aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(Text, u"<CheatPoints>"_w, pas::wide_int_to_str(Points),
+            aMyFunction::TextHighlightColorTag);
         if (aGalaxy::Galaxy != nullptr) {
             CheatCode::AddCheatPoints(Points);
             Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerEntersCheatCode"_w, nullptr);
@@ -167,7 +170,9 @@ namespace CheatCode {
         } else if (Globals::RangerRatingScreen->IsOpen) {
             Parent = Globals::RangerRatingScreen;
         } else {
-            Parent = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+            Parent =
+                pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
         }
         GI_MessageBox::ShowMessageBoxGI(Parent, Text, GI_MessageBox::mbgCancel, 0, 0, 0);
         GR_Main::FullFrameRedrawRequested = true;
@@ -184,20 +189,33 @@ namespace CheatCode {
     void CheatRepair() {
         std::int32_t I{};
         aItem::TEquipment* Item{};
-        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace()) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                if (Item->ItemType == aConst::t_Hull || Item->EquippedFlag != 0 && Item->ConditionPercent < 9.0E+1L) {
-                    Item->Repair();
+        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap &&
+            Globals::StarMapScreen->Mode == fStarMap::smmOrders && aPlayer::GetPlayer() != nullptr &&
+            aPlayer::GetPlayer()->InNormalSpace()) {
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Inventory) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
+                        if (Item->ItemType == aConst::t_Hull || Item->EquippedFlag != 0 && Item->ConditionPercent <
+                                    9.0E+1) {
+                            Item->Repair();
+                        }
+                    }
                 }
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Artefacts, I);
-                if (Item->EquippedFlag != 0 && Item->ConditionPercent < 9.0E+1L) {
-                    Item->Repair();
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Artefacts, I);
+                        if (Item->EquippedFlag != 0 && Item->ConditionPercent < 9.0E+1) {
+                            Item->Repair();
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"ROEMPOAYIURU"_w));
+            CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"ROEMPOAYIURU"_wref.get()));
         }
     }
 
@@ -207,28 +225,34 @@ namespace CheatCode {
         aPlanet::TPlanet* Planet{};
         aGalaxy::TStar* Star{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(StarIndex); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
-                if (!(Star->Status.ControlFaction == aGalaxyStruct::sfDominators && Star->Status.CustomFaction == u"")) {
-                    continue;
-                }
-                PlanetIndex = -1;
-                while (true) {
-                    if (Star->ShipTypeCounts[aGalaxyStruct::stKling] >= 12) {
-                        break;
-                    }
-                    Planet = nullptr;
-                    do {
-                        ++PlanetIndex;
-                        if (PlanetIndex >= pas::list_count(Star->Planets)) {
-                            PlanetIndex = 0;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (StarIndex = 0; StarIndex <= cpp_last; ++StarIndex) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
+                        if (!(Star->Status.ControlFaction == aGalaxyStruct::sfDominators &&
+                            Star->Status.CustomFaction == u"")) {
+                            continue;
                         }
-                        Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
-                    } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
-                    Planet->SpawnWeightedDominatorShip();
+                        PlanetIndex = -1;
+                        while (true) {
+                            if (Star->ShipTypeCounts[aGalaxyStruct::stKling] >= 12) {
+                                break;
+                            }
+                            Planet = nullptr;
+                            do {
+                                ++PlanetIndex;
+                                if (PlanetIndex >= pas::list_count(Star->Planets)) {
+                                    PlanetIndex = 0;
+                                }
+                                Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
+                            } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
+                            Planet->SpawnWeightedDominatorShip();
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"KULTIZSOSOASNOMEANXI"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"KULTIZSOSOASNOMEANXI"_wref.get()));
         }
     }
 
@@ -239,33 +263,39 @@ namespace CheatCode {
         aGalaxy::TStar* Star{};
         std::int32_t Created = 0;
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(StarIndex); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
-                if (!(Star->Status.ControlFaction == aGalaxyStruct::sfPirates && Star->Status.CustomFaction == u"")) {
-                    continue;
-                }
-                PlanetIndex = -1;
-                while (true) {
-                    if (Star->CountPirateShips(true) >= 12) {
-                        break;
-                    }
-                    Planet = nullptr;
-                    do {
-                        ++PlanetIndex;
-                        if (PlanetIndex >= pas::list_count(Star->Planets)) {
-                            PlanetIndex = 0;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (StarIndex = 0; StarIndex <= cpp_last; ++StarIndex) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
+                        if (!(Star->Status.ControlFaction == aGalaxyStruct::sfPirates && Star->Status.CustomFaction ==
+                                u"")) {
+                            continue;
                         }
-                        Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
-                    } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
-                    Planet->BuyWarrior(100);
-                    ++Created;
-                    if (Created >= 500) {
-                        CheatCode::ShowCheatFeedback(u"Sudden break"_w);
-                        break;
+                        PlanetIndex = -1;
+                        while (true) {
+                            if (Star->CountPirateShips(true) >= 12) {
+                                break;
+                            }
+                            Planet = nullptr;
+                            do {
+                                ++PlanetIndex;
+                                if (PlanetIndex >= pas::list_count(Star->Planets)) {
+                                    PlanetIndex = 0;
+                                }
+                                Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
+                            } while (!(Planet->OwnerId != aGalaxyStruct::oiUninhabited));
+                            Planet->BuyWarrior(100);
+                            ++Created;
+                            if (Created >= 500) {
+                                CheatCode::ShowCheatFeedback(u"Sudden break"_w);
+                                break;
+                            }
+                        }
                     }
                 }
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"PVISREAXTMETMOARX9"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"PVISREAXTMETMOARX9"_wref.get()));
         }
     }
 
@@ -276,21 +306,32 @@ namespace CheatCode {
         aGalaxy::TStar* Star{};
         std::int32_t Created = 0;
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(StarIndex); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
-                if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && Star->Status.CustomFaction == u"") {
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(PlanetIndex); ) {
-                        Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
-                        if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
-                            while (static_cast<long double>(pas::list_count(Planet->Warriors)) < aMyFunction::RemapClamped(Planet->Radius, 6.0E+1, 1.0E+2, 2.0, 6.0) && Created < 500) {
-                                Planet->BuyWarrior(100);
-                                ++Created;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (StarIndex = 0; StarIndex <= cpp_last; ++StarIndex) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, StarIndex);
+                        if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition && Star->Status.CustomFaction ==
+                                u"") {
+                            const std::int32_t cpp_last_2 = pas::list_count(Star->Planets) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (PlanetIndex = 0; PlanetIndex <= cpp_last_2; ++PlanetIndex) {
+                                    Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, PlanetIndex);
+                                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
+                                        while (static_cast<double>(pas::list_count(Planet->Warriors)) <
+                                            aMyFunction::RemapClamped(Planet->Radius, 6.0E+1, 1.0E+2, 2.0, 6.0) &&
+                                            Created < 500) {
+                                            Planet->BuyWarrior(100);
+                                            ++Created;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"WIAGRARUILOIRAMOARX9"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"WIAGRARUILOIRAMOARX9"_wref.get()));
         }
     }
 
@@ -303,36 +344,58 @@ namespace CheatCode {
         aShip::TShip* Ship{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             Sent = 0;
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(DistanceIndex); ) {
-                Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[DistanceIndex].Star));
-                if (!(Star->Status.ControlFaction == aGalaxyStruct::sfDominators && Star->Status.Battle == 0 && aGalaxy::Galaxy->HasUnresolvedDominatorSeries(pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer}, {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) && Star->Status.CustomFaction == u"")) {
-                    continue;
-                }
-                Eligible = 0;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(ShipIndex); ) {
-                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
-                    if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
-                        ++Eligible;
-                    }
-                }
-                if (Eligible > 2) {
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(ShipIndex); ) {
-                        Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
-                        if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
-                            Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
-                            ++Sent;
-                            --Eligible;
-                            if (Eligible <= 2) {
-                                break;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (1 <= cpp_last) {
+                    for (DistanceIndex = 1; DistanceIndex <= cpp_last; ++DistanceIndex) {
+                        Star =
+                            pas::checked_cast<aGalaxy::TStar*>(
+                                static_cast<pas::Object*>(
+                                    aPlayer::GetPlayer()->CurrentStar->StarDistances[DistanceIndex].Star));
+                        if (!(Star->Status.ControlFaction == aGalaxyStruct::sfDominators && Star->Status.Battle == 0 &&
+                            aGalaxy::Galaxy->HasUnresolvedDominatorSeries(
+                                pas::constant_set<aGalaxy::TDominatorSeriesSet>({{aGalaxyStruct::dsBlazer},
+                                    {aGalaxyStruct::dsKeller}, {aGalaxyStruct::dsTerron}})) &&
+                            Star->Status.CustomFaction == u"")) {
+                            continue;
+                        }
+                        Eligible = 0;
+                        {
+                            const std::int32_t cpp_last_2 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (ShipIndex = 0; ShipIndex <= cpp_last_2; ++ShipIndex) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
+                                    if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone &&
+                                        Ship->InNormalSpace() && !Ship->HasIndependentScriptFaction()) {
+                                        ++Eligible;
+                                    }
+                                }
                             }
+                        }
+                        if (Eligible > 2) {
+                            const std::int32_t cpp_last_3 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_3) {
+                                for (ShipIndex = 0; ShipIndex <= cpp_last_3; ++ShipIndex) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
+                                    if (Ship->OwnerId == aGalaxyStruct::oiDominator && Ship->Order == aShip::soNone &&
+                                        Ship->InNormalSpace() && !Ship->HasIndependentScriptFaction()) {
+                                        Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
+                                        ++Sent;
+                                        --Eligible;
+                                        if (Eligible <= 2) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (Sent > 20) {
+                            break;
                         }
                     }
                 }
-                if (Sent > 20) {
-                    break;
-                }
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"KOLEINSOSUAINOCRABLELS"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"KOLEINSOSUAINOCRABLELS"_wref.get()));
         }
     }
 
@@ -345,49 +408,71 @@ namespace CheatCode {
         aShip::TShip* Ship{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             Sent = 0;
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(DistanceIndex); ) {
-                Star = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentStar->StarDistances[DistanceIndex].Star));
-                if (!(Star->Status.ControlFaction == aGalaxyStruct::sfPirates && Star->Status.Battle == 0 && Star->Status.CustomFaction == u"")) {
-                    continue;
-                }
-                Eligible = 0;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(ShipIndex); ) {
-                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
-                    if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
-                        ++Eligible;
-                    }
-                }
-                if (Eligible > 2) {
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_3.next(ShipIndex); ) {
-                        Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
-                        if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone && Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->HasIndependentScriptFaction() ^ 1)) {
-                            Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
-                            ++Sent;
-                            --Eligible;
-                            if (Eligible <= 2) {
-                                break;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (1 <= cpp_last) {
+                    for (DistanceIndex = 1; DistanceIndex <= cpp_last; ++DistanceIndex) {
+                        Star =
+                            pas::checked_cast<aGalaxy::TStar*>(
+                                static_cast<pas::Object*>(
+                                    aPlayer::GetPlayer()->CurrentStar->StarDistances[DistanceIndex].Star));
+                        if (!(Star->Status.ControlFaction == aGalaxyStruct::sfPirates && Star->Status.Battle == 0 &&
+                            Star->Status.CustomFaction == u"")) {
+                            continue;
+                        }
+                        Eligible = 0;
+                        {
+                            const std::int32_t cpp_last_2 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (ShipIndex = 0; ShipIndex <= cpp_last_2; ++ShipIndex) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
+                                    if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone &&
+                                        Ship->InNormalSpace() && !Ship->HasIndependentScriptFaction()) {
+                                        ++Eligible;
+                                    }
+                                }
                             }
+                        }
+                        if (Eligible > 2) {
+                            const std::int32_t cpp_last_3 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_3) {
+                                for (ShipIndex = 0; ShipIndex <= cpp_last_3; ++ShipIndex) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, ShipIndex);
+                                    if (Ship->OwnerId == aGalaxyStruct::oiPirate && Ship->Order == aShip::soNone &&
+                                        Ship->InNormalSpace() && !Ship->HasIndependentScriptFaction()) {
+                                        Ship->OrderJump(aPlayer::GetPlayer()->CurrentStar, true);
+                                        ++Sent;
+                                        --Eligible;
+                                        if (Eligible <= 2) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (Sent > 20) {
+                            break;
                         }
                     }
                 }
-                if (Sent > 20) {
-                    break;
-                }
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"PAIORNAMTZEXCOASLOL"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"PAIORNAMTZEXCOASLOL"_wref.get()));
         }
     }
 
     void CheatRangerpoints() {
-        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstRangerCenter && aPlayer::GetPlayer()->FreeExperience < 1000) {
+        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() !=
+                nullptr && aPlayer::GetPlayer()->IsDockedToShip() && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstRangerCenter && aPlayer::GetPlayer()->FreeExperience < 1000) {
             aPlayer::GetPlayer()->GainExperience(1000, aGalaxyStruct::esUnscaled);
-            CheatCode::ReportCheat(150, EC_Str::DecodeTextW(u"RIALNOGDEPROPRONIHNITIS"_w));
+            CheatCode::ReportCheat(150, EC_Str::DecodeTextW(u"RIALNOGDEPROPRONIHNITIS"_wref.get()));
         }
     }
 
     void CheatNextrank() {
-        CheatCode::ReportCheat(90, EC_Str::DecodeTextW(u"NIETXATARNARNAK"_w));
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip) {
+        CheatCode::ReportCheat(90, EC_Str::DecodeTextW(u"NIETXATARNARNAK"_wref.get()));
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId !=
+                GlobalsV::screenShip) {
             if (aPlayer::GetPlayer()->Rank != 7) {
                 aPlayer::GetPlayer()->AddRankPoints(aPlayer::GetPlayer()->GetRankPointsToNextRank());
             }
@@ -403,7 +488,8 @@ namespace CheatCode {
 
     void CheatCoolweapon() {
         aItem::TEquipment* Item{};
-        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet()) {
+        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() !=
+                nullptr && aPlayer::GetPlayer()->IsOnPlanet()) {
             fEquipmentShop::RestoreTemporaryShopStock();
             Item = pas::construct_call<aItem::TWeapon>(aItem::TEquipment_Create);
             pas::list_add(aPlayer::GetPlayer()->CurrentPlanet->EquipmentShop, reinterpret_cast<void*>(Item));
@@ -411,7 +497,8 @@ namespace CheatCode {
                 std::uint8_t randomIntRange = aMyFunction::RandomIntRange(4, 8);
                 aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
                 std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(50, 100);
-                aConst::TItemType randomIntRange_3 = static_cast<aConst::TItemType>(aMyFunction::RandomIntRange(58, 61));
+                aConst::TItemType randomIntRange_3 = static_cast<aConst::TItemType>(aMyFunction::RandomIntRange(58,
+                    61));
                 aItem::TWeapon* cpp_arg = pas::checked_cast<aItem::TWeapon*>(Item);
                 cpp_arg->Init(randomIntRange_3, randomIntRange_2, randomIntRange, raceToOwner);
             }
@@ -421,19 +508,21 @@ namespace CheatCode {
                 Globals::EquipmentShopScreen->BuildGoodsControls();
                 Globals::EquipmentShopScreen->UpdateScrollButtons();
             }
-            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"CRONOBLAWSENAIPROSN"_w));
+            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"CRONOBLAWSENAIPROSN"_wref.get()));
         }
     }
 
     void CheatLowcostweapon() {
         aItem::TWeapon* Item{};
         aConst::PWeaponInfo Info{};
-        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet()) {
+        if (aGalaxy::Galaxy != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer() !=
+                nullptr && aPlayer::GetPlayer()->IsOnPlanet()) {
             fEquipmentShop::RestoreTemporaryShopStock();
             {
                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                Info = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{aGalaxyStruct::waFree}}), 8, 1);
+                Info = galaxy->SelectWeaponInfo(randomIntRange,
+                        pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{aGalaxyStruct::waFree}}), 8, 1);
             }
             {
                 aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId);
@@ -451,13 +540,15 @@ namespace CheatCode {
                 Globals::EquipmentShopScreen->BuildGoodsControls();
                 Globals::EquipmentShopScreen->UpdateScrollButtons();
             }
-            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"LLOYWACSONSETIWIEFAIPROLNO"_w));
+            CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"LLOYWACSONSETIWIEFAIPROLNO"_wref.get()));
         }
     }
 
     void CheatBomb() {
         aItem::TArtefact* Item{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
             Item = pas::construct_call<aItem::TArtefact>(aItem::TArtefact_Create);
             Item->Init(aPlayer::GetPlayer()->HomePlanet->OwnerId, aConst::t_ArtefactBomb);
             pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Item));
@@ -466,55 +557,65 @@ namespace CheatCode {
             pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Item));
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
-            CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"BRODMEB"_w));
+            CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"BRODMEB"_wref.get()));
         }
     }
 
     void CheatRobotforce() {
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1)) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1)) {
             {
-                void* createConfiguredArtefactByItemType = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiMaloc));
+                void* createConfiguredArtefactByItemType = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiMaloc));
                 aMyFunction::TObjectList* artefacts = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts, createConfiguredArtefactByItemType);
             }
             {
-                void* createConfiguredArtefactByItemType_2 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPeleng));
+                void* createConfiguredArtefactByItemType_2 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPeleng));
                 aMyFunction::TObjectList* artefacts_2 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_2, createConfiguredArtefactByItemType_2);
             }
             {
-                void* createConfiguredArtefactByItemType_3 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiHuman));
+                void* createConfiguredArtefactByItemType_3 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiHuman));
                 aMyFunction::TObjectList* artefacts_3 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_3, createConfiguredArtefactByItemType_3);
             }
             {
-                void* createConfiguredArtefactByItemType_4 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiFeyan));
+                void* createConfiguredArtefactByItemType_4 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiFeyan));
                 aMyFunction::TObjectList* artefacts_4 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_4, createConfiguredArtefactByItemType_4);
             }
             {
-                void* createConfiguredArtefactByItemType_5 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiGaal));
+                void* createConfiguredArtefactByItemType_5 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiGaal));
                 aMyFunction::TObjectList* artefacts_5 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_5, createConfiguredArtefactByItemType_5);
             }
             {
-                void* createConfiguredArtefactByItemType_6 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiUninhabited));
+                void* createConfiguredArtefactByItemType_6 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator,
+                        aGalaxyStruct::oiUninhabited));
                 aMyFunction::TObjectList* artefacts_6 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_6, createConfiguredArtefactByItemType_6);
             }
             {
-                void* createConfiguredArtefactByItemType_7 = reinterpret_cast<void*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPirate));
+                void* createConfiguredArtefactByItemType_7 = reinterpret_cast<void*>(
+                    aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTranclucator, aGalaxyStruct::oiPirate));
                 aMyFunction::TObjectList* artefacts_7 = aPlayer::GetPlayer()->Artefacts;
                 pas::list_add(artefacts_7, createConfiguredArtefactByItemType_7);
             }
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-            CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"RFOCBIOLTQFNOCROCRE"_w));
+            CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"RFOCBIOLTQFNOCROCRE"_wref.get()));
         }
     }
 
     void CheatArtefact() {
         aItem::TItem* Item{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId == GlobalsV::screenArcadeBattle) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId ==
+                GlobalsV::screenArcadeBattle) {
             {
                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 1000000000);
                 aGalaxyStruct::TOwnerId raceToOwner = aConst::RaceToOwner(aPlayer::GetPlayer()->HomePlanet->RaceId);
@@ -526,13 +627,17 @@ namespace CheatCode {
                 pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
             }
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-            CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"ASRATIENFOARCAT"_w));
+            CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"ASRATIENFOARCAT"_wref.get()));
         }
     }
 
     void CheatMoney() {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            if (aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders || GlobalsV::CurrentScreenId == GlobalsV::screenPlanet || GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO || GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop || GlobalsV::CurrentScreenId == GlobalsV::screenEquipmentShop) {
+            if (aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap &&
+                Globals::StarMapScreen->Mode == fStarMap::smmOrders || GlobalsV::CurrentScreenId ==
+                    GlobalsV::screenPlanet || GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO ||
+                GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop || GlobalsV::CurrentScreenId ==
+                    GlobalsV::screenEquipmentShop) {
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + 10000);
                 if (GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
                     Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
@@ -546,7 +651,7 @@ namespace CheatCode {
                 } else if (GlobalsV::CurrentScreenId == GlobalsV::screenEquipmentShop) {
                     Globals::EquipmentShopScreen->MainPanel->RefreshMoneyAndCargo();
                 }
-                CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"MEOLNIERYE"_w));
+                CheatCode::ReportCheat(40, EC_Str::DecodeTextW(u"MEOLNIERYE"_wref.get()));
             }
         }
     }
@@ -558,16 +663,27 @@ namespace CheatCode {
         float Distance{};
         float BestDistance{};
         aItem::TEquipment* Item{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
             BestDistance = 1.0E+30f;
             Nearest = nullptr;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-                Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-                if (aPlayer::GetPlayer() != Ship && aKling::BlazerShip != Ship && aKling::KellerShip != Ship && aKling::TerronShip != Ship && pas::in_range(Ship->TypeId, static_cast<std::int32_t>(aGalaxyStruct::stKling), static_cast<std::int32_t>(aGalaxyStruct::stWarrior)) && static_cast<std::uint8_t>(Ship->IsOutsideStarSpace() ^ 1)) {
-                    Distance = aMyFunction::PointDistanceSquared(Ship->Position, aPlayer::GetPlayer()->Position);
-                    if (Distance < BestDistance) {
-                        BestDistance = Distance;
-                        Nearest = Ship;
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                        if (aPlayer::GetPlayer() != Ship && aKling::BlazerShip != Ship && aKling::KellerShip != Ship &&
+                            aKling::TerronShip != Ship && pas::in_range(Ship->TypeId,
+                                static_cast<std::int32_t>(aGalaxyStruct::stKling),
+                                static_cast<std::int32_t>(aGalaxyStruct::stWarrior)) && !Ship->IsOutsideStarSpace()) {
+                            Distance = aMyFunction::PointDistanceSquared(Ship->Position,
+                                    aPlayer::GetPlayer()->Position);
+                            if (Distance < BestDistance) {
+                                BestDistance = Distance;
+                                Nearest = Ship;
+                            }
+                        }
                     }
                 }
             }
@@ -578,14 +694,16 @@ namespace CheatCode {
                     if (cpp_first >= 0) {
                         for (I = cpp_first; I >= 0; --I) {
                             Item = pas::list_at<aItem::TEquipment>(Ship->Inventory, I);
-                            if (Item->ItemType != aConst::t_Hull && (Item->ItemType != aConst::t_Engine || Item->EquippedFlag == 0) && (Item->ItemType != aConst::t_FuelTanks || Item->EquippedFlag == 0)) {
+                            if (Item->ItemType != aConst::t_Hull && (Item->ItemType != aConst::t_Engine ||
+                                    Item->EquippedFlag == 0) && (Item->ItemType != aConst::t_FuelTanks ||
+                                    Item->EquippedFlag == 0)) {
                                 Ship->DropCarriedItemAsMovingLoot(Item);
                             }
                         }
                     }
                 }
                 Ship->RefreshDerivedStats(true);
-                CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"DIRIOSPA"_w));
+                CheatCode::ReportCheat(60, EC_Str::DecodeTextW(u"DIRIOSPA"_wref.get()));
             }
         }
     }
@@ -593,39 +711,58 @@ namespace CheatCode {
     void CheatPacking() {
         aItem::TItem* Item{};
         std::int32_t I{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && (GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || Globals::StarMapScreen->Mode == fStarMap::smmOrders)) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Inventory, I);
-                if (Item->ItemType != aConst::t_Hull) {
-                    Item->Weight = std::max<std::int32_t>(1, Item->Weight / 2);
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && (GlobalsV::CurrentScreenId !=
+                GlobalsV::screenStarMap || Globals::StarMapScreen->Mode == fStarMap::smmOrders)) {
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Inventory) - 1;
+                if (1 <= cpp_last) {
+                    for (I = 1; I <= cpp_last; ++I) {
+                        Item = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Inventory, I);
+                        if (Item->ItemType != aConst::t_Hull) {
+                            Item->Weight = std::max<std::int32_t>(1, Item->Weight / 2);
+                        }
+                    }
                 }
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(I); ) {
-                Item = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Artefacts, I);
-                if (Item->ItemType == aConst::t_ArtefactTranclucator) {
-                    static_cast<aTranclucator::TTranclucator*>(pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->ArtefactSize = std::max<std::int32_t>(1, Item->Weight / 2);
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1;
+                if (0 <= cpp_last_2) {
+                    for (I = 0; I <= cpp_last_2; ++I) {
+                        Item = pas::list_at<aItem::TItem>(aPlayer::GetPlayer()->Artefacts, I);
+                        if (Item->ItemType == aConst::t_ArtefactTranclucator) {
+                            static_cast<aTranclucator::TTranclucator*>(
+                                pas::checked_cast<aItem::TArtefactTranclucator*>(Item)->Ship)->ArtefactSize =
+                                std::max<std::int32_t>(1, Item->Weight / 2);
+                        }
+                        Item->Weight = std::max<std::int32_t>(1, Item->Weight / 2);
+                    }
                 }
-                Item->Weight = std::max<std::int32_t>(1, Item->Weight / 2);
             }
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
-            CheatCode::ReportCheat(300, EC_Str::DecodeTextW(u"PRANCIKCIINEG"_w));
+            CheatCode::ReportCheat(300, EC_Str::DecodeTextW(u"PRANCIKCIINEG"_wref.get()));
         }
     }
 
     void CheatKlissanitem() {
         aItem::TWeapon* Item{};
         aConst::PWeaponInfo Info{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstScienceBase) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() &&
+            GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstScienceBase) {
             {
                 std::uint32_t randomIntRange = aMyFunction::RandomIntRange(1, 100000);
                 aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
-                Info = galaxy->SelectWeaponInfo(randomIntRange, pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({{aGalaxyStruct::waNotSoldAndNodeRepair}}), 8, 1);
+                Info = galaxy->SelectWeaponInfo(randomIntRange,
+                        pas::constant_set<aGalaxyStruct::TWeaponAvailabilityMask>({
+                            {aGalaxyStruct::waNotSoldAndNodeRepair}}), 8, 1);
             }
             {
                 std::int32_t randomIntRange_2 = aMyFunction::RandomIntRange(1, 8);
                 std::int32_t randomIntRange_3 = aMyFunction::RandomIntRange(77, 200);
-                Item = aItem::CreateGeneratedWeapon(Info, randomIntRange_3, randomIntRange_2, aGalaxyStruct::oiDominator);
+                Item = aItem::CreateGeneratedWeapon(Info, randomIntRange_3, randomIntRange_2,
+                        aGalaxyStruct::oiDominator);
             }
             switch (aMyFunction::RandomIntRange(1, 3)) {
                 case 1: Item->DominatorSeries = aGalaxyStruct::dsBlazer; break;
@@ -644,7 +781,7 @@ namespace CheatCode {
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenInfo) {
                 Globals::InfoScreen->MainPanel->RefreshMoneyAndCargo();
             }
-            CheatCode::ReportCheat(160, EC_Str::DecodeTextW(u"KALKINSOSUANNIINTHEMM"_w));
+            CheatCode::ReportCheat(160, EC_Str::DecodeTextW(u"KALKINSOSUANNIINTHEMM"_wref.get()));
         }
     }
 
@@ -654,41 +791,62 @@ namespace CheatCode {
         std::int32_t K{};
         aGalaxy::TStar* Star{};
         aShip::TShip* Ship{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
-                    Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                    if (!pas::in_set<aGalaxyStruct::stKling, aGalaxyStruct::stKling, aGalaxyStruct::stTranclucator, aGalaxyStruct::rstCustomStation>(Ship->TypeId)) {
-                        if (!(Ship->TypeId == aGalaxyStruct::stPirate || aPlayer::GetPlayer() == Ship || Ship->TypeId == aGalaxyStruct::stRanger && pas::checked_cast<aRanger::TRanger*>(Ship)->PreferredCareer == aGalaxyStruct::rcPirate)) {
-                            if (aPlayer::GetPlayer() != Ship->PartnerShip) {
-                                Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), -60);
-                            }
-                        } else {
-                            {
-                                const std::int32_t cpp_last = static_cast<std::int32_t>(Ship->WeaponCount);
-                                if (1 <= cpp_last) {
-                                    for (K = 1; K <= cpp_last; ++K) {
-                                        {
-                                            std::int32_t min = std::min<std::int32_t>(255, ([&] {
-                                                std::int32_t cpp_right = aMyFunction::RandomIntRange(10, 20);
-                                                return Ship->Weapons[K]->MaxDamage + cpp_right;
-                                            }()));
-                                            Ship->Weapons[K]->MaxDamage = min;
-                                        }
-                                        if (aPlayer::GetPlayer() != Ship) {
-                                            Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 50);
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() &&
+            GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstPirateBase) {
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
+                        {
+                            const std::int32_t cpp_last_2 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (J = 0; J <= cpp_last_2; ++J) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
+                                    if (!pas::in_set<aGalaxyStruct::stKling, aGalaxyStruct::stKling,
+                                        aGalaxyStruct::stTranclucator, aGalaxyStruct::rstCustomStation>(Ship->TypeId)) {
+                                        if (!(Ship->TypeId == aGalaxyStruct::stPirate || aPlayer::GetPlayer() == Ship ||
+                                            Ship->TypeId == aGalaxyStruct::stRanger &&
+                                                pas::checked_cast<aRanger::TRanger*>(Ship)->PreferredCareer ==
+                                                    aGalaxyStruct::rcPirate)) {
+                                            if (aPlayer::GetPlayer() != Ship->PartnerShip) {
+                                                Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), -60);
+                                            }
+                                        } else {
+                                            {
+                                                const std::int32_t cpp_last_3 = static_cast<std::int32_t>(
+                                                    Ship->WeaponCount);
+                                                if (1 <= cpp_last_3) {
+                                                    for (K = 1; K <= cpp_last_3; ++K) {
+                                                        {
+                                                            std::int32_t min = std::min<std::int32_t>(255,
+                                                                ([&] {
+                                                                    std::int32_t cpp_right = aMyFunction::RandomIntRange(
+                                                                        10, 20);
+                                                                    return Ship->Weapons[K]->MaxDamage + cpp_right;
+                                                                }()));
+                                                            Ship->Weapons[K]->MaxDamage = min;
+                                                        }
+                                                        if (aPlayer::GetPlayer() != Ship) {
+                                                            Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 50);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            Ship->RefreshDerivedStats(true);
                                         }
                                     }
                                 }
                             }
-                            Ship->RefreshDerivedStats(true);
                         }
                     }
                 }
             }
             aPlayer::GetPlayer()->CareerStatus[aGalaxyStruct::rcPirate] = 100;
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 60, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 60,
+                pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman},
+                    {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
             if (GlobalsV::CurrentScreenId == GlobalsV::screenRuinsTalk) {
                 Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop) {
@@ -699,7 +857,7 @@ namespace CheatCode {
             } else if (GlobalsV::CurrentScreenId == GlobalsV::screenInfo) {
                 Globals::InfoScreen->MainPanel->RefreshMoneyAndCargo();
             }
-            CheatCode::ReportCheat(200, EC_Str::DecodeTextW(u"WRENARPBOSNASOTERLEINAGATOHE"_w));
+            CheatCode::ReportCheat(200, EC_Str::DecodeTextW(u"WRENARPBOSNASOTERLEINAGATOHE"_wref.get()));
         }
     }
 
@@ -708,14 +866,16 @@ namespace CheatCode {
         float Radius{};
         float Angle{};
         std::int32_t I{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
             for (I = 0; I <= 9; ++I) {
                 Item = pas::construct_call<aItem::TArtefact>(aItem::TArtefact_Create);
                 Item->Init(aPlayer::GetPlayer()->HomePlanet->OwnerId, aConst::t_ArtefactBomb);
                 Radius = aMyFunction::RandomIntRange(300, 700);
                 Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::RandomIntRange(0, 360));
-                Item->Position.X = aPlayer::GetPlayer()->Position.X + System::Sin(Angle) * Radius;
-                Item->Position.Y = aPlayer::GetPlayer()->Position.Y - System::Cos(Angle) * Radius;
+                Item->Position.X = static_cast<float>(aPlayer::GetPlayer()->Position.X + static_cast<float>(System::Sin(Angle) * Radius));
+                Item->Position.Y = static_cast<float>(aPlayer::GetPlayer()->Position.Y - static_cast<float>(System::Cos(Angle) * Radius));
                 pas::list_add(aPlayer::GetPlayer()->CurrentStar->Items, reinterpret_cast<void*>(Item));
                 {
                     SE_Space::TObjectSE* graphObject = Item->GetGraphObject();
@@ -724,7 +884,7 @@ namespace CheatCode {
                 }
                 Item->DestroyFlag = 2;
             }
-            CheatCode::ReportCheat(140, EC_Str::DecodeTextW(u"TIECN0BEOAMOB"_w));
+            CheatCode::ReportCheat(140, EC_Str::DecodeTextW(u"TIECN0BEOAMOB"_wref.get()));
         }
     }
 
@@ -734,7 +894,9 @@ namespace CheatCode {
         std::int32_t Total{};
         float X{};
         float Y{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
             Total = 0;
             while (Total < 10000) {
                 Item = pas::construct_call<aItem::TProtoplasm>(aItem::TEquipment_Create);
@@ -749,9 +911,10 @@ namespace CheatCode {
                 do {
                     X = aMyFunction::RandomIntRange(-250, 250);
                     Y = aMyFunction::RandomIntRange(-250, 250);
-                } while (!(pas::sqr(static_cast<pas::Extended>(X)) + pas::sqr(static_cast<pas::Extended>(Y)) > 2.5E+3L && pas::sqr(static_cast<pas::Extended>(X)) + pas::sqr(static_cast<pas::Extended>(Y)) < 6.25E+4L));
-                Item->Position.X = static_cast<long double>(aPlayer::GetPlayer()->Position.X) + X;
-                Item->Position.Y = static_cast<long double>(aPlayer::GetPlayer()->Position.Y) + Y;
+                } while (!(static_cast<float>(pas::sqr(static_cast<double>(X)) + pas::sqr(static_cast<double>(Y))) > 2.5E+3 &&
+                    static_cast<float>(pas::sqr(static_cast<double>(X)) + pas::sqr(static_cast<double>(Y))) < 6.25E+4));
+                Item->Position.X = static_cast<float>(static_cast<double>(aPlayer::GetPlayer()->Position.X) + X);
+                Item->Position.Y = static_cast<float>(static_cast<double>(aPlayer::GetPlayer()->Position.Y) + Y);
                 pas::list_add(aPlayer::GetPlayer()->CurrentStar->Items, reinterpret_cast<void*>(Item));
                 {
                     SE_Space::TObjectSE* graphObject = Item->GetGraphObject();
@@ -759,7 +922,7 @@ namespace CheatCode {
                     graphObject->AttachToSpace(space);
                 }
             }
-            CheatCode::ReportCheat(140, EC_Str::DecodeTextW(u"RIALNEGREFRESIDUREEKALMA"_w));
+            CheatCode::ReportCheat(140, EC_Str::DecodeTextW(u"RIALNEGREFRESIDUREEKALMA"_wref.get()));
         }
     }
 
@@ -776,18 +939,25 @@ namespace CheatCode {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             TotalKinds = 7;
             Remaining = TotalKinds;
-            Kinds = pas::constant_set<aGalaxyStruct::TShipTypeMask>({{aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstDominion}});
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-                Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-                if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
-                    --Remaining;
-                    pas::exclude_at(&Kinds, Ship->TypeId);
+            Kinds = pas::constant_set<aGalaxyStruct::TShipTypeMask>({
+                    {aGalaxyStruct::rstRangerCenter, aGalaxyStruct::rstDominion}});
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                        if (pas::class_cast_if<aRuins::TRuins*>(Ship) != nullptr) {
+                            --Remaining;
+                            pas::exclude_at(&Kinds, Ship->TypeId);
+                        }
+                    }
                 }
             }
             if (TotalKinds - Remaining < 3) {
                 Choice = aMyFunction::RandomIntRange(1, Remaining);
                 I = 0;
-                for (Kind = static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstRangerCenter); Kind <= static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstDominion); ++Kind) {
+                for (Kind = static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstRangerCenter); Kind <=
+                    static_cast<aGalaxyStruct::TStationType>(aGalaxyStruct::rstDominion); ++Kind) {
                     if (pas::contains(Kinds, Kind)) {
                         ++I;
                         if (I == Choice) {
@@ -797,7 +967,7 @@ namespace CheatCode {
                         }
                     }
                 }
-                CheatCode::ReportCheat(30, EC_Str::DecodeTextW(u"RONNDOBNASSAEY"_w));
+                CheatCode::ReportCheat(30, EC_Str::DecodeTextW(u"RONNDOBNASSAEY"_wref.get()));
             }
         }
     }
@@ -805,7 +975,9 @@ namespace CheatCode {
     void CheatMapsector() {
         std::int32_t I{};
         aGalaxy::TConstellation* Constellation{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() &&
+            GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstPirateBase) {
             I = 0;
             // Native search skips hidden sectors here, then randomly seeks a hidden one.
             while (I < pas::list_count(aGalaxy::Galaxy->Constellations)) {
@@ -816,19 +988,24 @@ namespace CheatCode {
             }
             if (I < pas::list_count(aGalaxy::Galaxy->Constellations)) {
                 do {
-                    std::int32_t randomIntRange = aMyFunction::RandomIntRange(0, pas::list_count(aGalaxy::Galaxy->Constellations) - 1);
+                    std::int32_t randomIntRange = aMyFunction::RandomIntRange(0,
+                        pas::list_count(aGalaxy::Galaxy->Constellations) - 1);
                     aMyFunction::TObjectList* constellations = aGalaxy::Galaxy->Constellations;
                     Constellation = pas::list_at<aGalaxy::TConstellation>(constellations, randomIntRange);
                 } while (Constellation->Visible);
                 Constellation->Visible = true;
-                CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"MOARPESHESCOTROLR2"_w));
+                CheatCode::ReportCheat(20, EC_Str::DecodeTextW(u"MOARPESHESCOTROLR2"_wref.get()));
             }
         }
     }
 
     void CheatHugemoney() {
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            if (aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders || GlobalsV::CurrentScreenId == GlobalsV::screenPlanet || GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO || GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop || GlobalsV::CurrentScreenId == GlobalsV::screenEquipmentShop) {
+            if (aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap &&
+                Globals::StarMapScreen->Mode == fStarMap::smmOrders || GlobalsV::CurrentScreenId ==
+                    GlobalsV::screenPlanet || GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO ||
+                GlobalsV::CurrentScreenId == GlobalsV::screenGoodsShop || GlobalsV::CurrentScreenId ==
+                    GlobalsV::screenEquipmentShop) {
                 aPlayer::GetPlayer()->SetMoney((aPlayer::GetPlayer()->Money / 1000000 + 1) * 1000000);
                 if (GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
                     Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
@@ -842,7 +1019,7 @@ namespace CheatCode {
                 } else if (GlobalsV::CurrentScreenId == GlobalsV::screenEquipmentShop) {
                     Globals::EquipmentShopScreen->MainPanel->RefreshMoneyAndCargo();
                 }
-                CheatCode::ReportCheat(300, EC_Str::DecodeTextW(u"HAUNGLESMIOMNEELYS"_w));
+                CheatCode::ReportCheat(300, EC_Str::DecodeTextW(u"HAUNGLESMIOMNEELYS"_wref.get()));
             }
         }
     }
@@ -850,26 +1027,38 @@ namespace CheatCode {
     void CheatPelengsurprise() {
         aItem::TItem* Item{};
         std::int32_t I{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPeleng && GlobalsV::CurrentScreenId != GlobalsV::screenShip) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(fEquipmentShop::TemporaryShopSlots) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<fEquipmentShop::TShopSlot>(fEquipmentShop::TemporaryShopSlots, I)->Item;
-                if (Item != nullptr && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                    static_cast<aItem::TWeapon*>(Item)->Range = static_cast<aItem::TWeapon*>(Item)->Range * 2;
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsOnPlanet() &&
+            aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPeleng && GlobalsV::CurrentScreenId !=
+                GlobalsV::screenShip) {
+            {
+                const std::int32_t cpp_last = pas::list_count(fEquipmentShop::TemporaryShopSlots) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Item = pas::list_at<fEquipmentShop::TShopSlot>(fEquipmentShop::TemporaryShopSlots, I)->Item;
+                        if (Item != nullptr && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
+                            static_cast<aItem::TWeapon*>(Item)->Range = static_cast<aItem::TWeapon*>(Item)->Range * 2;
+                        }
+                    }
                 }
             }
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 50, pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman}, {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
-            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_w));
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmDecrease, 50,
+                pas::constant_set<aGalaxyStruct::TOwnerMask>({{aGalaxyStruct::oiMaloc}, {aGalaxyStruct::oiHuman},
+                    {aGalaxyStruct::oiFeyan}, {aGalaxyStruct::oiGaal}}));
+            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_wref.get()));
         }
     }
 
     void CheatSuperhull() {
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && (GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || Globals::StarMapScreen->Mode == fStarMap::smmOrders)) {
-            aPlayer::GetPlayer()->GetHull()->Weight = std::min<std::int64_t>(static_cast<std::int64_t>(2000), System::Round(aPlayer::GetPlayer()->GetHull()->Weight * 1.3L));
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && (GlobalsV::CurrentScreenId !=
+                GlobalsV::screenStarMap || Globals::StarMapScreen->Mode == fStarMap::smmOrders)) {
+            aPlayer::GetPlayer()->GetHull()->Weight = std::min<std::int64_t>(static_cast<std::int64_t>(2000),
+                    pas::real_round(static_cast<float>(aPlayer::GetPlayer()->GetHull()->Weight * 0x1.4ccccccccccccp+0)));
             aPlayer::GetPlayer()->GetHull()->HullPoints = aPlayer::GetPlayer()->GetHull()->Weight;
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
             aPlayer::GetPlayer()->RefreshGraphicSize();
             Globals::StarMapScreen->MainPanel->RefreshMoneyAndCargo();
-            CheatCode::ReportCheat(250, EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_w));
+            CheatCode::ReportCheat(250, EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_wref.get()));
         }
     }
 
@@ -881,34 +1070,51 @@ namespace CheatCode {
                 const std::int32_t cpp_first = pas::list_count(ab_Ship::PlayerArcadeShip->Enemies) - 1;
                 if (cpp_first >= 0) {
                     for (I = cpp_first; I >= 0; --I) {
-                        std::int32_t round = System::Round(pas::real_divide(pas::list_at<ab_Hit::TabHit>(ab_Ship::PlayerArcadeShip->Enemies, I)->Health * 2, ab_Global::ShieldDamageScale));
+                        std::int32_t round = pas::real_round(static_cast<float>(static_cast<double>(pas::list_at<ab_Hit::TabHit>(
+                            ab_Ship::PlayerArcadeShip->Enemies, I)->Health * 2) / ab_Global::ShieldDamageScale));
                         ab_Hit::TabHit* cpp_arg = pas::list_at<ab_Hit::TabHit>(ab_Ship::PlayerArcadeShip->Enemies, I);
                         cpp_arg->ApplyDamage(round, nullptr, false);
                     }
                 }
             }
             if (GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-                    Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-                    if (aPlayer::GetPlayer() != Ship && static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) && (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited)) {
-                        Ship->DestroyQueued = true;
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                        if (aPlayer::GetPlayer() != Ship && static_cast<std::uint8_t>(Ship->InHyperspace ^ 1) &&
+                            (Ship->CurrentPlanet == nullptr || Ship->CurrentPlanet->OwnerId !=
+                                    aGalaxyStruct::oiUninhabited)) {
+                            Ship->DestroyQueued = true;
+                        }
                     }
                 }
             }
-            CheatCode::ReportCheat(30, EC_Str::DecodeTextW(u"BLOSOMM"_w));
+            CheatCode::ReportCheat(30, EC_Str::DecodeTextW(u"BLOSOMM"_wref.get()));
         }
     }
 
     void CheatHaterangers() {
-        static const pas::Set<0, 255> ShipTypes = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
-        static const pas::Set<0, 255> Owners = pas::constant_set<pas::Set<0, 255>>({{aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate}});
+        static const pas::Set<0, 255> ShipTypes = pas::constant_set<pas::Set<0, 255>>({
+            {aGalaxyStruct::htPirate, aGalaxyStruct::htDiplomat}});
+        static const pas::Set<0, 255> Owners = pas::constant_set<pas::Set<0, 255>>({
+            {aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate}});
         std::int32_t I{};
         aShip::TShip* Ship{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"HEAVTIERROASNAGZEOROST"_w));
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Rangers) - 1); cpp_range.next(I); ) {
-                Ship = pas::list_at<aShip::TShip>(aGalaxy::Galaxy->Rangers, I);
-                pas::checked_cast<aRanger::TRanger*>(Ship)->ChangeShipRelations(nullptr, aRanger::rcmDecrease, 80, static_cast<aConst::THullShipTypeMask>(ShipTypes), static_cast<aGalaxyStruct::TOwnerMask>(Owners));
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"HEAVTIERROASNAGZEOROST"_wref.get()));
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Rangers) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Ship = pas::list_at<aShip::TShip>(aGalaxy::Galaxy->Rangers, I);
+                        pas::checked_cast<aRanger::TRanger*>(Ship)->ChangeShipRelations(nullptr, aRanger::rcmDecrease,
+                            80, static_cast<aConst::THullShipTypeMask>(ShipTypes),
+                            static_cast<aGalaxyStruct::TOwnerMask>(Owners));
+                    }
+                }
             }
         }
     }
@@ -918,26 +1124,37 @@ namespace CheatCode {
         std::int32_t Attempts{};
         aGalaxy::TStar* Star{};
         aPlanet::TPlanet* Planet{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() && GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstPirateBase) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-                if (pas::is_one_of<aGalaxyStruct::sfCoalition, aGalaxyStruct::sfPirates>(Star->Status.ControlFaction) && Star->Status.CustomFaction == u"") {
-                    Attempts = 0;
-                    do {
-                        {
-                            std::int32_t randomIntRange = aMyFunction::RandomIntRange(0, pas::list_count(Star->Planets) - 1);
-                            aMyFunction::TObjectList* planets = Star->Planets;
-                            Planet = pas::list_at<aPlanet::TPlanet>(planets, randomIntRange);
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsDockedToShip() &&
+            GlobalsV::CurrentScreenId != GlobalsV::screenShip && aPlayer::GetPlayer()->DockedTo->TypeId ==
+                aGalaxyStruct::rstPirateBase) {
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
+                        if (pas::is_one_of<aGalaxyStruct::sfCoalition,
+                            aGalaxyStruct::sfPirates>(Star->Status.ControlFaction) && Star->Status.CustomFaction ==
+                                u"") {
+                            Attempts = 0;
+                            do {
+                                {
+                                    std::int32_t randomIntRange = aMyFunction::RandomIntRange(0,
+                                        pas::list_count(Star->Planets) - 1);
+                                    aMyFunction::TObjectList* planets = Star->Planets;
+                                    Planet = pas::list_at<aPlanet::TPlanet>(planets, randomIntRange);
+                                }
+                                if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate,
+                                    aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
+                                    Planet->BuyPirate(100);
+                                    break;
+                                }
+                                ++Attempts;
+                            } while (!(Attempts == 6));
                         }
-                        if (pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(Planet->OwnerId)) {
-                            Planet->BuyPirate(100);
-                            break;
-                        }
-                        ++Attempts;
-                    } while (!(Attempts == 6));
+                    }
                 }
             }
-            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PRIVRVATTIERS"_w));
+            CheatCode::ReportCheat(100, EC_Str::DecodeTextW(u"PRIVRVATTIERS"_wref.get()));
         }
     }
 
@@ -946,23 +1163,38 @@ namespace CheatCode {
         std::int32_t I{};
         aConst::PWeaponInfo Info{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}))); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(1,
+                aConst::CountItemTypesInMask(pas::constant_set<aConst::TItemTypeSelection>({
+                    {50, 67}}))); cpp_range.next(I); ) {
                 Kind = aConst::GetItemTypeFromMask(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}), I);
                 {
-                    void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(static_cast<aConst::TItemType>(Kind), System::Round(static_cast<long double>(aConst::WeaponInfos[static_cast<aConst::TItemType>(Kind)].AverageSize) * aConst::EquipmentSizeFactors[5]), aGalaxy::Galaxy->TechLevel, aPlayer::GetPlayer()->OwnerId));
+                    void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(
+                        static_cast<aConst::TItemType>(Kind),
+                        pas::real_round(
+                            static_cast<float>(static_cast<double>(aConst::WeaponInfos[static_cast<aConst::TItemType>(Kind)].AverageSize) *
+                                aConst::EquipmentSizeFactors[5])), aGalaxy::Galaxy->TechLevel,
+                        aPlayer::GetPlayer()->OwnerId));
                     aMyFunction::TObjectList* inventory = aPlayer::GetPlayer()->Inventory;
                     pas::list_add(inventory, createGeneratedEquipment);
                 }
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->CustomWeaponTypes) - 1); cpp_range_2.next(I); ) {
-                Info = pas::list_at<aConst::TWeaponInfo>(aGalaxy::Galaxy->CustomWeaponTypes, I);
-                if (Info->Availability != aGalaxyStruct::waSystemOnly) {
-                    void* createGeneratedWeapon = reinterpret_cast<void*>(aItem::CreateGeneratedWeapon(Info, System::Round(static_cast<long double>(Info->AverageSize) * aConst::EquipmentSizeFactors[5]), aGalaxy::Galaxy->TechLevel, aPlayer::GetPlayer()->OwnerId));
-                    aMyFunction::TObjectList* inventory_2 = aPlayer::GetPlayer()->Inventory;
-                    pas::list_add(inventory_2, createGeneratedWeapon);
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->CustomWeaponTypes) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Info = pas::list_at<aConst::TWeaponInfo>(aGalaxy::Galaxy->CustomWeaponTypes, I);
+                        if (Info->Availability != aGalaxyStruct::waSystemOnly) {
+                            void* createGeneratedWeapon = reinterpret_cast<void*>(aItem::CreateGeneratedWeapon(Info,
+                                pas::real_round(static_cast<float>(static_cast<double>(Info->AverageSize) *
+                                    aConst::EquipmentSizeFactors[5])), aGalaxy::Galaxy->TechLevel,
+                                aPlayer::GetPlayer()->OwnerId));
+                            aMyFunction::TObjectList* inventory_2 = aPlayer::GetPlayer()->Inventory;
+                            pas::list_add(inventory_2, createGeneratedWeapon);
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"GOUMNO"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"GOUMNO"_wref.get()));
         }
     }
 
@@ -970,23 +1202,27 @@ namespace CheatCode {
         aGalaxyStruct::TOwnerId Owner{};
         aItem::TEquipment* Item{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal); cpp_range.next(Owner); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+                aGalaxyStruct::oiGaal); cpp_range.next(Owner); ) {
                 Item = aItem::CreateGeneratedEquipment(aConst::t_Vertix, 20, aGalaxy::Galaxy->TechLevel, Owner);
                 pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"VREVRETOIYX"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"VREVRETOIYX"_wref.get()));
         }
     }
 
     void CheatDevice() {
         aConst::TItemType Kind{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_FuelTanks, aConst::t_DefGenerator); cpp_range.next(Kind); ) {
-                void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(Kind, System::Round(static_cast<long double>(aConst::GetAverageItemSize(Kind)) * aConst::EquipmentSizeFactors[5]), 8, aPlayer::GetPlayer()->OwnerId));
+            for (auto cpp_range = pas::for_to<aConst::TItemType>(aConst::t_FuelTanks,
+                aConst::t_DefGenerator); cpp_range.next(Kind); ) {
+                void* createGeneratedEquipment = reinterpret_cast<void*>(aItem::CreateGeneratedEquipment(Kind,
+                    pas::real_round(static_cast<float>(static_cast<double>(aConst::GetAverageItemSize(Kind)) *
+                        aConst::EquipmentSizeFactors[5])), 8, aPlayer::GetPlayer()->OwnerId));
                 aMyFunction::TObjectList* inventory = aPlayer::GetPlayer()->Inventory;
                 pas::list_add(inventory, createGeneratedEquipment);
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"DREAVNIYCHER"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"DREAVNIYCHER"_wref.get()));
         }
     }
 
@@ -998,7 +1234,10 @@ namespace CheatCode {
                 const std::int32_t cpp_last = aConst::ArtefactLootPools[3].length() - 1;
                 if (0 <= cpp_last) {
                     for (I = 0; I <= cpp_last; ++I) {
-                        Item = pas::checked_cast<aItem::TEquipmentWithActCode*>(static_cast<pas::Object*>(aItem::CreateConfiguredArtefactByItemType(aConst::ArtefactLootPools[3][I], aPlayer::GetPlayer()->OwnerId)));
+                        Item =
+                            pas::checked_cast<aItem::TEquipmentWithActCode*>(
+                                static_cast<pas::Object*>(aItem::CreateConfiguredArtefactByItemType(
+                                    aConst::ArtefactLootPools[3][I], aPlayer::GetPlayer()->OwnerId)));
                         pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Item));
                     }
                 }
@@ -1020,13 +1259,14 @@ namespace CheatCode {
                 if (0 <= cpp_last_3) {
                     for (I = 0; I <= cpp_last_3; ++I) {
                         Item = pas::construct_call<aItem::TUselessItem>(aItem::TUselessItem_Create);
-                        reinterpret_cast<aItem::TUselessItem*>(Item)->Init(aConst::UselessItemLootPools[3][I], aGalaxyStruct::dsBlazer, 0u, false);
+                        reinterpret_cast<aItem::TUselessItem*>(Item)->Init(aConst::UselessItemLootPools[3][I],
+                            aGalaxyStruct::dsBlazer, 0u, false);
                         Item->OwnerId = aPlayer::GetPlayer()->OwnerId;
                         pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
                     }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ANROTOS"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ANROTOS"_wref.get()));
         }
     }
 
@@ -1034,14 +1274,15 @@ namespace CheatCode {
         std::int32_t I{};
         aItem::TMicroModule* Item{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::MicroModuleTemplateCount - 1); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                aConst::MicroModuleTemplateCount - 1); cpp_range.next(I); ) {
                 if (!aConst::MicroModuleTemplates[I].SpecialOnly) {
                     Item = pas::construct_call<aItem::TMicroModule>(aItem::TEquipment_Create);
                     Item->Init(I);
                     pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MAOZDEUNLHE"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MAOZDEUNLHE"_wref.get()));
         }
     }
 
@@ -1060,8 +1301,9 @@ namespace CheatCode {
             if (Ship == nullptr) {
                 Ship = aPlayer::GetPlayer();
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SXKOINLAL0"_w));
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SXKOINLAL0"_wref.get()));
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy,
+                aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
                 Ship->BaseSkills[Skill] = 6;
             }
             if (Globals::GetInnermostScreenLoop() == Globals::ScannerScreen) {
@@ -1075,10 +1317,12 @@ namespace CheatCode {
     void CheatProgram() {
         aGalaxyStruct::TProgramIndex I{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(static_cast<aGalaxyStruct::TProgramIndex>(0), static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TProgramIndex>(
+                static_cast<aGalaxyStruct::TProgramIndex>(0),
+                static_cast<aGalaxyStruct::TProgramIndex>(11)); cpp_range.next(I); ) {
                 aPlayer::GetPlayer()->ProgramCounts[I] = 100;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"PARZONG3ROALMS"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"PARZONG3ROALMS"_wref.get()));
         }
     }
 
@@ -1087,12 +1331,14 @@ namespace CheatCode {
         aPlayer::TPlayer* Player{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             Player = aPlayer::GetPlayer();
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(1), static_cast<aGalaxyStruct::TCaptainHealthEffect>(12)); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(1),
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(12)); cpp_range.next(I); ) {
                 Player->CaptainHealth[I].Progress = 1.0E+2;
                 Player->CaptainHealth[I].AppliedTurn = aGalaxy::Galaxy->CurrentTurn;
                 Player->CaptainHealth[I].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + aGalaxyStruct::TurnsPerYear;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"IALALENOERSASH"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"IALALENOERSASH"_wref.get()));
         }
     }
 
@@ -1101,22 +1347,25 @@ namespace CheatCode {
         aPlayer::TPlayer* Player{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             Player = aPlayer::GetPlayer();
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(13), static_cast<aGalaxyStruct::TCaptainHealthEffect>(24)); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(13),
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(24)); cpp_range.next(I); ) {
                 Player->CaptainHealth[I].Progress = 1.0E+2;
                 Player->CaptainHealth[I].AppliedTurn = aGalaxy::Galaxy->CurrentTurn;
                 Player->CaptainHealth[I].ExpireTurn = aGalaxy::Galaxy->CurrentTurn + aGalaxyStruct::TurnsPerYear;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SATAISMAUILOAONOTS"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SATAISMAUILOAONOTS"_wref.get()));
         }
     }
 
     void CheatIdeal() {
         std::int32_t I{};
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull() != nullptr) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull() !=
+                nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, aConst::HullSeriesCount - 1); cpp_range.next(I); ) {
                 if (aConst::HullSeriesDefinitions[I].SystemName == u"99") {
                     aPlayer::GetPlayer()->GetHull()->HullSeries = I;
-                    CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"INDFENAELE"_w));
+                    CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"INDFENAELE"_wref.get()));
                     break;
                 }
             }
@@ -1127,13 +1376,19 @@ namespace CheatCode {
         std::int32_t I{};
         aGalaxy::TConstellation* Constellation{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Constellations) - 1); cpp_range.next(I); ) {
-                Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
-                if (aPlanet::MainPiratePlanet == nullptr || aPlanet::MainPiratePlanet->CurrentStar->Constellation != Constellation) {
-                    Constellation->Visible = true;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Constellations) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
+                        if (aPlanet::MainPiratePlanet == nullptr ||
+                            aPlanet::MainPiratePlanet->CurrentStar->Constellation != Constellation) {
+                            Constellation->Visible = true;
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SIHSONWEMEANPA"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"SIHSONWEMEANPA"_wref.get()));
         }
     }
 
@@ -1144,18 +1399,26 @@ namespace CheatCode {
         std::uint8_t Award{};
         std::uint8_t Found{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MIELDOAELI"_w));
-            LastAward = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MIELDOAELI"_wref.get()));
+            LastAward =
+                SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
             if (aPlayer::GetPlayer()->AwardIds == nullptr) {
                 aPlayer::GetPlayer()->AwardIds = pas::make_object<pas::List>();
             }
             for (auto cpp_range = pas::for_to<std::int32_t>(0, LastAward); cpp_range.next(I); ) {
                 Found = false;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->AwardIds) - 1); cpp_range_2.next(J); ) {
-                    Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlayer::GetPlayer()->AwardIds, J)));
-                    if (Award == I) {
-                        Found = true;
-                        break;
+                {
+                    const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->AwardIds) - 1;
+                    if (0 <= cpp_last) {
+                        for (J = 0; J <= cpp_last; ++J) {
+                            Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                    aPlayer::GetPlayer()->AwardIds, J)));
+                            if (Award == I) {
+                                Found = true;
+                                break;
+                            }
+                        }
                     }
                 }
                 if (!Found) {
@@ -1169,9 +1432,9 @@ namespace CheatCode {
         pas::WideString Name{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
             switch (Level) {
-                case 1: Name = EC_Str::DecodeTextW(u"HRONRERGOLR"_w); break;
-                case 2: Name = EC_Str::DecodeTextW(u"NGISGIHATRMOAERE"_w); break;
-                case 3: Name = EC_Str::DecodeTextW(u"HAESLOL"_w); break;
+                case 1: Name = EC_Str::DecodeTextW(u"HRONRERGOLR"_wref.get()); break;
+                case 2: Name = EC_Str::DecodeTextW(u"NGISGIHATRMOAERE"_wref.get()); break;
+                case 3: Name = EC_Str::DecodeTextW(u"HAESLOL"_wref.get()); break;
             }
             if (aGalaxy::Galaxy->DominatorModLevel != Level) {
                 aGalaxy::Galaxy->DominatorModLevel = Level;
@@ -1202,7 +1465,7 @@ namespace CheatCode {
             } else {
                 aGalaxy::Galaxy->TechnicModEnabled = 0;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"TOESCAHENOINC"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"TOESCAHENOINC"_wref.get()));
             Globals::StarMapScreen->RefreshScoreModsLabel();
         }
     }
@@ -1214,15 +1477,16 @@ namespace CheatCode {
             } else {
                 aGalaxy::Galaxy->AmmoModEnabled = 0;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ACMEMEO"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ACMEMEO"_wref.get()));
             Globals::StarMapScreen->RefreshScoreModsLabel();
         }
     }
 
     void CheatGod() {
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && pas::in_set<0, 1>(aGalaxy::Galaxy->GodModEnabled)) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && pas::in_set<0,
+                1>(aGalaxy::Galaxy->GodModEnabled)) {
             aGalaxy::Galaxy->GodModEnabled = 1 - aGalaxy::Galaxy->GodModEnabled;
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"GHOID"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"GHOID"_wref.get()));
             Globals::StarMapScreen->RefreshScoreModsLabel();
         }
     }
@@ -1245,8 +1509,12 @@ namespace CheatCode {
             *Cell = std::move(Text);
             pas::list_add(Items, static_cast<void*>(Cell));
         };
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() && GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode == fStarMap::smmOrders) {
-            Parent = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->InNormalSpace() &&
+            GlobalsV::CurrentScreenId == GlobalsV::screenStarMap && Globals::StarMapScreen->Mode ==
+                fStarMap::smmOrders) {
+            Parent =
+                pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
             Items = pas::make_object<pas::List>();
             Block = GR_Main::GameDataConfig->GetBlock(u"ABMap"sv);
             Count = Block->GetBlockCount();
@@ -1257,7 +1525,8 @@ namespace CheatCode {
                     CheatHoleAddName(u"ABMap.map_boss"_w);
                 }
             }
-            if (fListBox::ShowListDialog(Parent, Index, aConst::LocalizedColorText(u"Cheat.SelectABMap"_wref.get()), Items, 0, 0) == 1) {
+            if (fListBox::ShowListDialog(Parent, Index, aConst::LocalizedColorText(u"Cheat.SelectABMap"_wref.get()),
+                Items, 0, 0) == 1) {
                 MapName = *pas::list_at<pas::WideString>(Items, Index);
                 CheatCode::AddCheatPoints(10);
                 if (aGalaxy::Galaxy != nullptr) {
@@ -1272,19 +1541,13 @@ namespace CheatCode {
                 Hole->Star2 = aPlayer::GetPlayer()->CurrentStar;
                 Hole->ArcadeMapName = std::move(MapName);
                 Angle = Math::ArcTan2(aPlayer::GetPlayer()->Position.X, -aPlayer::GetPlayer()->Position.Y);
-                Radius = pas::real_max<pas::Extended>(aPlayer::GetPlayer()->CurrentStar->SafeRadius + 1.0E+2L, System::Sqrt(aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position, EC_Struct::MakePointF(0.0f, 0.0f))) + 2.0E+2L);
-                {
-                    float cpp_arg = System::Sin(Angle) * Radius;
-                    float cpp_arg_2 = -System::Cos(Angle) * Radius;
-                    Hole->Position1 = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-                }
+                Radius = pas::real_max<double>(static_cast<float>(aPlayer::GetPlayer()->CurrentStar->SafeRadius + 1.0E+2),
+                        static_cast<float>(System::Sqrt(aMyFunction::PointDistanceSquared(aPlayer::GetPlayer()->Position,
+                            EC_Struct::MakePointF(0.0f, 0.0f))) + 2.0E+2));
+                Hole->Position1 = EC_Struct::MakePointF(static_cast<float>(System::Sin(Angle) * Radius), static_cast<float>(-System::Cos(Angle) * Radius));
                 Angle = aMyFunction::HeadingDegreesToRadians(aMyFunction::RandomIntRange(0, 359));
                 Radius = aMyFunction::RandomIntRange(1000, 2000);
-                {
-                    float cpp_arg_3 = System::Sin(Angle) * Radius;
-                    float cpp_arg_4 = -System::Cos(Angle) * Radius;
-                    Hole->Position2 = EC_Struct::MakePointF(cpp_arg_3, cpp_arg_4);
-                }
+                Hole->Position2 = EC_Struct::MakePointF(static_cast<float>(System::Sin(Angle) * Radius), static_cast<float>(-System::Cos(Angle) * Radius));
                 Hole->CreatedTurn = aGalaxy::Galaxy->CurrentTurn;
                 Hole->HoleType = 1;
                 Globals::StarMapScreen->PendingHoleRefresh = Hole;
@@ -1302,12 +1565,14 @@ namespace CheatCode {
     }
 
     void CheatWin() {
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId != GlobalsV::screenArcadeBattle) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && GlobalsV::CurrentScreenId !=
+                GlobalsV::screenArcadeBattle) {
             CheatCode::AddCheatPoints(10);
             Globals::ScoreScreen->RecordPlayerResult(true);
             Globals::AboutScreen->ReturnToScores = true;
             GlobalsV::RequestedScreenId = GlobalsV::screenAbout;
-            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
         }
     }
 
@@ -1315,27 +1580,36 @@ namespace CheatCode {
         std::int32_t I{};
         aItem::TEquipment* Item{};
         if (aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                if (Item->EquippedFlag != 0 && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                    aItem::TWeapon* cpp_with = static_cast<aItem::TWeapon*>(Item);
-                    cpp_with->TechLevel = 8;
-                    cpp_with->MinDamage = cpp_with->CalculateGeneratedMinDamage();
-                    cpp_with->MaxDamage = cpp_with->CalculateStandardMaxDamage();
-                    cpp_with->Range = cpp_with->CalculateStandardRange();
-                    cpp_with->Cost = aItem::CalculateGeneratedWeaponCost(cpp_with->GetWeaponInfo(), cpp_with->Weight, cpp_with->TechLevel, cpp_with->OwnerId);
-                    if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile, aGalaxyStruct::wstRocket>(cpp_with->GetWeaponInfo()->ShotType)) {
-                        cpp_with->AmmoCapacity = cpp_with->CalculateGeneratedAmmoCapacity();
-                        if (cpp_with->MicroModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex - 1].StatBonuses[aConst::bonAmmo];
-                        }
-                        if (cpp_with->SpecialModuleIndex != 0) {
-                            cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->SpecialModuleIndex - 1].StatBonuses[aConst::bonAmmo];
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Inventory) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
+                        if (Item->EquippedFlag != 0 && pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
+                            aItem::TWeapon* cpp_with = static_cast<aItem::TWeapon*>(Item);
+                            cpp_with->TechLevel = 8;
+                            cpp_with->MinDamage = cpp_with->CalculateGeneratedMinDamage();
+                            cpp_with->MaxDamage = cpp_with->CalculateStandardMaxDamage();
+                            cpp_with->Range = cpp_with->CalculateStandardRange();
+                            cpp_with->Cost = aItem::CalculateGeneratedWeaponCost(cpp_with->GetWeaponInfo(),
+                                    cpp_with->Weight, cpp_with->TechLevel, cpp_with->OwnerId);
+                            if (pas::is_one_of<aGalaxyStruct::wstTorpedo, aGalaxyStruct::wstMissile,
+                                aGalaxyStruct::wstRocket>(cpp_with->GetWeaponInfo()->ShotType)) {
+                                cpp_with->AmmoCapacity = cpp_with->CalculateGeneratedAmmoCapacity();
+                                if (cpp_with->MicroModuleIndex != 0) {
+                                    cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->MicroModuleIndex -
+                                            1].StatBonuses[aConst::bonAmmo];
+                                }
+                                if (cpp_with->SpecialModuleIndex != 0) {
+                                    cpp_with->AmmoCapacity += aConst::MicroModuleTemplates[Item->SpecialModuleIndex -
+                                            1].StatBonuses[aConst::bonAmmo];
+                                }
+                            }
                         }
                     }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"HOWIETANPEOLN"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"HOWIETANPEOLN"_wref.get()));
         }
     }
 
@@ -1346,7 +1620,7 @@ namespace CheatCode {
             } else {
                 aGalaxy::Galaxy->UltraScanModEnabled = 0;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"USLATOREAMSACRAWN"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"USLATOREAMSACRAWN"_wref.get()));
             Globals::StarMapScreen->RefreshScoreModsLabel();
         }
     }
@@ -1356,11 +1630,12 @@ namespace CheatCode {
         aItem::TArtefactTransmitter* Item{};
         if (aPlayer::GetPlayer() != nullptr) {
             for (I = 1; I <= 10; ++I) {
-                Item = reinterpret_cast<aItem::TArtefactTransmitter*>(aItem::CreateConfiguredArtefactByItemType(aConst::t_ArtefactTransmitter, aPlayer::GetPlayer()->OwnerId));
+                Item = reinterpret_cast<aItem::TArtefactTransmitter*>(aItem::CreateConfiguredArtefactByItemType(
+                        aConst::t_ArtefactTransmitter, aPlayer::GetPlayer()->OwnerId));
                 Item->Power = 100;
                 pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Item));
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"TREANTTIME"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"TREANTTIME"_wref.get()));
         }
     }
 
@@ -1368,20 +1643,26 @@ namespace CheatCode {
         std::int32_t I{};
         aItem::TArtefact* Item{};
         if (aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TArtefact>(aPlayer::GetPlayer()->Artefacts, I);
-                if (aItem::TArtefactTransmitter* artefactTransmitter = pas::class_cast_if<aItem::TArtefactTransmitter*>(Item); artefactTransmitter != nullptr && artefactTransmitter->Power <= 1000) {
-                    artefactTransmitter->Power += 100;
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Item = pas::list_at<aItem::TArtefact>(aPlayer::GetPlayer()->Artefacts, I);
+                        if (aItem::TArtefactTransmitter* artefactTransmitter = pas::class_cast_if<aItem::TArtefactTransmitter*>(
+                            Item); artefactTransmitter != nullptr && artefactTransmitter->Power <= 1000) {
+                            artefactTransmitter->Power += 100;
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ECNDCAHAALRIGEE"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ECNDCAHAALRIGEE"_wref.get()));
         }
     }
 
     void CheatExpa() {
         if (aPlayer::GetPlayer() != nullptr) {
             aPlayer::GetPlayer()->FreeExperience += 1000000;
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ELXIPOAN"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ELXIPOAN"_wref.get()));
         }
     }
 
@@ -1390,13 +1671,18 @@ namespace CheatCode {
         aItem::TEquipment* Item{};
         if (aPlayer::GetPlayer() != nullptr) {
             // The native loop deliberately starts at one.
-            for (auto cpp_range = pas::for_to<std::int32_t>(1, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(I); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                if (Item->EquippedFlag != 0) {
-                    Item->OwnerId = aGalaxyStruct::oiUninhabited;
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Inventory) - 1;
+                if (1 <= cpp_last) {
+                    for (I = 1; I <= cpp_last; ++I) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
+                        if (Item->EquippedFlag != 0) {
+                            Item->OwnerId = aGalaxyStruct::oiUninhabited;
+                        }
+                    }
                 }
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MRALDIETISNOCIHSIMNIA"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"MRALDIETISNOCIHSIMNIA"_wref.get()));
         }
     }
 
@@ -1407,7 +1693,7 @@ namespace CheatCode {
             } else {
                 aGalaxy::Galaxy->StasisModEnabled = 0;
             }
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ZIANWRASRIUNDAOL"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"ZIANWRASRIUNDAOL"_wref.get()));
             Globals::StarMapScreen->RefreshScoreModsLabel();
         }
     }
@@ -1421,16 +1707,26 @@ namespace CheatCode {
     }
 
     void CheatMakedump() {
-        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IronWill ^ 1) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) && aGalaxy::Galaxy->FinalizationNameEncoded == u"" && pas::is_one_of<GlobalsV::screenHangar, GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop, GlobalsV::screenGovernment, GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo, GlobalsV::screenGoodsShop>(GlobalsV::CurrentScreenId) && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->ChildLoop == nullptr) {
+        if (aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IronWill ^ 1) &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->InHyperspace ^ 1) &&
+            aGalaxy::Galaxy->FinalizationNameEncoded == u"" && pas::is_one_of<GlobalsV::screenHangar,
+                GlobalsV::screenPlanet, GlobalsV::screenPlanetNO, GlobalsV::screenEquipmentShop,
+                GlobalsV::screenGovernment, GlobalsV::screenStarMap, GlobalsV::screenRuinsTalk, GlobalsV::screenInfo,
+                GlobalsV::screenGoodsShop>(GlobalsV::CurrentScreenId) &&
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->ChildLoop == nullptr) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(888);
             aGalaxy::Galaxy->CampaignFlag183 = 1;
             GR_Main::CaptureSavePreview();
-            fGalaxy2::CaptureGalaxyPreview(reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]));
+            fGalaxy2::CaptureGalaxyPreview(
+                reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]));
             aGalaxy::Galaxy->PrimeIntegrityChecksum(889);
             GlobalsV::SaveManagerReturnScreenId = GlobalsV::CurrentScreenId;
             Globals::SaveManagerMode = fSaveManager::smmSave;
             GlobalsV::RequestedScreenId = GlobalsV::screenSaveManager;
-            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
+            reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->RequestClose(1);
         }
     }
 
@@ -1442,39 +1738,50 @@ namespace CheatCode {
         pas::WideString Path{};
         aItem::TEquipment* Item{};
         if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr) {
-            FileName = pas::concat_wide_reverse({EC_Str::DecodeTextW(u"PaliatyseoraFainta.Atoxita"_w), GR_Main::GetGameUserDirectory()});
+            FileName = pas::concat_wide_reverse({EC_Str::DecodeTextW(u"PaliatyseoraFainta.Atoxita"_wref.get()),
+                    GR_Main::GetGameUserDirectory()});
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
             Number = 1;
-            Block->AddParam(EC_Str::DecodeTextW(u"GraemlenVoenrusSimoun"_w), GR_Main::GameVersionText);
+            Block->AddParam(EC_Str::DecodeTextW(u"GraemlenVoenrusSimoun"_wref.get()), GR_Main::GameVersionText);
             {
                 const pas::WideString& name = aPlayer::GetPlayer()->GetName();
                 const pas::WideString& localizedTypeName = aPlayer::GetPlayer()->GetLocalizedTypeName();
                 Block->AddParam(localizedTypeName, name);
             }
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Inventory) - 1); cpp_range.next(Index); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
-                if (pas::class_cast_if<aItem::THull*>(Item) != nullptr || Item->EquippedFlag != 0) {
-                    if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
-                        Path = static_cast<pas::WideString>(pas::concat_ansi({"Weapon", SysUtils::IntToStr(Number)}));
-                        ++Number;
-                    } else {
-                        Path = aConst::ItemTypeNames[Item->ItemType];
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Inventory) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, Index);
+                        if (pas::class_cast_if<aItem::THull*>(Item) != nullptr || Item->EquippedFlag != 0) {
+                            if (pas::class_cast_if<aItem::TWeapon*>(Item) != nullptr) {
+                                Path = pas::concat_wide({u"Weapon", pas::wide_int_to_str(Number)});
+                                ++Number;
+                            } else {
+                                Path = aConst::ItemTypeNames[Item->ItemType];
+                            }
+                            Item->SaveToBlock(Block->AddBlockByPath(Path));
+                        }
                     }
-                    Item->SaveToBlock(Block->AddBlockByPath(Path));
                 }
             }
             Number = 1;
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1); cpp_range_2.next(Index); ) {
-                Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Artefacts, Index);
-                if (Item->EquippedFlag != 0) {
-                    Path = static_cast<pas::WideString>(pas::concat_ansi({"Artefact", SysUtils::IntToStr(Number)}));
-                    ++Number;
-                    Item->SaveToBlock(Block->AddBlockByPath(Path));
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(aPlayer::GetPlayer()->Artefacts) - 1;
+                if (0 <= cpp_last_2) {
+                    for (Index = 0; Index <= cpp_last_2; ++Index) {
+                        Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Artefacts, Index);
+                        if (Item->EquippedFlag != 0) {
+                            Path = pas::concat_wide({u"Artefact", pas::wide_int_to_str(Number)});
+                            ++Number;
+                            Item->SaveToBlock(Block->AddBlockByPath(Path));
+                        }
+                    }
                 }
             }
             Block->SaveTextFile(FileName.pchar(), true, false);
             pas::free(Block);
-            CheatCode::ReportCheat(0, EC_Str::DecodeTextW(u"FLITTONLEISES"_w));
+            CheatCode::ReportCheat(0, EC_Str::DecodeTextW(u"FLITTONLEISES"_wref.get()));
         }
     }
 
@@ -1487,7 +1794,8 @@ namespace CheatCode {
             Count = pas::list_count(aPlayer::GetPlayer()->Inventory);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, Count - 1); cpp_range.next(I); ) {
                 Item = pas::list_at<aItem::TEquipment>(aPlayer::GetPlayer()->Inventory, I);
-                if (Item->EquippedFlag == 0 && Item->ScriptItem == nullptr && !(pas::class_cast_if<aItem::TTreasureMap*>(Item) != nullptr)) {
+                if (Item->EquippedFlag == 0 && Item->ScriptItem == nullptr &&
+                    !(pas::class_cast_if<aItem::TTreasureMap*>(Item) != nullptr)) {
                     if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Item)) {
                         countableItem->StackCount = countableItem->StackCount * 2;
                         Item->Weight *= 2;
@@ -1513,7 +1821,7 @@ namespace CheatCode {
                 aPlayer::GetPlayer()->CargoGoods[Good].Count = aPlayer::GetPlayer()->CargoGoods[Good].Count * 2;
             }
             aPlayer::GetPlayer()->RefreshDerivedStats(true);
-            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"EIXATIRIANORNAEL"_w));
+            CheatCode::ReportCheat(10, EC_Str::DecodeTextW(u"EIXATIRIANORNAEL"_wref.get()));
         }
     }
 
@@ -1529,7 +1837,9 @@ namespace CheatCode {
             aGalaxy::Galaxy->CheckIntegrityChecksum(888);
         }
         Value = pas::WideString();
-        if (fTextBox::ShowTextInputDialog(pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]), u"Enter script command"_w, Value, 255, 0, 0) == 1) {
+        if (fTextBox::ShowTextInputDialog(
+            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]),
+            u"Enter script command"_w, Value, 255, 0, 0) == 1) {
             try {
                 Count = Value.length();
                 if (Count > 0) {
@@ -1546,17 +1856,22 @@ namespace CheatCode {
                             Value = EC_Str::CopyWideStringUnchecked(Value, Index + 1, Count - Index);
                             Found = false;
                             if (aGalaxy::Galaxy != nullptr) {
-                                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range_2.next(Index); ) {
-                                    Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index);
-                                    if (Script->ScriptFileName == ScriptName) {
-                                        Found = true;
-                                        aScript::ExecuteScriptText(Value, Script->InitCode->LocalVar);
-                                        break;
+                                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
+                                if (0 <= cpp_last) {
+                                    for (Index = 0; Index <= cpp_last; ++Index) {
+                                        Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index);
+                                        if (Script->ScriptFileName == ScriptName) {
+                                            Found = true;
+                                            aScript::ExecuteScriptText(Value, Script->InitCode->LocalVar);
+                                            break;
+                                        }
                                     }
                                 }
                             }
                             if (!Found) {
-                                pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Error, script with name ", ScriptName, u"is not found"}))));
+                                pas::raise(
+                                    pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                                        u"Error, script with name ", ScriptName, u"is not found"}))));
                             }
                         }
                     } else {
@@ -1566,7 +1881,8 @@ namespace CheatCode {
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                    GI_MessageLoop::TMessageLoopGI* cpp_arg = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
+                    GI_MessageLoop::TMessageLoopGI* cpp_arg = pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]);
                     const pas::WideString& message = static_cast<pas::WideString>(E->message);
                     GI_MessageBox::ShowMessageBoxGI(cpp_arg, message, GI_MessageBox::mbgCancel, 0, 0, 0);
                 } else {
@@ -1591,17 +1907,23 @@ namespace CheatCode {
             while (Index >= 0) {
                 Event = pas::list_at<aGalaxyEvent::TGalaxyEvent>(aGalaxy::Galaxy->GalaxyEvents, Index);
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Event->EventType));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({aGalaxy::FormatGameTurnDate(Event->Turn), u" (", pas::wide_int_to_str(Event->Turn), u")"})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                    aGalaxy::FormatGameTurnDate(Event->Turn), u" (", pas::wide_int_to_str(Event->Turn), u")"})));
                 if (Event->TextData != nullptr) {
                     GR_Main::AppendLogLineThreadSafe("  Text data:"_a);
-                    for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Event->TextData) - 1); cpp_range.next(I); ) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"  ", *pas::list_at<pas::WideString>(Event->TextData, I)})));
+                    for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                        pas::list_count(Event->TextData) - 1); cpp_range.next(I); ) {
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"  ",
+                            *pas::list_at<pas::WideString>(Event->TextData, I)})));
                     }
                 }
                 if (Event->Data != nullptr) {
                     GR_Main::AppendLogLineThreadSafe("  Data:"_a);
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Event->Data) - 1); cpp_range_2.next(I); ) {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"  ", SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Event->Data, I))))}));
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                        pas::list_count(Event->Data) - 1); cpp_range_2.next(I); ) {
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"  ",
+                            SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                Event->Data, I))))}));
                     }
                     GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
                 }
@@ -1613,11 +1935,14 @@ namespace CheatCode {
 
     void CheatSeed() {
         pas::WideString Value{};
-        if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) == Globals::NewGameScreen) {
-            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Globals::NewGameScreen->GetByName(u"ButExtended"sv))->Down) {
+        if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId]) ==
+            Globals::NewGameScreen) {
+            if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                Globals::NewGameScreen->GetByName(u"ButExtended"sv))->Down) {
                 if (GR_Main::NewGameSeedText == u"") {
                     SystemImports::Randomize();
-                    GR_Main::NewGameSeedText = EC_Str::IntToWideString(aMyFunction::RandomIntRange(100000, SystemImports::MaxInt));
+                    GR_Main::NewGameSeedText = EC_Str::IntToWideString(aMyFunction::RandomIntRange(100000,
+                            SystemImports::MaxInt));
                 }
                 Value = GR_Main::NewGameSeedText;
                 if (fTextBox::ShowTextInputDialog(Globals::NewGameScreen, u"SEED"_w, Value, 30, 0, 0) == 1) {
@@ -1638,20 +1963,51 @@ namespace CheatCode {
         if (aGalaxy::Galaxy != nullptr) {
             GR_Main::AppendLogLineThreadSafe("----------------------------------------"_a);
             GR_Main::AppendLogLineThreadSafe("ShipInfos:"_a);
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
-                Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(J); ) {
-                    Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
-                    PrintedHeader = false;
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Ship->CustomShipInfos) - 1); cpp_range_3.next(K); ) {
-                        Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, K);
-                        if (!Info->DeleteQueued) {
-                            if (!PrintedHeader) {
-                                GR_Main::AppendLogLineThreadSafe("----------------------------------------"_a);
-                                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Ship->GetFullName(u" "_wref.get())));
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
+                        {
+                            const std::int32_t cpp_last_2 = pas::list_count(Star->Ships) - 1;
+                            if (0 <= cpp_last_2) {
+                                for (J = 0; J <= cpp_last_2; ++J) {
+                                    Ship = pas::list_at<aShip::TShip>(Star->Ships, J);
+                                    PrintedHeader = false;
+                                    {
+                                        const std::int32_t cpp_last_3 = pas::list_count(Ship->CustomShipInfos) - 1;
+                                        if (0 <= cpp_last_3) {
+                                            for (K = 0; K <= cpp_last_3; ++K) {
+                                                Info = pas::list_at<aShip::TCustomShipInfo>(Ship->CustomShipInfos, K);
+                                                if (!Info->DeleteQueued) {
+                                                    if (!PrintedHeader) {
+                                                        GR_Main::AppendLogLineThreadSafe(
+                                                            "----------------------------------------"_a);
+                                                        GR_Main::AppendLogLineThreadSafe(
+                                                            static_cast<pas::AnsiString>(
+                                                                Ship->GetFullName(u" "_wref.get())));
+                                                    }
+                                                    PrintedHeader = true;
+                                                    GR_Main::AppendLogLineThreadSafe(
+                                                        static_cast<pas::AnsiString>(pas::concat_wide({Info->TypeName,
+                                                            u" ",
+                                                            pas::wide_int_to_str(
+                                                                pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                                                                &Info->Data, (1 - 1) * sizeof(std::int32_t)))), u",",
+                                                            pas::wide_int_to_str(
+                                                                pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                                                                &Info->Data, (2 - 1) * sizeof(std::int32_t)))), u",",
+                                                            pas::wide_int_to_str(
+                                                                pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                                                                &Info->Data, (3 - 1) * sizeof(std::int32_t)))), u",\"",
+                                                            Info->TextData1, u"\",\"", Info->TextData2, u"\",\"",
+                                                            Info->TextData3, u"\""})));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            PrintedHeader = true;
-                            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Info->TypeName, u" ", pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (1 - 1) * sizeof(std::int32_t)))), u",", pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (2 - 1) * sizeof(std::int32_t)))), u",", pas::wide_int_to_str(pas::load_unaligned<std::int32_t>(pas::byte_offset(&Info->Data, (3 - 1) * sizeof(std::int32_t)))), u",\"", Info->TextData1, u"\",\"", Info->TextData2, u"\",\"", Info->TextData3, u"\""})));
                         }
                     }
                 }
@@ -1666,8 +2022,13 @@ namespace CheatCode {
 
     void TCheatList_Destroy(TCheatList* Self) {
         std::int32_t Index{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self) - 1); cpp_range.next(Index); ) {
-            pas::dispose(Self->GetEntry(Index));
+        {
+            const std::int32_t cpp_last = pas::list_count(Self) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    pas::dispose(Self->GetEntry(Index));
+                }
+            }
         }
         pas::list_destroy(Self);
     }
@@ -1688,73 +2049,79 @@ namespace CheatCode {
     // 'INFOS'
     void UnitInitialize() {
         CheatEntries = pas::make_object<TCheatList>();
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ROEMPOAYIURU"_w), TCheatCallback(CheatRepair));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KULTIZSOSOASNOMEANXI"_w), TCheatCallback(CheatKlissanmax));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PVISREAXTMETMOARX9"_w), TCheatCallback(CheatPiratemax));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WIAGRARUILOIRAMOARX9"_w), TCheatCallback(CheatWarriormax));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KOLEINSOSUAINOCRABLELS"_w), TCheatCallback(CheatKlissancall));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PAIORNAMTZEXCOASLOL"_w), TCheatCallback(CheatPiratecall));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RIALNOGDEPROPRONIHNITIS"_w), TCheatCallback(CheatRangerpoints));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"NIETXATARNARNAK"_w), TCheatCallback(CheatNextrank));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"CRONOBLAWSENAIPROSN"_w), TCheatCallback(CheatCoolweapon));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"LLOYWACSONSETIWIEFAIPROLNO"_w), TCheatCallback(CheatLowcostweapon));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"BRODMEB"_w), TCheatCallback(CheatBomb));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ASRATIENFOARCAT"_w), TCheatCallback(CheatArtefact));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MEOLNIERYE"_w), TCheatCallback(CheatMoney));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"DIRIOSPA"_w), TCheatCallback(CheatDrop));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PRANCIKCIINEG"_w), TCheatCallback(CheatPacking));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KALKINSOSUANNIINTHEMM"_w), TCheatCallback(CheatKlissanitem));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WRENARPBOSNASOTERLEINAGATOHE"_w), TCheatCallback(CheatWeaponstrength));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TIECN0BEOAMOB"_w), TCheatCallback(CheatTenbomb));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RONNDOBNASSAEY"_w), TCheatCallback(CheatRndbase));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MOARPESHESCOTROLR2"_w), TCheatCallback(CheatMapsector));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HAUNGLESMIOMNEELYS"_w), TCheatCallback(CheatHugemoney));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_w), TCheatCallback(CheatPelengsurprise));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_w), TCheatCallback(CheatSuperhull));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"BLOSOMM"_w), TCheatCallback(CheatBoom));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HEAVTIERROASNAGZEOROST"_w), TCheatCallback(CheatHaterangers));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PRIVRVATTIERS"_w), TCheatCallback(CheatPirates));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"GOUMNO"_w), TCheatCallback(CheatGun));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"VREVRETOIYX"_w), TCheatCallback(CheatVertix));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"DREAVNIYCHER"_w), TCheatCallback(CheatDevice));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ANROTOS"_w), TCheatCallback(CheatArts));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MAOZDEUNLHE"_w), TCheatCallback(CheatModule));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SXKOINLAL0"_w), TCheatCallback(CheatSkill));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PARZONG3ROALMS"_w), TCheatCallback(CheatProgram));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"IALALENOERSASH"_w), TCheatCallback(CheatIllness));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SATAISMAUILOAONOTS"_w), TCheatCallback(CheatStimulant));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"INDFENAELE"_w), TCheatCallback(CheatIdeal));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SIHSONWEMEANPA"_w), TCheatCallback(CheatShowmap));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MIELDOAELI"_w), TCheatCallback(CheatMedal));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HRONRERGOLR"_w), TCheatCallback(CheatHorror));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"NGISGIHATRMOAEREE"_w), TCheatCallback(CheatNightmare));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HAESLOL"_w), TCheatCallback(CheatHell));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TOESCAHENOINC"_w), TCheatCallback(CheatTechnic));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ACMEMEO"_w), TCheatCallback(CheatAmmo));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"GHOID"_w), TCheatCallback(CheatGod));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HLOILAEN"_w), TCheatCallback(CheatHole));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WHINNE"_w), TCheatCallback(CheatWin));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HOWIETANPEOLN"_w), TCheatCallback(CheatHweapon));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"USLATOREAMSACRAWN"_w), TCheatCallback(CheatUltrascan));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TREANTTIME"_w), TCheatCallback(CheatTentm));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ECNDCAHAALRIGEE"_w), TCheatCallback(CheatEncharge));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ELXIPOAN"_w), TCheatCallback(CheatExpa));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MRALDIETISNOCIHSIMNIA"_w), TCheatCallback(CheatMadeinchina));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ZIANWRASRIUNDAOL"_w), TCheatCallback(CheatZawarudo));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"FLITTONLEISES"_w), TCheatCallback(CheatFitness));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"EIXATIRIANORNAEL"_w), TCheatCallback(CheatExtraone));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RFOCBIOLTQFNOCROCRE"_w), TCheatCallback(CheatRobotforce));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RIALNEGREFRESIDUREEKALMA"_w), TCheatCallback(CheatRangersdream));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MOABKREIDLUCMEPT"_w), TCheatCallback(CheatMakedump));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SAENEEDO"_w), TCheatCallback(CheatSeed));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ROEMPOAYIURU"_wref.get()), TCheatCallback(CheatRepair));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KULTIZSOSOASNOMEANXI"_wref.get()),
+            TCheatCallback(CheatKlissanmax));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PVISREAXTMETMOARX9"_wref.get()), TCheatCallback(CheatPiratemax));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WIAGRARUILOIRAMOARX9"_wref.get()),
+            TCheatCallback(CheatWarriormax));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KOLEINSOSUAINOCRABLELS"_wref.get()),
+            TCheatCallback(CheatKlissancall));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PAIORNAMTZEXCOASLOL"_wref.get()), TCheatCallback(CheatPiratecall));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RIALNOGDEPROPRONIHNITIS"_wref.get()),
+            TCheatCallback(CheatRangerpoints));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"NIETXATARNARNAK"_wref.get()), TCheatCallback(CheatNextrank));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"CRONOBLAWSENAIPROSN"_wref.get()), TCheatCallback(CheatCoolweapon));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"LLOYWACSONSETIWIEFAIPROLNO"_wref.get()),
+            TCheatCallback(CheatLowcostweapon));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"BRODMEB"_wref.get()), TCheatCallback(CheatBomb));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ASRATIENFOARCAT"_wref.get()), TCheatCallback(CheatArtefact));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MEOLNIERYE"_wref.get()), TCheatCallback(CheatMoney));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"DIRIOSPA"_wref.get()), TCheatCallback(CheatDrop));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PRANCIKCIINEG"_wref.get()), TCheatCallback(CheatPacking));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"KALKINSOSUANNIINTHEMM"_wref.get()),
+            TCheatCallback(CheatKlissanitem));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WRENARPBOSNASOTERLEINAGATOHE"_wref.get()),
+            TCheatCallback(CheatWeaponstrength));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TIECN0BEOAMOB"_wref.get()), TCheatCallback(CheatTenbomb));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RONNDOBNASSAEY"_wref.get()), TCheatCallback(CheatRndbase));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MOARPESHESCOTROLR2"_wref.get()), TCheatCallback(CheatMapsector));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HAUNGLESMIOMNEELYS"_wref.get()), TCheatCallback(CheatHugemoney));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PLEVLIESNOGASRUEROPTROINSAEN"_wref.get()),
+            TCheatCallback(CheatPelengsurprise));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SRUNPRESROHLUALELS"_wref.get()), TCheatCallback(CheatSuperhull));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"BLOSOMM"_wref.get()), TCheatCallback(CheatBoom));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HEAVTIERROASNAGZEOROST"_wref.get()),
+            TCheatCallback(CheatHaterangers));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PRIVRVATTIERS"_wref.get()), TCheatCallback(CheatPirates));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"GOUMNO"_wref.get()), TCheatCallback(CheatGun));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"VREVRETOIYX"_wref.get()), TCheatCallback(CheatVertix));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"DREAVNIYCHER"_wref.get()), TCheatCallback(CheatDevice));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ANROTOS"_wref.get()), TCheatCallback(CheatArts));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MAOZDEUNLHE"_wref.get()), TCheatCallback(CheatModule));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SXKOINLAL0"_wref.get()), TCheatCallback(CheatSkill));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"PARZONG3ROALMS"_wref.get()), TCheatCallback(CheatProgram));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"IALALENOERSASH"_wref.get()), TCheatCallback(CheatIllness));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SATAISMAUILOAONOTS"_wref.get()), TCheatCallback(CheatStimulant));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"INDFENAELE"_wref.get()), TCheatCallback(CheatIdeal));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SIHSONWEMEANPA"_wref.get()), TCheatCallback(CheatShowmap));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MIELDOAELI"_wref.get()), TCheatCallback(CheatMedal));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HRONRERGOLR"_wref.get()), TCheatCallback(CheatHorror));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"NGISGIHATRMOAEREE"_wref.get()), TCheatCallback(CheatNightmare));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HAESLOL"_wref.get()), TCheatCallback(CheatHell));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TOESCAHENOINC"_wref.get()), TCheatCallback(CheatTechnic));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ACMEMEO"_wref.get()), TCheatCallback(CheatAmmo));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"GHOID"_wref.get()), TCheatCallback(CheatGod));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HLOILAEN"_wref.get()), TCheatCallback(CheatHole));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"WHINNE"_wref.get()), TCheatCallback(CheatWin));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"HOWIETANPEOLN"_wref.get()), TCheatCallback(CheatHweapon));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"USLATOREAMSACRAWN"_wref.get()), TCheatCallback(CheatUltrascan));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"TREANTTIME"_wref.get()), TCheatCallback(CheatTentm));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ECNDCAHAALRIGEE"_wref.get()), TCheatCallback(CheatEncharge));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ELXIPOAN"_wref.get()), TCheatCallback(CheatExpa));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MRALDIETISNOCIHSIMNIA"_wref.get()),
+            TCheatCallback(CheatMadeinchina));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"ZIANWRASRIUNDAOL"_wref.get()), TCheatCallback(CheatZawarudo));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"FLITTONLEISES"_wref.get()), TCheatCallback(CheatFitness));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"EIXATIRIANORNAEL"_wref.get()), TCheatCallback(CheatExtraone));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RFOCBIOLTQFNOCROCRE"_wref.get()), TCheatCallback(CheatRobotforce));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"RIALNEGREFRESIDUREEKALMA"_wref.get()),
+            TCheatCallback(CheatRangersdream));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"MOABKREIDLUCMEPT"_wref.get()), TCheatCallback(CheatMakedump));
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"SAENEEDO"_wref.get()), TCheatCallback(CheatSeed));
         CheatEntries->AddCheat(u"SUDO"_w, TCheatCallback(CheatSudo));
         CheatEntries->AddCheat(u"EVENTS"_w, TCheatCallback(CheatEvents));
-        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"IONOFROSS"_w), TCheatCallback(CheatInfos));
-    }
-
-    // Compiler unit entry calls the virtual destructor directly.
-    void UnitFinalize() {
-        pas::destroy(CheatEntries);
+        CheatEntries->AddCheat(EC_Str::DecodeTextW(u"IONOFROSS"_wref.get()), TCheatCallback(CheatInfos));
     }
 
     void TCheatList::p_destroy() {

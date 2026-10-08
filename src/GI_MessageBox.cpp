@@ -1,5 +1,6 @@
 #include "layout/GI_MessageBox.hpp"
 #include "types/GR_GraphBuf.hpp"
+#include "types/System.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 #include "units/ClassesImports.hpp"
@@ -13,12 +14,12 @@
 #include "units/GI_Window.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/System.hpp"
 #include "units/aMyFunction.hpp"
 
 // Native routines; dialog VMT and managed-field table precede OnOpen.
 namespace GI_MessageBox {
-    std::uint32_t ShowMessageBoxGI(GI_MessageLoop::TMessageLoopGI* Parent, const pas::WideString& Text, std::uint32_t Options, std::int32_t UnusedOption, std::int32_t OffsetX, std::int32_t OffsetY) {
+    std::uint32_t ShowMessageBoxGI(GI_MessageLoop::TMessageLoopGI* Parent, const pas::WideString& Text,
+        std::uint32_t Options, std::int32_t UnusedOption, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI CursorState{};
         Parent->RootUiObject->OnModalSuspend();
@@ -68,7 +69,8 @@ namespace GI_MessageBox {
         float TargetRatio = 1.6178011f;
         std::int32_t BottomMargin = GR_Main::GiScalePixels(35);
         ContentPanel->KeyDownCallback = pas::bind_method<&TMessageBoxGI::DialogKeyDown>(this);
-        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create, ContentPanel);
+        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create,
+            ContentPanel);
         Window->SetDepth(1.0);
         Window->SetConfigPath(pas::concat_wide({u"Style.Window.", GR_Main::GiResourceSuffix(), u"MessageBox"}));
         Borders = Window->WorkSubRect;
@@ -77,11 +79,13 @@ namespace GI_MessageBox {
         if ((Options & mbgWarning) == mbgWarning) {
             Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"LightRed"}));
         } else if ((Options & mbgQuestion) == mbgQuestion) {
-            Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"LightBlue"}));
+            Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"LightBlue"}));
         } else if ((Options & mbgError) == mbgError) {
             Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"LightRed"}));
         } else {
-            Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"LightBlue"}));
+            Light->SetImagePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"LightBlue"}));
         }
         Light->SetSize(Light->GetContentSize());
         GI_Image::TImageGI* Icon = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, ContentPanel);
@@ -96,28 +100,35 @@ namespace GI_MessageBox {
         }
         Icon->SetSize(Icon->GetContentSize());
         Icon->SetPosition(ClassesImports::Point(Borders.Left, Borders.Top));
-        GI_Label::TLabelGI* TextLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, ContentPanel);
+        GI_Label::TLabelGI* TextLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+            ContentPanel);
         TextLabel->SetDepth(0.0);
         TextLabel->SetFontName(GlobalsV::NormalFontName);
         TextLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
-        TextLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(MessageText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag)));
+        TextLabel->SetText(EC_Str::ReplaceAllWideString(
+            EC_Str::ReplaceAllWideString(MessageText, aMyFunction::TextHighlightColorTag,
+                pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag,
+            pas::view(aMyFunction::YellowColorTag)));
         std::int32_t Attempts = 100;
         while (Attempts > 0) {
             TextLabel->SetTextAlignX(GI_Main::taxCenter);
             TextLabel->SetTextAlignY(GI_Main::tayCenter);
-            TextLabel->SetSize(ClassesImports::Point(CandidateSize.X - Borders.Left - Borders.Right - Icon->ClientSize.X - GR_Main::GiScalePixels(10), 1));
+            TextLabel->SetSize(ClassesImports::Point(
+                CandidateSize.X - Borders.Left - Borders.Right - Icon->ClientSize.X - GR_Main::GiScalePixels(10), 1));
             TextLabel->SetWordWrapEnabled(true);
             TextLabel->SetTextAlignX(GI_Main::taxLeft);
             TextLabel->SetTextAlignY(GI_Main::tayAuto);
             TextSize = TextLabel->ClientSize;
             Window->SetPosition(ClassesImports::Point(0, 0));
-            Window->SetSize(ClassesImports::Point(TextSize.X + Borders.Left + Borders.Right + Icon->ClientSize.X + GR_Main::GiScalePixels(10), TextSize.Y + Borders.Top + Borders.Bottom + BottomMargin));
+            Window->SetSize(ClassesImports::Point(
+                TextSize.X + Borders.Left + Borders.Right + Icon->ClientSize.X + GR_Main::GiScalePixels(10),
+                TextSize.Y + Borders.Top + Borders.Bottom + BottomMargin));
             Window->UpdateAutoGeometry();
             WindowSize = Window->ClientSize;
-            ActualRatio = pas::real_divide(WindowSize.X, WindowSize.Y);
-            if (static_cast<long double>(ActualRatio) - TargetRatio < -0.1L) {
+            ActualRatio = static_cast<float>(static_cast<double>(WindowSize.X) / WindowSize.Y);
+            if (static_cast<float>(static_cast<double>(ActualRatio) - TargetRatio) < -0.1) {
                 CandidateSize.X += 10;
-            } else if (static_cast<long double>(ActualRatio) - TargetRatio > 0.1L) {
+            } else if (static_cast<float>(static_cast<double>(ActualRatio) - TargetRatio) > 0.1) {
                 CandidateSize.Y += 10;
             } else {
                 break;
@@ -125,20 +136,27 @@ namespace GI_MessageBox {
             --Attempts;
         }
         if ((Options & mbgOK) == mbgOK) {
-            AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+            AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create,
+                    ContentPanel);
             AcceptButton->EnterSound = u"Sound.ButtonEnter"_w;
             AcceptButton->LeaveSound = u"Sound.ButtonLeave"_w;
             AcceptButton->ClickSound = u"Sound.ButtonClick"_w;
             AcceptButton->UpOnlyDown = true;
             AcceptButton->SetDepth(0.0);
-            AcceptButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkN"}));
-            AcceptButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkA"}));
-            AcceptButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkD"}));
+            AcceptButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkN"}));
+            AcceptButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.",
+                GR_Main::GiResourceSuffix(), u"OkA"}));
+            AcceptButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkD"}));
             AcceptButton->SetSize(AcceptButton->GetMaxStateImageSize());
             if ((Options & mbgCancel) != mbgCancel) {
-                AcceptButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 - AcceptButton->ClientSize.X / 2, WindowSize.Y - Borders.Bottom - AcceptButton->ClientSize.Y));
+                AcceptButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 - AcceptButton->ClientSize.X / 2,
+                    WindowSize.Y - Borders.Bottom - AcceptButton->ClientSize.Y));
             } else {
-                AcceptButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5), WindowSize.Y - Borders.Bottom - AcceptButton->ClientSize.Y));
+                AcceptButton->SetPosition(ClassesImports::Point(
+                    WindowSize.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5),
+                    WindowSize.Y - Borders.Bottom - AcceptButton->ClientSize.Y));
             }
             AcceptButton->HitKind = GI_GraphButton::gbhRect;
             AcceptButton->UpdateStateImagePlacement();
@@ -146,20 +164,26 @@ namespace GI_MessageBox {
             AcceptButton->UpCallback = pas::bind_method<&TMessageBoxGI::AcceptClick>(this);
         }
         if ((Options & mbgCancel) == mbgCancel) {
-            CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+            CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create,
+                    ContentPanel);
             CancelButton->EnterSound = u"Sound.ButtonEnter"_w;
             CancelButton->LeaveSound = u"Sound.ButtonLeave"_w;
             CancelButton->ClickSound = u"Sound.ButtonClick"_w;
             CancelButton->UpOnlyDown = true;
             CancelButton->SetDepth(0.0);
-            CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelN"}));
-            CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelA"}));
-            CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelD"}));
+            CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"CancelN"}));
+            CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.",
+                GR_Main::GiResourceSuffix(), u"CancelA"}));
+            CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"CancelD"}));
             CancelButton->SetSize(CancelButton->GetMaxStateImageSize());
             if ((Options & mbgOK) != mbgOK) {
-                CancelButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 - CancelButton->ClientSize.X / 2, WindowSize.Y - Borders.Bottom - CancelButton->ClientSize.Y));
+                CancelButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 - CancelButton->ClientSize.X / 2,
+                    WindowSize.Y - Borders.Bottom - CancelButton->ClientSize.Y));
             } else {
-                CancelButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 + GR_Main::GiScalePixels(5), WindowSize.Y - Borders.Bottom - CancelButton->ClientSize.Y));
+                CancelButton->SetPosition(ClassesImports::Point(WindowSize.X / 2 + GR_Main::GiScalePixels(5),
+                    WindowSize.Y - Borders.Bottom - CancelButton->ClientSize.Y));
             }
             CancelButton->HitKind = GI_GraphButton::gbhRect;
             CancelButton->UpdateStateImagePlacement();
@@ -180,7 +204,9 @@ namespace GI_MessageBox {
             TextLabel->SetTextAlignX(GI_Main::taxCenter);
         }
         TextLabel->SetTextAlignY(GI_Main::tayAuto);
-        TextLabel->SetPosition(ClassesImports::Point(Icon->ClientSize.X + Borders.Left + GR_Main::GiScalePixels(10), static_cast<std::int32_t>(System::Round(static_cast<long double>(WindowSize.Y - Borders.Top - Borders.Bottom - BottomMargin - TextLabel->ClientSize.Y) * VerticalFactor)) + Borders.Top));
+        TextLabel->SetPosition(ClassesImports::Point(Icon->ClientSize.X + Borders.Left + GR_Main::GiScalePixels(10),
+            static_cast<std::int32_t>(pas::real_round(static_cast<float>(static_cast<double>(WindowSize.Y - Borders.Top - Borders.Bottom -
+                BottomMargin - TextLabel->ClientSize.Y) * VerticalFactor))) + Borders.Top));
         Icon->SetPosition(ClassesImports::Point(Icon->LocalPosition.X, TextLabel->LocalPosition.Y));
         if (Icon->LocalPosition.Y + Icon->ClientSize.Y > TextLabel->LocalPosition.Y + TextLabel->ClientSize.Y) {
             if (TextLabel->LocalPosition.Y - (Icon->ClientSize.Y / 2 - TextLabel->ClientSize.Y / 2) < Borders.Top) {
@@ -211,7 +237,8 @@ namespace GI_MessageBox {
     }
 
     void TMessageBoxGI::DialogKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t VirtualKey) {
-        if ((Options & mbgCancel) == mbgCancel && (VirtualKey == WindowsSdk::VK_ESCAPE || VirtualKey == 'N' || VirtualKey == WindowsSdk::VK_RETURN && (Options & mbgOK) != mbgOK)) {
+        if ((Options & mbgCancel) == mbgCancel && (VirtualKey == WindowsSdk::VK_ESCAPE || VirtualKey == 'N' ||
+                VirtualKey == WindowsSdk::VK_RETURN && (Options & mbgOK) != mbgOK)) {
             CancelClick(Sender);
         } else if ((Options & mbgOK) == mbgOK && (VirtualKey == WindowsSdk::VK_RETURN || VirtualKey == 'Y')) {
             AcceptClick(Sender);

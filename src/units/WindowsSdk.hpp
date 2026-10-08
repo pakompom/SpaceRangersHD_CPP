@@ -24,9 +24,10 @@ namespace WindowsSdk {
 
     void PAS_STDCALL GlobalMemoryStatus(TMemoryStatus& lpBuffer);
 
-    THandle PAS_STDCALL HeapCreate(std::uint32_t flOptions, std::uint32_t dwInitialSize, std::uint32_t dwMaximumSize);
+    inline THandle PAS_STDCALL HeapCreate(std::uint32_t flOptions, std::uint32_t dwInitialSize,
+        std::uint32_t dwMaximumSize);
 
-    BOOL PAS_STDCALL HeapDestroy(THandle hHeap);
+    inline BOOL PAS_STDCALL HeapDestroy(THandle hHeap);
 
     inline void* PAS_STDCALL HeapAlloc(THandle hHeap, std::uint32_t dwFlags, std::uint32_t dwBytes);
 
@@ -40,7 +41,9 @@ namespace WindowsSdk {
 
     THandle PAS_STDCALL GetCurrentProcess();
 
-    THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize, TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags, std::uint32_t& lpThreadId);
+    THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize,
+        TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags,
+        std::uint32_t& lpThreadId);
 
     THandle PAS_STDCALL GetCurrentThread();
 
@@ -56,7 +59,8 @@ namespace WindowsSdk {
 
     std::uint32_t PAS_STDCALL WaitForSingleObject(THandle hHandle, std::uint32_t dwMilliseconds);
 
-    std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll, std::uint32_t dwMilliseconds);
+    std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll,
+        std::uint32_t dwMilliseconds);
 
     std::uint32_t PAS_STDCALL GetFileSize(THandle hFile, void* lpFileSizeHigh);
 
@@ -64,11 +68,14 @@ namespace WindowsSdk {
 
     void PAS_STDCALL GetSystemInfo(TSystemInfo& lpSystemInfo);
 
-    BOOL PAS_STDCALL FileTimeToSystemTime(pas::ConstRef<Windows::TFileTime> lpFileTime, Windows::TSystemTime& lpSystemTime);
+    BOOL PAS_STDCALL FileTimeToSystemTime(pas::ConstRef<Windows::TFileTime> lpFileTime,
+        Windows::TSystemTime& lpSystemTime);
 
-    std::int32_t PAS_STDCALL CompareFileTime(pas::ConstRef<Windows::TFileTime> lpFileTime1, const Windows::TFileTime& lpFileTime2);
+    std::int32_t PAS_STDCALL CompareFileTime(pas::ConstRef<Windows::TFileTime> lpFileTime1,
+        const Windows::TFileTime& lpFileTime2);
 
-    std::uint32_t PAS_STDCALL FormatMessageA(std::uint32_t dwFlags, void* lpSource, std::uint32_t dwMessageId, std::uint32_t dwLanguageId, std::uint8_t* lpBuffer, std::uint32_t nSize, void* Arguments);
+    std::uint32_t PAS_STDCALL FormatMessageA(std::uint32_t dwFlags, void* lpSource, std::uint32_t dwMessageId,
+        std::uint32_t dwLanguageId, std::uint8_t* lpBuffer, std::uint32_t nSize, void* Arguments);
 
     HMODULE PAS_STDCALL LoadLibraryW(char16_t* lpLibFileName);
 
@@ -98,7 +105,9 @@ namespace WindowsSdk {
 
     BOOL PAS_STDCALL MoveFileW(char16_t* lpExistingFileName, char16_t* lpNewFileName);
 
-    BOOL PAS_STDCALL GetVolumeInformationA(std::uint8_t* lpRootPathName, std::uint8_t* lpVolumeNameBuffer, std::uint32_t nVolumeNameSize, PDWORD lpVolumeSerialNumber, std::uint32_t& lpMaximumComponentLength, std::uint32_t& lpFileSystemFlags, std::uint8_t* lpFileSystemNameBuffer, std::uint32_t nFileSystemNameSize);
+    BOOL PAS_STDCALL GetVolumeInformationA(std::uint8_t* lpRootPathName, std::uint8_t* lpVolumeNameBuffer,
+        std::uint32_t nVolumeNameSize, PDWORD lpVolumeSerialNumber, std::uint32_t& lpMaximumComponentLength,
+        std::uint32_t& lpFileSystemFlags, std::uint8_t* lpFileSystemNameBuffer, std::uint32_t nFileSystemNameSize);
 
     BOOL PAS_STDCALL SetPriorityClass(THandle hProcess, std::uint32_t dwPriorityClass);
 
@@ -120,9 +129,11 @@ namespace WindowsSdk {
 
     BOOL PAS_STDCALL TranslateMessage(const Windows::TMsg& lpMsg);
 
-    BOOL PAS_STDCALL PeekMessage(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
+    BOOL PAS_STDCALL PeekMessage(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax,
+        UINT wRemoveMsg);
 
-    BOOL PAS_STDCALL PeekMessageW(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
+    BOOL PAS_STDCALL PeekMessageW(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax,
+        UINT wRemoveMsg);
 
     BOOL PAS_STDCALL PostMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
@@ -138,7 +149,8 @@ namespace WindowsSdk {
 
     BOOL PAS_STDCALL ShowWindow(HWND hWnd, std::int32_t nCmdShow);
 
-    BOOL PAS_STDCALL SetWindowPos(HWND hWnd, HWND hWndInsertAfter, std::int32_t X, std::int32_t Y, std::int32_t cx, std::int32_t cy, UINT uFlags);
+    BOOL PAS_STDCALL SetWindowPos(HWND hWnd, HWND hWndInsertAfter, std::int32_t X, std::int32_t Y, std::int32_t cx,
+        std::int32_t cy, UINT uFlags);
 
     BOOL PAS_STDCALL OpenClipboard(HWND hWndNewOwner);
 
@@ -158,7 +170,8 @@ namespace WindowsSdk {
 
     SHORT PAS_STDCALL GetAsyncKeyState(std::int32_t vKey);
 
-    std::uint32_t PAS_STDCALL MsgWaitForMultipleObjects(std::uint32_t nCount, void* pHandles, BOOL fWaitAll, std::uint32_t dwMilliseconds, std::uint32_t dwWakeMask);
+    std::uint32_t PAS_STDCALL MsgWaitForMultipleObjects(std::uint32_t nCount, void* pHandles, BOOL fWaitAll,
+        std::uint32_t dwMilliseconds, std::uint32_t dwWakeMask);
 
     UINT PAS_STDCALL SetTimer(HWND hWnd, UINT nIDEvent, UINT uElapse, TFNTimerProc lpTimerFunc);
 
@@ -206,21 +219,28 @@ namespace WindowsSdk {
 
     HICON PAS_STDCALL CreateIconIndirect(TIconInfo& piconinfo);
 
-    std::int32_t PAS_STDCALL CompareString(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1, std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2);
+    std::int32_t PAS_STDCALL CompareString(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1,
+        std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2);
 
-    std::int32_t PAS_STDCALL CompareStringA(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1, std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2);
+    std::int32_t PAS_STDCALL CompareStringA(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1,
+        std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2);
 
     std::int32_t PAS_STDCALL RegCloseKey(HKEY hKey);
 
-    std::int32_t PAS_STDCALL RegCreateKeyExW(HKEY hKey, char16_t* lpSubKey, std::uint32_t Reserved, char16_t* lpClass, std::uint32_t dwOptions, REGSAM samDesired, PSecurityAttributes lpSecurityAttributes, HKEY& phkResult, PDWORD lpdwDisposition);
+    std::int32_t PAS_STDCALL RegCreateKeyExW(HKEY hKey, char16_t* lpSubKey, std::uint32_t Reserved, char16_t* lpClass,
+        std::uint32_t dwOptions, REGSAM samDesired, PSecurityAttributes lpSecurityAttributes, HKEY& phkResult,
+        PDWORD lpdwDisposition);
 
     std::int32_t PAS_STDCALL RegFlushKey(HKEY hKey);
 
-    std::int32_t PAS_STDCALL RegOpenKeyExA(HKEY hKey, std::uint8_t* lpSubKey, std::uint32_t ulOptions, REGSAM samDesired, HKEY& phkResult);
+    std::int32_t PAS_STDCALL RegOpenKeyExA(HKEY hKey, std::uint8_t* lpSubKey, std::uint32_t ulOptions,
+        REGSAM samDesired, HKEY& phkResult);
 
-    std::int32_t PAS_STDCALL RegQueryValueExA(HKEY hKey, std::uint8_t* lpValueName, void* lpReserved, PDWORD lpType, std::uint8_t* lpData, PDWORD lpcbData);
+    std::int32_t PAS_STDCALL RegQueryValueExA(HKEY hKey, std::uint8_t* lpValueName, void* lpReserved, PDWORD lpType,
+        std::uint8_t* lpData, PDWORD lpcbData);
 
-    std::int32_t PAS_STDCALL RegSetValueExW(HKEY hKey, char16_t* lpValueName, std::uint32_t Reserved, std::uint32_t dwType, void* lpData, std::uint32_t cbData);
+    std::int32_t PAS_STDCALL RegSetValueExW(HKEY hKey, char16_t* lpValueName, std::uint32_t Reserved,
+        std::uint32_t dwType, void* lpData, std::uint32_t cbData);
 
 } // namespace WindowsSdk
 

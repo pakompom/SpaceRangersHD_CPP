@@ -18,7 +18,8 @@
 namespace fTextBox {
     // Native TfTextBox VMT confirms the inferred unit ownership.
     // Runs the modal TfTextBox and copies its text back even on cancellation.
-    std::uint32_t ShowTextInputDialog(GI_MessageLoop::TMessageLoopGI* Parent, pas::WideString Caption, pas::WideString& Value, std::int32_t MaximumLength, std::int32_t OffsetX, std::int32_t OffsetY) {
+    std::uint32_t ShowTextInputDialog(GI_MessageLoop::TMessageLoopGI* Parent, pas::WideString Caption,
+        pas::WideString& Value, std::int32_t MaximumLength, std::int32_t OffsetX, std::int32_t OffsetY) {
         std::uint32_t Result{};
         GI_MessageLoop::TCursorStateGI State{};
         Parent->RootUiObject->OnModalSuspend();
@@ -68,7 +69,8 @@ namespace fTextBox {
     void TfTextBox::OnOpen() {
         WindowsSdk::TPoint Size{};
         WindowsSdk::TRect Insets{};
-        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create, ContentPanel);
+        GI_Window::TWindowGI* Window = pas::construct_call<GI_Window::TWindowGI>(GI_Window::TWindowGI_Create,
+            ContentPanel);
         Window->SetDepth(1.0);
         Window->SetConfigPath(pas::concat_wide({u"Style.Window.", GR_Main::GiResourceSuffix(), u"MessageBox"}));
         if (GR_Main::GiResourceVariant() == 1) {
@@ -79,7 +81,8 @@ namespace fTextBox {
         Window->UpdateAutoGeometry();
         Insets = Window->WorkSubRect;
         Size = Window->ClientSize;
-        AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+        AcceptButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create,
+                ContentPanel);
         {
             GI_GraphButton::TGraphButtonGI* cpp_with = AcceptButton;
             cpp_with->EnterSound = u"Sound.ButtonEnter"_w;
@@ -87,32 +90,43 @@ namespace fTextBox {
             cpp_with->ClickSound = u"Sound.ButtonClick"_w;
             cpp_with->UpOnlyDown = true;
             cpp_with->SetDepth(0.0);
-            cpp_with->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkN"}));
-            cpp_with->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkA"}));
-            cpp_with->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"OkD"}));
+            cpp_with->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkN"}));
+            cpp_with->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkA"}));
+            cpp_with->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+                u"OkD"}));
             cpp_with->SetSize(AcceptButton->GetMaxStateImageSize());
-            cpp_with->SetPosition(ClassesImports::Point(Size.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5), Size.Y - Insets.Bottom - AcceptButton->ClientSize.Y));
+            cpp_with->SetPosition(ClassesImports::Point(
+                Size.X / 2 - AcceptButton->ClientSize.X - GR_Main::GiScalePixels(5),
+                Size.Y - Insets.Bottom - AcceptButton->ClientSize.Y));
             cpp_with->HitKind = GI_GraphButton::gbhRect;
             cpp_with->UpdateStateImagePlacement();
             cpp_with->UpdateStateVisuals();
             cpp_with->UpCallback = pas::bind_method<&TfTextBox::AcceptClicked>(this);
         }
-        GI_GraphButton::TGraphButtonGI* CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
+        GI_GraphButton::TGraphButtonGI* CancelButton = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+            GI_GraphButton::TGraphButtonGI_Create, ContentPanel);
         CancelButton->EnterSound = u"Sound.ButtonEnter"_w;
         CancelButton->LeaveSound = u"Sound.ButtonLeave"_w;
         CancelButton->ClickSound = u"Sound.ButtonClick"_w;
         CancelButton->UpOnlyDown = true;
         CancelButton->SetDepth(0.0);
-        CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelN"}));
-        CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelA"}));
-        CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(), u"CancelD"}));
+        CancelButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelN"}));
+        CancelButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelA"}));
+        CancelButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormMessageBox.", GR_Main::GiResourceSuffix(),
+            u"CancelD"}));
         CancelButton->SetSize(CancelButton->GetMaxStateImageSize());
-        CancelButton->SetPosition(ClassesImports::Point(Size.X / 2 + GR_Main::GiScalePixels(5), Size.Y - Insets.Bottom - CancelButton->ClientSize.Y));
+        CancelButton->SetPosition(ClassesImports::Point(Size.X / 2 + GR_Main::GiScalePixels(5),
+            Size.Y - Insets.Bottom - CancelButton->ClientSize.Y));
         CancelButton->HitKind = GI_GraphButton::gbhRect;
         CancelButton->UpdateStateImagePlacement();
         CancelButton->UpdateStateVisuals();
         CancelButton->UpCallback = pas::bind_method<&TfTextBox::CancelClicked>(this);
-        GI_Label::TLabelGI* CaptionLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, ContentPanel);
+        GI_Label::TLabelGI* CaptionLabel = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+            ContentPanel);
         if (GR_Main::GiResourceVariant() == 1) {
             CaptionLabel->SetPosition(ClassesImports::Point(25, 40));
             CaptionLabel->SetSize(ClassesImports::Point(500, 16));
@@ -124,7 +138,10 @@ namespace fTextBox {
         CaptionLabel->SetTextAlignY(GI_Main::tayCenter);
         CaptionLabel->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         CaptionLabel->SetFontName(GlobalsV::NormalBoldFontName);
-        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Caption, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag)));
+        CaptionLabel->SetText(EC_Str::ReplaceAllWideString(
+            EC_Str::ReplaceAllWideString(Caption, aMyFunction::TextHighlightColorTag,
+                pas::view(aMyFunction::DialogHighlightColorTag)), aMyFunction::GreenColorTag,
+            pas::view(aMyFunction::YellowColorTag)));
         Edit = pas::construct_call<GI_Edit::TEditGI>(GI_Edit::TEditGI_Create, ContentPanel);
         {
             GI_Edit::TEditGI* cpp_with_2 = Edit;

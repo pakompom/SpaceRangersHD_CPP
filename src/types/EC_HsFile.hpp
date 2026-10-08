@@ -39,7 +39,8 @@ namespace EC_HsFile {
         // Returns nil when out of range.
         TPackFileEC* GetPackByIndex(std::int32_t PackIndex);
         // Returns package index * 16 + slot, or -1.
-        std::int32_t OpenEntryByPathAcrossPackages(pas::AnsiString EntryPath, std::uint32_t DesiredAccess, std::uint8_t FirstPackageOnly);
+        std::int32_t OpenEntryByPathAcrossPackages(pas::AnsiString EntryPath, std::uint32_t DesiredAccess,
+            std::uint8_t FirstPackageOnly);
         // Uses the first package; truncates existing files. Returns a handle or -1.
         std::int32_t CreateLooseFile(pas::WideString FilePath);
         std::uint8_t CloseEntryHandle(std::int32_t Handle);

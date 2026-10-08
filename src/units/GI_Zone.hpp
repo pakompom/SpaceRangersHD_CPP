@@ -7,10 +7,12 @@ namespace GI_MessageLoop {
 } // namespace GI_MessageLoop
 
 namespace GI_Zone {
-    void TZoneGI_Create(TZoneGI* Self, GI_MessageLoop::TObjectGI* Owner);
+    inline void TZoneGI_Create(TZoneGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
     void TZoneGI_Destroy(TZoneGI* Self);
 
     void TZoneGI_LoadFromConfigPath(TZoneGI* Self, const pas::WideString& Path);
 
 } // namespace GI_Zone
+
+#include "inline/GI_Zone.hpp"

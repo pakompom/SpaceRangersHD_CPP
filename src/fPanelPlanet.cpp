@@ -21,10 +21,6 @@
 #include "units/fPanelPlanet.hpp"
 
 namespace fPanelPlanet {
-    void TfPanelPlanet_Create(TfPanelPlanet* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TfPanelPlanet_Destroy(TfPanelPlanet* Self) {
         EC_Struct::TObjectEx_Destroy(Self);
     }
@@ -33,13 +29,19 @@ namespace fPanelPlanet {
         this->Screen = Screen;
         GR_Main::AppendLogTextThreadSafe("fPanelPlanet... "_a);
         GI_MessageLoop::TObjectGI* Panel = this->Screen->GetByName(u"PanelPlanet"sv);
-        Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth, Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+        Panel->SetPosition(ClassesImports::Point(Panel->LocalPosition.X + GR_Main::ExtraScreenWidth,
+            Panel->LocalPosition.Y + GR_Main::ExtraScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Hangar"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::HangarClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Shop"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::EquipmentShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Goods"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::GoodsShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Gov"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::GovernmentClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Info"sv))->UpCallback = pas::bind_method<&TfPanelPlanet::InformationClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Hangar"sv))->UpCallback =
+            pas::bind_method<&TfPanelPlanet::HangarClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Shop"sv))->UpCallback =
+            pas::bind_method<&TfPanelPlanet::EquipmentShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Goods"sv))->UpCallback =
+            pas::bind_method<&TfPanelPlanet::GoodsShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Gov"sv))->UpCallback =
+            pas::bind_method<&TfPanelPlanet::GovernmentClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PP_Info"sv))->UpCallback =
+            pas::bind_method<&TfPanelPlanet::InformationClicked>(this);
     }
 
     // Native no-op lifecycle hook.
@@ -65,7 +67,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -85,7 +88,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -94,25 +98,32 @@ namespace fPanelPlanet {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w,
+                        std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
                     auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w,
+                        std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenEquipmentShop;
@@ -127,7 +138,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -136,25 +148,32 @@ namespace fPanelPlanet {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w,
+                        std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
                     auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w,
+                        std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenGoodsShop;
@@ -169,7 +188,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -189,7 +209,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -198,25 +219,32 @@ namespace fPanelPlanet {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlBad &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
             if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 const pas::WideString& replaceColoredToken = ([&] {
                     auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPiratePlanetAndBadRelations"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w, std::move(name), textHighlightColorTag.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText), u"<Planet>"_w,
+                        std::move(name), textHighlightColorTag.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen, replaceColoredToken,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             } else {
                 const pas::WideString& replaceColoredToken_2 = ([&] {
                     auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                        u"FormShip.SellOrBuyInPlanetAndBadRelations"_wref.get());
                     pas::WideString name_2 = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w, std::move(name_2), textHighlightColorTag_2.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedColorText_2), u"<Planet>"_w,
+                        std::move(name_2), textHighlightColorTag_2.get());
                 }());
                 GI_MessageLoop::TMessageLoopGI* screen_2 = Screen;
-                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+                GI_MessageBox::ShowMessageBoxGI(screen_2, replaceColoredToken_2,
+                    GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
             }
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenInfo;
@@ -231,7 +259,8 @@ namespace fPanelPlanet {
         if (fPanelLoad::ActiveLoadPanel != nullptr && fPanelLoad::ActiveLoadPanel->IsAnimatingShutters()) {
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile && Globals::GovernmentScreen == Screen) {
             return;
         }
         if (aPlayer::GetPlayer()->PendingDockDialogue > 1 && Globals::GovernmentScreen == Screen) {
@@ -248,7 +277,8 @@ namespace fPanelPlanet {
         if (Screen->ExitCode != 0) {
             return;
         }
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (!aPlayer::GetPlayer()->IsOnPlanet()) {

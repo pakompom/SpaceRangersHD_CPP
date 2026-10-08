@@ -28,10 +28,6 @@
 #include "units/fPanelRuins.hpp"
 
 namespace fPanelRuins {
-    void TfPanelRuins_Create(TfPanelRuins* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TfPanelRuins_Destroy(TfPanelRuins* Self) {
         EC_Struct::TObjectEx_Destroy(Self);
     }
@@ -41,14 +37,20 @@ namespace fPanelRuins {
         GR_Main::AppendLogTextThreadSafe("fPanelRuins... "_a);
         {
             GI_MessageLoop::TObjectGI* PanelRuins = this->Screen->GetByName(u"PanelRuins"sv);
-            PanelRuins->SetPosition(ClassesImports::Point(PanelRuins->LocalPosition.X + GR_Main::ExtraScreenWidth, PanelRuins->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+            PanelRuins->SetPosition(ClassesImports::Point(PanelRuins->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                PanelRuins->LocalPosition.Y + GR_Main::ExtraScreenHeight));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Gov"sv))->UpCallback = pas::bind_method<&TfPanelRuins::ServicesClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Shop"sv))->UpCallback = pas::bind_method<&TfPanelRuins::EquipmentShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Goods"sv))->UpCallback = pas::bind_method<&TfPanelRuins::GoodsShopClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Info"sv))->UpCallback = pas::bind_method<&TfPanelRuins::InformationClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Hangar"sv))->UpCallback = pas::bind_method<&TfPanelRuins::HangarClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Gov"sv))->UpCallback =
+            pas::bind_method<&TfPanelRuins::ServicesClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Shop"sv))->UpCallback =
+            pas::bind_method<&TfPanelRuins::EquipmentShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Goods"sv))->UpCallback =
+            pas::bind_method<&TfPanelRuins::GoodsShopClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Info"sv))->UpCallback =
+            pas::bind_method<&TfPanelRuins::InformationClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(this->Screen->GetByName(u"PR_Hangar"sv))->UpCallback =
+            pas::bind_method<&TfPanelRuins::HangarClicked>(this);
     }
 
     void TfPanelRuins::OnOpen() {
@@ -101,10 +103,13 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
-            const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter &&
+            aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+            const pas::WideString& localizedColorText = aConst::LocalizedColorText(
+                u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
-            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText,
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenEquipmentShop;
             Screen->RequestClose(1);
@@ -127,10 +132,13 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
-            const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter &&
+            aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+            const pas::WideString& localizedColorText = aConst::LocalizedColorText(
+                u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
-            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText,
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenGoodsShop;
             Screen->RequestClose(1);
@@ -153,10 +161,13 @@ namespace fPanelRuins {
         if (aScript::HasPendingScriptRequests()) {
             return;
         }
-        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter && aPlayer::GetPlayer()->DebtDefaultCount > 1) {
-            const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormRuins.BK.DebtNoAccess"_wref.get());
+        if (aPlayer::GetPlayer()->DockedTo->TypeId == aGalaxyStruct::rstBusinessCenter &&
+            aPlayer::GetPlayer()->DebtDefaultCount > 1) {
+            const pas::WideString& localizedColorText = aConst::LocalizedColorText(
+                u"FormRuins.BK.DebtNoAccess"_wref.get());
             GI_MessageLoop::TMessageLoopGI* screen = Screen;
-            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText, GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
+            GI_MessageBox::ShowMessageBoxGI(screen, localizedColorText,
+                GI_MessageBox::mbgCancel | GI_MessageBox::mbgWarning, 0, 0, 0);
         } else {
             GlobalsV::RequestedScreenId = GlobalsV::screenInfo;
             Screen->RequestClose(1);
@@ -196,15 +207,21 @@ namespace fPanelRuins {
         aRanger::PlayerAutomaticControl = false;
         Globals::PruneExpiredPersistentPlayerMessages();
         aPlayer::GetPlayer()->OrderTakeoff();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(Index); ) {
-            aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index));
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    aScript::TScript_RunTurnCode(pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, Index));
+                }
+            }
         }
         Globals::StarMapWeaponPanelOpen = false;
         Globals::FilmCameraFollow = true;
         aGalaxy::PlayerStar->RefreshSpaceObjectPositions();
         fEquipmentShop::RestoreTemporaryShopStock();
         aScript::RunGlobalScriptsForContext(aPlayer::GetPlayer()->CurrentStar, 1);
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
+        if (aPlayer::GetPlayer() != nullptr &&
+            aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heHolyFanaticism)) {
             aGalaxy::Galaxy->EnableDominatorSurfaces();
         } else {
             aGalaxy::Galaxy->DisableDominatorSurfaces();
@@ -232,7 +249,8 @@ namespace fPanelRuins {
         if (Screen->ExitCode != 0) {
             return;
         }
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (!aPlayer::GetPlayer()->IsDockedToShip()) {

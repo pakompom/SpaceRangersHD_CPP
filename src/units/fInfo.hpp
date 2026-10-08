@@ -17,7 +17,8 @@ namespace fInfo {
     extern pas::Array<float, 0, 6> InfoQualityGrades;
 
     // Search is already lowercase; positions are one-based, zero means absent.
-    std::int32_t FindLowercaseInfoTextFrom(const pas::WideString& Search, const pas::WideString& Text, std::int32_t StartPosition);
+    std::int32_t FindLowercaseInfoTextFrom(const pas::WideString& Search, const pas::WideString& Text,
+        std::int32_t StartPosition);
 
     std::int32_t FindLowercaseInfoText(const pas::WideString& Search, const pas::WideString& Text);
 

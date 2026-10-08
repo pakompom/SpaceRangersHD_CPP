@@ -18,10 +18,6 @@
 #include "units/GR_Main.hpp"
 
 namespace GI_Image {
-    void TImageGI_Create(TImageGI* Self, GI_MessageLoop::TObjectGI* Owner) {
-        GI_MessageLoop::TObjectGI_Create(Self, Owner);
-    }
-
     void TImageGI_Destroy(TImageGI* Self) {
         GI_MessageLoop::TObjectGI_Destroy(Self);
     }
@@ -69,26 +65,31 @@ namespace GI_Image {
                 ImagePath = Path;
                 Mode = EC_Str::ExtractNextDelimitedPartW(Path, u',');
                 if (Mode == u"GraphBuf") {
-                    GraphBufControl = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, this, false);
+                    GraphBufControl = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create,
+                            this, false);
                     GraphBufControl->SetSize(ClientSize);
                     GraphBufControl->SetPosition(ClassesImports::Point(-OriginPoint.X, -OriginPoint.Y));
                 } else if (Path == u"") {
-                    SimpleImageControl = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(GI_SimpleImage::TSimpleImageGI_Create, this);
+                    SimpleImageControl = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(
+                            GI_SimpleImage::TSimpleImageGI_Create, this);
                     SimpleImageControl->SetImagePath(Mode);
                     SimpleImageControl->SetSize(ClientSize);
                     SimpleImageControl->SetPosition(ClassesImports::Point(-OriginPoint.X, -OriginPoint.Y));
                 } else if (Mode == u"Simple") {
-                    SimpleImageControl = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(GI_SimpleImage::TSimpleImageGI_Create, this);
+                    SimpleImageControl = pas::construct_call<GI_SimpleImage::TSimpleImageGI>(
+                            GI_SimpleImage::TSimpleImageGI_Create, this);
                     SimpleImageControl->SetImagePath(Path);
                     SimpleImageControl->SetSize(ClientSize);
                     SimpleImageControl->SetPosition(ClassesImports::Point(-OriginPoint.X, -OriginPoint.Y));
                 } else if (Mode == u"Trans") {
-                    TransImageControl = pas::construct_call<GI_TransImage::TTransImageGI>(GI_TransImage::TTransImageGI_Create, this);
+                    TransImageControl = pas::construct_call<GI_TransImage::TTransImageGI>(
+                            GI_TransImage::TTransImageGI_Create, this);
                     TransImageControl->SetImagePath(Path);
                     TransImageControl->SetSize(ClientSize);
                     TransImageControl->SetPosition(ClassesImports::Point(-OriginPoint.X, -OriginPoint.Y));
                 } else if (Mode == u"Alpha") {
-                    AlphaImageControl = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, this);
+                    AlphaImageControl = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(
+                            GI_AlphaImage::TAlphaImageGI_Create, this);
                     AlphaImageControl->SetImagePath(Path);
                     AlphaImageControl->SetSize(ClientSize);
                     AlphaImageControl->SetPosition(ClassesImports::Point(-OriginPoint.X, -OriginPoint.Y));
@@ -113,7 +114,8 @@ namespace GI_Image {
                         GaiImageControl->RestartPlayback();
                     }
                 } else {
-                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"TImageGI.SetImage. Path=", Path}))));
+                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                        u"TImageGI.SetImage. Path=", Path}))));
                 }
             }
         }

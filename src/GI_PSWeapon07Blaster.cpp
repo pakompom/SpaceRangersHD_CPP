@@ -16,7 +16,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native blaster particles, curved projectile paths and independent cyclic random pool.
@@ -45,7 +44,8 @@ namespace GI_PSWeapon07Blaster {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range_2.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         BlasterPalettes.set_length(Count);
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(Index); ) {
@@ -53,21 +53,27 @@ namespace GI_PSWeapon07Blaster {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 1); cpp_range_4.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         BlasterPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
             }
         }
     }
 
-    void TPSWeapon07Blaster_Create(TPSWeapon07Blaster* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon07Blaster_Create(TPSWeapon07Blaster* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 4;
         Self->UpdateProjectionBounds();
@@ -104,20 +110,25 @@ namespace GI_PSWeapon07Blaster {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth * 2) * Cosine;
-        float D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon07Blaster::UpdateHitTestBounds() {
@@ -137,7 +148,8 @@ namespace GI_PSWeapon07Blaster {
     }
 
     PBlasterParticle TPSWeapon07Blaster::AddParticle() {
-        PBlasterParticle Particle = static_cast<PBlasterParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TBlasterParticle))));
+        PBlasterParticle Particle = static_cast<PBlasterParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TBlasterParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -165,7 +177,8 @@ namespace GI_PSWeapon07Blaster {
     void TPSWeapon07Blaster::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 32;
         Rect.Right = Target.X + 32;
@@ -191,58 +204,60 @@ namespace GI_PSWeapon07Blaster {
         float Speed{};
         if (FirstParticle == nullptr && RemainingTicks > 20) {
             Y = 0.0f;
-            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
+            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y));
             Speed = 4.1f;
-            if (pas::real_divide(Distance, Speed) > 38.0L) {
-                Speed = pas::real_divide(Distance, 38.0L);
+            if (static_cast<float>(static_cast<double>(Distance) / Speed) > 38.0) {
+                Speed = static_cast<float>(Distance / 38.0);
             }
-            while (Y < Distance && Y < 2.0L) {
+            while (Y < Distance && Y < 2.0) {
                 for (J = 0; J <= 1; ++J) {
                     Particle = AddParticle();
                     {
                         std::int32_t cpp_left = pas::random(HalfWidth * 2 + 1, &System::RandSeed);
                         I = cpp_left - HalfWidth;
                     }
-                    Particle->BaseX = (Y * 2.0L - 1.0L) * (J + 1);
+                    Particle->BaseX = static_cast<float>((static_cast<float>(static_cast<float>(Y * 2.0) - 1.0)) * (J + 1));
                     Particle->Position.X = I + J;
                     Particle->Position.Y = Y;
                     Particle->Color = SecondaryColor;
-                    if (Y < 32.0L) {
-                        Particle->Alpha = pas::shr(System::Trunc(255.0L * Y), 5);
+                    if (Y < 32.0) {
+                        Particle->Alpha = pas::shr(pas::real_trunc(static_cast<float>(255.0 * Y)), 5);
                     }
                     Particle->Velocity.X = 0.0f;
                     Particle->Velocity.Y = Speed;
                     Particle->State = 1;
                     Particle->Unknown1E = 30000;
                     Particle = AddParticle();
-                    Particle->BaseX = (Y * 2.0L - 1.0L) * (J + 1);
+                    Particle->BaseX = static_cast<float>((static_cast<float>(static_cast<float>(Y * 2.0) - 1.0)) * (J + 1));
                     Particle->Position.X = I + J;
-                    Particle->Position.Y = Y + 1.0L;
+                    Particle->Position.Y = static_cast<float>(Y + 1.0);
                     Particle->Color = SecondaryColor;
-                    if (Y < 32.0L) {
-                        Particle->Alpha = pas::shr(System::Trunc(255.0L * Y), 5);
+                    if (Y < 32.0) {
+                        Particle->Alpha = pas::shr(pas::real_trunc(static_cast<float>(255.0 * Y)), 5);
                     }
                     Particle->Velocity.X = 0.0f;
                     Particle->Velocity.Y = Speed;
                     Particle->State = 1;
                     Particle->Unknown1E = 30000;
                     Particle = AddParticle();
-                    Particle->BaseX = (Y * 2.0L - 1.0L) * (J + 1);
+                    Particle->BaseX = static_cast<float>((static_cast<float>(static_cast<float>(Y * 2.0) - 1.0)) * (J + 1));
                     Particle->Position.X = I + J;
-                    Particle->Position.Y = Y + 2.0L;
+                    Particle->Position.Y = static_cast<float>(Y + 2.0);
                     Particle->Color = SecondaryColor;
-                    if (Y < 32.0L) {
-                        Particle->Alpha = pas::shr(System::Trunc(255.0L * Y), 5);
+                    if (Y < 32.0) {
+                        Particle->Alpha = pas::shr(pas::real_trunc(static_cast<float>(255.0 * Y)), 5);
                     }
                     Particle->Velocity.X = 0.0f;
                     Particle->Velocity.Y = Speed;
                     Particle->State = 1;
                     Particle->Unknown1E = 30000;
                 }
-                Y = Y + 1.0L;
+                Y = static_cast<float>(Y + 1.0);
             }
         } else {
-            Distance = System::Trunc(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)));
+            Distance = pas::real_trunc(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)));
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -250,31 +265,34 @@ namespace GI_PSWeapon07Blaster {
                 Particle = Particle->Next;
                 switch (Current->State) {
                     case 1: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        if (Current->BaseX >= 0.0L) {
-                            Current->Position.X = System::Sin(pas::real_divide((static_cast<long double>(Current->Position.Y) + Current->Velocity.Y) * SystemImports::Pi, Distance)) * 15.0L + Current->BaseX;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        if (Current->BaseX >= 0.0) {
+                            Current->Position.X = static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Current->Position.Y) +
+                                    Current->Velocity.Y)) * SystemImports::Pi) / Distance)) * 15.0) + Current->BaseX);
                         } else {
-                            Current->Position.X = System::Sin(pas::real_divide((static_cast<long double>(Current->Position.Y) + Current->Velocity.Y) * SystemImports::Pi, Distance)) * -15.0L + Current->BaseX;
+                            Current->Position.X = static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Current->Position.Y) +
+                                    Current->Velocity.Y)) * SystemImports::Pi) / Distance)) * -15.0) + Current->BaseX);
                         }
                         if (Current->Position.Y > Distance) {
                             Current->State = 255;
                             RemainingTicks = 20;
                         } else {
-                            if (Current->Position.Y < 32.0L) {
-                                Current->Alpha = pas::shr(System::Trunc(Current->Position.Y * 255.0L), 5);
+                            if (Current->Position.Y < 32.0) {
+                                Current->Alpha = pas::shr(pas::real_trunc(static_cast<float>(Current->Position.Y * 255.0)), 5);
                             } else {
                                 Current->Alpha = 255;
                             }
                             if (GI_PSWeapon07Blaster::NextBlasterRandom() < 17) {
                                 Spark = AddParticle();
                                 {
-                                    pas::Extended cpp_right = pas::real_divide(GI_PSWeapon07Blaster::NextBlasterRandom(), 1.0E+2L);
-                                    Spark->Position.X = Current->Position.X + cpp_right - 0.5L;
+                                    double cpp_right = static_cast<float>(GI_PSWeapon07Blaster::NextBlasterRandom() / 1.0E+2);
+                                    Spark->Position.X = static_cast<float>(static_cast<float>(Current->Position.X + cpp_right) - 0.5);
                                 }
-                                Spark->Position.Y = Current->Position.Y - 1.0L;
+                                Spark->Position.Y = static_cast<float>(Current->Position.Y - 1.0);
                                 Spark->Color = PrimaryColor;
-                                Spark->Velocity.X = (static_cast<long double>(Spark->Position.X) - Current->Position.X) * 0.5L;
-                                Spark->Velocity.Y = Current->Velocity.Y * 0.75L;
+                                Spark->Velocity.X = static_cast<float>((static_cast<float>(static_cast<double>(Spark->Position.X) - Current->Position.X)) *
+                                        0.5);
+                                Spark->Velocity.Y = static_cast<float>(Current->Velocity.Y * 0.75);
                                 Spark->State = 2;
                                 Spark->Unknown1E = 30000;
                                 {
@@ -293,9 +311,9 @@ namespace GI_PSWeapon07Blaster {
                     }
                     case 2: ++Current->State; break;
                     case 3: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
                         if (Current->Alpha > 8) {
                             Current->Alpha -= 9;
                         }
@@ -306,13 +324,14 @@ namespace GI_PSWeapon07Blaster {
                         if (Current != nullptr && GI_PSWeapon07Blaster::NextBlasterRandom() < 14) {
                             Spark = AddParticle();
                             {
-                                pas::Extended cpp_right_3 = pas::real_divide(GI_PSWeapon07Blaster::NextBlasterRandom(), 4.0E+2L);
-                                Spark->Position.X = Current->Position.X + cpp_right_3 - 0.125L;
+                                double cpp_right_3 = static_cast<float>(GI_PSWeapon07Blaster::NextBlasterRandom() / 4.0E+2);
+                                Spark->Position.X = static_cast<float>(static_cast<float>(Current->Position.X + cpp_right_3) - 0.125);
                             }
-                            Spark->Position.Y = Current->Position.Y - 1.0L;
+                            Spark->Position.Y = static_cast<float>(Current->Position.Y - 1.0);
                             Spark->Color = Current->Color;
-                            Spark->Velocity.X = static_cast<long double>(Spark->Position.X) - Current->Position.X + Current->Velocity.X;
-                            Spark->Velocity.Y = 0.7L * Current->Velocity.Y;
+                            Spark->Velocity.X = static_cast<float>(static_cast<float>(static_cast<double>(Spark->Position.X) - Current->Position.X) +
+                                    Current->Velocity.X);
+                            Spark->Velocity.Y = static_cast<float>(0x1.6666666666665p-1 * Current->Velocity.Y);
                             Spark->State = 2;
                             Spark->Unknown1E = 30000;
                             {
@@ -329,10 +348,10 @@ namespace GI_PSWeapon07Blaster {
                         break;
                     }
                     case 4: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
                         if (Current->Alpha < 246) {
                             Current->Alpha += 10;
                         }
@@ -342,10 +361,10 @@ namespace GI_PSWeapon07Blaster {
                         break;
                     }
                     case 5: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
                         if (Current->Alpha > 25) {
                             Current->Alpha -= 26;
                         }
@@ -377,8 +396,10 @@ namespace GI_PSWeapon07Blaster {
                 if (Particle->State != 255) {
                     PX = Particle->Position.X;
                     PY = -Particle->Position.Y;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                     GR_DX::QueueDrawPoint(X - 1, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
@@ -390,8 +411,10 @@ namespace GI_PSWeapon07Blaster {
                 if (Particle->State != 255) {
                     PX = Particle->Position.X;
                     PY = -Particle->Position.Y;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }

@@ -7,7 +7,6 @@
 #include "units/EC_Mem.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/Globals.hpp"
-#include "units/System.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/ab_Global.hpp"
 #include "units/ab_WorldLine.hpp"
@@ -38,7 +37,8 @@ namespace ab_WorldLine {
                 pas::raise(pas::make_exception<pas::Exception>("ab_WorldLine_Add.HeapCreate"_a));
             }
         }
-        PabWorldLine Line = static_cast<PabWorldLine>(EC_Mem::AllocClearFromHeapEC(WorldLineHeap, static_cast<std::int32_t>(sizeof(TabWorldLine))));
+        PabWorldLine Line = static_cast<PabWorldLine>(EC_Mem::AllocClearFromHeapEC(WorldLineHeap,
+            static_cast<std::int32_t>(sizeof(TabWorldLine))));
         if (LastWorldLine != nullptr) {
             LastWorldLine->Next = Line;
         }
@@ -73,7 +73,8 @@ namespace ab_WorldLine {
         }
     }
 
-    PabWorldLine ab_WorldLine_Create(EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind, std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere) {
+    PabWorldLine ab_WorldLine_Create(EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind,
+        std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere) {
         PabWorldLine Line = ab_WorldLine::ab_WorldLine_Add();
         pas::store_unaligned<EC_Struct::TVector3D>(&Line->First, First);
         pas::store_unaligned<EC_Struct::TVector3D>(&Line->Last, Last);
@@ -84,7 +85,8 @@ namespace ab_WorldLine {
         return Line;
     }
 
-    void ab_WorldLine_Set(PabWorldLine Line, EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind, std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere) {
+    void ab_WorldLine_Set(PabWorldLine Line, EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind,
+        std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere) {
         pas::store_unaligned<EC_Struct::TVector3D>(&Line->First, First);
         pas::store_unaligned<EC_Struct::TVector3D>(&Line->Last, Last);
         Line->FrontColor = FrontColor;
@@ -106,16 +108,19 @@ namespace ab_WorldLine {
         EC_Struct::TVector3D Last{};
         EC_Struct::TVector3D Center{};
         Center = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
-        Center = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Center));
+        Center = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                pas::ConstRef<EC_Struct::TVector3D>(&Center));
         Line = FirstWorldLine;
         while (Line != nullptr) {
             if (Line->Kind == 0) {
                 Line = Line->Next;
                 continue;
             }
-            First = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->First));
-            Last = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->Last));
-            Behind = static_cast<std::uint8_t>(ab_Global::IsDepthBeforeSphereHorizon(First.Z) ^ 1) || static_cast<std::uint8_t>(ab_Global::IsDepthBeforeSphereHorizon(Last.Z) ^ 1);
+            First = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&Line->First));
+            Last = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&Line->Last));
+            Behind = !ab_Global::IsDepthBeforeSphereHorizon(First.Z) || !ab_Global::IsDepthBeforeSphereHorizon(Last.Z);
             if (Behind && static_cast<std::uint8_t>(Line->ShowBehindSphere ^ 1)) {
                 if (Line->Segment != nullptr) {
                     Globals::ArcadeBattleScreen->WorldLines->RetireSegment(Line->Segment);
@@ -123,15 +128,9 @@ namespace ab_WorldLine {
                 }
             } else {
                 if (Line->Segment == nullptr) {
-                    {
-                        std::int32_t round_3 = System::Round(Last.Y);
-                        std::int32_t round_4 = System::Round(Last.X);
-                        WindowsSdk::TPoint point = ClassesImports::Point(round_4, round_3);
-                        std::int32_t round = System::Round(First.Y);
-                        std::int32_t round_2 = System::Round(First.X);
-                        WindowsSdk::TPoint point_2 = ClassesImports::Point(round_2, round);
-                        Line->Segment = Globals::ArcadeBattleScreen->WorldLines->AddLine(point_2, point, Line->FrontColor);
-                    }
+                    Line->Segment = Globals::ArcadeBattleScreen->WorldLines->AddLine(
+                            ClassesImports::Point(pas::real_round(First.X), pas::real_round(First.Y)),
+                            ClassesImports::Point(pas::real_round(Last.X), pas::real_round(Last.Y)), Line->FrontColor);
                     Line->Segment->Animated = Line->Kind == 2;
                     if (Line->Kind < 3) {
                         Line->Segment->Kind = 0;
@@ -141,10 +140,10 @@ namespace ab_WorldLine {
                         Line->Segment->Kind = 2;
                     }
                 } else {
-                    Line->Segment->First.X = System::Round(First.X);
-                    Line->Segment->First.Y = System::Round(First.Y);
-                    Line->Segment->Last.X = System::Round(Last.X);
-                    Line->Segment->Last.Y = System::Round(Last.Y);
+                    Line->Segment->First.X = pas::real_round(First.X);
+                    Line->Segment->First.Y = pas::real_round(First.Y);
+                    Line->Segment->Last.X = pas::real_round(Last.X);
+                    Line->Segment->Last.Y = pas::real_round(Last.Y);
                     Globals::ArcadeBattleScreen->WorldLines->UpdateSegmentLength(Line->Segment);
                 }
                 if (Behind) {

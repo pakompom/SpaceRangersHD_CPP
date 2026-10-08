@@ -138,7 +138,8 @@ namespace fStarMap {
         void OnOpen() override;
         void OnClose() override;
         void RestorePendingSceneObjects();
-        static void BuildSpaceBackground(GI_StarField::TStarFieldGI* StarField, GI_SpaceImg::TSpaceImgGI* SpaceImage, std::uint32_t Seed, std::int32_t BackgroundIndex);
+        static void BuildSpaceBackground(GI_StarField::TStarFieldGI* StarField, GI_SpaceImg::TSpaceImgGI* SpaceImage,
+            std::uint32_t Seed, std::int32_t BackgroundIndex);
         static void SaveSpaceImageState(GI_SpaceImg::TSpaceImgGI* SpaceImage);
         void SaveSpaceBackground();
         void DeferredEndTurn(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
@@ -156,7 +157,8 @@ namespace fStarMap {
         void ClearPartnerButtons();
         void RebuildPartnerButtons();
         void PartnerClicked(GI_MessageLoop::TObjectGI* Sender);
-        void PartnerRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void PartnerRightButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void PartnerMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         void PartnerMouseLeave(GI_MessageLoop::TObjectGI* Sender);
         void AddMapAnimation(EC_Struct::TPointF Position, pas::WideString ImagePath, std::int32_t DelayMs);

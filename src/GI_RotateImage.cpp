@@ -17,7 +17,8 @@ namespace GI_RotateImage {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
         Self->ImageCache = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->ImageCache);
-        Self->RotationCache = pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->RotationCache =
+            pas::construct_call<EC_CacheRotateBuf::TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->RotationCache);
     }
 
@@ -58,12 +59,16 @@ namespace GI_RotateImage {
         }
         EC_CacheRotateBuf::TCRotateBufEC* Rotation = EC_CacheRotateBuf::AcquireOrCreateRotateBuf(RotationCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                GR_Main::Ex_OKGR_RotateBuf_Size(AbsolutePosition.X, AbsolutePosition.Y, Angle, Rotation->Buffer,
+                    HitTestBounds);
+                ++HitTestBounds.Right;
+                ++HitTestBounds.Bottom;
+            } catch (...) {
                 RotationCache->Release();
-            };
-            GR_Main::Ex_OKGR_RotateBuf_Size(AbsolutePosition.X, AbsolutePosition.Y, Angle, Rotation->Buffer, HitTestBounds);
-            ++HitTestBounds.Right;
-            ++HitTestBounds.Bottom;
+                throw;
+            }
+            RotationCache->Release();
         }
     }
 
@@ -75,12 +80,15 @@ namespace GI_RotateImage {
         }
         EC_CacheRotateBuf::TCRotateBufEC* Rotation = EC_CacheRotateBuf::AcquireOrCreateRotateBuf(RotationCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                GR_Main::Ex_OKGR_RotateBuf_Size(LocalPosition.X, LocalPosition.Y, Angle, Rotation->Buffer, Result);
+                ++Result.Right;
+                ++Result.Bottom;
+            } catch (...) {
                 RotationCache->Release();
-            };
-            GR_Main::Ex_OKGR_RotateBuf_Size(LocalPosition.X, LocalPosition.Y, Angle, Rotation->Buffer, Result);
-            ++Result.Right;
-            ++Result.Bottom;
+                throw;
+            }
+            RotationCache->Release();
         }
         return Result;
     }
@@ -91,11 +99,20 @@ namespace GI_RotateImage {
         ImageCache->SetCacheKey(Path);
         Bitmap = EC_CacheBitmap::AcquireOrCreateBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                RotationCache->SetCacheKey(pas::concat_wide({pas::wide_int_to_str(ImageSize.X), u",",
+                    pas::wide_int_to_str(ImageSize.Y), u",",
+                    pas::wide_int64_to_str(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(Bitmap->Bitmap->Width))), u",",
+                    pas::wide_int64_to_str(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(Bitmap->Bitmap->Height))), u",",
+                    pas::wide_int_to_str(OriginPoint.X), u",", pas::wide_int_to_str(OriginPoint.Y)}));
+                SetSize(ImageSize);
+            } catch (...) {
                 ImageCache->Release();
-            };
-            RotationCache->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(ImageSize.X), ",", SysUtils::IntToStr(ImageSize.Y), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Bitmap->Bitmap->Width)), ",", SysUtils::Int64ToStr(static_cast<std::uint32_t>(Bitmap->Bitmap->Height)), ",", SysUtils::IntToStr(OriginPoint.X), ",", SysUtils::IntToStr(OriginPoint.Y)})));
-            SetSize(ImageSize);
+                throw;
+            }
+            ImageCache->Release();
         }
     }
 
@@ -161,7 +178,8 @@ namespace GI_RotateImage {
                     void* pixels = Bitmap->Bitmap->GetPixels();
                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                     std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::Ex_OKGR_RotateBuf_DrawTransClip_WORD(pixels_2, pitchBytes_2, pixels, pitchBytes, x, y, angle, buffer, rect);
+                    GR_Main::Ex_OKGR_RotateBuf_DrawTransClip_WORD(pixels_2, pitchBytes_2, pixels, pitchBytes, x, y,
+                        angle, buffer, rect);
                 }
             } catch (...) {
                 cpp_error = std::current_exception();

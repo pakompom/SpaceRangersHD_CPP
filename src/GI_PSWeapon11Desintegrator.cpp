@@ -17,7 +17,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Desintegrator beam and screen-brightness-guided impact sparks.
@@ -34,7 +33,8 @@ namespace GI_PSWeapon11Desintegrator {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         DesintegratorPalettes.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
@@ -42,21 +42,27 @@ namespace GI_PSWeapon11Desintegrator {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 0); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         DesintegratorPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
             }
         }
     }
 
-    void TPSWeapon11Desintegrator_Create(TPSWeapon11Desintegrator* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon11Desintegrator_Create(TPSWeapon11Desintegrator* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 4;
         Self->Wavelength = 32;
@@ -97,20 +103,25 @@ namespace GI_PSWeapon11Desintegrator {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth * 2) * Cosine;
-        float D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon11Desintegrator::UpdateHitTestBounds() {
@@ -130,7 +141,8 @@ namespace GI_PSWeapon11Desintegrator {
     }
 
     PDesintegratorParticle TPSWeapon11Desintegrator::AddParticle() {
-        PDesintegratorParticle Particle = static_cast<PDesintegratorParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TDesintegratorParticle))));
+        PDesintegratorParticle Particle = static_cast<PDesintegratorParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TDesintegratorParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -180,7 +192,8 @@ namespace GI_PSWeapon11Desintegrator {
     void TPSWeapon11Desintegrator::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 32;
         Rect.Right = Target.X + 32;
@@ -200,22 +213,23 @@ namespace GI_PSWeapon11Desintegrator {
         PDesintegratorParticle Particle{};
         if (FirstParticle == nullptr && RemainingTicks > 18) {
             Y = 0.0f;
-            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
+            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y));
             OriginalLength = Distance;
             // Native comparison is strictly negative, including its zero-length behavior.
-            if (OriginalLength < 0.0L) {
+            if (OriginalLength < 0.0) {
                 OriginalLength = 1.0;
             }
             LengthScale = 1.0;
             while (Y < Distance) {
                 Particle = AddParticle();
-                Angle = pas::real_divide(Y, Wavelength) * 2.0L * SystemImports::Pi;
+                Angle = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Y) / Wavelength) * 2.0) * SystemImports::Pi);
                 Particle->Position.X = 1.0f;
                 Particle->Position.Y = Y;
                 Particle->Color = Color;
-                Particle->BaseAlpha = System::Trunc(System::Sin(Angle) * 95.0L + 1.6E+2L);
-                if (Y < 64.0L) {
-                    Particle->Alpha = pas::shr(System::Trunc(static_cast<long double>(Particle->BaseAlpha) * Y), 6);
+                Particle->BaseAlpha = pas::real_trunc(static_cast<float>(static_cast<float>(System::Sin(Angle) * 95.0) + 1.6E+2));
+                if (Y < 64.0) {
+                    Particle->Alpha = pas::shr(pas::real_trunc(static_cast<float>(static_cast<double>(Particle->BaseAlpha) * Y)), 6);
                 } else {
                     Particle->Alpha = Particle->BaseAlpha;
                 }
@@ -226,20 +240,21 @@ namespace GI_PSWeapon11Desintegrator {
                 Particle->Position.X = 0.0f;
                 Particle->Position.Y = Y;
                 Particle->Color = Color;
-                Particle->BaseAlpha = System::Trunc(System::Sin(Angle) * 95.0L + 1.6E+2L);
-                if (Y < 64.0L) {
-                    Particle->Alpha = pas::shr(System::Trunc(static_cast<long double>(Particle->BaseAlpha) * Y), 6);
+                Particle->BaseAlpha = pas::real_trunc(static_cast<float>(static_cast<float>(System::Sin(Angle) * 95.0) + 1.6E+2));
+                if (Y < 64.0) {
+                    Particle->Alpha = pas::shr(pas::real_trunc(static_cast<float>(static_cast<double>(Particle->BaseAlpha) * Y)), 6);
                 } else {
                     Particle->Alpha = Particle->BaseAlpha;
                 }
                 Particle->Velocity.X = 0.0f;
                 Particle->Velocity.Y = 4.0f;
                 Particle->State = 1;
-                Y = Y + 1.0L;
+                Y = static_cast<float>(Y + 1.0);
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -247,25 +262,24 @@ namespace GI_PSWeapon11Desintegrator {
                 Particle = Particle->Next;
                 switch (Current->State) {
                     case 1: {
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
                         if (Current->Position.Y > Distance) {
                             Spark = AddParticle();
-                            pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position, EC_Struct::MakePointF(0.0f, 0.0f));
+                            pas::store_unaligned<EC_Struct::TPointF>(&Spark->Position,
+                                EC_Struct::MakePointF(0.0f, 0.0f));
                             Spark->Color = Current->Color;
                             Spark->Alpha = Current->BaseAlpha;
-                            Angle = pas::real_divide(pas::random(12, &System::RandSeed) * SystemImports::Pi, 6.0L);
-                            {
-                                float cpp_arg = System::Sin(Angle) * 1.0L;
-                                float cpp_arg_2 = System::Cos(Angle) * 1.0L;
-                                pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity, EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
-                            }
+                            Angle = static_cast<float>(static_cast<float>(pas::random(12, &System::RandSeed) * SystemImports::Pi) / 6.0);
+                            pas::store_unaligned<EC_Struct::TPointF>(&Spark->Velocity,
+                                EC_Struct::MakePointF(static_cast<float>(System::Sin(Angle) * 1.0), static_cast<float>(System::Cos(Angle) * 1.0)));
                             Spark->State = 2;
                             Spark->RemainingTicks = 18;
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) - Distance;
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) - Distance);
                         }
-                        if (Current->Position.Y < 64.0L) {
-                            Current->Alpha = pas::shr(System::Trunc(static_cast<long double>(Current->BaseAlpha) * Current->Position.Y), 6);
+                        if (Current->Position.Y < 64.0) {
+                            Current->Alpha = pas::shr(
+                                    pas::real_trunc(static_cast<float>(static_cast<double>(Current->BaseAlpha) * Current->Position.Y)), 6);
                         } else {
                             Current->Alpha = Current->BaseAlpha;
                         }
@@ -300,10 +314,10 @@ namespace GI_PSWeapon11Desintegrator {
                 if (Current->Alpha > 96) {
                     Current->Alpha -= 4;
                 }
-                Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                X = System::Round(static_cast<long double>(TargetX) + Current->Position.X);
-                Y = System::Round(static_cast<long double>(TargetY) + Current->Position.Y);
+                Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                X = pas::real_round(static_cast<float>(static_cast<double>(TargetX) + Current->Position.X));
+                Y = pas::real_round(static_cast<float>(static_cast<double>(TargetY) + Current->Position.Y));
                 DX = 0.0;
                 DY = 0.0;
                 Minimum = 94;
@@ -385,8 +399,8 @@ namespace GI_PSWeapon11Desintegrator {
                     DX = 0.0;
                     DY = 0.0;
                 }
-                Current->Velocity.X = static_cast<long double>(Current->Velocity.X) + DX;
-                Current->Velocity.Y = static_cast<long double>(Current->Velocity.Y) + DY;
+                Current->Velocity.X = static_cast<float>(static_cast<double>(Current->Velocity.X) + DX);
+                Current->Velocity.Y = static_cast<float>(static_cast<double>(Current->Velocity.Y) + DY);
                 --Current->RemainingTicks;
                 if (Current->RemainingTicks == 0) {
                     RemoveParticle(Current);
@@ -407,7 +421,7 @@ namespace GI_PSWeapon11Desintegrator {
         std::int32_t TargetX = TargetPoint.X - LocalPosition.X + AbsolutePosition.X;
         std::int32_t TargetY = TargetPoint.Y - LocalPosition.Y + AbsolutePosition.Y;
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -417,13 +431,15 @@ namespace GI_PSWeapon11Desintegrator {
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
                 if (Particle->State == 2) {
-                    X = TargetX + System::Trunc(Particle->Position.X);
-                    Y = TargetY + System::Trunc(Particle->Position.Y);
+                    X = TargetX + pas::real_trunc(Particle->Position.X);
+                    Y = TargetY + pas::real_trunc(Particle->Position.Y);
                 } else {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * LengthScale;
-                    X = AbsolutePosition.X + System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine);
-                    Y = AbsolutePosition.Y + System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine);
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * LengthScale);
+                    X = AbsolutePosition.X + pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) +
+                                static_cast<float>(static_cast<double>(PY) * Sine)));
+                    Y = AbsolutePosition.Y + pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) *
+                                Cosine)));
                 }
                 GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 Particle = Particle->Next;
@@ -432,13 +448,15 @@ namespace GI_PSWeapon11Desintegrator {
         } else {
             while (Particle != nullptr) {
                 if (Particle->State == 2) {
-                    X = TargetX + System::Trunc(Particle->Position.X);
-                    Y = TargetY + System::Trunc(Particle->Position.Y);
+                    X = TargetX + pas::real_trunc(Particle->Position.X);
+                    Y = TargetY + pas::real_trunc(Particle->Position.Y);
                 } else {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * LengthScale;
-                    X = AbsolutePosition.X + System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine);
-                    Y = AbsolutePosition.Y + System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine);
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * LengthScale);
+                    X = AbsolutePosition.X + pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) +
+                                static_cast<float>(static_cast<double>(PY) * Sine)));
+                    Y = AbsolutePosition.Y + pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) *
+                                Cosine)));
                 }
                 if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                     GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);

@@ -7,15 +7,22 @@ namespace GI_PSWeapon12Turbogravir {
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, AlphaTable) == 560);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, HalfWidth) == 624);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, Wavelength) == 628);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, HalfWavelength) == 632);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, EnabledStrands) == 636);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, HalfWavelength) ==
+            632);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, EnabledStrands) ==
+            636);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, PhaseMask) == 640);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, FirstParticle) == 644);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, LastParticle) == 648);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, ProjectionBounds) == 652);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, FirstParticle) ==
+            644);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, LastParticle) ==
+            648);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, ProjectionBounds) ==
+            652);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, LengthScale) == 672);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, OriginalLength) == 680);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, PaletteIndex) == 688);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, OriginalLength) ==
+            680);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TPSWeapon12Turbogravir, PaletteIndex) ==
+            688);
     static_assert(sizeof(void*) != 4 || sizeof(GI_PSWeapon12Turbogravir::TPSBlueWhirlGI) == 696);
     static_assert(sizeof(void*) != 4 || sizeof(GI_PSWeapon12Turbogravir::TTurbogravirParticle) == 52);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon12Turbogravir::TTurbogravirParticle, Prev) == 0);

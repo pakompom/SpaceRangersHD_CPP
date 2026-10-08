@@ -57,12 +57,14 @@ namespace fGov {
         void AddChoice(pas::WideString Text, std::int32_t Value, GI_MessageLoop::TDialogChoiceEventGI Callback);
         static void ChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        static void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void RestartTextPresentation(std::uint8_t RestartAnimation);
         void AdvanceTextPresentation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
-        static GI_MessageLoop::TObjectGI* CreateDialogObject(GI_Label::TLabelGI* LabelControl, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateDialogObject(GI_Label::TLabelGI* LabelControl,
+            EC_CacheFont::PFontObjectEC Item);
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void AddMessageClicked(GI_MessageLoop::TObjectGI* Sender);
         void SelectMusic() override;

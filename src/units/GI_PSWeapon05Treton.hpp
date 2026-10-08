@@ -11,7 +11,8 @@ namespace GI_PSWeapon05Treton {
 
     void LoadTretonPalettes();
 
-    void TPSWeapon05Treton_Create(TPSWeapon05Treton* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon05Treton_Create(TPSWeapon05Treton* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon05Treton_Destroy(TPSWeapon05Treton* Self);
 

@@ -124,14 +124,17 @@ namespace fShip2 {
         static std::uint8_t IsCompatibleSlot(aConst::TItemType ItemType, aConst::TItemType SlotType);
         void RefreshEquipmentSlotControls();
         void RefreshShipView();
-        void RefreshActionPanels(TPlayerHoldKind Kind, std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost, aItem::TItem* Item, std::int32_t Origin);
+        void RefreshActionPanels(TPlayerHoldKind Kind, std::uint8_t Good, std::int32_t Quantity, std::int32_t Cost,
+            aItem::TItem* Item, std::int32_t Origin);
         void UpdateActionCursor(std::uint8_t CanTake) override;
         void TrainSkillClicked(GI_MessageLoop::TObjectGI* Sender);
-        void EquipmentSlotMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void EquipmentSlotMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void ArtefactSlotMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         void UseOnArtefactSlot(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         // Verified callback assignment in InitializeLayout.
-        void RemoteHoldItemMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        void RemoteHoldItemMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void TakeHoldEntry(TPlayerHoldUnit* Entry, std::int32_t Slot, std::uint8_t UsesDisplayOrder);
         void HullMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         std::uint8_t ConfigureChameleon();
@@ -177,9 +180,16 @@ namespace fShip2 {
         void ShowItemInfo();
         void ShowItemInfoTimer(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void HideItemInfo(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
-        static void LayoutItemInfo(GI_Window::TWindowGI* Window, GI_Label::TLabelGI* Title, GI_Label::TLabelGI* Text, std::uint8_t KeepMinimumHeight, std::uint8_t WordWrap, std::int32_t MinimumWidth);
+        static void LayoutItemInfo(GI_Window::TWindowGI* Window, GI_Label::TLabelGI* Title, GI_Label::TLabelGI* Text,
+            std::uint8_t KeepMinimumHeight, std::uint8_t WordWrap, std::int32_t MinimumWidth);
         // Two-column planet/ship statistics, shared with live and recorded star-map panels.
-        void LayoutObjectInfo(GI_Window::TWindowGI* Window, GI_Label::TLabelGI* Title, GI_Label::TLabelGI* Left1, GI_Label::TLabelGI* Right1, GI_Label::TLabelGI* Left2, GI_Label::TLabelGI* Right2, GI_Label::TLabelGI* Left3, GI_Label::TLabelGI* Right3, GI_Label::TLabelGI* Left4, GI_Label::TLabelGI* Right4, GI_Label::TLabelGI* Left5, GI_Label::TLabelGI* Right5, GI_Label::TLabelGI* Left6, GI_Label::TLabelGI* Right6, GI_Label::TLabelGI* Left7, GI_Label::TLabelGI* Right7, GI_Label::TLabelGI* Left8, GI_Label::TLabelGI* Right8, GI_MessageLoop::TObjectGI* Emblem, std::uint8_t KeepMinimumHeight, std::int32_t MinimumWidth);
+        void LayoutObjectInfo(GI_Window::TWindowGI* Window, GI_Label::TLabelGI* Title, GI_Label::TLabelGI* Left1,
+            GI_Label::TLabelGI* Right1, GI_Label::TLabelGI* Left2, GI_Label::TLabelGI* Right2,
+            GI_Label::TLabelGI* Left3, GI_Label::TLabelGI* Right3, GI_Label::TLabelGI* Left4,
+            GI_Label::TLabelGI* Right4, GI_Label::TLabelGI* Left5, GI_Label::TLabelGI* Right5,
+            GI_Label::TLabelGI* Left6, GI_Label::TLabelGI* Right6, GI_Label::TLabelGI* Left7,
+            GI_Label::TLabelGI* Right7, GI_Label::TLabelGI* Left8, GI_Label::TLabelGI* Right8,
+            GI_MessageLoop::TObjectGI* Emblem, std::uint8_t KeepMinimumHeight, std::int32_t MinimumWidth);
         void ShowEquipmentInfo(aItem::TItem* Item, std::uint8_t FromStorage);
         void ShowHoldGoodsInfo(std::uint8_t Good);
         void ShowStoredGoodsInfo(aItem::TGoods* Goods);
@@ -224,7 +234,8 @@ namespace fShip2 {
         void ScrollStorageUp(GI_MessageLoop::TObjectGI* Sender);
         void ScrollStorageDown(GI_MessageLoop::TObjectGI* Sender);
         void StorageItemMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
-        static GI_MessageLoop::TObjectGI* CreateShipInfoImage(GI_Label::TLabelGI* Sender, EC_CacheFont::PFontObjectEC Item);
+        static GI_MessageLoop::TObjectGI* CreateShipInfoImage(GI_Label::TLabelGI* Sender,
+            EC_CacheFont::PFontObjectEC Item);
         void BuildAdditionalInfoPanel();
         static void HideSender(GI_MessageLoop::TObjectGI* Sender);
         void ProcessCallbackTimers() override;

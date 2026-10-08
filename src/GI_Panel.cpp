@@ -19,10 +19,6 @@ namespace GI_Panel {
         Self->ScrollType = pstAll;
     }
 
-    void TPanelGI_Destroy(TPanelGI* Self) {
-        GI_MessageLoop::TObjectGI_Destroy(Self);
-    }
-
     void TPanelGI::Clear() {
         GI_MessageLoop::TObjectGI::Clear();
         ScrollOffset.X = 0;
@@ -124,27 +120,33 @@ namespace GI_Panel {
             DestRect = GetLocalBounds();
             SourceRect = DestRect;
             if (Delta.X > 0) {
-                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Top, DestRect.Left + Delta.X, DestRect.Bottom));
+                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Top, DestRect.Left + Delta.X,
+                    DestRect.Bottom));
                 DestRect.Left += Delta.X;
                 SourceRect.Right -= Delta.X;
             } else if (Delta.X < 0) {
-                InvalidateRect(ClassesImports::Rect(DestRect.Right + Delta.X, DestRect.Top, DestRect.Right, DestRect.Bottom));
+                InvalidateRect(ClassesImports::Rect(DestRect.Right + Delta.X, DestRect.Top, DestRect.Right,
+                    DestRect.Bottom));
                 DestRect.Right += Delta.X;
                 SourceRect.Left -= Delta.X;
             }
             if (Delta.Y > 0) {
-                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Top, DestRect.Right, DestRect.Top + Delta.Y));
+                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Top, DestRect.Right,
+                    DestRect.Top + Delta.Y));
                 DestRect.Top += Delta.Y;
                 SourceRect.Bottom -= Delta.Y;
             } else if (Delta.Y < 0) {
-                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Bottom + Delta.Y, DestRect.Right, DestRect.Bottom));
+                InvalidateRect(ClassesImports::Rect(DestRect.Left, DestRect.Bottom + Delta.Y, DestRect.Right,
+                    DestRect.Bottom));
                 DestRect.Bottom += Delta.Y;
                 SourceRect.Top -= Delta.Y;
             }
             {
                 void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
                 std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                GR_Main::Ex_OKGR_CopySingleBuf_XY_XY_WORD(pixels, pitchBytes, DestRect.Left, DestRect.Top, SourceRect.Left, SourceRect.Top, SourceRect.Right - SourceRect.Left, SourceRect.Bottom - SourceRect.Top);
+                GR_Main::Ex_OKGR_CopySingleBuf_XY_XY_WORD(pixels, pitchBytes, DestRect.Left, DestRect.Top,
+                    SourceRect.Left, SourceRect.Top, SourceRect.Right - SourceRect.Left,
+                    SourceRect.Bottom - SourceRect.Top);
             }
         }
     }
@@ -235,7 +237,7 @@ namespace GI_Panel {
 
     void TPanelGI::ProcessRightButtonDown(std::uint32_t KeyState, Types::TPoint Point) {
         GI_MessageLoop::TObjectGI::ProcessRightButtonDown(KeyState, Point);
-        if (static_cast<std::uint8_t>(IsOccludedAtPoint(Point) ^ 1) && DragScrollingEnabled == true) {
+        if (!IsOccludedAtPoint(Point) && DragScrollingEnabled == true) {
             Dragging = true;
             LastDragPoint = Point;
             if (MessageLoop->IsCursorImageSelected(u"Main"sv)) {
@@ -258,8 +260,10 @@ namespace GI_Panel {
         EC_BlockPar::TBlockParEC* Block = GR_Main::UiStyleConfig->GetBlockByPath(Path);
         if (Block->CountParams(u"CenterWorld"_wref.get()) > 0) {
             Text = Block->GetParam(u"CenterWorld"sv);
-            Self->ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Self->ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            Self->ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
+            Self->ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"MoveWorld"_wref.get()) > 0) {
             Self->DragScrollingEnabled = GI_Main::ParseEnabledNameGI(pas::view(Block->GetParam(u"MoveWorld"sv)));
@@ -271,8 +275,10 @@ namespace GI_Panel {
         GI_MessageLoop::TObjectGI::LoadFromBlock(Block);
         if (Block->CountParams(u"CenterWorld"_wref.get()) > 0) {
             Text = Block->GetParam(u"CenterWorld"sv);
-            ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
+            ScrollOffset.X = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
+            ScrollOffset.Y = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
         }
         if (Block->CountParams(u"MoveWorld"_wref.get()) > 0) {
             if (EC_Str::TrimWideString(Block->GetParam(u"MoveWorld"sv)) == u"True") {

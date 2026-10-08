@@ -1,6 +1,7 @@
 #pragma once
 #include "runtime_support.hpp"
 #include "types/EC_Struct.hpp"
+#include "types/GI_MessageLoop.hpp"
 #include "types/Types.hpp"
 #include "types/Windows_group.hpp"
 
@@ -28,13 +29,6 @@ namespace GI_GI {
     struct TgiGI;
 
 } // namespace GI_GI
-
-namespace GI_MessageLoop {
-    struct TMessageLoopGI;
-
-    struct TObjectGI;
-
-} // namespace GI_MessageLoop
 
 namespace GI_Panel {
     struct TPanelGI;
@@ -88,7 +82,9 @@ namespace SE_Space {
         virtual void CopyTo(TObjectSE* Destination);
         virtual void AttachToSpace(TSpaceSE* ASpace);
         virtual void DetachFromSpace();
-        std::uint8_t IsAttachedToSpace();
+        inline std::uint8_t IsAttachedToSpace() {
+            return !(Space == nullptr);
+        }
         virtual void SetPosition(EC_Struct::TPointF APosition);
         virtual void SetDepth(float Value);
         virtual float GetDepth();
@@ -152,7 +148,8 @@ namespace SE_Space {
         // Does not release Obj or clear its links.
         void UnlinkObject(TObjectSE* Obj);
         // Converts milliseconds to ticks by rounding division by 18. Callback receives Context, Timer, UserData in Delphi registers. Zero delay still waits for AdvanceTimers.
-        PSpaceTimerSE CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback, std::int32_t UserData);
+        PSpaceTimerSE CreateTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TSpaceTimerEventSE Callback,
+            std::int32_t UserData);
         // Raises if Timer is NextTimerToProcess.
         void DeleteTimer(PSpaceTimerSE Timer);
         void AdvanceTimers();
@@ -165,7 +162,9 @@ namespace SE_Space {
         void FreeMinimapViewport();
         void MapScrollChanged(GI_MessageLoop::TObjectGI* Sender);
         void MinimapMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
-        void MinimapMouseEnter(GI_MessageLoop::TObjectGI* Sender);
+        inline void MinimapMouseEnter(GI_MessageLoop::TObjectGI* Sender) {
+            MinimapDragging = false;
+        }
         void MinimapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         std::uint8_t ContainsMapPoint(EC_Struct::TPointF Point);
         TObjectSE* FirstObject;

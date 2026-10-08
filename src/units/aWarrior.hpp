@@ -27,27 +27,34 @@ namespace aWarrior {
     void TWarrior_NextDayFlagshipLogic(TWarrior* Self);
 
     // AI ownership check only; does not test travel range.
-    std::uint8_t TWarrior_CanQueueReachablePlanet(TWarrior* Self, aPlanet::TPlanet* Planet);
+    inline std::uint8_t TWarrior_CanQueueReachablePlanet(TWarrior* Self, aPlanet::TPlanet* Planet);
 
     std::uint8_t TWarrior_RecomputeFearState(TWarrior* Self);
 
     std::uint8_t TWarrior_AcceptsRansomDemandFrom(TWarrior* Self, aShip::TShip* Ship);
 
-    std::uint8_t TWarrior_TrustsAttackRequester(TWarrior* Self, aShip::TShip* Ship);
+    inline std::uint8_t TWarrior_TrustsAttackRequester(TWarrior* Self, aShip::TShip* Ship);
 
     // Flagship branch; shares the TWarrior.ArmsToTarget diagnostic.
     void TWarrior_AssignFlagshipWeaponTargets(TWarrior* Self);
 
-    std::uint8_t TWarrior_BuildMoneyExtortionResponse(TWarrior* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
+    std::uint8_t TWarrior_BuildMoneyExtortionResponse(TWarrior* Self, aShip::TShip* OtherShip,
+        pas::WideString& Response, std::int32_t DemandedAmount);
 
-    std::uint8_t TWarrior_BuildCargoExtortionResponse(TWarrior* Self, aShip::TShip* OtherShip, pas::WideString& Response);
+    std::uint8_t TWarrior_BuildCargoExtortionResponse(TWarrior* Self, aShip::TShip* OtherShip,
+        pas::WideString& Response);
 
-    std::uint8_t TWarrior_BuildAttackRequestResponse(TWarrior* Self, aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target);
+    std::uint8_t TWarrior_BuildAttackRequestResponse(TWarrior* Self, aShip::TShip* Requester, pas::WideString& Response,
+        aShip::TShip* Target);
 
-    std::uint8_t TWarrior_AcceptPartnershipOffer(TWarrior* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TWarrior_AcceptPartnershipOffer(TWarrior* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
-    std::uint8_t TWarrior_BuildPartnershipOfferResponse(TWarrior* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TWarrior_BuildPartnershipOfferResponse(TWarrior* Self, aShip::TShip* OtherShip,
+        pas::WideString& Response, std::int32_t PaymentAmount);
 
     void TWarrior_RefreshCurrentStanding(TWarrior* Self);
 
 } // namespace aWarrior
+
+#include "inline/aWarrior.hpp"

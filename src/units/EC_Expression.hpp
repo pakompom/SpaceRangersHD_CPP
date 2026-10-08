@@ -29,7 +29,7 @@ namespace EC_Expression {
     void RegisterExpressionBuiltins(TVarArrayEC* Scope);
 
     // Case-sensitive ordinal comparison; accepts nil and returns -1, 0 or 1.
-    // Preserve the native assembly comparison, including its unsigned character order.
+    // Preserve nil ordering, unsigned UTF-16 comparison and the first NUL boundary.
     inline std::int32_t CompareScriptNames(char16_t* Left, char16_t* Right);
 
     pas::WideString TrimScriptString(pas::WideString Text);
@@ -142,15 +142,20 @@ namespace EC_Expression {
     void FormatScriptError(std::int32_t Code, std::int32_t Position, pas::WideString& Text);
 
     // Reference parameters avoid copies of Self and RunStart in composed inline calls.
-    void FlushTokenRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength);
+    void FlushTokenRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart,
+        std::int32_t RunLength);
 
-    void FlushQuotedRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t RunStart, std::int32_t RunLength);
+    void FlushQuotedRun(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t RunStart,
+        std::int32_t RunLength);
 
     // Reference parameters preserve caller storage when DCC32 expands these helpers.
-    void EmitSourceToken(TCodeAnalyzerEC*& Analyzer, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength);
+    void EmitSourceToken(TCodeAnalyzerEC*& Analyzer, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind,
+        std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength);
 
     // Finish the pending text before beginning a punctuation or newline token.
-    void EmitToken(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart, std::int32_t RunLength, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index, std::int32_t& SourceOffset, std::int32_t SourceLength);
+    void EmitToken(TCodeAnalyzerEC*& Analyzer, const pas::WideString& Text, std::int32_t& RunStart,
+        std::int32_t RunLength, TCodeAnalyzerUnitEC*& Token, TCodeTokenKind Kind, std::int32_t& Index,
+        std::int32_t& SourceOffset, std::int32_t SourceLength);
 
     void TVarEC_Create(TVarEC* Self, TVarKind InitialKind);
 
@@ -218,32 +223,17 @@ namespace EC_Expression {
 
     std::uint8_t TVarEC_IsTrue(TVarEC* Self);
 
-    void TVarArrayEC_Create(TVarArrayEC* Self);
+    inline void TVarArrayEC_Create(TVarArrayEC* Self);
 
     void TVarArrayEC_Destroy(TVarArrayEC* Self);
 
-    // Does not validate either index.
-    inline void TVarArrayEC_SetNameOrderIndex(TVarArrayEC* Self, std::int32_t Index, std::int32_t DataIndex);
-
-    inline std::int32_t TVarArrayEC_GetNameOrderIndex(TVarArrayEC* Self, std::int32_t Index);
-
-    inline TVarEC* TVarArrayEC_GetItemByNameOrder(TVarArrayEC* Self, std::int32_t Index);
-
-    inline std::int32_t TVarArrayEC_FindNameOrderForDataIndex(TVarArrayEC* Self, std::int32_t DataIndex);
-
-    inline TVarEC* TVarArrayEC_GetItem(TVarArrayEC* Self, std::int32_t Index);
-
-    // Does not validate Index, free the old cell, or update NameOrder.
-    inline void TVarArrayEC_SetItem(TVarArrayEC* Self, std::int32_t Index, TVarEC* Value);
-
-    inline std::int32_t TVarArrayEC_IndexOf(TVarArrayEC* Self, TVarEC* Value);
-
-    void TCodeAnalyzerEC_Create(TCodeAnalyzerEC* Self);
+    inline void TCodeAnalyzerEC_Create(TCodeAnalyzerEC* Self);
 
     void TCodeAnalyzerEC_Destroy(TCodeAnalyzerEC* Self);
 
     // NewlineOffset is added to the source-position base at each newline.
-    void TCodeAnalyzerEC_AppendText(TCodeAnalyzerEC* Self, pas::WideString Text, std::int32_t SourceOffset, std::int32_t NewlineOffset);
+    void TCodeAnalyzerEC_AppendText(TCodeAnalyzerEC* Self, pas::WideString Text, std::int32_t SourceOffset,
+        std::int32_t NewlineOffset);
 
     void TExpressionInstrEC_Destroy(TExpressionInstrEC* Self);
 
@@ -253,13 +243,13 @@ namespace EC_Expression {
 
     void TExpressionEC_Destroy(TExpressionEC* Self);
 
-    inline TExpressionVarEC* TExpressionEC_GetVariable(TExpressionEC* Self, std::int32_t Index);
+    TExpressionVarEC* TExpressionEC_GetVariable(TExpressionEC* Self, std::int32_t Index);
 
-    inline void TExpressionEC_SetVariable(TExpressionEC* Self, std::int32_t Index, TExpressionVarEC* Value);
+    void TExpressionEC_SetVariable(TExpressionEC* Self, std::int32_t Index, TExpressionVarEC* Value);
 
-    inline TExpressionInstrEC* TExpressionEC_GetInstruction(TExpressionEC* Self, std::int32_t Index);
+    TExpressionInstrEC* TExpressionEC_GetInstruction(TExpressionEC* Self, std::int32_t Index);
 
-    inline void TExpressionEC_SetInstruction(TExpressionEC* Self, std::int32_t Index, TExpressionInstrEC* Value);
+    void TExpressionEC_SetInstruction(TExpressionEC* Self, std::int32_t Index, TExpressionInstrEC* Value);
 
     // Extract whole conditions: a helper inside an and/or chain adds DCC32 temporaries.
     std::uint8_t IsBinaryToken(TCodeAnalyzerUnitEC* Token);
@@ -274,8 +264,6 @@ namespace EC_Expression {
 
     // Callers exit immediately after this; Compiler has been freed.
     void RejectExpression(TCompilerEC*& Compiler, std::int32_t SourceStart, pas::WideString& ErrorText);
-
-    void TExpressionEC_Evaluate(TExpressionEC* Self, TCodeProcessEC* Process, TCodeEC* Code, TScriptDebugState* DebugContext);
 
     void TCompilerEC_Create(TCompilerEC* Self);
 

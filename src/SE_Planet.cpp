@@ -60,11 +60,8 @@ namespace SE_Planet {
         pas::dispose(Entry);
     }
 
-    void TPlanetSE_Create(TPlanetSE* Self) {
-        SE_Space::TObjectSE_CreateEmpty(Self);
-    }
-
-    void TPlanetSE_CreateFromGraph(TPlanetSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition) {
+    void TPlanetSE_CreateFromGraph(TPlanetSE* Self, const pas::WideString& AGraphKey,
+        WindowsSdk::TPoint UnusedPosition) {
         Self->IsRuins = EC_Str::FindTextOffsetW(AGraphKey, u"Ruins"_wref.get(), 0) == 0;
         SE_Space::TObjectSE_Create(Self, AGraphKey, UnusedPosition);
     }
@@ -163,10 +160,13 @@ namespace SE_Planet {
                 RuinsImageControl->SetAlpha(255);
                 Size = RuinsImageControl->ClientSize;
             }
-            RuinsMinimapControl = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+            RuinsMinimapControl = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                    Globals::SpaceObjectUiLoop->ContentPanel);
             RuinsMinimapControl->SetPositionModeW(true);
             RuinsMinimapControl->SetDepthByName(DepthExpression);
-            RuinsMinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+            RuinsMinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
             RuinsMinimapControl->SetImagePath(RuinsMinimapPath);
             {
                 Types::TPoint contentSize_3 = RuinsMinimapControl->GetContentSize();
@@ -189,11 +189,7 @@ namespace SE_Planet {
             PlanetControl = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Space->MapPanel);
             PlanetControl->SetPositionModeW(true);
             PlanetControl->SetDepthByName(DepthExpression);
-            {
-                std::int32_t trunc = System::Trunc(Position.Y);
-                std::int32_t trunc_2 = System::Trunc(Position.X);
-                PlanetControl->SetPosition(ClassesImports::Point(trunc_2, trunc));
-            }
+            PlanetControl->SetPosition(ClassesImports::Point(pas::real_trunc(Position.X), pas::real_trunc(Position.Y)));
             PlanetControl->SetSurfaceMapOffset(SurfaceMapOffset);
             PlanetControl->SetOrigin(ImageOrigin);
             PlanetControl->SetImageWithRadius(Template->MaskName, ImagePath, Template->LightName, Radius);
@@ -214,25 +210,33 @@ namespace SE_Planet {
             PlanetControl->SetLightAngle(LightAngle);
             if (GlobalsV::PlanetAtm && AtmosphereColor != 0) {
                 {
-                    pas::WideString cpp_arg = pas::concat_wide({u"Bm.Atm.", GR_Main::GiResourceSuffix(), u"mask", pas::wide_int_to_str(Radius * 2)});
-                    pas::WideString cpp_arg_2 = pas::concat_wide({u"Bm.Atm.", GR_Main::GiResourceSuffix(), u"atm", pas::wide_int_to_str(Radius * 2)});
+                    pas::WideString cpp_arg = pas::concat_wide({u"Bm.Atm.", GR_Main::GiResourceSuffix(), u"mask",
+                        pas::wide_int_to_str(Radius * 2)});
+                    pas::WideString cpp_arg_2 = pas::concat_wide({u"Bm.Atm.", GR_Main::GiResourceSuffix(), u"atm",
+                        pas::wide_int_to_str(Radius * 2)});
                     PlanetControl->SetAtmosphere(std::move(cpp_arg_2), std::move(cpp_arg), AtmosphereColor);
                 }
                 PlanetControl->SetOrigin(EC_Struct::HalfPoint(PlanetControl->ClientSize));
             }
-            MinimapControl = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+            MinimapControl = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create,
+                    Globals::SpaceObjectUiLoop->ContentPanel);
             MinimapControl->SetPositionModeW(true);
             MinimapControl->SetDepthByName(DepthExpression);
-            MinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+            MinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
             MinimapControl->SetOrigin(MinimapImageOrigin);
             if (MinimapOwner <= 7) {
-                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
+                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.",
+                    aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
             } else {
                 OwnerIndex = MinimapOwner - 7 - 1;
                 if (OwnerIndex <= 9) {
-                    MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.0", EC_Str::IntToWideString(OwnerIndex)}));
+                    MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.0",
+                        EC_Str::IntToWideString(OwnerIndex)}));
                 } else {
-                    MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", EC_Str::IntToWideString(OwnerIndex)}));
+                    MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.",
+                        EC_Str::IntToWideString(OwnerIndex)}));
                 }
             }
             {
@@ -247,37 +251,53 @@ namespace SE_Planet {
             CollisionCircle->Radius = Radius;
             RebuildRings();
             RebuildSurfaceAnimation();
-            RotationTimer = Space->CreateTimer(0, RotationTimerInterval, pas::bind_method<&TPlanetSE::AdvanceRotationTimer>(this), 0);
+            RotationTimer = Space->CreateTimer(0, RotationTimerInterval,
+                    pas::bind_method<&TPlanetSE::AdvanceRotationTimer>(this), 0);
             if (GlobalsV::PlanetClouds) {
-                if (Cloud1ImagePath != u"" && Cloud1RelativeRotationSpeed != -1.0L) {
-                    if (Cloud1RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud1RelativeRotationSpeed))));
+                if (Cloud1ImagePath != u"" && Cloud1RelativeRotationSpeed != -1.0) {
+                    if (Cloud1RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud1RelativeRotationSpeed)))))));
                         Cloud1MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud1RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud1RelativeRotationSpeed - 1.0)))))));
                         Cloud1MapStep = -1;
                     }
-                    Cloud1Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 1);
+                    Cloud1Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 1);
                 }
-                if (Cloud2ImagePath != u"" && Cloud2RelativeRotationSpeed != -1.0L) {
-                    if (Cloud2RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud2RelativeRotationSpeed))));
+                if (Cloud2ImagePath != u"" && Cloud2RelativeRotationSpeed != -1.0) {
+                    if (Cloud2RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud2RelativeRotationSpeed)))))));
                         Cloud2MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud2RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud2RelativeRotationSpeed - 1.0)))))));
                         Cloud2MapStep = -1;
                     }
-                    Cloud2Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 2);
+                    Cloud2Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 2);
                 }
-                if (Cloud3ImagePath != u"" && Cloud3RelativeRotationSpeed != -1.0L) {
-                    if (Cloud3RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud3RelativeRotationSpeed))));
+                if (Cloud3ImagePath != u"" && Cloud3RelativeRotationSpeed != -1.0) {
+                    if (Cloud3RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud3RelativeRotationSpeed)))))));
                         Cloud3MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud3RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud3RelativeRotationSpeed - 1.0)))))));
                         Cloud3MapStep = -1;
                     }
-                    Cloud3Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 3);
+                    Cloud3Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 3);
                 }
             }
             Size = ClassesImports::Point((Radius + 5) * 2, (Radius + 5) * 2);
@@ -393,7 +413,7 @@ namespace SE_Planet {
             }
             RingControl1 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Space->MapPanel);
             RingControl1->SetPositionModeW(true);
-            RingControl1->SetDepth(PlanetControl->Depth - 0.01L);
+            RingControl1->SetDepth(static_cast<float>(PlanetControl->Depth - 0.01));
             RingControl1->SetImagePath(pas::concat_wide({Path, u"_1"}));
             {
                 Types::TPoint contentSize = RingControl1->GetContentSize();
@@ -403,7 +423,7 @@ namespace SE_Planet {
             RingControl1->SetPosition(PlanetControl->LocalPosition);
             RingControl2 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Space->MapPanel);
             RingControl2->SetPositionModeW(true);
-            RingControl2->SetDepth(PlanetControl->Depth + 0.01L);
+            RingControl2->SetDepth(static_cast<float>(PlanetControl->Depth + 0.01));
             RingControl2->SetImagePath(pas::concat_wide({Path, u"_2"}));
             {
                 Types::TPoint contentSize_2 = RingControl2->GetContentSize();
@@ -412,9 +432,13 @@ namespace SE_Planet {
             }
             RingControl2->SetPosition(PlanetControl->LocalPosition);
             pas::store_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 0), RingControl1->GetContentOrigin());
-            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 0)), RingControl1->ClientSize));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 8),
+                EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 0)),
+                    RingControl1->ClientSize));
             pas::store_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 0), RingControl2->GetContentOrigin());
-            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 0)), RingControl2->ClientSize));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 8),
+                EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 0)),
+                    RingControl2->ClientSize));
             WindowsSdk::UnionRect(Bounds, FirstBounds, SecondBounds);
             Center = ClassesImports::Point((Bounds.Right + Bounds.Left) / 2, (Bounds.Bottom + Bounds.Top) / 2);
             Offset = ClassesImports::Point(0, Bounds.Right / 2 - Bounds.Bottom / 2);
@@ -434,8 +458,12 @@ namespace SE_Planet {
             } else if (RingKind == 22) {
                 Offset.X -= GR_Main::GiScalePixels(5);
             }
-            RingControl1->SetOrigin(EC_Struct::SubtractPoints(EC_Struct::SubtractPoints(Center, pas::load_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 0))), Offset));
-            RingControl2->SetOrigin(EC_Struct::SubtractPoints(EC_Struct::SubtractPoints(Center, pas::load_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 0))), Offset));
+            RingControl1->SetOrigin(EC_Struct::SubtractPoints(
+                EC_Struct::SubtractPoints(Center,
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&FirstBounds, 0))), Offset));
+            RingControl2->SetOrigin(EC_Struct::SubtractPoints(
+                EC_Struct::SubtractPoints(Center,
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&SecondBounds, 0))), Offset));
         }
     }
 
@@ -454,13 +482,17 @@ namespace SE_Planet {
         }
         if (SurfaceAnimationMask > 0 && GR_Main::GiResourceVariant() == 2 && Radius == 100) {
             SurfaceAnimationIndex = -1;
-            Scale = pas::real_divide(Radius - 60, 4.0E+1L) * 0.7L + 0.3L;
-            SurfaceAnimationOffset.X = GR_Main::GiScalePixels(System::Round(static_cast<long double>(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Position.X) * Scale));
-            SurfaceAnimationOffset.Y = GR_Main::GiScalePixels(System::Round(static_cast<long double>(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Position.Y) * Scale));
+            Scale = static_cast<float>(static_cast<float>(static_cast<float>((Radius - 60) / 4.0E+1) * 0x1.6666666666665p-1) + 0.3);
+            SurfaceAnimationOffset.X =
+                GR_Main::GiScalePixels(pas::real_round(static_cast<float>(static_cast<double>(Globals::PlanetAdvertDefinitions[pas::shr(
+                    SurfaceAnimationMask, 24)].Position.X) * Scale)));
+            SurfaceAnimationOffset.Y =
+                GR_Main::GiScalePixels(pas::real_round(static_cast<float>(static_cast<double>(Globals::PlanetAdvertDefinitions[pas::shr(
+                    SurfaceAnimationMask, 24)].Position.Y) * Scale)));
             SurfaceAnimationFrame = 0;
             SurfaceImageControl = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Space->MapPanel);
             SurfaceImageControl->SetPositionModeW(true);
-            SurfaceImageControl->SetDepth(PlanetControl->Depth - 0.02L);
+            SurfaceImageControl->SetDepth(static_cast<float>(PlanetControl->Depth - 0.02));
             StartRandomSurfaceAnimation();
         }
     }
@@ -502,9 +534,13 @@ namespace SE_Planet {
         }
         SurfaceAnimationFrame = 0;
         if (GR_Main::GiResourceVariant() == 1) {
-            SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image1);
+            SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image1);
         } else {
-            SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image2);
+            SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image2);
         }
         {
             Types::TPoint contentSize = SurfaceImageControl->GetContentSize();
@@ -514,7 +550,8 @@ namespace SE_Planet {
         SurfaceImageControl->SetOrigin(EC_Struct::HalfPoint(SurfaceImageControl->ClientSize));
         SurfaceImageControl->SetPosition(EC_Struct::AddPoints(PlanetControl->LocalPosition, SurfaceAnimationOffset));
         if (SurfaceImageControl->GaiImageControl != nullptr) {
-            SurfaceImageControl->GaiImageControl->CycleCompleteCallback = pas::bind_method<&TPlanetSE::SurfaceAnimationFinished>(this);
+            SurfaceImageControl->GaiImageControl->CycleCompleteCallback = pas::bind_method<
+                    &TPlanetSE::SurfaceAnimationFinished>(this);
         }
         SurfaceImageControl->RestartPlayback();
     }
@@ -530,7 +567,8 @@ namespace SE_Planet {
         MinimapOwner = Owner;
         if (MinimapControl != nullptr) {
             if (MinimapOwner <= 7) {
-                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.", aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
+                MinimapControl->SetImagePath(pas::concat_wide({u"Bm.Planet.M.",
+                    aConst::OwnerInfo[static_cast<aGalaxyStruct::TOwnerId>(MinimapOwner)].InternalName}));
             } else {
                 Index = MinimapOwner - 7 - 1;
                 if (Index <= 9) {
@@ -557,7 +595,9 @@ namespace SE_Planet {
                 if (RuinsAnimationControl != nullptr) {
                     RuinsAnimationControl->SetPosition(EC_Struct::TruncatePointF(APosition));
                 }
-                RuinsMinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+                RuinsMinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                    static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                    static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
             }
         } else {
             if (CollisionCircle != nullptr) {
@@ -568,12 +608,11 @@ namespace SE_Planet {
             }
             UpdateLightAngleFromStar();
             if (IsAttachedToSpace()) {
-                {
-                    std::int32_t round = System::Round(APosition.Y);
-                    std::int32_t round_2 = System::Round(APosition.X);
-                    PlanetControl->SetPosition(ClassesImports::Point(round_2, round));
-                }
-                MinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+                PlanetControl->SetPosition(ClassesImports::Point(pas::real_round(APosition.X),
+                    pas::real_round(APosition.Y)));
+                MinimapControl->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                    static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                    static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
                 if (RingControl1 != nullptr) {
                     RingControl1->SetPosition(PlanetControl->LocalPosition);
                 }
@@ -581,10 +620,12 @@ namespace SE_Planet {
                     RingControl2->SetPosition(PlanetControl->LocalPosition);
                 }
                 if (LegacySurfaceControl != nullptr) {
-                    LegacySurfaceControl->SetPosition(EC_Struct::AddPoints(PlanetControl->LocalPosition, SurfaceAnimationOffset));
+                    LegacySurfaceControl->SetPosition(EC_Struct::AddPoints(PlanetControl->LocalPosition,
+                        SurfaceAnimationOffset));
                 }
                 if (SurfaceImageControl != nullptr) {
-                    SurfaceImageControl->SetPosition(EC_Struct::AddPoints(PlanetControl->LocalPosition, SurfaceAnimationOffset));
+                    SurfaceImageControl->SetPosition(EC_Struct::AddPoints(PlanetControl->LocalPosition,
+                        SurfaceAnimationOffset));
                 }
             }
         }
@@ -639,7 +680,8 @@ namespace SE_Planet {
                 Space->DeleteTimer(RotationTimer);
                 RotationTimer = nullptr;
             }
-            RotationTimer = Space->CreateTimer(0, RotationTimerInterval, pas::bind_method<&TPlanetSE::AdvanceRotationTimer>(this), 0);
+            RotationTimer = Space->CreateTimer(0, RotationTimerInterval,
+                    pas::bind_method<&TPlanetSE::AdvanceRotationTimer>(this), 0);
             if (Cloud1Timer != nullptr) {
                 Space->DeleteTimer(Cloud1Timer);
                 Cloud1Timer = nullptr;
@@ -653,42 +695,53 @@ namespace SE_Planet {
                 Cloud3Timer = nullptr;
             }
             if (GlobalsV::PlanetClouds) {
-                if (Cloud1ImagePath != u"" && Cloud1RelativeRotationSpeed != -1.0L) {
-                    if (Cloud1RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud1RelativeRotationSpeed))));
+                if (Cloud1ImagePath != u"" && Cloud1RelativeRotationSpeed != -1.0) {
+                    if (Cloud1RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud1RelativeRotationSpeed)))))));
                         Cloud1MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud1RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud1RelativeRotationSpeed - 1.0)))))));
                         Cloud1MapStep = -1;
                     }
-                    Cloud1Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 1);
+                    Cloud1Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 1);
                 }
-                if (Cloud2ImagePath != u"" && Cloud2RelativeRotationSpeed != -1.0L) {
-                    if (Cloud2RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud2RelativeRotationSpeed))));
+                if (Cloud2ImagePath != u"" && Cloud2RelativeRotationSpeed != -1.0) {
+                    if (Cloud2RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud2RelativeRotationSpeed)))))));
                         Cloud2MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud2RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud2RelativeRotationSpeed - 1.0)))))));
                         Cloud2MapStep = -1;
                     }
-                    Cloud2Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 2);
+                    Cloud2Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 2);
                 }
-                if (Cloud3ImagePath != u"" && Cloud3RelativeRotationSpeed != -1.0L) {
-                    if (Cloud3RelativeRotationSpeed > -1.0L) {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (1.0L + Cloud3RelativeRotationSpeed))));
+                if (Cloud3ImagePath != u"" && Cloud3RelativeRotationSpeed != -1.0) {
+                    if (Cloud3RelativeRotationSpeed > -1.0) {
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) * (static_cast<float>(1.0 +
+                                    Cloud3RelativeRotationSpeed)))))));
                         Cloud3MapStep = 1;
                     } else {
-                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10), System::Round(pas::real_divide(1.0E+3L, pas::real_divide(1.0E+3L, RotationTimerInterval) * (-Cloud3RelativeRotationSpeed - 1.0L))));
+                        Interval = std::max<std::int64_t>(static_cast<std::int64_t>(10),
+                                pas::real_round(static_cast<float>(1.0E+3 / (static_cast<float>(static_cast<float>(1.0E+3 / RotationTimerInterval) *
+                                    (static_cast<float>(-Cloud3RelativeRotationSpeed - 1.0)))))));
                         Cloud3MapStep = -1;
                     }
-                    Cloud3Timer = Space->CreateTimer(0, pas::abs(Interval), pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 3);
+                    Cloud3Timer = Space->CreateTimer(0, pas::abs(Interval),
+                            pas::bind_method<&TPlanetSE::AdvanceCloudTimer>(this), 3);
                 }
             }
         }
-    }
-
-    void TPlanetSE::SetSurfaceMapStep(std::int32_t Value) {
-        SurfaceMapStep = Value;
     }
 
     // Does nothing for ruins; rebuilds rings when attached to space.
@@ -719,7 +772,9 @@ namespace SE_Planet {
             Obj = Space->FirstObject;
             while (Obj != nullptr) {
                 if (pas::class_cast_if<SE_Star::TStarSE*>(Obj) != nullptr) {
-                    SetLightAngle(System::Trunc(pas::real_divide(pas::real_divide(Math::ArcTan2(-(static_cast<long double>(Position.X) - Obj->Position.X), static_cast<long double>(Position.Y) - Obj->Position.Y) * 1.8E+2L, aMyFunction::GamePi) * 256.0L, 3.6E+2L)));
+                    SetLightAngle(pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(Math::ArcTan2(-(static_cast<float>(static_cast<double>(Position.X) - Obj->Position.X)),
+                        static_cast<float>(static_cast<double>(Position.Y) - Obj->Position.Y)) * 1.8E+2) / aMyFunction::GamePi) * 256.0) /
+                        3.6E+2)));
                     break;
                 }
                 Obj = Obj->Next;
@@ -732,7 +787,8 @@ namespace SE_Planet {
             return;
         }
         ++SurfaceAnimationFrame;
-        if (Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices.length() - 1 < SurfaceAnimationFrame) {
+        if (Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+            24)].Lists[SurfaceAnimationIndex].Indices.length() - 1 < SurfaceAnimationFrame) {
             StartRandomSurfaceAnimation();
         } else {
             // Native retains this empty diagnostic branch.
@@ -740,12 +796,17 @@ namespace SE_Planet {
                 static_cast<void>(SurfaceAnimationFrame == 2);
             }
             if (GR_Main::GiResourceVariant() == 1) {
-                SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image1);
+                SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                    24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                    24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image1);
             } else {
-                SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask, 24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image2);
+                SurfaceImageControl->SetImagePath(Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                    24)].Adverts[Globals::PlanetAdvertDefinitions[pas::shr(SurfaceAnimationMask,
+                    24)].Lists[SurfaceAnimationIndex].Indices[SurfaceAnimationFrame]].Image2);
             }
             if (SurfaceImageControl->GaiImageControl != nullptr) {
-                SurfaceImageControl->GaiImageControl->CycleCompleteCallback = pas::bind_method<&TPlanetSE::SurfaceAnimationFinished>(this);
+                SurfaceImageControl->GaiImageControl->CycleCompleteCallback = pas::bind_method<
+                        &TPlanetSE::SurfaceAnimationFinished>(this);
             }
             SurfaceImageControl->RestartPlayback();
         }
@@ -830,57 +891,73 @@ namespace SE_Planet {
                 return;
             }
             if (IsRuins) {
-                RuinsMinimapControl->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+                RuinsMinimapControl->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                    GR_Main::RenderScratchBuffer->Height));
             } else {
                 Pixels = GR_Main::RenderScratchBuffer->GetPixels();
                 Pitch = GR_Main::RenderScratchBuffer->PitchBytes;
-                ProjectedX = static_cast<long double>(Position.X) * Space->MinimapScale;
-                ProjectedY = static_cast<long double>(Position.Y) * Space->MinimapScale;
-                ProjectedXi = System::Round(ProjectedX);
-                ProjectedYi = System::Round(ProjectedY);
+                ProjectedX = static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale);
+                ProjectedY = static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale);
+                ProjectedXi = pas::real_round(ProjectedX);
+                ProjectedYi = pas::real_round(ProjectedY);
                 if (MapOrbitPoints == nullptr) {
                     Capacity = pas::shr(GR_Main::RenderScratchBuffer->Width, 1);
                     Scratch = EC_Mem::AllocEC(Capacity * 8 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)));
-                    OrbitRadius = System::Round(System::Sqrt(ProjectedXi * ProjectedXi + ProjectedYi * ProjectedYi));
+                    OrbitRadius = pas::real_round(System::Sqrt(ProjectedXi * ProjectedXi + ProjectedYi * ProjectedYi));
                     CenterX = pas::shr(GR_Main::RenderScratchBuffer->Width, 1);
                     CenterY = pas::shr(GR_Main::RenderScratchBuffer->Height, 1);
                     Decision = 3 - 2 * OrbitRadius;
                     X = 0;
                     Y = OrbitRadius - 1;
                     P0 = static_cast<PPlanetMapOrbitPoint>(Scratch);
-                    P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     OctantCount = 0;
                     do {
                         P0->Position.X = CenterX + X;
                         P0->Position.Y = CenterY - Y;
-                        P0 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P0 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P1->Position.X = CenterX + Y;
                         P1->Position.Y = CenterY - X;
-                        P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P2->Position.X = CenterX + Y;
                         P2->Position.Y = CenterY + X;
-                        P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P3->Position.X = CenterX + X;
                         P3->Position.Y = CenterY + Y;
-                        P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P4->Position.X = CenterX - X;
                         P4->Position.Y = CenterY + Y;
-                        P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P5->Position.X = CenterX - Y;
                         P5->Position.Y = CenterY + X;
-                        P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P6->Position.X = CenterX - Y;
                         P6->Position.Y = CenterY - X;
-                        P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         P7->Position.X = CenterX - X;
                         P7->Position.Y = CenterY - Y;
-                        P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P7, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P7,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         ++OctantCount;
                         if (Decision < 0) {
                             Decision = 4 * X + Decision + 6;
@@ -891,16 +968,28 @@ namespace SE_Planet {
                         ++X;
                     } while (!(X > Y));
                     MapOrbitPointCount = OctantCount * 8;
-                    MapOrbitPoints = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AllocEC(MapOrbitPointCount * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    MapOrbitPoints = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AllocEC(MapOrbitPointCount *
+                            static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     Dest = MapOrbitPoints;
                     P0 = static_cast<PPlanetMapOrbitPoint>(Scratch);
-                    P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 2 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 3 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 4 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 5 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 6 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
-                    P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch, Capacity * 7 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) *
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 2 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 3 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) *
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 4 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 5 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) *
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 6 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                    P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Scratch,
+                            Capacity * 7 * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint)) + (OctantCount - 1) *
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     X = -10000;
                     Y = -10000;
                     // Preserve octant traversal and duplicate suppression at the joins.
@@ -911,11 +1000,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P0 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P0 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P0,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_2.next(Index); ) {
                         if (P1->Position.X != X || P1->Position.Y != Y) {
@@ -924,11 +1015,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1, -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P1 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P1,
+                                -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_3.next(Index); ) {
                         if (P2->Position.X != X || P2->Position.Y != Y) {
@@ -937,11 +1030,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P2 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P2,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_4.next(Index); ) {
                         if (P3->Position.X != X || P3->Position.Y != Y) {
@@ -950,11 +1045,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3, -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P3 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P3,
+                                -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_5.next(Index); ) {
                         if (P4->Position.X != X || P4->Position.Y != Y) {
@@ -963,11 +1060,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P4 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P4,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_6.next(Index); ) {
                         if (P5->Position.X != X || P5->Position.Y != Y) {
@@ -976,11 +1075,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5, -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P5 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P5,
+                                -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_7.next(Index); ) {
                         if (P6->Position.X != X || P6->Position.Y != Y) {
@@ -989,11 +1090,13 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P6 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P6,
+                                static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     for (auto cpp_range_8 = pas::for_to<std::int32_t>(0, OctantCount - 1); cpp_range_8.next(Index); ) {
                         if (P7->Position.X != X || P7->Position.Y != Y) {
@@ -1002,31 +1105,35 @@ namespace SE_Planet {
                             Dest->PixelOffset = 2 * Dest->Position.X + Dest->Position.Y * Pitch;
                             X = Dest->Position.X;
                             Y = Dest->Position.Y;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
                             --MapOrbitPointCount;
                         }
-                        P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P7, -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                        P7 = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(P7,
+                                -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                     }
                     EC_Mem::FreeEC(Scratch);
                 }
-                Index = System::Round(pas::real_divide(aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(ProjectedX, -ProjectedY)), 3.6E+2L) * (MapOrbitPointCount - 1));
-                Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(MapOrbitPoints, Index * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                Index = pas::real_round(static_cast<float>(static_cast<float>(aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(ProjectedX, -ProjectedY)) /
+                        3.6E+2) * (MapOrbitPointCount - 1)));
+                Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(MapOrbitPoints,
+                        Index * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                 Intensity = 255.0f;
-                IntensityStep = pas::real_divide(-5.1E+2L, MapOrbitPointCount);
-                while (Intensity > 0.0L) {
-                    {
-                        std::uint8_t round = System::Round(Intensity);
-                        std::uint16_t readWordEC = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GR_Main::InterfaceBlendPalette, System::Round(Intensity) * 2));
-                        GR_Main::BlendPixel16(EC_Mem::AddPointerOffset(Pixels, Dest->PixelOffset), readWordEC, round);
-                    }
-                    if (OrbitalVelocity > 0.0L) {
+                IntensityStep = static_cast<float>(-5.1E+2 / MapOrbitPointCount);
+                while (Intensity > 0.0) {
+                    GR_Main::BlendPixel16(EC_Mem::AddPointerOffset(Pixels, Dest->PixelOffset),
+                        EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GR_Main::InterfaceBlendPalette,
+                            pas::real_round(Intensity) * 2)), pas::real_round(Intensity));
+                    if (OrbitalVelocity > 0.0) {
                         --Index;
                         if (Index < 0) {
                             Index = MapOrbitPointCount - 1;
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(MapOrbitPoints, Index * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(MapOrbitPoints,
+                                    Index * static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         } else {
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    -static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         }
                     } else {
                         ++Index;
@@ -1034,18 +1141,21 @@ namespace SE_Planet {
                             Index = 0;
                             Dest = MapOrbitPoints;
                         } else {
-                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
+                            Dest = static_cast<PPlanetMapOrbitPoint>(EC_Mem::AddPointerOffset(Dest,
+                                    static_cast<std::int32_t>(sizeof(TPlanetMapOrbitPoint))));
                         }
                     }
-                    Intensity = static_cast<long double>(Intensity) + IntensityStep;
+                    Intensity = static_cast<float>(static_cast<double>(Intensity) + IntensityStep);
                 }
-                MinimapControl->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+                MinimapControl->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                    GR_Main::RenderScratchBuffer->Height));
             }
         }
     }
 
     // SmallPreview affects detached normal planets only. Attached planets reuse their current surface renderer; ruins use their static image.
-    void TPlanetSE::RenderToBuffer(GI_MessageLoop::TMessageLoopGI* Screen, GR_GraphBuf::TGraphBufGR* Buffer, std::uint8_t SmallPreview) {
+    void TPlanetSE::RenderToBuffer(GI_MessageLoop::TMessageLoopGI* Screen, GR_GraphBuf::TGraphBufGR* Buffer,
+        std::uint8_t SmallPreview) {
         Globals::TPlanetTempl* Template{};
         GI_Planet::TPlanetGI* Planet{};
         std::int32_t Index{};
@@ -1056,7 +1166,8 @@ namespace SE_Planet {
         std::int32_t RenderRadius{};
         Globals::TSputnikTempl* SatelliteTemplate{};
         if (IsRuins) {
-            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(RuinsImagePath), 1, u","sv), Buffer);
+            GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(RuinsImagePath), 1, u","sv),
+                Buffer);
         } else if (PlanetControl != nullptr) {
             PlanetControl->RenderSurfaceToBuffer(Buffer);
         } else {
@@ -1086,7 +1197,8 @@ namespace SE_Planet {
             Planet = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Screen->ContentPanel);
             if (SmallPreview) {
                 TemplateIndex = RenderRadius * 2 - GlobalsV::MinimumSatelliteTemplateRadius;
-                SatelliteTemplate = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates, TemplateIndex);
+                SatelliteTemplate = pas::list_at<Globals::TSputnikTempl>(GlobalsV::SatelliteRenderTemplates,
+                        TemplateIndex);
                 Planet->SetImageFromTemplate(SatelliteTemplate->MaskName, ImagePath, SatelliteTemplate->Radius);
             } else {
                 Planet->SetImageWithRadius(Template->MaskName, ImagePath, Template->LightName, RenderRadius);
@@ -1096,7 +1208,9 @@ namespace SE_Planet {
             Control = pas::construct_call<EC_CacheBitmap::TCBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             if (SmallPreview) {
-                Control->SetCacheKey(pas::concat_wide({EC_Str::ExtractDelimitedPartW(pas::view(SatelliteTemplate->MaskName), 0, u"?"sv), EC_CacheBitmap::RgbaImagePathSuffix}));
+                Control->SetCacheKey(pas::concat_wide({
+                    EC_Str::ExtractDelimitedPartW(pas::view(SatelliteTemplate->MaskName), 0, u"?"sv),
+                    EC_CacheBitmap::RgbaImagePathSuffix}));
             } else {
                 Control->SetCacheKey(pas::concat_wide({Template->MaskName, EC_CacheBitmap::RgbaImagePathSuffix}));
             }
@@ -1125,30 +1239,46 @@ namespace SE_Planet {
             Radius = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Radius"sv)));
             if (Block->CountParams(u"Cloud0"_wref.get()) > 0) {
                 Text = Block->GetParam(u"Cloud0"sv);
-                Cloud1RelativeRotationSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                Cloud1RelativeRotationSpeed = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv));
                 Cloud1ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"Cloud1"_wref.get()) > 0) {
                 Text = Block->GetParam(u"Cloud1"sv);
-                Cloud2RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                Cloud2RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv)));
                 Cloud2ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"Cloud2"_wref.get()) > 0) {
                 Text = Block->GetParam(u"Cloud2"sv);
-                Cloud3RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                Cloud3RelativeRotationSpeed = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv)));
                 Cloud3ImagePath = EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv);
             }
             if (Block->CountParams(u"AtmColor"_wref.get()) > 0) {
                 Text = Block->GetParam(u"AtmColor"sv);
-                AtmosphereColor = static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv))));
-                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv))))), 8);
-                AtmosphereColor |= pas::shl(static_cast<std::int32_t>(static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv))))), 16);
+                AtmosphereColor =
+                    static_cast<std::uint8_t>(EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv))));
+                AtmosphereColor |= pas::shl(
+                        static_cast<std::int32_t>(
+                            static_cast<std::uint8_t>(
+                            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                            u","sv))))), 8);
+                AtmosphereColor |= pas::shl(
+                        static_cast<std::int32_t>(
+                            static_cast<std::uint8_t>(
+                            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                            u","sv))))), 16);
             }
             if (Block->CountParams(u"Space"_wref.get()) > 0) {
                 Text = Block->GetParam(u"Space"sv);
-                SpaceConfigValues[0] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-                SpaceConfigValues[1] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                SpaceConfigValues[2] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+                SpaceConfigValues[0] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 0, u","sv)));
+                SpaceConfigValues[1] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 1, u","sv)));
+                SpaceConfigValues[2] = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Text), 2, u","sv)));
             }
             if (Block->CountParams(u"BG"_wref.get()) > 0) {
                 BackgroundGraph = Block->GetParam(u"BG"sv);
@@ -1171,7 +1301,8 @@ namespace SE_Planet {
             SetLightAngle(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"AngleLight"sv))));
         }
         if (Block->CountParams(u"SpeedRotate"_wref.get()) > 0) {
-            SetRotationTimerInterval(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SpeedRotate"sv))));
+            SetRotationTimerInterval(
+                SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"SpeedRotate"sv))));
         }
         if (Block->CountParams(u"StepRotate"_wref.get()) > 0) {
             SetSurfaceMapStep(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StepRotate"sv))));
@@ -1214,13 +1345,15 @@ namespace SE_Planet {
                 pas::raise(pas::make_exception<pas::Exception>("Error in TPlanetSE.BuildLoadList"_a));
             }
             {
-                GI_Planet::TPlanetGI* cpp_with = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create, Owner);
+                GI_Planet::TPlanetGI* cpp_with = pas::construct_call<GI_Planet::TPlanetGI>(GI_Planet::TPlanetGI_Create,
+                    Owner);
                 cpp_with->SetImageWithRadius(Template->SmallMaskName, ImagePath, Template->SmallLightName, Radius);
                 cpp_with->QueueImageLoad(PendingLoads);
                 pas::free(cpp_with);
             }
             {
-                GI_AlphaImage::TAlphaImageGI* cpp_with_2 = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Owner);
+                GI_AlphaImage::TAlphaImageGI* cpp_with_2 = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(
+                    GI_AlphaImage::TAlphaImageGI_Create, Owner);
                 cpp_with_2->SetImagePath(MinimapImagePath);
                 cpp_with_2->QueueImageLoad(PendingLoads);
                 pas::free(cpp_with_2);

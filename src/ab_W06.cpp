@@ -35,13 +35,16 @@ namespace ab_W06 {
         State = Owner->State;
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 20;
-        if (Offset != 0.0L) {
-            Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
+        if (Offset != 0.0) {
+            Heading = aMyFunction::WrapHeadingDegrees(static_cast<float>(State.BearingDegrees + 9.0E+1));
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
-            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees),
+                pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius,
+                Offset);
+            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(Heading) + HeadingDelta));
         }
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w06_f"_wref.get(), u"GAI,Bm.AB.w06_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w06_f"_wref.get(), u"GAI,Bm.AB.w06_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
@@ -59,12 +62,14 @@ namespace ab_W06 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^
+                1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w06a_f"_wref.get(), u"GAI,Bm.AB.w06a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w06a_f"_wref.get(),
+                u"GAI,Bm.AB.w06a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (static_cast<std::uint8_t>(Exploding ^ 1) && Collision == nullptr) {
@@ -72,13 +77,13 @@ namespace ab_W06 {
                 Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject);
                 Enemy = Enemy->FindNearestEnemyWithBearing(this, Bearing);
                 if (Enemy != nullptr) {
-                    if (Bearing.Distance < 4.0E+2L) {
+                    if (Bearing.Distance < 4.0E+2) {
                         if (Bearing.BearingDeltaDegrees < -TurnSpeed) {
                             Bearing.BearingDeltaDegrees = -TurnSpeed;
                         } else if (Bearing.BearingDeltaDegrees > TurnSpeed) {
                             Bearing.BearingDeltaDegrees = TurnSpeed;
                         }
-                        State.BearingDegrees = static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees;
+                        State.BearingDegrees = static_cast<float>(static_cast<double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees);
                     }
                 }
             }

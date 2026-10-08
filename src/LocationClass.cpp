@@ -1,8 +1,8 @@
 #include "layout/LocationClass.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/SequenceClass.hpp"
 #include "types/TextFieldClass.hpp"
 #include "units/CalcParseClass.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/EventClass.hpp"
@@ -102,7 +102,8 @@ namespace LocationClass {
             const std::int32_t cpp_first = GetParameterChangeCount();
             if (cpp_first >= 1) {
                 for (i = cpp_first; i >= 1; --i) {
-                    if (GetParameterChange(i)->ParameterIndex < 1 || GetParameterChange(i)->ParameterIndex > pas::list_count(Parameters)) {
+                    if (GetParameterChange(i)->ParameterIndex < 1 || GetParameterChange(i)->ParameterIndex >
+                            pas::list_count(Parameters)) {
                         pas::list_delete(ParameterChanges, i - 1);
                     } else if (GetParameterChange(i)->HasNoChange(Parameters)) {
                         pas::list_delete(ParameterChanges, i - 1);
@@ -181,29 +182,31 @@ namespace LocationClass {
         std::int32_t ParameterIndex{};
         ParameterDeltaClass::TParameterDelta* Change{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
-        VisitLimit = EC_Buf::TBufEC_GetInt32(Reader);
-        std::uint8_t LocationType = EC_Buf::TBufEC_GetByte(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
+        VisitLimit = Reader->GetInt32();
+        std::uint8_t LocationType = Reader->GetByte();
         IsStart = LocationType == 1;
         IsEmpty = LocationType == 2;
         IsSuccess = LocationType == 3;
         IsFailure = LocationType == 4 || LocationType == 5;
         IsDeath = LocationType == 5;
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Reader);
+        std::int32_t Count = Reader->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
-            ParameterIndex = EC_Buf::TBufEC_GetInt32(Reader);
+            ParameterIndex = Reader->GetInt32();
             Change = FindParameterChange(ParameterIndex);
             if (Change == nullptr) {
-                Change = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                Change =
+                    pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                        ParameterDeltaClass::TParameterDelta_Create);
                 Change->ParameterIndex = ParameterIndex;
                 AddParameterChange(Change);
             }
             Change->LoadChangeFromReader(Reader);
         }
-        Count = EC_Buf::TBufEC_GetInt32(Reader);
+        Count = Reader->GetInt32();
         while (Count > EventCount) {
             AddEvent();
         }
@@ -216,7 +219,7 @@ namespace LocationClass {
             Events[i]->Sound->LoadTextLinesFromReader(Reader);
             Events[i]->Music->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
+        UseEventExpression = Reader->GetBoolean();
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
@@ -226,29 +229,31 @@ namespace LocationClass {
         std::int32_t ParameterIndex{};
         ParameterDeltaClass::TParameterDelta* Change{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        std::uint8_t LocationType = EC_Buf::TBufEC_GetByte(Reader);
+        std::uint8_t LocationType = Reader->GetByte();
         IsStart = LocationType == 1;
         IsEmpty = LocationType == 2;
         IsSuccess = LocationType == 3;
         IsFailure = LocationType == 4 || LocationType == 5;
         IsDeath = LocationType == 5;
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Reader);
+        std::int32_t Count = Reader->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(i); ) {
-            ParameterIndex = EC_Buf::TBufEC_GetInt32(Reader);
+            ParameterIndex = Reader->GetInt32();
             Change = FindParameterChange(ParameterIndex);
             if (Change == nullptr) {
-                Change = pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create);
+                Change =
+                    pas::construct_call<ParameterDeltaClass::TParameterDelta>(
+                        ParameterDeltaClass::TParameterDelta_Create);
                 Change->ParameterIndex = ParameterIndex;
                 AddParameterChange(Change);
             }
             Change->LoadChangeFromReader(Reader);
         }
-        Count = EC_Buf::TBufEC_GetInt32(Reader);
+        Count = Reader->GetInt32();
         while (Count > EventCount) {
             AddEvent();
         }
@@ -261,7 +266,7 @@ namespace LocationClass {
             Events[i]->Sound->LoadTextLinesFromReader(Reader);
             Events[i]->Music->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
+        UseEventExpression = Reader->GetBoolean();
         EventExpression->LoadTextLinesFromReader(Reader);
     }
 
@@ -269,18 +274,19 @@ namespace LocationClass {
     void TLocation::LoadLegacyV7FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsEmpty = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
+        IsEmpty = Reader->GetBoolean();
         for (i = 1; i <= 96; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV3FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -294,9 +300,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -308,18 +315,19 @@ namespace LocationClass {
     void TLocation::LoadLegacyV6FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsEmpty = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
+        IsEmpty = Reader->GetBoolean();
         for (i = 1; i <= 48; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV3FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -333,9 +341,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -347,18 +356,19 @@ namespace LocationClass {
     void TLocation::LoadLegacyV5FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsEmpty = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
+        IsEmpty = Reader->GetBoolean();
         for (i = 1; i <= 24; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV3FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -372,9 +382,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -386,18 +397,19 @@ namespace LocationClass {
     void TLocation::LoadLegacyV4FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsEmpty = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
+        IsEmpty = Reader->GetBoolean();
         for (i = 1; i <= 24; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV3FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -411,9 +423,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -424,17 +437,18 @@ namespace LocationClass {
     void TLocation::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
         for (i = 1; i <= 12; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV2FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -448,9 +462,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -461,17 +476,18 @@ namespace LocationClass {
     void TLocation::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        Days = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        Days = Reader->GetInt32();
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
         for (i = 1; i <= 12; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV1FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
@@ -485,9 +501,10 @@ namespace LocationClass {
             Events[i]->ClearTextFields();
             Events[i]->Text->LoadTextLinesFromReader(Reader);
         }
-        UseEventExpression = EC_Buf::TBufEC_GetBoolean(Reader);
-        NextEventIndex = EC_Buf::TBufEC_GetInt32(Reader);
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        UseEventExpression = Reader->GetBoolean();
+        NextEventIndex = Reader->GetInt32();
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         DiscardedText->ClearText();
         DiscardedText->LoadTextLinesFromReader(Reader);
@@ -498,23 +515,25 @@ namespace LocationClass {
     void TLocation::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
         for (i = 1; i <= 12; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV0FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
         while (EventCount > 1) {
             RemoveLastEvent();
         }
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         pas::free(DiscardedText);
         Events[1]->ClearTextFields();
@@ -525,23 +544,25 @@ namespace LocationClass {
     void TLocation::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         Reset();
-        EditorX = EC_Buf::TBufEC_GetInt32(Reader);
-        EditorY = EC_Buf::TBufEC_GetInt32(Reader);
-        Id = EC_Buf::TBufEC_GetInt32(Reader);
+        EditorX = Reader->GetInt32();
+        EditorY = Reader->GetInt32();
+        Id = Reader->GetInt32();
         VisitLimit = 0;
-        IsStart = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsSuccess = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsFailure = EC_Buf::TBufEC_GetBoolean(Reader);
-        IsDeath = EC_Buf::TBufEC_GetBoolean(Reader);
+        IsStart = Reader->GetBoolean();
+        IsSuccess = Reader->GetBoolean();
+        IsFailure = Reader->GetBoolean();
+        IsDeath = Reader->GetBoolean();
         for (i = 1; i <= 9; ++i) {
-            AddParameterChange(pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
+            AddParameterChange(
+                pas::construct_call<ParameterDeltaClass::TParameterDelta>(ParameterDeltaClass::TParameterDelta_Create));
             GetParameterChange(GetParameterChangeCount())->LoadLegacyV0FromReader(Reader);
             GetParameterChange(GetParameterChangeCount())->ParameterIndex = i;
         }
         while (EventCount > 1) {
             RemoveLastEvent();
         }
-        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(EC_Struct::TObjectEx_Create);
+        TextFieldClass::TTextField* DiscardedText = pas::construct_call<TextFieldClass::TTextField>(
+            EC_Struct::TObjectEx_Create);
         DiscardedText->LoadTextLinesFromReader(Reader);
         pas::free(DiscardedText);
         Events[1]->ClearTextFields();

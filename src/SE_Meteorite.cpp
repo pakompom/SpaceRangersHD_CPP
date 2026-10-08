@@ -48,7 +48,8 @@ namespace SE_Meteorite {
         Animation->UpdateAutoGeometry();
         Animation->RestartPlayback();
         PlaceRandomly();
-        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval, pas::bind_method<&TMeteoriteSE::AdvanceMotion>(this), 0);
+        MoveTimer = Space->CreateTimer(TimerInterval, TimerInterval,
+                pas::bind_method<&TMeteoriteSE::AdvanceMotion>(this), 0);
     }
 
     void TMeteoriteSE::DetachFromSpace() {
@@ -76,7 +77,10 @@ namespace SE_Meteorite {
     std::uint8_t TMeteoriteSE::IsNearView(EC_Struct::TPointF Point) {
         float Width = static_cast<std::uint32_t>(GR_Main::GameScreenWidth);
         float Height = static_cast<std::uint32_t>(GR_Main::GameScreenHeight);
-        return static_cast<long double>(Globals::SpaceViewPosition.X) - Width < Point.X && static_cast<long double>(Globals::SpaceViewPosition.X) + Width > Point.X && static_cast<long double>(Globals::SpaceViewPosition.Y) - Height < Point.Y && static_cast<long double>(Globals::SpaceViewPosition.Y) + Height > Point.Y;
+        return static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) - Width) < Point.X &&
+            static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.X) + Width) > Point.X &&
+            static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) - Height) < Point.Y &&
+            static_cast<float>(static_cast<double>(Globals::SpaceViewPosition.Y) + Height) > Point.Y;
     }
 
     void TMeteoriteSE::PlaceRandomly() {
@@ -84,7 +88,7 @@ namespace SE_Meteorite {
         std::int32_t Bound{};
         if (Space != nullptr) {
             Radius = reinterpret_cast<SE_Process::TProcessSE*>(Space->Process)->SystemRadius;
-            Bound = System::Round(Radius);
+            Bound = pas::real_round(Radius);
             {
                 float randomIntRange = aMyFunction::RandomIntRange(-Bound, Bound);
                 float randomIntRange_2 = aMyFunction::RandomIntRange(-Bound, Bound);
@@ -102,30 +106,27 @@ namespace SE_Meteorite {
         if (Space != nullptr) {
             Radius = reinterpret_cast<SE_Process::TProcessSE*>(Space->Process)->SystemRadius;
             do {
-                Bound = System::Round(Radius);
+                Bound = pas::real_round(Radius);
                 {
                     float randomIntRange = aMyFunction::RandomIntRange(-Bound, Bound);
                     float randomIntRange_2 = aMyFunction::RandomIntRange(-Bound, Bound);
                     EndPoint = EC_Struct::MakePointF(randomIntRange, randomIntRange_2);
                 }
-                {
-                    float cpp_arg = EndPoint.X + System::Sin(SystemImports::Pi + Angle) * (Radius * 4.0L);
-                    float cpp_arg_2 = EndPoint.Y - System::Cos(SystemImports::Pi + Angle) * (Radius * 4.0L);
-                    StartPoint = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-                }
-            } while (!(aMyFunction::SegmentIntersectsRectEdges(StartPoint, EndPoint, EC_Struct::MakePointF(-Radius * 1.2L, -Radius * 1.2L), EC_Struct::MakePointF(1.2L * Radius, 1.2L * Radius), Intersection) && static_cast<std::uint8_t>(TMeteoriteSE::IsNearView(Intersection) ^ 1)));
+                StartPoint = EC_Struct::MakePointF(static_cast<float>(EndPoint.X + static_cast<float>(System::Sin(static_cast<float>(SystemImports::Pi + Angle)) * (static_cast<float>(Radius * 4.0)))),
+                        static_cast<float>(EndPoint.Y - static_cast<float>(System::Cos(static_cast<float>(SystemImports::Pi + Angle)) * (static_cast<float>(Radius * 4.0)))));
+            } while (!(aMyFunction::SegmentIntersectsRectEdges(StartPoint, EndPoint,
+                EC_Struct::MakePointF(static_cast<float>(-Radius * 0x1.3333333333334p+0), static_cast<float>(-Radius * 0x1.3333333333334p+0)), EC_Struct::MakePointF(static_cast<float>(0x1.3333333333334p+0 * Radius), static_cast<float>(0x1.3333333333334p+0 * Radius)),
+                Intersection) && !TMeteoriteSE::IsNearView(Intersection)));
             SetPosition(Intersection);
         }
     }
 
     void TMeteoriteSE::AdvanceMotion(SE_Space::PSpaceTimerSE Timer, std::int32_t UserData) {
-        {
-            float cpp_arg = Position.X + System::Sin(Angle) * Speed;
-            float cpp_arg_2 = Position.Y - System::Cos(Angle) * Speed;
-            SetPosition(EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
-        }
-        float Limit = reinterpret_cast<SE_Process::TProcessSE*>(Space->Process)->SystemRadius * 1.3L;
-        if ((-Limit > Position.X || Position.X > Limit || -Limit > Position.Y || Position.Y > Limit) && static_cast<std::uint8_t>(TMeteoriteSE::IsNearView(Position) ^ 1)) {
+        SetPosition(EC_Struct::MakePointF(static_cast<float>(Position.X + static_cast<float>(System::Sin(Angle) * Speed)),
+            static_cast<float>(Position.Y - static_cast<float>(System::Cos(Angle) * Speed))));
+        float Limit = static_cast<float>(reinterpret_cast<SE_Process::TProcessSE*>(Space->Process)->SystemRadius * 0x1.4ccccccccccccp+0);
+        if ((-Limit > Position.X || Position.X > Limit || -Limit > Position.Y || Position.Y > Limit) &&
+            !TMeteoriteSE::IsNearView(Position)) {
             RestartOutsideView();
         }
     }

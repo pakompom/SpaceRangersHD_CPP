@@ -3,8 +3,10 @@
 #include "types/Types.hpp"
 
 namespace ClassesImports {
-    Types::TPoint Point(std::int32_t X, std::int32_t Y);
+    inline Types::TPoint Point(std::int32_t X, std::int32_t Y);
 
-    Types::TRect Rect(std::int32_t Left, std::int32_t Top, std::int32_t Right, std::int32_t Bottom);
+    inline Types::TRect Rect(std::int32_t Left, std::int32_t Top, std::int32_t Right, std::int32_t Bottom);
 
 } // namespace ClassesImports
+
+#include "inline/ClassesImports.hpp"

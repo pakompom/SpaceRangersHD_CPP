@@ -15,8 +15,10 @@ namespace fRating2 {
     // Runs the registered rating screen modally; true for normal close.
     std::uint8_t ShowRangerRating(GI_MessageLoop::TMessageLoopGI* Parent);
 
-    void TfRating2_Create(TfRating2* Self);
+    inline void TfRating2_Create(TfRating2* Self);
 
     void TfRating2_Destroy(TfRating2* Self);
 
 } // namespace fRating2
+
+#include "inline/fRating2.hpp"

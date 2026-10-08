@@ -14,7 +14,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native TPSWeapon13IMHO and methods; includes its configuration palette loader.
@@ -31,7 +30,8 @@ namespace GI_PSWeapon13IMHO {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         IMHOPalettes.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
@@ -39,14 +39,19 @@ namespace GI_PSWeapon13IMHO {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 7); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         IMHOPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
             }
@@ -106,14 +111,16 @@ namespace GI_PSWeapon13IMHO {
 
     void TPSWeapon13IMHO::GrowParticles() {
         ParticleCapacity += 100;
-        Particles = static_cast<PIMHOParticle>(EC_Mem::ReAllocREC(Particles, ParticleCapacity * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
+        Particles = static_cast<PIMHOParticle>(EC_Mem::ReAllocREC(Particles,
+                ParticleCapacity * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
     }
 
     PIMHOParticle TPSWeapon13IMHO::AddParticle() {
         if (ParticleCount >= ParticleCapacity) {
             GrowParticles();
         }
-        PIMHOParticle Result = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particles, ParticleCount * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
+        PIMHOParticle Result = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particles,
+            ParticleCount * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
         ++ParticleCount;
         return Result;
     }
@@ -129,29 +136,25 @@ namespace GI_PSWeapon13IMHO {
         float PX{};
         float PY{};
         if (RemainingTicks == 55) {
-            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y));
-            Speed = pas::real_divide(OriginalLength + 4.0E+1L, 55.0L);
+            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                        TargetPoint.Y));
+            Speed = static_cast<float>((static_cast<float>(OriginalLength + 4.0E+1)) / 55.0);
             for (I = 0; I <= 1; ++I) {
                 for (J = 0; J <= 3; ++J) {
                     K = -10;
                     while (K < 10) {
-                        {
-                            pas::Extended cpp_left = pas::real_divide(J * 6 * 10, OriginalLength) + 4.0L;
-                            PX = cpp_left * pas::real_divide(K, 1.0E+1L);
-                        }
-                        {
-                            pas::Extended cpp_right = System::Sin(pas::real_divide(K * 3, 1.0E+1L) * SystemImports::Pi) * 1.5L;
-                            PY = System::Sqrt(256 - pas::sqr(K)) + J * 10 - 4.0E+1L + I + cpp_right;
-                        }
+                        PX = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(J * 6 * 10) / OriginalLength) + 4.0)) * (static_cast<float>(K / 1.0E+1)));
+                        PY = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>(System::Sqrt(256 - pas::sqr(K)) + J * 10) - 4.0E+1) + I) + static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(K * 3 / 1.0E+1) *
+                                    SystemImports::Pi)) * 1.5));
                         for (L = -1; L <= 1; ++L) {
                             for (M = -1; M <= 1; ++M) {
                                 Particle = AddParticle();
                                 Particle->Kind = 2;
-                                Particle->Position.X = static_cast<long double>(L) + PX;
-                                Particle->Position.Y = static_cast<long double>(M) + PY;
+                                Particle->Position.X = static_cast<float>(static_cast<double>(L) + PX);
+                                Particle->Position.Y = static_cast<float>(static_cast<double>(M) + PY);
                                 Particle->Color = Colors[pas::abs(K) * 8 / 11];
                                 Particle->Alpha = 0;
-                                Particle->Velocity.X = pas::real_divide(pas::real_divide(6.0L * Particle->Position.X, 4.0L), 55.0L);
+                                Particle->Velocity.X = static_cast<float>(static_cast<float>(static_cast<float>(6.0 * Particle->Position.X) / 4.0) / 55.0);
                                 Particle->Velocity.Y = Speed;
                                 Particle->Unknown1A = 0;
                             }
@@ -167,12 +170,12 @@ namespace GI_PSWeapon13IMHO {
         J = ParticleCount;
         while (J > 0) {
             if (Particle->Kind == 2) {
-                Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
+                Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
                 if (Particle->Position.Y >= OriginalLength) {
                     Particle->Kind = 0;
                 }
-                if (Particle->Position.Y > 0.0L) {
+                if (Particle->Position.Y > 0.0) {
                     if (Particle->Alpha < 231) {
                         Particle->Alpha += 24;
                     } else {
@@ -181,7 +184,8 @@ namespace GI_PSWeapon13IMHO {
                 }
             }
             ++I;
-            Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particles, I * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
+            Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particles,
+                    I * static_cast<std::int32_t>(sizeof(TIMHOParticle))));
             --J;
         }
         if (RemainingTicks > 0) {
@@ -193,12 +197,13 @@ namespace GI_PSWeapon13IMHO {
         std::int32_t X{};
         std::int32_t Y{};
         float PX{};
-        if (OriginalLength == 0.0L) {
+        if (OriginalLength == 0.0) {
             Advance(nullptr, 0);
         }
-        float Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+        float Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                TargetPoint.Y)) / OriginalLength);
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -210,12 +215,15 @@ namespace GI_PSWeapon13IMHO {
             while (Count > 0) {
                 if (Particle->Kind >= 2) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
-                Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TIMHOParticle))));
+                Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TIMHOParticle))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(nullptr);
@@ -223,14 +231,17 @@ namespace GI_PSWeapon13IMHO {
             while (Count > 0) {
                 if (Particle->Kind >= 2) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Trunc(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Trunc(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_trunc(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }
                 }
-                Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TIMHOParticle))));
+                Particle = static_cast<PIMHOParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TIMHOParticle))));
                 --Count;
             }
         }

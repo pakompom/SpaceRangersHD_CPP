@@ -11,8 +11,11 @@ namespace SE_Planet {
 
     void FreePlanetCollisionCircle(PPlanetCollisionCircle Entry);
 
-    void TPlanetSE_Create(TPlanetSE* Self);
+    inline void TPlanetSE_Create(TPlanetSE* Self);
 
-    void TPlanetSE_CreateFromGraph(TPlanetSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition);
+    void TPlanetSE_CreateFromGraph(TPlanetSE* Self, const pas::WideString& AGraphKey,
+        WindowsSdk::TPoint UnusedPosition);
 
 } // namespace SE_Planet
+
+#include "inline/SE_Planet.hpp"

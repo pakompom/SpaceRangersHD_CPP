@@ -33,10 +33,11 @@ namespace ab_W02 {
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 100;
         ArmTick = ab_Global::ArcadeTickCount + 25;
-        if (Offset != 0.0L) {
+        if (Offset != 0.0) {
             State = ab_Global::AdvanceSphericalStateOnCurrentSphere(State, Offset);
         }
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w02_f"_wref.get(), u"GAI,Bm.AB.w02_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w02_f"_wref.get(), u"GAI,Bm.AB.w02_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetFrameMode(Image, ab_WorldImage::afmRandomStart);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
@@ -60,7 +61,8 @@ namespace ab_W02 {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Phase = 2;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(),
+                u"GAI,Bm.AB.w02a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Phase == 0 && ab_Global::ArcadeTickCount > ArmTick) {
@@ -69,13 +71,15 @@ namespace ab_W02 {
             Thrust = 0.0;
         } else if (Phase == 1 && ab_Global::ArcadeTickCount > ExpireTick) {
             Phase = 2;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(), u"GAI,Bm.AB.w02a_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w02a_f"_wref.get(),
+                u"GAI,Bm.AB.w02a_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Phase == 1 && SourceObject != nullptr) {
             Enemy = pas::checked_cast<ab_Ship::TabShip*>(SourceObject)->FindNearestEnemyWithBearing(this, Bearing);
-            if (Enemy != nullptr && Bearing.Distance < 3.0E+2L) {
-                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees);
+            if (Enemy != nullptr && Bearing.Distance < 3.0E+2) {
+                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) +
+                        Bearing.BearingDeltaDegrees));
                 Thrust = 2.0;
                 MaxSpeed = 2.0;
             } else {

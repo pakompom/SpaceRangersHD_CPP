@@ -52,7 +52,6 @@
 #include "units/MMSystem.hpp"
 #include "units/SE_Gate.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 #include "units/aGalaxy.hpp"
 #include "units/ab_Object.hpp"
 #include "units/fLoad.hpp"
@@ -75,13 +74,19 @@ namespace fLoad {
         }
         if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1600) {
             if (GlobalsV::AnimMenuShip) {
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip01A"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip02A"_wref.get());
-                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv, u"Bm.FormMain3.AnimGaalShip03A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv,
+                    u"Bm.FormMain3.AnimGaalShip01A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv,
+                    u"Bm.FormMain3.AnimGaalShip02A"_wref.get());
+                GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GAI"sv,
+                    u"Bm.FormMain3.AnimGaalShip03A"_wref.get());
             }
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip01"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip02"_wref.get());
-            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.AnimGaalShip03"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv,
+                u"Bm.FormMain3.AnimGaalShip01"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv,
+                u"Bm.FormMain3.AnimGaalShip02"_wref.get());
+            GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv,
+                u"Bm.FormMain3.AnimGaalShip03"_wref.get());
         }
         GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2Ship1"_wref.get());
         GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"GI"sv, u"Bm.FormMain3.2Ship2"_wref.get());
@@ -103,12 +108,16 @@ namespace fLoad {
                 GR_Main::GlobalCache->QueueNamedLoadIfMissing(PendingLoads, u"PlanetTempl"sv, Template->MaskName);
             }
         }
-        SE_Gate::TGateSE* Gate = pas::construct_call<SE_Gate::TGateSE>(SE_Gate::TGateSE_Create, u"Gate"_w, ClassesImports::Point(0, 0));
+        SE_Gate::TGateSE* Gate = pas::construct_call<SE_Gate::TGateSE>(SE_Gate::TGateSE_Create, u"Gate"_w,
+            ClassesImports::Point(0, 0));
         Gate->QueueImageLoad(PendingLoads, Owner);
         pas::free(Gate);
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, GlobalsV::SpaceImageTemplates.length() - 1); cpp_range_2.next(I); ) {
-            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[I].CacheControl) != nullptr) {
-                reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[I].CacheControl)->QueueLoadIfMissing(PendingLoads);
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+            GlobalsV::SpaceImageTemplates.length() - 1); cpp_range_2.next(I); ) {
+            if (reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(GlobalsV::SpaceImageTemplates[I].CacheControl) !=
+                nullptr) {
+                reinterpret_cast<EC_CacheGAI::TCGaiControlEC*>(
+                    GlobalsV::SpaceImageTemplates[I].CacheControl)->QueueLoadIfMissing(PendingLoads);
             }
         }
         {
@@ -146,7 +155,8 @@ namespace fLoad {
                 Second = pas::list_at<EC_Cache::TCacheControlEC>(PendingLoads, J);
                 if (([&] {
                     pas::AnsiString cpp_string = static_cast<pas::AnsiString>(pas::class_name(pas::class_type(First)));
-                    pas::AnsiString cpp_string_2 = static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Second)));
+                    pas::AnsiString cpp_string_2 = static_cast<pas::AnsiString>(
+                        pas::class_name(pas::class_type(Second)));
                     return cpp_string == cpp_string_2;
                 }()) && First->CacheKey == Second->CacheKey) {
                     pas::free(Second);
@@ -165,7 +175,8 @@ namespace fLoad {
         Block = GR_Main::GameDataConfig->GetBlockByPath(pas::concat_wide({u"Load.", Path}));
         std::int32_t Count = Block->GetBlockCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            fLoad::QueueConfiguredLoadingAssets(PendingLoads, pas::concat_wide({Path, u".", Block->GetBlockNameByIndex(I)}));
+            fLoad::QueueConfiguredLoadingAssets(PendingLoads,
+                pas::concat_wide({Path, u".", Block->GetBlockNameByIndex(I)}));
         }
         Count = Block->GetParamCount();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
@@ -188,26 +199,29 @@ namespace fLoad {
         pas::list_clear(PendingLoads);
     }
 
-    void TCacheLoader_Execute(TCacheLoader* Self) {
+    void TCacheLoader::Execute() {
         std::int32_t I{};
         std::int32_t Count{};
         EC_Cache::TCacheControlEC* Control{};
-        if (Self->PendingLoads != nullptr) {
-            Count = pas::list_count(Self->PendingLoads);
+        if (PendingLoads != nullptr) {
+            Count = pas::list_count(PendingLoads);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                while ((Self->Flag18 || aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->Destroying) && static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && static_cast<std::uint8_t>(Self->IsStopRequested() ^ 1)) {
+                while ((Flag18 || aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->Destroying) &&
+                    static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) &&
+                    static_cast<std::uint8_t>(IsStopRequested() ^ 1)) {
                     SysUtilsImports::Sleep(100u);
                 }
-                Control = pas::list_at<EC_Cache::TCacheControlEC>(Self->PendingLoads, I);
-                if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && static_cast<std::uint8_t>(Self->IsStopRequested() ^ 1)) {
+                Control = pas::list_at<EC_Cache::TCacheControlEC>(PendingLoads, I);
+                if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) &&
+                    static_cast<std::uint8_t>(IsStopRequested() ^ 1)) {
                     Control->AcquireData();
                     Control->Release();
                 }
                 pas::free(Control);
-                ++Self->CompletedLoadCount;
+                ++CompletedLoadCount;
             }
-            pas::free(Self->PendingLoads);
-            Self->PendingLoads = nullptr;
+            pas::free(PendingLoads);
+            PendingLoads = nullptr;
         }
     }
 
@@ -244,12 +258,14 @@ namespace fLoad {
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"IntroRect"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"IntroRect"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         {
             GI_GAI::TgaiGI* Intro = pas::checked_cast<GI_GAI::TgaiGI*>(Root->FindByNameRecursive(u"Intro"sv));
             Intro->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
         }
-        Root->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"Film"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         LoadPanel->InitializeLayout(this);
     }
@@ -365,20 +381,21 @@ namespace fLoad {
     void TfLoad::UpdateLoadingProgress(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         if (!LoadingFinished) {
             if (Globals::CacheLoader->IsRunning()) {
-                LoadProgress = pas::real_divide(Globals::CacheLoader->CompletedLoadCount, Globals::CacheLoader->TotalLoadCount);
+                LoadProgress = static_cast<float>(static_cast<double>(Globals::CacheLoader->CompletedLoadCount) /
+                        Globals::CacheLoader->TotalLoadCount);
             } else {
                 LoadingFinished = true;
                 LoadProgress = 1.0f;
             }
         }
         if (DisplayedProgress < LoadProgress) {
-            DisplayedProgress = pas::real_min<pas::Extended>(0.05L + DisplayedProgress, static_cast<pas::Extended>(LoadProgress));
+            DisplayedProgress = pas::real_min<double>(static_cast<float>(0.05 + DisplayedProgress), static_cast<double>(LoadProgress));
             LoadPanel->SetProgress(DisplayedProgress);
         }
         if (!LoadingFinished) {
             return;
         }
-        if (0.999L > DisplayedProgress) {
+        if (0.99899999999999999 > DisplayedProgress) {
             return;
         }
         if (!IntroPlaying) {
@@ -439,17 +456,24 @@ namespace fLoad {
                     ImagePath = Block->GetParam(u"Size"sv);
                     if (EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u","sv) > 1) {
                         Intro->SetSize(([&] {
-                            std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv)));
-                            std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 0, u","sv)));
+                            std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(
+                                pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv)));
+                            std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(
+                                pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 0, u","sv)));
                             return ClassesImports::Point(extractDigitsToIntW_2, extractDigitsToIntW);
                         }()));
-                        Intro->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - Intro->ClientSize.X) / 2, (GR_Main::GameScreenHeight - Intro->ClientSize.Y) / 2));
+                        Intro->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - Intro->ClientSize.X) / 2,
+                            (GR_Main::GameScreenHeight - Intro->ClientSize.Y) / 2));
                         if (Block->CountParams(u"Sme"_wref.get()) > 0) {
                             ImagePath = Block->GetParam(u"Sme"sv);
                             if (EC_Str::CountDelimitedPartsW(pas::view(ImagePath), u","sv) > 1) {
                                 Intro->SetPosition(([&] {
-                                    std::int32_t cpp_arg = Intro->LocalPosition.Y + EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 1, u","sv)));
-                                    std::int32_t cpp_arg_2 = Intro->LocalPosition.X + EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ImagePath), 0, u","sv)));
+                                    std::int32_t cpp_arg = Intro->LocalPosition.Y +
+                                        EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                                            pas::view(ImagePath), 1, u","sv)));
+                                    std::int32_t cpp_arg_2 = Intro->LocalPosition.X +
+                                        EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                                            pas::view(ImagePath), 0, u","sv)));
                                     return ClassesImports::Point(cpp_arg_2, cpp_arg);
                                 }()));
                             }
@@ -487,12 +511,12 @@ namespace fLoad {
 
     void TfLoad::UpdateIntro(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         std::uint32_t cpp_left_2 = MMSystem::timeGetTime();
-        pas::Extended cpp_left = cpp_left_2 - IntroStartedAt;
-        double Fraction = pas::real_divide(cpp_left, IntroDurationMs);
-        if (Fraction > 1.0L) {
+        double cpp_left = cpp_left_2 - IntroStartedAt;
+        double Fraction = static_cast<float>(cpp_left / IntroDurationMs);
+        if (Fraction > 1.0) {
             Fraction = 1.0;
         }
-        if (Fraction >= 1.0L || IntroSkipRequest > 0) {
+        if (Fraction >= 1.0 || IntroSkipRequest > 0) {
             if (IntroTimer != nullptr) {
                 CancelCallbackTimer(IntroTimer);
                 IntroTimer = nullptr;
@@ -516,19 +540,16 @@ namespace fLoad {
         }
         if (IntroImageKind == 0) {
             GI_XviD::TxvidGI* Film_2 = pas::checked_cast<GI_XviD::TxvidGI*>(GetByName(u"Film"sv));
-            Film_2->SetFramePosition(System::Round(static_cast<long double>(IntroVideoFrameCount - 1) * Fraction));
+            Film_2->SetFramePosition(pas::real_round(static_cast<float>(static_cast<double>(IntroVideoFrameCount - 1) * Fraction)));
         } else {
             GI_GAI::TgaiGI* Intro_2 = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"Intro"sv));
-            Intro_2->SetFramePosition(System::Round(static_cast<long double>(Intro_2->SequenceFrameCount - 1) * Fraction), true);
+            Intro_2->SetFramePosition(pas::real_round(static_cast<float>(static_cast<double>(Intro_2->SequenceFrameCount - 1) * Fraction)),
+                true);
         }
     }
 
     void TfLoad::p_destroy() {
         fLoad::TfLoad_Destroy(this);
-    }
-
-    void TCacheLoader::virtual_TThreadEC_Execute() {
-        fLoad::TCacheLoader_Execute(this);
     }
 
 } // namespace fLoad

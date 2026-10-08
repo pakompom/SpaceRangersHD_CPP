@@ -155,30 +155,42 @@ namespace GI_TextButton {
         }
         if (Block->CountParams(u"CaptionColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"CaptionColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             Self->CaptionColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CaptionActiveColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"CaptionActiveColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             Self->CaptionActiveColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"BorderLightColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             Self->BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"BorderDarkColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             Self->BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
@@ -210,30 +222,42 @@ namespace GI_TextButton {
         }
         if (Block->CountParams(u"CaptionColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"CaptionColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             CaptionColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"CaptionActiveColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"CaptionActiveColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             CaptionActiveColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderLightColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"BorderLightColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             BorderLightColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"BorderDarkColor"_wref.get()) > 0) {
             Text = Block->GetParam(u"BorderDarkColor"sv);
-            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
-            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv)));
+            Red = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0,
+                    u","sv)));
+            Green = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1,
+                    u","sv)));
+            Blue = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2,
+                    u","sv)));
             BorderDarkColor = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
         }
         if (Block->CountParams(u"Kind"_wref.get()) > 0) {
@@ -265,7 +289,8 @@ namespace GI_TextButton {
                     std::int32_t cpp_arg_2 = ClipRect.Top - HitTestBounds.Top;
                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                     std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, ClipRect.Left, ClipRect.Top, pixels, pitchBytes, cpp_arg, cpp_arg_2, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top);
+                    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(pixels_2, pitchBytes_2, ClipRect.Left, ClipRect.Top, pixels,
+                        pitchBytes, cpp_arg, cpp_arg_2, ClipRect.Right - ClipRect.Left, ClipRect.Bottom - ClipRect.Top);
                 }
                 if (Hover == true) {
                     Font->DefaultColor = CaptionActiveColor;
@@ -273,23 +298,37 @@ namespace GI_TextButton {
                     Font->DefaultColor = CaptionColor;
                 }
                 {
-                    std::int32_t cpp_arg_3 = (HitTestBounds.Left + HitTestBounds.Right) / 2 - (Bounds.Right - Bounds.Left) / 2;
-                    std::int32_t cpp_arg_4 = (HitTestBounds.Top + HitTestBounds.Bottom) / 2 - (Bounds.Bottom - Bounds.Top) / 2 - Bounds.Top;
+                    std::int32_t cpp_arg_3 = (HitTestBounds.Left + HitTestBounds.Right) / 2 - (Bounds.Right -
+                            Bounds.Left) / 2;
+                    std::int32_t cpp_arg_4 = (HitTestBounds.Top + HitTestBounds.Bottom) / 2 - (Bounds.Bottom -
+                            Bounds.Top) / 2 - Bounds.Top;
                     auto caption = pas::borrow(Caption);
                     void* pixels_3 = GR_Main::ScreenRenderBuffer->GetPixels();
                     std::int32_t pitchBytes_3 = GR_Main::ScreenRenderBuffer->PitchBytes;
                     Font->DrawTaggedText16(pixels_3, pitchBytes_3, cpp_arg_3, cpp_arg_4, caption.get(), ClipRect);
                 }
                 if (!Down) {
-                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - HitTestBounds.Left, BorderLightColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Bottom - HitTestBounds.Top, BorderLightColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left - 1), BorderDarkColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top - 1), BorderDarkColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                        HitTestBounds.Right - HitTestBounds.Left, BorderLightColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                        HitTestBounds.Bottom - HitTestBounds.Top, BorderLightColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1,
+                        HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left - 1), BorderDarkColor,
+                        ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1,
+                        HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top - 1), BorderDarkColor,
+                        ClipRect);
                 } else {
-                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - HitTestBounds.Left - 1, BorderDarkColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Bottom - HitTestBounds.Top - 1, BorderDarkColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left), BorderLightColor, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top), BorderLightColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                        HitTestBounds.Right - HitTestBounds.Left - 1, BorderDarkColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Left, HitTestBounds.Top,
+                        HitTestBounds.Bottom - HitTestBounds.Top - 1, BorderDarkColor, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawHorizontalLine16Clipped(HitTestBounds.Right - 1,
+                        HitTestBounds.Bottom - 1, -(HitTestBounds.Right - HitTestBounds.Left), BorderLightColor,
+                        ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawVerticalLine16Clipped(HitTestBounds.Right - 1,
+                        HitTestBounds.Bottom - 1, -(HitTestBounds.Bottom - HitTestBounds.Top), BorderLightColor,
+                        ClipRect);
                 }
             } catch (...) {
                 cpp_error = std::current_exception();

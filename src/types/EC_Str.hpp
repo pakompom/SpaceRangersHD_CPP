@@ -41,13 +41,19 @@ namespace EC_Str {
         pas::WideString GetCurrentText();
         // Raises when CurrentElement is nil.
         void* GetCurrentData();
-        std::uint8_t IsAtEnd();
+        inline std::uint8_t IsAtEnd() {
+            return !(CurrentElement != nullptr);
+        }
         // Requires nonnil CurrentElement.
         std::uint8_t IsAtLast();
-        void First();
+        inline void First() {
+            CurrentElement = FirstElement;
+        }
         // Requires nonnil CurrentElement.
         void Next();
-        std::uint8_t IsEmpty();
+        inline std::uint8_t IsEmpty() {
+            return FirstElement == nullptr;
+        }
         // Splits CR, LF and CRLF lines; does not append an empty line after a trailing separator.
         void SetText(const pas::WideString& Text);
         // Joins elements with CRLF, without a trailing separator.

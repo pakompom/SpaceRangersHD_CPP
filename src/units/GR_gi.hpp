@@ -4,8 +4,10 @@
 namespace GR_gi {
     void PrepareRawGiColorCache(void* Data);
 
-    void TgiGR_Create(TgiGR* Self);
+    inline void TgiGR_Create(TgiGR* Self);
 
     void TgiGR_Destroy(TgiGR* Self);
 
 } // namespace GR_gi
+
+#include "inline/GR_gi.hpp"

@@ -8,18 +8,23 @@ namespace EC_Str {
     std::int32_t CountDelimitedPartsW(const std::u16string_view& Text, const std::u16string_view& Delimiters);
 
     // Zero-based part index, one-based character result. Nonpositive PartIndex returns 1; missing positive indexes raise.
-    std::int32_t GetDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters);
+    std::int32_t GetDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex,
+        const std::u16string_view& Delimiters);
 
     // One-based character result. Nonpositive PartIndex returns 1; 1 returns the position after the first delimiter or -1. Native early exit makes every PartIndex above 1 return -1.
-    std::int32_t GetCharDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex, char16_t Delimiter);
+    std::int32_t GetCharDelimitedPartStartIndexW(const std::u16string_view& Text, std::int32_t PartIndex,
+        char16_t Delimiter);
 
     // StartIndex is a one-based character position, not a part index.
-    std::int32_t GetDelimitedPartLengthW(const std::u16string_view& Text, std::int32_t StartIndex, const std::u16string_view& Delimiters);
+    std::int32_t GetDelimitedPartLengthW(const std::u16string_view& Text, std::int32_t StartIndex,
+        const std::u16string_view& Delimiters);
 
-    pas::WideString ExtractDelimitedPartW(const std::u16string_view& Text, std::int32_t PartIndex, const std::u16string_view& Delimiters);
+    pas::WideString ExtractDelimitedPartW(const std::u16string_view& Text, std::int32_t PartIndex,
+        const std::u16string_view& Delimiters);
 
     // Includes both zero-based part indexes and the separators between them.
-    pas::WideString ExtractDelimitedRangeW(const std::u16string_view& Text, std::int32_t FirstPart, std::int32_t LastPart, const std::u16string_view& Delimiters);
+    pas::WideString ExtractDelimitedRangeW(const std::u16string_view& Text, std::int32_t FirstPart,
+        std::int32_t LastPart, const std::u16string_view& Delimiters);
 
     // Removes the returned prefix and first delimiter from Text; without a delimiter returns all of Text and clears it.
     pas::WideString ExtractNextDelimitedPartW(pas::WideString& Text, char16_t Delimiter);
@@ -31,7 +36,8 @@ namespace EC_Str {
     pas::WideString RemoveLineCommentW(const std::u16string_view& Text);
 
     // Case-sensitive, non-overlapping replacement; empty Search returns Text unchanged.
-    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search, const std::u16string_view& Replacement);
+    pas::WideString ReplaceAllWideString(const pas::WideString& Text, const pas::WideString& Search,
+        const std::u16string_view& Replacement);
 
     // Zero-based start and result; starts at a nonnegative character offset and returns -1 when absent.
     std::int32_t FindTextOffsetW(const pas::WideString& Text, const pas::WideString& Search, std::int32_t StartIndex);
@@ -85,16 +91,18 @@ namespace EC_Str {
     std::int32_t GetTextTagLengthW(char16_t* Text, std::int32_t CharCount);
 
     // Requires leading < and equal-length patterns. Each character may match either pattern; no closing > or name boundary is required.
-    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern);
+    std::uint8_t MatchTextTagPrefixW(char16_t* Text, std::int32_t CharCount, const std::u16string_view& Pattern,
+        const std::u16string_view& AlternatePattern);
 
     // Removes complete <...> tokens; leading << consumes one character and scanning resumes at the second <. Incomplete tags remain.
     pas::WideString RemoveTextTagsW(const pas::WideString& Text);
 
     // Uses MatchTextTagPrefixW; opening and closing tags require separate patterns.
-    pas::WideString RemoveMatchingTextTagsW(pas::WideString Text, const std::u16string_view& Pattern, const std::u16string_view& AlternatePattern);
+    pas::WideString RemoveMatchingTextTagsW(const pas::WideString& Text, const std::u16string_view& Pattern,
+        const std::u16string_view& AlternatePattern);
 
     // Case-sensitive NUL-terminated comparison returning -1, 0 or 1. Nil sorts before every nonnil pointer, including an empty string.
-    inline std::int32_t CompareWideChars(char16_t* Left, char16_t* Right);
+    std::int32_t CompareWideChars(char16_t* Left, char16_t* Right);
 
     // Original unit ownership of these standalone helpers is unresolved.
     // Accepts slash and backslash; strips only the final dot and suffix from the last path component.
@@ -109,13 +117,14 @@ namespace EC_Str {
     // Game text obfuscation: EncodeTextW inserts a random character after each input
     // character; DecodeTextW discards those interleaved characters.
     // Keeps characters 1, 3, 5, ... using Delphi's one-based string indexing.
-    pas::WideString DecodeTextW(pas::WideString Text);
+    pas::WideString DecodeTextW(const pas::WideString& Text);
 
     // One-based Index; unlike the RTL Copy helper, does not clamp Index or Count to the source. Requires a valid source span and nonnegative Count.
-    pas::WideString CopyWideStringUnchecked(pas::WideString Text, std::int32_t Index, std::int32_t Count);
+    pas::WideString CopyWideStringUnchecked(const pas::WideString& Text, std::int32_t Index, std::int32_t Count);
 
     // Creates with KEY_WRITE. Passes an ANSI-converted buffer and ANSI byte count to RegSetValueExW; preserves this native encoding mismatch.
-    void WriteRegistryStringLegacy(std::uint32_t RootKey, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString Value);
+    void WriteRegistryStringLegacy(std::uint32_t RootKey, pas::WideString KeyPath, pas::WideString ValueName,
+        pas::WideString Value);
 
     // Inserts a random language-table character after each input character; requires a nonempty WideCaseTable.
     pas::WideString EncodeTextW(pas::WideString Text);
@@ -123,7 +132,7 @@ namespace EC_Str {
     // Applies the native ordered replacement table, including its unusual letter mappings.
     pas::WideString TransliterateCyrillicToLatin(pas::WideString Text);
 
-    void TStringsEC_Create(TStringsEC* Self);
+    inline void TStringsEC_Create(TStringsEC* Self);
 
     void TStringsEC_Destroy(TStringsEC* Self);
 

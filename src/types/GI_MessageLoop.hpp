@@ -243,7 +243,9 @@ namespace GI_MessageLoop {
         // Sets PendingRedraw and traverses queued drawing through the root tree.
         void DrawQueuedControlRects();
         // Clears RegionDrawPending.
-        void FinishQueuedDraw();
+        inline void FinishQueuedDraw() {
+            RegionDrawPending = false;
+        }
         void CommitFrameDraw();
         void ErasePreviousFrame();
         void PrepareFrameDraw();
@@ -257,7 +259,9 @@ namespace GI_MessageLoop {
         virtual pas::Method<void(std::uint32_t, std::uint32_t, std::int32_t)> bind_ProcessWindowMessage();
         // Uses the first free Shot000..Shot999 name; silently skips when all names are occupied.
         void CaptureScreenshot();
-        void RequestClose(std::int32_t ResultCode);
+        inline void RequestClose(std::int32_t ResultCode) {
+            ExitCode = ResultCode;
+        }
         void SetHelpCallback(TObjectHelpEventGI Callback);
         // Search is limited to ContentPanel; raises when absent.
         TObjectGI* GetByName(const std::u16string_view& Name);
@@ -265,14 +269,16 @@ namespace GI_MessageLoop {
         TObjectGI* FindControlByPath(const pas::WideString& Path);
         void SetFocusedControl(TObjectGI* Control);
         void SetHoveredControl(TObjectGI* Control);
-        virtual void ProcessNamedControlEvent(pas::WideString ControlName, std::int32_t EventKind, std::int32_t Param1, std::int32_t Param2);
+        virtual void ProcessNamedControlEvent(pas::WideString ControlName, std::int32_t EventKind, std::int32_t Param1,
+            std::int32_t Param2);
         virtual void OnOpen();
         virtual void OnClose();
         // May wait for a timer or Windows message; zero RepeatMs still repeats.
         virtual void ProcessCallbackTimers();
         virtual void SelectMusic();
         // Computes DueTick from the stored TimerTick, not a new clock sample.
-        PCallbackTimerGI ScheduleCallbackTimer(std::int32_t DelayMs, std::int32_t RepeatMs, TCallbackTimerEventGI Callback, std::int32_t UserData);
+        PCallbackTimerGI ScheduleCallbackTimer(std::int32_t DelayMs, std::int32_t RepeatMs,
+            TCallbackTimerEventGI Callback, std::int32_t UserData);
         void CancelCallbackTimer(PCallbackTimerGI Timer);
         void UpdateCallbackTimer(PCallbackTimerGI Timer, std::int32_t DelayMs, std::int32_t RepeatMs);
         // Equal deadlines run in reverse insertion order; clock wraparound is not handled.
@@ -298,8 +304,11 @@ namespace GI_MessageLoop {
         // Returns true once for each changed TimerTick.
         std::uint8_t ConsumeTimerTickChange();
         // Starts at RootUiObject when StartControl is nil; returns 1 for a blocker, -1 for IgnoreControl, or 0 for no hit.
-        std::int32_t QueryPointOcclusionState(WindowsSdk::TPoint Point, TObjectGI* IgnoreControl, TObjectGI* StartControl);
+        std::int32_t QueryPointOcclusionState(WindowsSdk::TPoint Point, TObjectGI* IgnoreControl,
+            TObjectGI* StartControl);
         void FreeSavedPixels16();
+        // Contains a native handwritten PUSHAD/POPAD loop.
+        void RestoreSavedPixels16();
         void FreeSecondaryPixelBuffer();
         void ResetSecondaryPixelCount();
         // Frees every allocated array slot, including slots beyond SavedLineCount.
@@ -308,13 +317,16 @@ namespace GI_MessageLoop {
         void AddSavedLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, void* Pixels);
         // Restores SavedLineCount lines unless SkipSavedPixelRestore is set; retains the count.
         void RestoreSavedLines();
-        void ResetSavedLineCount();
+        inline void ResetSavedLineCount() {
+            SavedLineCount = 0;
+        }
         virtual void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta);
         void ClearTransientControl();
         // Temporarily enables queued invalidation; an exception leaves it enabled.
         void InvalidateTransientControl();
         void InitializeDefaults();
-        void InitializeFromConfig(EC_BlockPar::TBlockParEC* ConfigRoot, const pas::WideString& ScreenName, std::uint8_t UnusedFlag);
+        void InitializeFromConfig(EC_BlockPar::TBlockParEC* ConfigRoot, const pas::WideString& ScreenName,
+            std::uint8_t UnusedFlag);
         virtual void InitializeLayout();
         virtual void UpdateActionCursor(std::uint8_t CanTake);
         // Base returns nil.

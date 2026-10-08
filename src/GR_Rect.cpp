@@ -13,10 +13,6 @@ namespace GR_Rect {
         pas::object_destroy(Self);
     }
 
-    void TArrayRectGR_Create(TArrayRectGR* Self) {
-        EC_Struct::TObjectEx_Create(Self);
-    }
-
     void TArrayRectGR_Destroy(TArrayRectGR* Self) {
         Self->Clear();
         EC_Struct::TObjectEx_Destroy(Self);
@@ -71,7 +67,8 @@ namespace GR_Rect {
         while (Node != nullptr) {
             {
                 Types::TRect& cpp_with = Node->Bounds;
-                if (Rect.Left >= cpp_with.Left && Rect.Right <= cpp_with.Right && Rect.Top >= cpp_with.Top && Rect.Bottom <= cpp_with.Bottom) {
+                if (Rect.Left >= cpp_with.Left && Rect.Right <= cpp_with.Right && Rect.Top >= cpp_with.Top &&
+                    Rect.Bottom <= cpp_with.Bottom) {
                     return;
                 }
             }
@@ -80,7 +77,8 @@ namespace GR_Rect {
         Node = LastRect;
         while (Node != nullptr) {
             Types::TRect& cpp_with_2 = Node->Bounds;
-            if (cpp_with_2.Left >= Rect.Left && cpp_with_2.Right <= Rect.Right && cpp_with_2.Top >= Rect.Top && cpp_with_2.Bottom <= Rect.Bottom) {
+            if (cpp_with_2.Left >= Rect.Left && cpp_with_2.Right <= Rect.Right && cpp_with_2.Top >= Rect.Top &&
+                cpp_with_2.Bottom <= Rect.Bottom) {
                 Removed = Node;
                 Node = Node->Prev;
                 RemoveRectNode(Removed);
@@ -91,7 +89,8 @@ namespace GR_Rect {
         InsertRectFragment(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
     }
 
-    void TArrayRectGR::InsertRectFragment(std::int32_t Left, std::int32_t Top, std::int32_t Right, std::int32_t Bottom) {
+    void TArrayRectGR::InsertRectFragment(std::int32_t Left, std::int32_t Top, std::int32_t Right,
+        std::int32_t Bottom) {
         std::int32_t ExistingLeft{};
         std::int32_t ExistingTop{};
         std::int32_t ExistingRight{};

@@ -156,6 +156,8 @@ namespace CheatCode {
     void UnitInitialize();
 
     // Compiler unit entry calls the virtual destructor directly.
-    void UnitFinalize();
+    inline void UnitFinalize();
 
 } // namespace CheatCode
+
+#include "inline/CheatCode.hpp"

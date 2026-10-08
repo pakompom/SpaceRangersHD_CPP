@@ -98,13 +98,14 @@ namespace aSaveLoad {
             try {
                 Header = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
                 Header->AddWideStringZ(u"RSG"_wref.get());
-                Header->AddWideStringZ(static_cast<pas::WideString>(pas::concat_ansi({"v", SysUtils::IntToStr(aConst::CurrentSaveVersion)})));
+                Header->AddWideStringZ(pas::concat_wide({u"v", pas::wide_int_to_str(aConst::CurrentSaveVersion)}));
                 Header->AddWideStringZ(Description);
                 Header->AddWideStringZ(pas::wide_int_to_str(aGalaxy::Galaxy->CurrentTurn));
                 Header->AddWideStringZ(pas::wide_int_to_str(aPlayer::GetPlayer()->Money));
                 Header->AddWideStringZ(aPlayer::GetPlayer()->Name);
                 if (aPlayer::GetPlayer()->OwnerId == aGalaxyStruct::oiPirate) {
-                    Header->AddWideStringZ(pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName, aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)].InternalName}));
+                    Header->AddWideStringZ(pas::concat_wide({aConst::OwnerInfo[aGalaxyStruct::oiPirate].InternalName,
+                        aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->PilotRace)].InternalName}));
                 } else {
                     Header->AddWideStringZ(aConst::OwnerInfo[aPlayer::GetPlayer()->OwnerId].InternalName);
                 }
@@ -169,7 +170,11 @@ namespace aSaveLoad {
                 SaveWriter->QueueSave(FileName, Header, Preview, SecondaryPreview, GameState, Films);
                 if (aGalaxy::Galaxy->CampaignFlag183 != 0) {
                     GR_Main::EditableSaveFileName = fSaveManager::TfSaveManager::GetSaveConfigPath(FileName);
-                    if (GR_Main::UserSettingsConfig->CountParams(u"UnicodeDump"_wref.get()) > 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UnicodeDump"_wref.get()))))) {
+                    if (GR_Main::UserSettingsConfig->CountParams(u"UnicodeDump"_wref.get()) > 0 &&
+                        GI_Main::ParseEnabledNameGI(
+                            pas::view(
+                                EC_Str::TrimWideString(
+                                GR_Main::UserSettingsConfig->GetParamByPathOrMarker(u"UnicodeDump"_wref.get()))))) {
                         GR_Main::EditableSaveBlock->SaveTextFile(GR_Main::EditableSaveFileName.pchar(), false, false);
                     } else {
                         GR_Main::EditableSaveBlock->SaveTextFile(GR_Main::EditableSaveFileName.pchar(), true, false);
@@ -234,10 +239,12 @@ namespace aSaveLoad {
             F = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
             F->SetFileName(FileName);
             if (!F->TryAcquireReadHandle(false)) {
-                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({u"Cannot open file ", FileName}))));
+                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Cannot open file ", FileName}))));
             }
             if (F->ReadWideString() != u"RSG") {
-                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({u"Bad pre-signature of file", FileName}))));
+                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Bad pre-signature of file", FileName}))));
             }
             GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));
             F->ReadWideString();
@@ -246,7 +253,8 @@ namespace aSaveLoad {
             F->ReadWideString();
             F->ReadWideString();
             if (F->ReadWideString() != u"EZ") {
-                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({u"Bad post-signature of file", FileName}))));
+                pas::raise(pas::make_exception<pas::Abort>(static_cast<pas::AnsiString>(pas::concat_wide({
+                    u"Bad post-signature of file", FileName}))));
             }
             Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
             F->ReadBuffer(&Size, static_cast<std::int32_t>(sizeof(std::int32_t)));
@@ -265,7 +273,8 @@ namespace aSaveLoad {
                 try {
                     F->ReadBuffer(Buffer->Data, Size);
                 } catch (...) {
-                    GI_MessageBox::ShowMessageBoxGI(nullptr, u"Compressed galaxy read fail"_wref.get(), GI_MessageBox::mbgOK, 0, 0, 0);
+                    GI_MessageBox::ShowMessageBoxGI(nullptr, u"Compressed galaxy read fail"_wref.get(),
+                        GI_MessageBox::mbgOK, 0, 0, 0);
                 }
             }
             Buffer->ApplyDatXorCipher(Seed);
@@ -274,24 +283,24 @@ namespace aSaveLoad {
             }
             Buffer->ExpandZlibPayloadInPlace();
             Globals::ActiveLoadBuffer = Buffer;
-            GlobalsV::RequestedScreenId = static_cast<GlobalsV::TGameScreenId>(EC_Buf::TBufEC_GetInt32(Buffer));
+            GlobalsV::RequestedScreenId = static_cast<GlobalsV::TGameScreenId>(Buffer->GetInt32());
             aGalaxy::Galaxy = pas::construct_call<aGalaxy::TGalaxy>(aGalaxy::TGalaxy_Create);
-            Center.X = EC_Buf::TBufEC_GetInt32(Buffer);
-            Center.Y = EC_Buf::TBufEC_GetInt32(Buffer);
+            Center.X = Buffer->GetInt32();
+            Center.Y = Buffer->GetInt32();
             Globals::SpaceViewPosition = EC_Struct::PointToPointF(Center);
             Globals::StarMapScreen->SetMapCenterManually(Center);
-            Globals::StarMapWeaponPanelOpen = EC_Buf::TBufEC_GetBoolean(Buffer);
-            EC_Buf::TBufEC_GetByte(Buffer);
-            Globals::FilmCameraFollow = EC_Buf::TBufEC_GetBoolean(Buffer);
-            EC_Buf::TBufEC_GetByte(Buffer);
-            EC_Buf::TBufEC_GetByte(Buffer);
-            EC_Buf::TBufEC_GetByte(Buffer);
-            EC_Buf::TBufEC_GetBoolean(Buffer);
-            Globals::PlayerStarDayPrepared = EC_Buf::TBufEC_GetBoolean(Buffer);
+            Globals::StarMapWeaponPanelOpen = Buffer->GetBoolean();
+            Buffer->GetByte();
+            Globals::FilmCameraFollow = Buffer->GetBoolean();
+            Buffer->GetByte();
+            Buffer->GetByte();
+            Buffer->GetByte();
+            Buffer->GetBoolean();
+            Globals::PlayerStarDayPrepared = Buffer->GetBoolean();
             static_cast<void>(Globals::PlayerStarDayPrepared);
-            Globals::ShownPlayerTips = EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetInt32(Buffer);
-            Count = EC_Buf::TBufEC_GetInt32(Buffer);
+            Globals::ShownPlayerTips = Buffer->GetUInt32();
+            Buffer->GetInt32();
+            Count = Buffer->GetInt32();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
                 Message = Globals::CreatePersistentPlayerMessage();
                 Message->LoadFromBuffer(Buffer);
@@ -373,13 +382,13 @@ namespace aSaveLoad {
         std::int32_t I{};
         fShip2::TPlayerHoldUnit* Entry{};
         fShip2::InitializePlayerHoldView();
-        std::int32_t Count = EC_Buf::TBufEC_GetWord(Buffer);
+        std::int32_t Count = Buffer->GetWord();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Entry = pas::make_object<fShip2::TPlayerHoldUnit>();
             pas::list_add(fShip2::PlayerHoldEntries, reinterpret_cast<void*>(Entry));
-            Entry->Kind = static_cast<fShip2::TPlayerHoldKind>(EC_Buf::TBufEC_GetByte(Buffer));
-            Entry->GoodsIndex = EC_Buf::TBufEC_GetByte(Buffer);
-            Entry->ItemId = EC_Buf::TBufEC_GetUInt32(Buffer);
+            Entry->Kind = static_cast<fShip2::TPlayerHoldKind>(Buffer->GetByte());
+            Entry->GoodsIndex = Buffer->GetByte();
+            Entry->ItemId = Buffer->GetUInt32();
         }
         aGalaxy::TGalaxy* LoadingGalaxy = aGalaxy::Galaxy;
         aGalaxy::Galaxy = nullptr;
@@ -399,8 +408,11 @@ namespace aSaveLoad {
         GI_MessageLoop::TMessageLoopGI* Loop{};
         MemorySnapshotBuffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         aGalaxy::TGalaxy::ClearIntegrityStatus();
-        if (GlobalsV::CurrentScreenId != GlobalsV::screenPlanetQuest && (GlobalsV::CurrentScreenId != GlobalsV::screenGovernment || Globals::GovernmentScreen->PendingTransition == 0) && (GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || Globals::StarMapScreen->PlanetBattleState == 0)) {
-            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->OnClose();
+        if (GlobalsV::CurrentScreenId != GlobalsV::screenPlanetQuest && (GlobalsV::CurrentScreenId !=
+                GlobalsV::screenGovernment || Globals::GovernmentScreen->PendingTransition == 0) &&
+            (GlobalsV::CurrentScreenId != GlobalsV::screenStarMap || Globals::StarMapScreen->PlanetBattleState == 0)) {
+            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->OnClose();
         }
         {
             const std::int32_t cpp_first = pas::list_count(GI_MessageLoop::MessageLoopStack) - 1;
@@ -414,7 +426,9 @@ namespace aSaveLoad {
             }
         }
         aGalaxy::TGalaxy::ClearIntegrityStatus();
-        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
+        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId !=
+                aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() &&
+                pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
             fEquipmentShop::RestoreTemporaryShopStock();
         }
         std::int32_t Count = Globals::CountPersistentPlayerMessages();
@@ -456,7 +470,8 @@ namespace aSaveLoad {
         MemorySnapshotBuffer->ApplyDatXorCipher(MemorySnapshotXorSeed);
         aPlayer::GetPlayer()->SetMoney(0);
         aGalaxy::Galaxy->ObfuscateProtectedState();
-        MemorySnapshotGalaxyToken = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aGalaxy::Galaxy)) + 0x17557455;
+        MemorySnapshotGalaxyToken = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aGalaxy::Galaxy)) +
+                0x17557455;
         aGalaxy::Galaxy = nullptr;
         aKling::BlazerShip = nullptr;
         aKling::KellerShip = nullptr;
@@ -471,7 +486,9 @@ namespace aSaveLoad {
         Globals::TMessagePlayer* Message{};
         GI_MessageLoop::TMessageLoopGI* Loop{};
         std::uint8_t ReopenScreen = true;
-        aGalaxy::Galaxy = reinterpret_cast<aGalaxy::TGalaxy*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(MemorySnapshotGalaxyToken - 0x17557455)));
+        aGalaxy::Galaxy =
+            reinterpret_cast<aGalaxy::TGalaxy*>(
+                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(MemorySnapshotGalaxyToken - 0x17557455)));
         aGalaxy::Galaxy->RestoreProtectedState();
         if (aKling::DominatorSpawnPlanet != nullptr) {
             pas::free(aKling::DominatorSpawnPlanet);
@@ -483,35 +500,35 @@ namespace aSaveLoad {
         GlobalsV::MemorySnapshotActive = true;
         aGalaxy::Galaxy = pas::construct_call<aGalaxy::TGalaxy>(aGalaxy::TGalaxy_Create);
         GlobalsV::LoadedSaveVersion = aConst::CurrentSaveVersion;
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(MemorySnapshotBuffer);
+        std::int32_t Count = MemorySnapshotBuffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Message = Globals::CreatePersistentPlayerMessage();
             Message->LoadFromBuffer(MemorySnapshotBuffer);
         }
-        Globals::ShownPlayerTips = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
+        Globals::ShownPlayerTips = MemorySnapshotBuffer->GetUInt32();
         fShip2::InitializePlayerHoldView();
-        Count = EC_Buf::TBufEC_GetWord(MemorySnapshotBuffer);
+        Count = MemorySnapshotBuffer->GetWord();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
             Entry = pas::make_object<fShip2::TPlayerHoldUnit>();
             pas::list_add(fShip2::PlayerHoldEntries, reinterpret_cast<void*>(Entry));
-            Entry->Kind = static_cast<fShip2::TPlayerHoldKind>(EC_Buf::TBufEC_GetByte(MemorySnapshotBuffer));
-            Entry->GoodsIndex = EC_Buf::TBufEC_GetByte(MemorySnapshotBuffer);
-            Entry->ItemId = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
+            Entry->Kind = static_cast<fShip2::TPlayerHoldKind>(MemorySnapshotBuffer->GetByte());
+            Entry->GoodsIndex = MemorySnapshotBuffer->GetByte();
+            Entry->ItemId = MemorySnapshotBuffer->GetUInt32();
         }
         aGalaxy::TGalaxy_LoadFromBuffer(aGalaxy::Galaxy, MemorySnapshotBuffer);
         --aGalaxy::Galaxy->LoadCount;
         {
-            std::uint32_t uInt32 = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
+            std::uint32_t uInt32 = MemorySnapshotBuffer->GetUInt32();
             aGalaxy::TGalaxy* galaxy = aGalaxy::Galaxy;
             Globals::TalkShip = static_cast<aShip::TShip*>(galaxy->IdToShip(uInt32, true));
         }
         {
-            std::uint32_t uInt32_2 = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
+            std::uint32_t uInt32_2 = MemorySnapshotBuffer->GetUInt32();
             aGalaxy::TGalaxy* galaxy_2 = aGalaxy::Galaxy;
             Globals::TalkPlanet = static_cast<aPlanet::TPlanet*>(galaxy_2->IdToPlanet(uInt32_2, true));
         }
         {
-            std::uint32_t uInt32_3 = EC_Buf::TBufEC_GetUInt32(MemorySnapshotBuffer);
+            std::uint32_t uInt32_3 = MemorySnapshotBuffer->GetUInt32();
             aGalaxy::TGalaxy* galaxy_3 = aGalaxy::Galaxy;
             Globals::ShipScreen->ShipToInspect = static_cast<aShip::TShip*>(galaxy_3->IdToShip(uInt32_3, true));
         }
@@ -524,7 +541,8 @@ namespace aSaveLoad {
                         Loop->RequestClose(254);
                     } else if (pas::class_cast_if<fCount2::TfCount2*>(Loop) != nullptr) {
                         Loop->RequestClose(254);
-                    } else if (pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr && Globals::StarMapScreen->PlanetBattleState != 0) {
+                    } else if (pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr &&
+                        Globals::StarMapScreen->PlanetBattleState != 0) {
                         ReopenScreen = false;
                     } else if (pas::class_cast_if<fRating2::TfRating2*>(Loop) != nullptr) {
                         Loop->RequestClose(1);
@@ -536,14 +554,18 @@ namespace aSaveLoad {
                         GlobalsV::RequestedScreenId = GlobalsV::ScannerReturnScreenId;
                         Loop->RequestClose(1);
                         ReopenScreen = false;
-                    } else if (pas::class_cast_if<fShip2::TfShip2*>(Loop) != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1)) {
+                    } else if (pas::class_cast_if<fShip2::TfShip2*>(Loop) != nullptr &&
+                        !aPlayer::GetPlayer()->InNormalSpace()) {
                         Loop->RequestClose(1);
-                    } else if (pas::class_cast_if<fGalaxy2::TfGalaxy2*>(Loop) != nullptr && static_cast<std::uint8_t>(aPlayer::GetPlayer()->InNormalSpace() ^ 1)) {
+                    } else if (pas::class_cast_if<fGalaxy2::TfGalaxy2*>(Loop) != nullptr &&
+                        !aPlayer::GetPlayer()->InNormalSpace()) {
                         Loop->RequestClose(1);
-                    } else if (pas::class_cast_if<fShip2::TfShip2*>(Loop) != nullptr && aPlayer::GetPlayer()->InNormalSpace()) {
+                    } else if (pas::class_cast_if<fShip2::TfShip2*>(Loop) != nullptr &&
+                        aPlayer::GetPlayer()->InNormalSpace()) {
                         GlobalsV::RequestedScreenId = GlobalsV::ShipReturnScreenId;
                         Loop->RequestClose(1);
-                    } else if (pas::class_cast_if<fGalaxy2::TfGalaxy2*>(Loop) != nullptr && aPlayer::GetPlayer()->InNormalSpace()) {
+                    } else if (pas::class_cast_if<fGalaxy2::TfGalaxy2*>(Loop) != nullptr &&
+                        aPlayer::GetPlayer()->InNormalSpace()) {
                         GlobalsV::RequestedScreenId = GlobalsV::GalaxyReturnScreenId;
                         Loop->RequestClose(1);
                     } else if (pas::class_cast_if<fGameMenu::TfGameMenu*>(Loop) != nullptr) {
@@ -576,7 +598,15 @@ namespace aSaveLoad {
                     } else if (pas::class_cast_if<fGameLoad::TfGameLoad*>(Loop) != nullptr) {
                         Loop->RequestClose(1);
                         ReopenScreen = false;
-                    } else if (aPlayer::GetPlayer()->InNormalSpace() && (pas::class_cast_if<fHangar::TfHangar*>(Loop) != nullptr || pas::class_cast_if<fPlanet::TfPlanet*>(Loop) != nullptr || pas::class_cast_if<fPlanetNO::TfPlanetNO*>(Loop) != nullptr || pas::class_cast_if<fGov::TfGov*>(Loop) != nullptr || pas::class_cast_if<fPlanetQuest::TfPlanetQuest*>(Loop) != nullptr || pas::class_cast_if<fEquipmentShop::TfEquipmentShop*>(Loop) != nullptr || pas::class_cast_if<fGoodsShop2::TfGoodsShop2*>(Loop) != nullptr || pas::class_cast_if<fRuinsTalk::TfRuinsTalk*>(Loop) != nullptr || pas::class_cast_if<fInfo::TfInfo*>(Loop) != nullptr)) {
+                    } else if (aPlayer::GetPlayer()->InNormalSpace() && (pas::class_cast_if<fHangar::TfHangar*>(Loop) !=
+                            nullptr || pas::class_cast_if<fPlanet::TfPlanet*>(Loop) != nullptr ||
+                            pas::class_cast_if<fPlanetNO::TfPlanetNO*>(Loop) != nullptr ||
+                            pas::class_cast_if<fGov::TfGov*>(Loop) != nullptr ||
+                            pas::class_cast_if<fPlanetQuest::TfPlanetQuest*>(Loop) != nullptr ||
+                            pas::class_cast_if<fEquipmentShop::TfEquipmentShop*>(Loop) != nullptr ||
+                            pas::class_cast_if<fGoodsShop2::TfGoodsShop2*>(Loop) != nullptr ||
+                            pas::class_cast_if<fRuinsTalk::TfRuinsTalk*>(Loop) != nullptr ||
+                            pas::class_cast_if<fInfo::TfInfo*>(Loop) != nullptr)) {
                         GlobalsV::RequestedScreenId = GlobalsV::screenStarMap;
                         Globals::StarMapScreen->ResumeMode = fStarMap::smrOrders;
                         if (pas::class_cast_if<fGoodsShop2::TfGoodsShop2*>(Loop) != nullptr) {
@@ -588,26 +618,33 @@ namespace aSaveLoad {
                             Loop->RequestClose(1);
                         }
                         ReopenScreen = false;
-                    } else if ((aPlayer::GetPlayer()->IsOnPlanet() || aPlayer::GetPlayer()->IsDockedToShip()) && pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr) {
+                    } else if ((aPlayer::GetPlayer()->IsOnPlanet() || aPlayer::GetPlayer()->IsDockedToShip()) &&
+                        pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr) {
                         Loop->RequestClose(1);
-                        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiUninhabited) {
+                        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId ==
+                                aGalaxyStruct::oiUninhabited) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenPlanetNO;
-                        } else if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited) {
+                        } else if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId !=
+                                aGalaxyStruct::oiUninhabited) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenPlanet;
                         } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                             GlobalsV::RequestedScreenId = GlobalsV::screenRuinsTalk;
                         }
-                    } else if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->Order == aShip::soJumpHole && (pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr || pas::class_cast_if<ab_MainForm::TfAB*>(Loop) != nullptr)) {
+                    } else if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->Order == aShip::soJumpHole &&
+                        (pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr ||
+                            pas::class_cast_if<ab_MainForm::TfAB*>(Loop) != nullptr)) {
                         GlobalsV::RequestedScreenId = GlobalsV::screenMainMenu;
                         Loop->RequestClose(1);
                         ReopenScreen = false;
-                    } else if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->Order == aShip::soJump && pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr) {
+                    } else if (aPlayer::GetPlayer()->InHyperspace && aPlayer::GetPlayer()->Order == aShip::soJump &&
+                        pas::class_cast_if<fStarMap::TfStarMap*>(Loop) != nullptr) {
                         GlobalsV::RequestedScreenId = GlobalsV::screenJump;
                         Loop->RequestClose(1);
                         ReopenScreen = false;
                     } else if (pas::class_cast_if<fPlanetQuest::TfPlanetQuest*>(Loop) != nullptr) {
                         ReopenScreen = false;
-                    } else if (pas::class_cast_if<fGov::TfGov*>(Loop) != nullptr && Globals::GovernmentScreen->PendingTransition != 0) {
+                    } else if (pas::class_cast_if<fGov::TfGov*>(Loop) != nullptr &&
+                        Globals::GovernmentScreen->PendingTransition != 0) {
                         ReopenScreen = false;
                     } else if (pas::class_cast_if<fJump::TfJump*>(Loop) != nullptr) {
                         Globals::JumpScreen->RestoreOrdersOnArrival = true;
@@ -615,11 +652,14 @@ namespace aSaveLoad {
                 }
             }
         }
-        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() && pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
+        if (aPlayer::GetPlayer()->IsOnPlanet() && aPlayer::GetPlayer()->CurrentPlanet->OwnerId !=
+                aGalaxyStruct::oiUninhabited || aPlayer::GetPlayer()->IsDockedToShip() &&
+                pas::class_cast_if<aRuins::TRuins*>(aPlayer::GetPlayer()->DockedTo) != nullptr) {
             fEquipmentShop::BuildTemporaryShopSlotGrid();
         }
         if (ReopenScreen) {
-            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->OnOpen();
+            pas::checked_cast<GI_MessageLoop::TMessageLoopGI*>(
+                GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->OnOpen();
         }
         aGalaxy::TGalaxy::ClearIntegrityStatus();
         aGalaxy::Galaxy->PrimeIntegrityChecksum(1);
@@ -645,7 +685,7 @@ namespace aSaveLoad {
     }
 
     // Owns and frees all five buffers. Writes Save.tmp before replacing the destination; shares SaveLoadLock with the loader.
-    void TSaver_Execute(TSaver* Self) {
+    void TSaver::Execute() {
         pas::AnsiString cpp_text{};
         pas::AnsiString cpp_text_2{};
         pas::AnsiString cpp_text_3{};
@@ -666,7 +706,8 @@ namespace aSaveLoad {
         AutoName = fSaveManager::TfSaveManager::GetAutoSavePath();
         TurnName = fSaveManager::TfSaveManager::GetTurnSavePath();
         QuickName = fSaveManager::TfSaveManager::GetQuickSavePath(1);
-        SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Save"})));
+        SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+            u"Save"})));
         EC_File::TFileEC* F = nullptr;
         try {
             F = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -676,43 +717,45 @@ namespace aSaveLoad {
             }
             F->SetFileName(TempName);
             F->CreateNew();
-            Self->HeaderBuffer->SaveToFile(F);
-            if (Self->PreviewBuffer->DataSize > 0) {
-                Self->PreviewBuffer->CompressZlibPayloadInPlace(false);
+            HeaderBuffer->SaveToFile(F);
+            if (PreviewBuffer->DataSize > 0) {
+                PreviewBuffer->CompressZlibPayloadInPlace(false);
             }
-            Size = Self->PreviewBuffer->DataSize;
+            Size = PreviewBuffer->DataSize;
             F->WriteBuffer(&Size, static_cast<std::int32_t>(sizeof(std::int32_t)));
             if (Size > 0) {
-                F->WriteBuffer(Self->PreviewBuffer->Data, Size);
+                F->WriteBuffer(PreviewBuffer->Data, Size);
             }
-            if (Self->SecondaryPreviewBuffer->DataSize > 0) {
-                Self->SecondaryPreviewBuffer->CompressZlibPayloadInPlace(false);
+            if (SecondaryPreviewBuffer->DataSize > 0) {
+                SecondaryPreviewBuffer->CompressZlibPayloadInPlace(false);
             }
-            Size = Self->SecondaryPreviewBuffer->DataSize;
+            Size = SecondaryPreviewBuffer->DataSize;
             F->WriteBuffer(&Size, static_cast<std::int32_t>(sizeof(std::int32_t)));
             if (Size > 0) {
-                F->WriteBuffer(Self->SecondaryPreviewBuffer->Data, Size);
+                F->WriteBuffer(SecondaryPreviewBuffer->Data, Size);
             }
-            Self->GameStateBuffer->CompressZlibPayloadInPlace(false);
-            Size = Self->GameStateBuffer->ComputeCrc32();
+            GameStateBuffer->CompressZlibPayloadInPlace(false);
+            Size = GameStateBuffer->ComputeCrc32();
             F->WriteBuffer(&Size, static_cast<std::int32_t>(sizeof(std::int32_t)));
             Seed = aMyFunction::RandomIntRange(0, 2000000000);
-            Self->GameStateBuffer->ApplyDatXorCipher(Seed);
+            GameStateBuffer->ApplyDatXorCipher(Seed);
             F->WriteBuffer(&Seed, static_cast<std::int32_t>(sizeof(std::int32_t)));
-            Size = Self->GameStateBuffer->DataSize;
+            Size = GameStateBuffer->DataSize;
             F->WriteBuffer(&Size, static_cast<std::int32_t>(sizeof(std::int32_t)));
             if (Size > 0) {
-                F->WriteBuffer(Self->GameStateBuffer->Data, Size);
+                F->WriteBuffer(GameStateBuffer->Data, Size);
             }
-            Self->FilmBuffer->CompressZlibPayloadInPlace(false);
-            Size = Self->FilmBuffer->DataSize;
-            F->WriteBuffer(Self->FilmBuffer->Data, Size);
+            FilmBuffer->CompressZlibPayloadInPlace(false);
+            Size = FilmBuffer->DataSize;
+            F->WriteBuffer(FilmBuffer->Data, Size);
             F->ReleaseHandle();
             SourceName = TempName;
-            TargetName = Self->FileName;
-            if (Self->FileName == QuickName && GlobalsV::QuickSaveExtraSlots > 0) {
-                Prefix = pas::concat_wide({EC_Str::TrimWideString(EC_Str::ExtractFileDirW(pas::view(QuickName))), u"\\", EC_Str::TrimWideString(EC_Str::ExtractFileNameNoExtW(QuickName))});
-                NewName = pas::concat_wide({Prefix, EC_Str::IntToWideString(GlobalsV::QuickSaveExtraSlots + 1), u".sav"});
+            TargetName = FileName;
+            if (FileName == QuickName && GlobalsV::QuickSaveExtraSlots > 0) {
+                Prefix = pas::concat_wide({EC_Str::TrimWideString(EC_Str::ExtractFileDirW(pas::view(QuickName))), u"\\",
+                        EC_Str::TrimWideString(EC_Str::ExtractFileNameNoExtW(QuickName))});
+                NewName = pas::concat_wide({Prefix, EC_Str::IntToWideString(GlobalsV::QuickSaveExtraSlots + 1),
+                        u".sav"});
                 {
                     const std::int32_t cpp_first = GlobalsV::QuickSaveExtraSlots;
                     if (cpp_first >= 1) {
@@ -723,7 +766,8 @@ namespace aSaveLoad {
                                 OldName = QuickName;
                             }
                             if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(NewName))) {
-                                WindowsSdk::DeleteFile((cpp_text_2 = static_cast<pas::AnsiString>(NewName), cpp_text_2.pchar()));
+                                WindowsSdk::DeleteFile((cpp_text_2 = static_cast<pas::AnsiString>(NewName),
+                                    cpp_text_2.pchar()));
                             }
                             WindowsSdk::MoveFileW(OldName.pchar(), NewName.pchar());
                             NewName = OldName;
@@ -739,13 +783,13 @@ namespace aSaveLoad {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
                 GR_Main::AppendLogLineThreadSafe(E->message);
-                if (Self->FileName == AutoName) {
+                if (FileName == AutoName) {
                     aGalaxy::TGalaxy::ShowLocalizedWarning(u"Warning.AutoSaveFailed"_w);
                 }
-                if (Self->FileName == TurnName) {
+                if (FileName == TurnName) {
                     aGalaxy::TGalaxy::ShowLocalizedWarning(u"Warning.TurnSaveFailed"_w);
                 }
-                if (Self->FileName == QuickName) {
+                if (FileName == QuickName) {
                     aGalaxy::TGalaxy::ShowLocalizedWarning(u"Warning.QuickSaveFailed"_w);
                 }
             } else {
@@ -758,31 +802,32 @@ namespace aSaveLoad {
         if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(TempName))) {
             WindowsSdk::DeleteFile((cpp_text_4 = static_cast<pas::AnsiString>(TempName), cpp_text_4.pchar()));
         }
-        if (Self->HeaderBuffer != nullptr) {
-            pas::free(Self->HeaderBuffer);
+        if (HeaderBuffer != nullptr) {
+            pas::free(HeaderBuffer);
         }
-        Self->HeaderBuffer = nullptr;
-        if (Self->PreviewBuffer != nullptr) {
-            pas::free(Self->PreviewBuffer);
+        HeaderBuffer = nullptr;
+        if (PreviewBuffer != nullptr) {
+            pas::free(PreviewBuffer);
         }
-        Self->PreviewBuffer = nullptr;
-        if (Self->SecondaryPreviewBuffer != nullptr) {
-            pas::free(Self->SecondaryPreviewBuffer);
+        PreviewBuffer = nullptr;
+        if (SecondaryPreviewBuffer != nullptr) {
+            pas::free(SecondaryPreviewBuffer);
         }
-        Self->SecondaryPreviewBuffer = nullptr;
-        if (Self->GameStateBuffer != nullptr) {
-            pas::free(Self->GameStateBuffer);
+        SecondaryPreviewBuffer = nullptr;
+        if (GameStateBuffer != nullptr) {
+            pas::free(GameStateBuffer);
         }
-        Self->GameStateBuffer = nullptr;
-        if (Self->FilmBuffer != nullptr) {
-            pas::free(Self->FilmBuffer);
+        GameStateBuffer = nullptr;
+        if (FilmBuffer != nullptr) {
+            pas::free(FilmBuffer);
         }
-        Self->FilmBuffer = nullptr;
+        FilmBuffer = nullptr;
         pas::critical_leave(SaveLoadLock);
     }
 
     // Waits for the preceding job, then takes ownership of all five buffers.
-    void TSaver::QueueSave(pas::WideString AFileName, EC_Buf::TBufEC* Header, EC_Buf::TBufEC* Preview, EC_Buf::TBufEC* SecondaryPreview, EC_Buf::TBufEC* GameState, EC_Buf::TBufEC* Films) {
+    void TSaver::QueueSave(pas::WideString AFileName, EC_Buf::TBufEC* Header, EC_Buf::TBufEC* Preview,
+        EC_Buf::TBufEC* SecondaryPreview, EC_Buf::TBufEC* GameState, EC_Buf::TBufEC* Films) {
         if (IsRunning()) {
             WaitForIdle(WindowsSdk::INFINITE);
         }
@@ -793,10 +838,6 @@ namespace aSaveLoad {
         GameStateBuffer = GameState;
         FilmBuffer = Films;
         Start();
-    }
-
-    void TSaver::virtual_TThreadEC_Execute() {
-        aSaveLoad::TSaver_Execute(this);
     }
 
 } // namespace aSaveLoad

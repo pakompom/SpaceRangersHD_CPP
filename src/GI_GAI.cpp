@@ -18,7 +18,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/Windows.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/aMyFunction.hpp"
@@ -31,19 +30,23 @@ namespace GI_GAI {
 
     void LoadGaiFrameToGraphBuf(const pas::WideString& Path, GR_GraphBuf::TGraphBufGR* GraphBuf, std::uint32_t Seed) {
         std::int32_t FrameIndex{};
-        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(EC_Cache::TCacheControlEC_Create);
+        EC_Cache::TCacheControlEC* Control = pas::construct_call<EC_CacheGAI::TCGaiControlEC>(
+            EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Control);
         Control->SetCacheKey(Path);
         EC_CacheGAI::TCGaiEC* Gai = EC_CacheGAI::AcquireCachedGai(Control);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                FrameIndex = 0;
+                if (Seed != 0) {
+                    FrameIndex = aMyFunction::SeededRandomIntRange(0, Gai->GetFrameCount() - 1, Seed);
+                }
+                Gai->LoadFrameGi(FrameIndex)->DecodeToGraphBuf(GraphBuf, false);
+            } catch (...) {
                 Control->Release();
-            };
-            FrameIndex = 0;
-            if (Seed != 0) {
-                FrameIndex = aMyFunction::SeededRandomIntRange(0, Gai->GetFrameCount() - 1, Seed);
+                throw;
             }
-            Gai->LoadFrameGi(FrameIndex)->DecodeToGraphBuf(GraphBuf, false);
+            Control->Release();
         }
         pas::free(Control);
     }
@@ -189,7 +192,8 @@ namespace GI_GAI {
         }
         if (SequenceFrameCount > 1) {
             Delay = GetFrameDelay(SequenceFrame);
-            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(Delay, Delay, pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
+            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(Delay, Delay,
+                    pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
         }
         if (StartSoundName != u"" && SequenceFrame == 0) {
             GR_Main::SoundManager->PlaySound(StartSoundName);
@@ -308,11 +312,19 @@ namespace GI_GAI {
             Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Part), 2, u",-"sv)));
             RangeCount = pas::abs(First - Last) + 1;
             SequenceFrameCount += RangeCount;
-            SequenceFrameIndexTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap, SequenceFrameIndexTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
-            SequenceFrameDelayTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap, SequenceFrameDelayTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+            SequenceFrameIndexTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap,
+                    SequenceFrameIndexTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+            SequenceFrameDelayTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap,
+                    SequenceFrameDelayTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, RangeCount - 1); cpp_range_2.next(Offset); ) {
-                EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrameIndexTable, (SequenceFrameCount - RangeCount + Offset) * static_cast<std::int32_t>(sizeof(std::int32_t))), First);
-                EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, (SequenceFrameCount - RangeCount + Offset) * static_cast<std::int32_t>(sizeof(std::int32_t))), Delay);
+                EC_Mem::WriteInt32EC(
+                    EC_Mem::AddPointerOffset(SequenceFrameIndexTable,
+                        (SequenceFrameCount - RangeCount + Offset) * static_cast<std::int32_t>(sizeof(std::int32_t))),
+                    First);
+                EC_Mem::WriteInt32EC(
+                    EC_Mem::AddPointerOffset(SequenceFrameDelayTable,
+                        (SequenceFrameCount - RangeCount + Offset) * static_cast<std::int32_t>(sizeof(std::int32_t))),
+                    Delay);
                 if (First < Last) {
                     ++First;
                 } else {
@@ -326,7 +338,8 @@ namespace GI_GAI {
                 MessageLoop->CancelCallbackTimer(AutoFrameTimer);
                 AutoFrameTimer = nullptr;
             }
-            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(TimerDelay, TimerDelay, pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
+            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(TimerDelay, TimerDelay,
+                    pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
         }
     }
 
@@ -345,17 +358,21 @@ namespace GI_GAI {
 
     // Does not validate the index.
     std::int32_t TgaiGI::GetSequenceFrameSourceIndex(std::int32_t FrameInSequence) {
-        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameIndexTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameIndexTable,
+            FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
     // Does not validate the index.
     void TgaiGI::SetFrameDelay(std::int32_t FrameInSequence, std::int32_t DelayMs) {
-        EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))), DelayMs);
+        EC_Mem::WriteInt32EC(
+            EC_Mem::AddPointerOffset(SequenceFrameDelayTable,
+                FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))), DelayMs);
     }
 
     // Does not validate the index.
     std::int32_t TgaiGI::GetFrameDelay(std::int32_t FrameInSequence) {
-        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable,
+            FrameInSequence * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
     // Black pixels do not count as hits; composed playback may require an existing composition buffer.
@@ -399,7 +416,8 @@ namespace GI_GAI {
                     if (First != nullptr) {
                         FirstBounds = First->Image->GetBoundsRect();
                         WindowsSdk::UnionRect(Bounds, Image->GetBoundsRect(), FirstBounds);
-                        if (!SysUtils::CompareMem(&Bounds, &FirstBounds, static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
+                        if (!SysUtils::CompareMem(&Bounds, &FirstBounds,
+                            static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
                             GR_Main::RaiseWideMessage(u"TgaiGI.Draw Pos-Size"_wref.get());
                         }
                         Width = FirstBounds.Right - FirstBounds.Left;
@@ -463,19 +481,22 @@ namespace GI_GAI {
                     cpp_flow = pas::FinallyFlow::Return;
                     goto cpp_cleanup;
                 }
-                Pixels = EC_Mem::AddPointerOffset(&Pixel, -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X * static_cast<std::int32_t>(sizeof(std::uint16_t))));
+                Pixels = EC_Mem::AddPointerOffset(&Pixel,
+                        -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X *
+                            static_cast<std::int32_t>(sizeof(std::uint16_t))));
                 Buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
                 Buffer->AttachPixels(1, 1, GR_Main::ScreenRenderBuffer->PitchBytes, Pixels);
                 if (Image != nullptr) {
                     Bounds = Image->GetBoundsRect();
                 }
-                if (Image != nullptr && static_cast<std::uint8_t>(Image->HasPlaybackFlags() ^ 1)) {
+                if (Image != nullptr && !Image->HasPlaybackFlags()) {
                     Y = Top;
                     while (Y < Bottom) {
                         X = Left;
                         while (X < Right) {
                             Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(SequenceFrame));
-                            Frame->DrawToGraphBuf(Buffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, Clip, 0, 255);
+                            Frame->DrawToGraphBuf(Buffer, X + Frame->GetBoundsRect().Left - Bounds.Left,
+                                Y + Frame->GetBoundsRect().Top - Bounds.Top, Clip, 0, 255);
                             X += Width;
                         }
                         Y += Height;
@@ -491,7 +512,8 @@ namespace GI_GAI {
                                         GR_GraphBuf::TGraphBufGR* cachedPlaybackGraphBuf = CachedPlaybackGraphBuf;
                                         void* pixels = Buffer->GetPixels();
                                         std::int32_t pitchBytes = Buffer->PitchBytes;
-                                        GR_Main::DrawAlphaGraphBuffer16Clipped(pixels, pitchBytes, X, Y, cachedPlaybackGraphBuf, Clip);
+                                        GR_Main::DrawAlphaGraphBuffer16Clipped(pixels, pitchBytes, X, Y,
+                                            cachedPlaybackGraphBuf, Clip);
                                     }
                                     X += Width;
                                 }
@@ -633,23 +655,42 @@ namespace GI_GAI {
         }
         if (SequenceIndex >= 0) {
             ClearFrameSequence();
-            if (static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && MainImageCache != nullptr && MainImageCache->CacheKey != u"") {
+            if (static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && MainImageCache != nullptr &&
+                MainImageCache->CacheKey != u"") {
                 Image = EC_CacheGAI::AcquireCachedGai(MainImageCache);
                 {
-                    pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                        MainImageCache->Release();
-                    };
-                    if (SequenceIndex < 0 || SequenceIndex >= Image->GetSequenceCount()) {
-                        MainImageCache->Release();
-                        SequenceFrameCount = 0;
-                        GR_Main::AppendLogLineThreadSafe("TgaiGI.AfterLoad. Anim not found."_a);
+                    pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+                    std::exception_ptr cpp_error{};
+                    try {
+                        if (SequenceIndex < 0 || SequenceIndex >= Image->GetSequenceCount()) {
+                            MainImageCache->Release();
+                            SequenceFrameCount = 0;
+                            GR_Main::AppendLogLineThreadSafe("TgaiGI.AfterLoad. Anim not found."_a);
+                            cpp_flow = pas::FinallyFlow::Return;
+                            goto cpp_cleanup;
+                        }
+                        SequenceFrameCount = Image->GetSequenceFrameCount(SequenceIndex);
+                        SequenceFrameIndexTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap,
+                                SequenceFrameIndexTable,
+                                SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                        SequenceFrameDelayTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap,
+                                SequenceFrameDelayTable,
+                                SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
+                        Image->FillSequenceFrameIndexTable(SequenceIndex, SequenceFrameIndexTable,
+                            static_cast<std::int32_t>(sizeof(std::int32_t)));
+                        Image->FillSequenceFrameDelayTable(SequenceIndex, SequenceFrameDelayTable,
+                            static_cast<std::int32_t>(sizeof(std::int32_t)));
+                    } catch (...) {
+                        cpp_error = std::current_exception();
+                    }
+                    cpp_cleanup:;
+                    MainImageCache->Release();
+                    if (cpp_error) {
+                        std::rethrow_exception(cpp_error);
+                    }
+                    if (cpp_flow == pas::FinallyFlow::Return) {
                         return;
                     }
-                    SequenceFrameCount = Image->GetSequenceFrameCount(SequenceIndex);
-                    SequenceFrameIndexTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap, SequenceFrameIndexTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
-                    SequenceFrameDelayTable = static_cast<std::int32_t*>(EC_Mem::ReAllocFromHeapREC(GaiFrameHeap, SequenceFrameDelayTable, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t))));
-                    Image->FillSequenceFrameIndexTable(SequenceIndex, SequenceFrameIndexTable, static_cast<std::int32_t>(sizeof(std::int32_t)));
-                    Image->FillSequenceFrameDelayTable(SequenceIndex, SequenceFrameDelayTable, static_cast<std::int32_t>(sizeof(std::int32_t)));
                 }
             }
         }
@@ -661,12 +702,14 @@ namespace GI_GAI {
         std::int32_t Delay{};
         StopAfterOneCycle = true;
         if (SequenceFrameDelayTable != nullptr) {
-            Delay = System::Round(pas::real_divide(DurationMs, SequenceFrameCount));
+            Delay = pas::real_round(static_cast<float>(static_cast<double>(DurationMs) / SequenceFrameCount));
             if (Delay < 1) {
                 Delay = 1;
             }
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SequenceFrameCount - 1); cpp_range.next(Index); ) {
-                EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrameDelayTable, Index * static_cast<std::int32_t>(sizeof(std::int32_t))), Delay);
+                EC_Mem::WriteInt32EC(
+                    EC_Mem::AddPointerOffset(SequenceFrameDelayTable,
+                        Index * static_cast<std::int32_t>(sizeof(std::int32_t))), Delay);
             }
         }
     }
@@ -692,7 +735,8 @@ namespace GI_GAI {
             }
         } else if (AutoFrameTimer == nullptr) {
             Delay = GetFrameDelay(SequenceFrame);
-            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(Delay, Delay, pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
+            AutoFrameTimer = MessageLoop->ScheduleCallbackTimer(Delay, Delay,
+                    pas::bind_method<&TgaiGI::AdvanceAutoFrame>(this), 0);
         } else {
             Delay = GetFrameDelay(SequenceFrame);
             MessageLoop->UpdateCallbackTimer(AutoFrameTimer, Delay, Delay);
@@ -732,7 +776,8 @@ namespace GI_GAI {
         if (static_cast<std::uint8_t>(Active ^ 1) || GlobalsV::HardwareRenderingEnabled) {
             return;
         }
-        if (static_cast<std::uint8_t>(SkipImageUpdateRect ^ 1) && FirstFrameImageCache != nullptr && static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && UsesPlaybackBuffer) {
+        if (static_cast<std::uint8_t>(SkipImageUpdateRect ^ 1) && FirstFrameImageCache != nullptr &&
+            static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && UsesPlaybackBuffer) {
             if (CachedPlaybackGraphBuf == nullptr || LastCachedFrameIndex < 0 || SequenceFrame < LastCachedFrameIndex) {
                 GI_MessageLoop::TObjectGI::Invalidate();
                 return;
@@ -751,7 +796,8 @@ namespace GI_GAI {
                     First = EC_CacheGI::AcquireCachedGi(FirstFrameImageCache);
                     FirstBounds = First->Image->GetBoundsRect();
                     WindowsSdk::UnionRect(Bounds, Image->GetBoundsRect(), FirstBounds);
-                    if (!SysUtils::CompareMem(&Bounds, &FirstBounds, static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
+                    if (!SysUtils::CompareMem(&Bounds, &FirstBounds,
+                        static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
                         GR_Main::RaiseWideMessage(u"TgaiGI.Update Pos-Size"_wref.get());
                     }
                     Width = FirstBounds.Right - FirstBounds.Left;
@@ -822,7 +868,8 @@ namespace GI_GAI {
                                         cpp_flow = pas::FinallyFlow::Return;
                                         goto cpp_cleanup;
                                     }
-                                    for (auto cpp_range = pas::for_to<std::int32_t>(0, RectCount - 1); cpp_range.next(RectIndex); ) {
+                                    for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                                        RectCount - 1); cpp_range.next(RectIndex); ) {
                                         Rect = Frame->GetClipRect(RectIndex);
                                         Rect.Left = X + Rect.Left + (FrameBounds.Left - Bounds.Left);
                                         Rect.Top = Y + Rect.Top + (FrameBounds.Top - Bounds.Top);
@@ -859,10 +906,6 @@ namespace GI_GAI {
         }
     }
 
-    void TgaiGI::SetHardwareMirrorHorizontal(std::uint8_t Value) {
-        HardwareMirrorHorizontal = Value;
-    }
-
     void TgaiGI::Draw(WindowsSdk::TRect ClipRect) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         Direct3D9::IDirect3DTexture9 cpp_result_2{};
@@ -893,7 +936,8 @@ namespace GI_GAI {
         if (AutoFrameTimer == nullptr && static_cast<std::uint8_t>(StopPlaybackRequested ^ 1)) {
             RestartPlayback();
         }
-        if (MainImageCache->CacheKey == u"" && (FirstFrameImageCache == nullptr || FirstFrameImageCache->CacheKey == u"" || static_cast<std::uint8_t>(FirstFrameOnly ^ 1))) {
+        if (MainImageCache->CacheKey == u"" && (FirstFrameImageCache == nullptr || FirstFrameImageCache->CacheKey ==
+                    u"" || static_cast<std::uint8_t>(FirstFrameOnly ^ 1))) {
             return;
         }
         Image = nullptr;
@@ -914,7 +958,8 @@ namespace GI_GAI {
                     if (First != nullptr) {
                         FirstBounds = First->Image->GetBoundsRect();
                         WindowsSdk::UnionRect(Bounds, Image->GetBoundsRect(), FirstBounds);
-                        if (!SysUtils::CompareMem(&Bounds, &FirstBounds, static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
+                        if (!SysUtils::CompareMem(&Bounds, &FirstBounds,
+                            static_cast<std::int32_t>(sizeof(WindowsSdk::TRect)))) {
                             GR_Main::RaiseWideMessage(u"TgaiGI.Draw Pos-Size"_wref.get());
                         }
                         Width = FirstBounds.Right - FirstBounds.Left;
@@ -983,16 +1028,19 @@ namespace GI_GAI {
                 } else if (First != nullptr) {
                     Bounds = First->Image->GetBoundsRect();
                 }
-                if (Image != nullptr && static_cast<std::uint8_t>(Image->HasPlaybackFlags() ^ 1)) {
+                if (Image != nullptr && !Image->HasPlaybackFlags()) {
                     if (GlobalsV::HardwareRenderingEnabled) {
-                        Texture = (Image->GetOrCreateFrameSurface(GetSequenceFrameSourceIndex(SequenceFrame), cpp_result), cpp_result);
+                        Texture = (Image->GetOrCreateFrameSurface(GetSequenceFrameSourceIndex(SequenceFrame),
+                                cpp_result), cpp_result);
                         FrameOrigin = Image->GetFrameOrigin(GetSequenceFrameSourceIndex(SequenceFrame));
                         if (Texture != nullptr) {
                             Y = Top;
                             while (Y < Bottom) {
                                 X = Left;
                                 while (X < Right) {
-                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha,
+                                        GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false,
+                                        HardwareMirrorHorizontal);
                                     X += Width;
                                 }
                                 Y += Height;
@@ -1005,7 +1053,9 @@ namespace GI_GAI {
                             X = Left;
                             while (X < Right) {
                                 if (Frame != nullptr) {
-                                    Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, Alpha);
+                                    Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer,
+                                        X + Frame->GetBoundsRect().Left - Bounds.Left,
+                                        Y + Frame->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, Alpha);
                                 }
                                 X += Width;
                             }
@@ -1019,10 +1069,14 @@ namespace GI_GAI {
                             X = Left;
                             while (X < Right) {
                                 FrameCount = GetSequenceFrameSourceIndex(SequenceFrame);
-                                for (auto cpp_range = pas::for_to<std::int32_t>(0, FrameCount - 1); cpp_range.next(FrameIndex); ) {
-                                    Texture = (Image->GetOrCreateFrameSurface(GetSequenceFrameSourceIndex(SequenceFrame), cpp_result_2), cpp_result_2);
+                                for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                                    FrameCount - 1); cpp_range.next(FrameIndex); ) {
+                                    Texture = (Image->GetOrCreateFrameSurface(
+                                            GetSequenceFrameSourceIndex(SequenceFrame), cpp_result_2), cpp_result_2);
                                     FrameOrigin = Image->GetFrameOrigin(GetSequenceFrameSourceIndex(SequenceFrame));
-                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                    GR_DX::DrawTexture(Texture, FrameOrigin.X + X, FrameOrigin.Y + Y, Alpha,
+                                        GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false,
+                                        HardwareMirrorHorizontal);
                                 }
                                 X += Width;
                             }
@@ -1033,10 +1087,13 @@ namespace GI_GAI {
                             X = Left;
                             while (X < Right) {
                                 FrameCount = GetSequenceFrameSourceIndex(SequenceFrame);
-                                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, FrameCount - 1); cpp_range_2.next(FrameIndex); ) {
+                                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                                    FrameCount - 1); cpp_range_2.next(FrameIndex); ) {
                                     Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(FrameIndex));
                                     if (Frame != nullptr) {
-                                        Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, Alpha);
+                                        Frame->DrawToGraphBuf(GR_Main::ScreenRenderBuffer,
+                                            X + Frame->GetBoundsRect().Left - Bounds.Left,
+                                            Y + Frame->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, Alpha);
                                     }
                                 }
                                 X += Width;
@@ -1045,10 +1102,12 @@ namespace GI_GAI {
                         }
                     }
                 } else if (FirstFrameImageCache != nullptr) {
-                    if (CachedPlaybackGraphBuf == nullptr || CachedPlaybackGraphBuf->Width != Width || CachedPlaybackGraphBuf->Height != Height) {
+                    if (CachedPlaybackGraphBuf == nullptr || CachedPlaybackGraphBuf->Width != Width ||
+                        CachedPlaybackGraphBuf->Height != Height) {
                         LastCachedFrameIndex = -1;
                         if (CachedPlaybackGraphBuf == nullptr) {
-                            CachedPlaybackGraphBuf = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
+                            CachedPlaybackGraphBuf = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+                                    GR_GraphBuf::TGraphBufGR_Create, true);
                         }
                         CachedPlaybackGraphBuf->AllocateRgba(Width, Height, Width * 4);
                     }
@@ -1058,7 +1117,8 @@ namespace GI_GAI {
                             FrameIndex = 0;
                         }
                         if (FrameIndex == 0) {
-                            void* addPointerOffset = EC_Mem::AddPointerOffset(First->Image->Data, First->Image->GetPlane(0)->DataOffset);
+                            void* addPointerOffset = EC_Mem::AddPointerOffset(First->Image->Data,
+                                First->Image->GetPlane(0)->DataOffset);
                             void* pixels = CachedPlaybackGraphBuf->GetPixels();
                             std::uint32_t cpp_arg = CachedPlaybackGraphBuf->PitchBytes * CachedPlaybackGraphBuf->Height;
                             Windows::CopyMemory(pixels, addPointerOffset, cpp_arg);
@@ -1066,8 +1126,13 @@ namespace GI_GAI {
                         if (Image != nullptr) {
                             while (FrameIndex <= SequenceFrame) {
                                 Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(FrameIndex));
-                                if (Frame != nullptr && Frame->GetContentSize().X > 0 && Frame->GetContentSize().Y > 0) {
-                                    Frame->DrawToGraphBuf(CachedPlaybackGraphBuf, Frame->GetBoundsRect().Left - Bounds.Left, Frame->GetBoundsRect().Top - Bounds.Top, ClassesImports::Rect(0, 0, CachedPlaybackGraphBuf->Width, CachedPlaybackGraphBuf->Height), 0, Alpha);
+                                if (Frame != nullptr && Frame->GetContentSize().X > 0 && Frame->GetContentSize().Y >
+                                        0) {
+                                    Frame->DrawToGraphBuf(CachedPlaybackGraphBuf,
+                                        Frame->GetBoundsRect().Left - Bounds.Left,
+                                        Frame->GetBoundsRect().Top - Bounds.Top,
+                                        ClassesImports::Rect(0, 0, CachedPlaybackGraphBuf->Width,
+                                            CachedPlaybackGraphBuf->Height), 0, Alpha);
                                 }
                                 ++FrameIndex;
                             }
@@ -1080,7 +1145,8 @@ namespace GI_GAI {
                         while (Y < Bottom) {
                             X = Left;
                             while (X < Right) {
-                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite,
+                                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                 X += Width;
                             }
                             Y += Height;
@@ -1094,7 +1160,8 @@ namespace GI_GAI {
                                     WindowsSdk::TRect clipRect = ClipRect;
                                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
                                     std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                                    GR_Main::DrawAlphaGraphBuffer16Clipped(pixels_2, pitchBytes, X, Y, cachedPlaybackGraphBuf, clipRect);
+                                    GR_Main::DrawAlphaGraphBuffer16Clipped(pixels_2, pitchBytes, X, Y,
+                                        cachedPlaybackGraphBuf, clipRect);
                                 }
                                 X += Width;
                             }
@@ -1102,10 +1169,12 @@ namespace GI_GAI {
                         }
                     }
                 } else if (Image != nullptr) {
-                    if (CachedPlaybackGraphBuf == nullptr || CachedPlaybackGraphBuf->Width != Width || CachedPlaybackGraphBuf->Height != Height) {
+                    if (CachedPlaybackGraphBuf == nullptr || CachedPlaybackGraphBuf->Width != Width ||
+                        CachedPlaybackGraphBuf->Height != Height) {
                         LastCachedFrameIndex = -1;
                         if (CachedPlaybackGraphBuf == nullptr) {
-                            CachedPlaybackGraphBuf = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
+                            CachedPlaybackGraphBuf = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+                                    GR_GraphBuf::TGraphBufGR_Create, true);
                         }
                         if (GlobalsV::HardwareRenderingEnabled) {
                             CachedPlaybackGraphBuf->AllocateRgba(Width, Height, Width * 4);
@@ -1127,13 +1196,19 @@ namespace GI_GAI {
                                 if (GlobalsV::HardwareRenderingEnabled) {
                                     std::int32_t width = CachedPlaybackGraphBuf->Width;
                                     std::int32_t height = CachedPlaybackGraphBuf->Height;
-                                    std::int32_t cpp_arg_2 = (Frame->GetBoundsRect().Top - Bounds.Top) * CachedPlaybackGraphBuf->PitchBytes + (Frame->GetBoundsRect().Left - Bounds.Left) * 4;
+                                    std::int32_t cpp_arg_2 = (Frame->GetBoundsRect().Top - Bounds.Top) *
+                                        CachedPlaybackGraphBuf->PitchBytes + (Frame->GetBoundsRect().Left -
+                                            Bounds.Left) * 4;
                                     void* pixels_3 = CachedPlaybackGraphBuf->GetPixels();
                                     void* addPointerOffset_2 = EC_Mem::AddPointerOffset(pixels_3, cpp_arg_2);
                                     std::int32_t pitchBytes_2 = CachedPlaybackGraphBuf->PitchBytes;
                                     Frame->DecodeToPixels(addPointerOffset_2, pitchBytes_2, width, height, false);
                                 } else {
-                                    Frame->DrawToGraphBuf(CachedPlaybackGraphBuf, Frame->GetBoundsRect().Left - Bounds.Left, Frame->GetBoundsRect().Top - Bounds.Top, ClassesImports::Rect(0, 0, CachedPlaybackGraphBuf->Width, CachedPlaybackGraphBuf->Height), 0, Alpha);
+                                    Frame->DrawToGraphBuf(CachedPlaybackGraphBuf,
+                                        Frame->GetBoundsRect().Left - Bounds.Left,
+                                        Frame->GetBoundsRect().Top - Bounds.Top,
+                                        ClassesImports::Rect(0, 0, CachedPlaybackGraphBuf->Width,
+                                            CachedPlaybackGraphBuf->Height), 0, Alpha);
                                 }
                             }
                             ++FrameIndex;
@@ -1146,7 +1221,8 @@ namespace GI_GAI {
                         while (Y < Bottom) {
                             X = Left;
                             while (X < Right) {
-                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
+                                GR_DX::DrawTexture(Texture, X, Y, Alpha, GR_DX::RgbWhite,
+                                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect), false, HardwareMirrorHorizontal);
                                 X += Width;
                             }
                             Y += Height;
@@ -1161,7 +1237,8 @@ namespace GI_GAI {
                                     std::uint16_t transparentColor = TransparentColor;
                                     void* pixels_4 = GR_Main::ScreenRenderBuffer->GetPixels();
                                     std::int32_t pitchBytes_3 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                                    GR_Main::CopyTransparentGraphBuffer16Clipped(pixels_4, pitchBytes_3, X, Y, cachedPlaybackGraphBuf_2, clipRect_2, transparentColor);
+                                    GR_Main::CopyTransparentGraphBuffer16Clipped(pixels_4, pitchBytes_3, X, Y,
+                                        cachedPlaybackGraphBuf_2, clipRect_2, transparentColor);
                                 }
                                 X += Width;
                             }
@@ -1190,7 +1267,8 @@ namespace GI_GAI {
 
     // Skips the main GAI in FirstFrameOnly mode.
     void TgaiGI::PrimeImageCaches() {
-        if (MainImageCache != nullptr && static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && MainImageCache->CacheKey != u"") {
+        if (MainImageCache != nullptr && static_cast<std::uint8_t>(FirstFrameOnly ^ 1) && MainImageCache->CacheKey !=
+                u"") {
             EC_CacheGAI::AcquireCachedGai(MainImageCache);
             MainImageCache->Release();
         }

@@ -18,56 +18,68 @@
 
 namespace GI_GAIFile {
     std::uint32_t ReadGaiFrameSize(void* Directory, std::int32_t Index) {
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Directory, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Index * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))))->DataSize))));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Directory,
+            static_cast<std::int32_t>(
+                reinterpret_cast<std::uintptr_t>(
+                    &reinterpret_cast<GR_gi::PGaiFrameEntry>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Index *
+                    static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))))->DataSize))));
     }
 
-    void TGAIFileThreadGI_Execute(TGAIFileThreadGI* Self) {
+    void TGAIFileThreadGI::Execute() {
         std::int32_t Index{};
         std::int32_t Count{};
         std::int32_t SourceFrame{};
         void* Data{};
-        while (!Self->IsStopRequested()) {
+        while (!IsStopRequested()) {
             Count = 0;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, Self->Owner->Header.FrameCount - 1); cpp_range.next(Index); ) {
-                if (EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameBuffers, Index * static_cast<std::int32_t>(sizeof(void*)))) > 0) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, Owner->Header.FrameCount - 1); cpp_range.next(Index); ) {
+                if (EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Owner->FrameBuffers,
+                    Index * static_cast<std::int32_t>(sizeof(void*)))) > 0) {
                     ++Count;
                 }
             }
-            if (Count >= Self->Owner->PreloadCount) {
+            if (Count >= Owner->PreloadCount) {
                 break;
             }
-            pas::critical_enter(Self->Owner->FrameLock);
-            Index = Self->Owner->CurrentFrame;
-            pas::critical_leave(Self->Owner->FrameLock);
+            pas::critical_enter(Owner->FrameLock);
+            Index = Owner->CurrentFrame;
+            pas::critical_leave(Owner->FrameLock);
             Count = 0;
-            while (Count < Self->Owner->GetFrameCount()) {
-                if (EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameBuffers, Self->Owner->GetSequenceFrame(Index) * static_cast<std::int32_t>(sizeof(void*)))) == 0) {
+            while (Count < Owner->GetFrameCount()) {
+                if (EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Owner->FrameBuffers,
+                    Owner->GetSequenceFrame(Index) * static_cast<std::int32_t>(sizeof(void*)))) == 0) {
                     break;
                 }
                 ++Index;
-                if (Index >= Self->Owner->GetFrameCount()) {
+                if (Index >= Owner->GetFrameCount()) {
                     Index = 0;
                 }
                 ++Count;
             }
-            if (Count >= Self->Owner->GetFrameCount()) {
+            if (Count >= Owner->GetFrameCount()) {
                 break;
             }
-            SourceFrame = Self->Owner->GetSequenceFrame(Index);
-            if (Self->IsStopRequested()) {
+            SourceFrame = Owner->GetSequenceFrame(Index);
+            if (IsStopRequested()) {
                 break;
             }
-            Data = EC_Mem::AllocEC(GI_GAIFile::ReadGaiFrameSize(Self->Owner->FrameDirectory, SourceFrame));
-            Self->Owner->ImageFile->SetPointer(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Self->Owner->FrameDirectory, SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))), WindowsImports::FILE_BEGIN);
-            Self->Owner->ImageFile->ReadBuffer(Data, GI_GAIFile::ReadGaiFrameSize(Self->Owner->FrameDirectory, SourceFrame));
+            Data = EC_Mem::AllocEC(GI_GAIFile::ReadGaiFrameSize(Owner->FrameDirectory, SourceFrame));
+            Owner->ImageFile->SetPointer(
+                EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Owner->FrameDirectory,
+                    SourceFrame * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))),
+                WindowsImports::FILE_BEGIN);
+            Owner->ImageFile->ReadBuffer(Data, GI_GAIFile::ReadGaiFrameSize(Owner->FrameDirectory, SourceFrame));
             GR_gi::PrepareRawGiColorCache(Data);
-            if (Self->IsStopRequested()) {
+            if (IsStopRequested()) {
                 EC_Mem::FreeEC(Data);
                 return;
             }
-            pas::critical_enter(Self->Owner->FrameLock);
-            EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(Self->Owner->FrameBuffers, SourceFrame * static_cast<std::int32_t>(sizeof(void*))), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Data)));
-            pas::critical_leave(Self->Owner->FrameLock);
+            pas::critical_enter(Owner->FrameLock);
+            EC_Mem::WriteIntegerEC(
+                EC_Mem::AddPointerOffset(Owner->FrameBuffers, SourceFrame * static_cast<std::int32_t>(sizeof(void*))),
+                static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Data)));
+            pas::critical_leave(Owner->FrameLock);
         }
     }
 
@@ -132,8 +144,10 @@ namespace GI_GAIFile {
         CloseImage();
         ImageFile->AcquireReadHandle(false);
         ImageFile->ReadBuffer(&Header, static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)));
-        FrameDirectory = EC_Mem::ReAllocREC(FrameDirectory, Header.FrameCount * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)));
-        ImageFile->ReadBuffer(FrameDirectory, Header.FrameCount * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)));
+        FrameDirectory = EC_Mem::ReAllocREC(FrameDirectory,
+                Header.FrameCount * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)));
+        ImageFile->ReadBuffer(FrameDirectory,
+            Header.FrameCount * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)));
         FrameBuffers = EC_Mem::AllocClearEC(Header.FrameCount * static_cast<std::int32_t>(sizeof(void*)));
         LoaderThread->Start();
     }
@@ -154,7 +168,11 @@ namespace GI_GAIFile {
         }
         if (FrameBuffers != nullptr) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Header.FrameCount - 1); cpp_range.next(I); ) {
-                Data = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers, I * static_cast<std::int32_t>(sizeof(void*)))))));
+                Data =
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(
+                            static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers,
+                            I * static_cast<std::int32_t>(sizeof(void*)))))));
                 if (Data != nullptr) {
                     EC_Mem::FreeEC(Data);
                 }
@@ -166,7 +184,9 @@ namespace GI_GAIFile {
 
     void* TGAIFileGI::GetFrameData(std::int32_t FrameIndex) {
         pas::critical_enter(FrameLock);
-        void* Data = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*)))))));
+        void* Data = reinterpret_cast<void*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(
+                FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*)))))));
         pas::critical_leave(FrameLock);
         if (Data != nullptr) {
             return Data;
@@ -175,15 +195,22 @@ namespace GI_GAIFile {
             LoaderThread->RequestStop();
             LoaderThread->WaitForIdle(WindowsSdk::INFINITE);
         }
-        Data = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*)))))));
+        Data =
+            reinterpret_cast<void*>(
+                static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(
+                    FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*)))))));
         if (Data != nullptr) {
             return Data;
         }
         Data = EC_Mem::AllocEC(GI_GAIFile::ReadGaiFrameSize(FrameDirectory, FrameIndex));
-        ImageFile->SetPointer(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory, FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))), WindowsImports::FILE_BEGIN);
+        ImageFile->SetPointer(
+            EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameDirectory,
+                FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))), WindowsImports::FILE_BEGIN);
         ImageFile->ReadBuffer(Data, GI_GAIFile::ReadGaiFrameSize(FrameDirectory, FrameIndex));
         GR_gi::PrepareRawGiColorCache(Data);
-        EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*))), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Data)));
+        EC_Mem::WriteIntegerEC(
+            EC_Mem::AddPointerOffset(FrameBuffers, FrameIndex * static_cast<std::int32_t>(sizeof(void*))),
+            static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Data)));
         LoaderThread->Start();
         return Data;
     }
@@ -199,7 +226,11 @@ namespace GI_GAIFile {
         }
         if (SequenceFrameCount > PreloadCount) {
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Header.FrameCount - 1); cpp_range.next(I); ) {
-                Data = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers, I * static_cast<std::int32_t>(sizeof(void*)))))));
+                Data =
+                    reinterpret_cast<void*>(
+                        static_cast<std::uintptr_t>(
+                            static_cast<std::uint32_t>(EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(FrameBuffers,
+                            I * static_cast<std::int32_t>(sizeof(void*)))))));
                 if (Data != nullptr) {
                     Index = CurrentFrame;
                     J = 0;
@@ -215,7 +246,8 @@ namespace GI_GAIFile {
                     }
                     if (J >= PreloadCount) {
                         EC_Mem::FreeEC(Data);
-                        EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(FrameBuffers, I * static_cast<std::int32_t>(sizeof(void*))), 0);
+                        EC_Mem::WriteIntegerEC(
+                            EC_Mem::AddPointerOffset(FrameBuffers, I * static_cast<std::int32_t>(sizeof(void*))), 0);
                     }
                 }
             }
@@ -241,7 +273,8 @@ namespace GI_GAIFile {
             if (ImageFile->OpenDepth < 1) {
                 OpenImage();
             }
-            Result = EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Header.Bounds, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Header.Bounds, 0)));
+            Result = EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Header.Bounds, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Header.Bounds, 0)));
         }
         return Result;
     }
@@ -307,11 +340,19 @@ namespace GI_GAIFile {
             Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u",-"sv)));
             FrameCount = pas::abs(First - Last) + 1;
             SequenceFrameCount += FrameCount;
-            SequenceFrames = EC_Mem::ReAllocREC(SequenceFrames, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t)));
-            FrameDelays = EC_Mem::ReAllocREC(FrameDelays, SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t)));
+            SequenceFrames = EC_Mem::ReAllocREC(SequenceFrames,
+                    SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t)));
+            FrameDelays = EC_Mem::ReAllocREC(FrameDelays,
+                    SequenceFrameCount * static_cast<std::int32_t>(sizeof(std::int32_t)));
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, FrameCount - 1); cpp_range_2.next(J); ) {
-                EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(SequenceFrames, (SequenceFrameCount - FrameCount + J) * static_cast<std::int32_t>(sizeof(std::int32_t))), First);
-                EC_Mem::WriteInt32EC(EC_Mem::AddPointerOffset(FrameDelays, (SequenceFrameCount - FrameCount + J) * static_cast<std::int32_t>(sizeof(std::int32_t))), Delay);
+                EC_Mem::WriteInt32EC(
+                    EC_Mem::AddPointerOffset(SequenceFrames,
+                        (SequenceFrameCount - FrameCount + J) * static_cast<std::int32_t>(sizeof(std::int32_t))),
+                    First);
+                EC_Mem::WriteInt32EC(
+                    EC_Mem::AddPointerOffset(FrameDelays,
+                        (SequenceFrameCount - FrameCount + J) * static_cast<std::int32_t>(sizeof(std::int32_t))),
+                    Delay);
                 if (First < Last) {
                     ++First;
                 } else {
@@ -320,16 +361,19 @@ namespace GI_GAIFile {
             }
         }
         if (!Stopped) {
-            FrameTimer = MessageLoop->ScheduleCallbackTimer(GetFrameDelay(CurrentFrame), 0x00ffffff, pas::bind_method<&TGAIFileGI::AdvanceFrame>(this), 0);
+            FrameTimer = MessageLoop->ScheduleCallbackTimer(GetFrameDelay(CurrentFrame), 0x00ffffff,
+                    pas::bind_method<&TGAIFileGI::AdvanceFrame>(this), 0);
         }
     }
 
     std::int32_t TGAIFileGI::GetSequenceFrame(std::int32_t Index) {
-        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrames, Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(SequenceFrames,
+            Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
     std::int32_t TGAIFileGI::GetFrameDelay(std::int32_t Index) {
-        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(FrameDelays, Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
+        return EC_Mem::ReadIntegerEC(EC_Mem::AddPointerOffset(FrameDelays,
+            Index * static_cast<std::int32_t>(sizeof(std::int32_t))));
     }
 
     void TGAIFileGI::OnDeactivate() {
@@ -412,7 +456,8 @@ namespace GI_GAIFile {
             FrameTimer = nullptr;
         }
         if (!Stopped) {
-            FrameTimer = MessageLoop->ScheduleCallbackTimer(GetFrameDelay(CurrentFrame), 0x00ffffff, pas::bind_method<&TGAIFileGI::AdvanceFrame>(this), 0);
+            FrameTimer = MessageLoop->ScheduleCallbackTimer(GetFrameDelay(CurrentFrame), 0x00ffffff,
+                    pas::bind_method<&TGAIFileGI::AdvanceFrame>(this), 0);
         }
         Invalidate();
     }
@@ -491,7 +536,9 @@ namespace GI_GAIFile {
             while (Y < EndY) {
                 X = StartX;
                 while (X < EndX) {
-                    FrameImage->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X + FrameImage->GetBoundsRect().Left - Bounds.Left, Y + FrameImage->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, 255);
+                    FrameImage->DrawToGraphBuf(GR_Main::ScreenRenderBuffer,
+                        X + FrameImage->GetBoundsRect().Left - Bounds.Left,
+                        Y + FrameImage->GetBoundsRect().Top - Bounds.Top, ClipRect, 0, 255);
                     X += Width;
                 }
                 Y += Height;
@@ -500,7 +547,8 @@ namespace GI_GAIFile {
             if (PlaybackBuffer == nullptr || PlaybackBuffer->Width != Width || PlaybackBuffer->Height != Height) {
                 LastBufferedFrame = -1;
                 if (PlaybackBuffer == nullptr) {
-                    PlaybackBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+                    PlaybackBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create,
+                            false);
                 }
                 PlaybackBuffer->AllocateNative(Width, Height);
             }
@@ -516,7 +564,9 @@ namespace GI_GAIFile {
                     SourceFrame = GetSequenceFrame(Frame);
                     Data = GetFrameData(SourceFrame);
                     FrameImage->LoadRawGiBytes(Data, GI_GAIFile::ReadGaiFrameSize(FrameDirectory, SourceFrame));
-                    FrameImage->DrawToGraphBuf(PlaybackBuffer, FrameImage->GetBoundsRect().Left - Bounds.Left, FrameImage->GetBoundsRect().Top - Bounds.Top, ClassesImports::Rect(0, 0, PlaybackBuffer->Width, PlaybackBuffer->Height), 0, 255);
+                    FrameImage->DrawToGraphBuf(PlaybackBuffer, FrameImage->GetBoundsRect().Left - Bounds.Left,
+                        FrameImage->GetBoundsRect().Top - Bounds.Top,
+                        ClassesImports::Rect(0, 0, PlaybackBuffer->Width, PlaybackBuffer->Height), 0, 255);
                     ++Frame;
                 }
                 TrimFrameCache();
@@ -531,7 +581,8 @@ namespace GI_GAIFile {
                         std::uint16_t transparentColor = TransparentColor;
                         void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
                         std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                        GR_Main::CopyTransparentGraphBuffer16Clipped(pixels, pitchBytes, X, Y, playbackBuffer, ClipRect, transparentColor);
+                        GR_Main::CopyTransparentGraphBuffer16Clipped(pixels, pitchBytes, X, Y, playbackBuffer, ClipRect,
+                            transparentColor);
                     }
                     X += Width;
                 }
@@ -542,10 +593,6 @@ namespace GI_GAIFile {
 
     void TGAIFileGI::p_destroy() {
         GI_GAIFile::TGAIFileGI_Destroy(this);
-    }
-
-    void TGAIFileThreadGI::virtual_TThreadEC_Execute() {
-        GI_GAIFile::TGAIFileThreadGI_Execute(this);
     }
 
     void TGAIFileGI::virtual_TObjectGI_LoadFromConfigPath(const pas::WideString& Path) {

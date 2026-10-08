@@ -70,7 +70,8 @@ namespace fInfo {
         void AddInfoSpacing(std::int32_t Pixels);
         void AddInfoSeparator();
         // LayoutKind zero centers the heading; nonzero aligns it to the right.
-        void AddInfoHeading(pas::WideString Title, pas::WideString BookmarkText, std::int32_t LayoutKind, std::int32_t BookmarkIndex, std::int32_t GoodsReference);
+        void AddInfoHeading(pas::WideString Title, pas::WideString BookmarkText, std::int32_t LayoutKind,
+            std::int32_t BookmarkIndex, std::int32_t GoodsReference);
         void AddSearchPriceLabel(pas::WideString Text);
         void AddInfoText(pas::WideString Text, GI_Main::TTextAlignXGI Alignment, pas::WideString Font);
         void AddInfoImageText(pas::WideString ImagePath, pas::WideString Text);
@@ -98,8 +99,10 @@ namespace fInfo {
         void BindFilterLabels(GI_MessageLoop::TObjectGI* Parent);
         static void FilterLabelMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void FilterLabelMouseLeave(GI_MessageLoop::TObjectGI* Sender);
-        static void FilterLabelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
-        static void FilterLabelMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
+        static void FilterLabelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
+        static void FilterLabelMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+            WindowsSdk::TPoint Point);
         void ClearSearchText(GI_MessageLoop::TObjectGI* Sender);
         void CopySearchText(GI_MessageLoop::TObjectGI* Sender);
         void PasteSearchText(GI_MessageLoop::TObjectGI* Sender);

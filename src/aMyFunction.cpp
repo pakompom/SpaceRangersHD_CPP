@@ -5,6 +5,7 @@
 #include "units/EC_Str.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
+#include "units/NumericPorts.hpp"
 #include "units/System.hpp"
 #include "units/aGalaxy.hpp"
 #include "units/aMyFunction.hpp"
@@ -89,30 +90,27 @@ namespace aMyFunction {
 
     // One of 1000 discrete values from 0.001 through 1.0 inclusive.
     float RandomUnitFloat() {
-        return pas::real_divide(aMyFunction::RandomIntRange(1, RandomFloatResolution), pas::constant(static_cast<long double>(RandomFloatResolution)));
+        return static_cast<float>(aMyFunction::RandomIntRange(1, RandomFloatResolution) /
+            pas::constant(static_cast<double>(RandomFloatResolution)));
     }
 
     // Chaotic mode ignores Seed.
     float SeededRandomUnitFloat(std::uint32_t Seed) {
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(1, RandomFloatResolution, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
+        return static_cast<float>(aMyFunction::SeededRandomIntRange(1, RandomFloatResolution, Seed) /
+            pas::constant(static_cast<double>(RandomFloatResolution)));
     }
 
     // Endpoints are quantized as Trunc(bound*1000+1)/1000; results have 0.001 resolution.
     double RandomFloatRange(double BoundA, double BoundB) {
-        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        return pas::real_divide(aMyFunction::RandomIntRange(trunc_2, trunc), pas::constant(static_cast<long double>(RandomFloatResolution)));
+        // Preserve the two original PC24 endpoint boundaries and final division.
+        return NumericPorts::RandomMilli(aMyFunction::RandomIntRange(NumericPorts::RandomBound(BoundA),
+            NumericPorts::RandomBound(BoundB)));
     }
 
     // Uses RandomFloatRange's endpoint quantization; chaotic mode ignores Seed.
     double SeededRandomFloatRange(std::uint32_t Seed, double BoundA, double BoundB) {
-        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
-    }
-
-    std::uint32_t StepRandomSeed(std::uint32_t Seed) {
-        return Seed * 7981 + 567;
+        return NumericPorts::RandomMilli(aMyFunction::SeededRandomIntRange(NumericPorts::RandomBound(BoundA),
+            NumericPorts::RandomBound(BoundB), Seed));
     }
 
     std::uint32_t AdvanceRandomSeed(std::uint32_t& Seed) {
@@ -151,9 +149,8 @@ namespace aMyFunction {
         if (Seed == OldSeed) {
             Seed = Seed * 6281 + 317 + Seed / 7311;
         }
-        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(RandomFloatResolution)) + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, Seed), pas::constant(static_cast<long double>(RandomFloatResolution)));
+        return NumericPorts::RandomMilli(aMyFunction::SeededRandomIntRange(NumericPorts::RandomBound(BoundA),
+            NumericPorts::RandomBound(BoundB), Seed));
     }
 
     // Normally in [0,1). Chaotic mode leaves Seed unchanged and instead yields 0.001..1.001.
@@ -166,7 +163,7 @@ namespace aMyFunction {
         if (Seed == OldSeed) {
             Seed = Seed * 5331 + 3417;
         }
-        return System::Frac(pas::real_divide(Seed, 10011001.0L));
+        return NumericPorts::SeedFraction(Seed);
     }
 
     double RemapClamped(double Value, double InMin, double InMax, double OutMin, double OutMax) {
@@ -175,59 +172,74 @@ namespace aMyFunction {
         } else if (!(Value < InMax)) {
             return OutMax;
         } else {
-            return pas::real_divide(static_cast<long double>(Value) - InMin, static_cast<long double>(InMax) - InMin) * (static_cast<long double>(OutMax) - OutMin) + OutMin;
+            // Parameters and endpoint returns are binary64. Preserve their
+            // low bits at PC24 midpoints, including the final + OutMin.
+            const float numerator = native_pc24::add(Value, -InMin);
+            const float denominator = native_pc24::add(InMax, -InMin);
+            const float span = native_pc24::add(OutMax, -OutMin);
+            const float fraction = numerator / denominator;
+            return native_pc24::add(fraction * span, OutMin);
         }
     }
 
     // Round(Value), then signed integer division by ten and multiplication by ten.
     std::int32_t RoundAndTruncateToTens(double Value) {
-        return System::Round(Value) / 10 * 10;
+        return pas::real_round(Value) / 10 * 10;
     }
 
     float PointDistanceSquared(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB) {
-        float X = static_cast<long double>(PointA.X) - PointB.X;
-        float Y = static_cast<long double>(PointA.Y) - PointB.Y;
-        return static_cast<long double>(X) * X + static_cast<long double>(Y) * Y;
+        float X = static_cast<float>(static_cast<double>(PointA.X) - PointB.X);
+        float Y = static_cast<float>(static_cast<double>(PointA.Y) - PointB.Y);
+        return static_cast<float>(static_cast<float>(static_cast<double>(X) * X) + static_cast<float>(static_cast<double>(Y) * Y));
+    }
+
+    // Copies the 16-byte input; X = sin(angle)*radius, Y = -cos(angle)*radius.
+    EC_Struct::TPointF PolarToPoint(TPolarPoint Polar) {
+        EC_Struct::TPointF Result{};
+        Result.X = static_cast<float>(Polar.Radius * System::Sin(static_cast<float>(static_cast<double>(Polar.AngleDegrees) * PolarDegreesToRadians)));
+        Result.Y = -(static_cast<float>(Polar.Radius * System::Cos(static_cast<float>(static_cast<double>(Polar.AngleDegrees) * PolarDegreesToRadians))));
+        return Result;
     }
 
     double PointDistance(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB) {
-        float X = static_cast<long double>(PointA.X) - PointB.X;
-        float Y = static_cast<long double>(PointA.Y) - PointB.Y;
-        return System::Sqrt(static_cast<long double>(X) * X + static_cast<long double>(Y) * Y);
+        float X = static_cast<float>(static_cast<double>(PointA.X) - PointB.X);
+        float Y = static_cast<float>(static_cast<double>(PointA.Y) - PointB.Y);
+        return System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(X) * X) + static_cast<float>(static_cast<double>(Y) * Y)));
     }
 
     // Adds 360 only once for negative angles; does not fully normalize arbitrary inputs.
     double RadiansToHeadingDegrees(double Angle) {
-        double Result = Angle * pas::constant(1.8E+2L / GamePi);
-        if (Result < 0.0L) {
-            return 3.6E+2L + Result;
+        double Result = static_cast<float>(Angle * pas::constant(1.8E+2 / GamePi));
+        if (Result < 0.0) {
+            return static_cast<float>(3.6E+2 + Result);
         }
         return Result;
     }
 
     // Subtracts 360 only once for angles above 180; does not fully normalize arbitrary inputs.
     double HeadingDegreesToRadians(double Angle) {
-        if (Angle > 1.8E+2L) {
-            Angle = Angle - 3.6E+2L;
+        if (Angle > 1.8E+2) {
+            Angle = static_cast<float>(Angle - 3.6E+2);
         }
-        return Angle * pas::constant(GamePi / 1.8E+2L);
+        return static_cast<float>(Angle * pas::constant(GamePi / 1.8E+2));
     }
 
     // Bearing from A to B: zero points upward and angles increase clockwise in screen coordinates.
     double PointBearingDegrees(EC_Struct::TPointF PointA, EC_Struct::TPointF PointB) {
-        return aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<long double>(PointB.X) - PointA.X, -(static_cast<long double>(PointB.Y) - PointA.Y)));
+        return aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(static_cast<float>(static_cast<double>(PointB.X) - PointA.X),
+            -(static_cast<float>(static_cast<double>(PointB.Y) - PointA.Y))));
     }
 
     // Signed shortest turn from FromHeading to ToHeading; requires headings normalized to [0,360).
     double HeadingDifferenceDegrees(double FromHeading, double ToHeading) {
-        double Result = static_cast<long double>(ToHeading) - FromHeading;
-        if (FromHeading < 1.8E+2L) {
-            if (Result > 1.8E+2L) {
-                return Result - 3.6E+2L;
+        double Result = static_cast<float>(static_cast<double>(ToHeading) - FromHeading);
+        if (FromHeading < 1.8E+2) {
+            if (Result > 1.8E+2) {
+                return static_cast<float>(Result - 3.6E+2);
             }
             return Result;
-        } else if (Result < -1.8E+2L) {
-            return 3.6E+2L + Result;
+        } else if (Result < -1.8E+2) {
+            return static_cast<float>(3.6E+2 + Result);
         } else {
             return Result;
         }
@@ -235,11 +247,11 @@ namespace aMyFunction {
 
     // Repeatedly adds or subtracts 360 to reach [0,360); requires a finite value small enough for Single-precision steps to change it.
     float WrapHeadingDegrees(float Angle) {
-        while (Angle >= 3.6E+2L) {
-            Angle = Angle - 3.6E+2L;
+        while (Angle >= 3.6E+2) {
+            Angle = static_cast<float>(Angle - 3.6E+2);
         }
-        while (Angle < 0.0L) {
-            Angle = 3.6E+2L + Angle;
+        while (Angle < 0.0) {
+            Angle = static_cast<float>(3.6E+2 + Angle);
         }
         return Angle;
     }
@@ -247,21 +259,24 @@ namespace aMyFunction {
     // Original unit ownership of this formatting family (aMyFunction/MessageText) is unresolved.
     // ColorTag is a complete opening tag; empty disables coloring. Replacements are
     // case-sensitive and append </color> even when the replacement text is empty.
-    void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
+    void ReplaceTextToken(pas::WideString& Text, pas::WideString Token, pas::WideString Replacement,
+        pas::WideString ColorTag) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
         Text = EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
-    pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement, pas::WideString ColorTag) {
+    pas::WideString ReplaceColoredToken(pas::WideString Text, pas::WideString Token, pas::WideString Replacement,
+        pas::WideString ColorTag) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
         return EC_Str::ReplaceAllWideString(Text, Token, pas::view(Replacement));
     }
 
-    pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token, pas::WideString Replacement) {
+    pas::WideString FormatText1(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token,
+        pas::WideString Replacement) {
         if (ColorTag != u"") {
             Replacement = pas::concat_wide({ColorTag, Replacement, EndColorTag});
         }
@@ -269,21 +284,27 @@ namespace aMyFunction {
     }
 
     // Multiple replacements run in order, including matches in text inserted earlier.
-    pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2) {
+    pas::WideString FormatText2(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1,
+        pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2) {
         if (ColorTag != u"") {
             Replacement1 = pas::concat_wide({ColorTag, Replacement1, EndColorTag});
             Replacement2 = pas::concat_wide({ColorTag, Replacement2, EndColorTag});
         }
-        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2));
+        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2,
+            pas::view(Replacement2));
     }
 
-    pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1, pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3, pas::WideString Replacement3) {
+    pas::WideString FormatText3(pas::WideString Text, pas::WideString ColorTag, pas::WideString Token1,
+        pas::WideString Replacement1, pas::WideString Token2, pas::WideString Replacement2, pas::WideString Token3,
+        pas::WideString Replacement3) {
         if (ColorTag != u"") {
             Replacement1 = pas::concat_wide({ColorTag, Replacement1, EndColorTag});
             Replacement2 = pas::concat_wide({ColorTag, Replacement2, EndColorTag});
             Replacement3 = pas::concat_wide({ColorTag, Replacement3, EndColorTag});
         }
-        return EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2, pas::view(Replacement2)), Token3, pas::view(Replacement3));
+        return EC_Str::ReplaceAllWideString(
+            EC_Str::ReplaceAllWideString(EC_Str::ReplaceAllWideString(Text, Token1, pas::view(Replacement1)), Token2,
+                pas::view(Replacement2)), Token3, pas::view(Replacement3));
     }
 
     // Returns Text unchanged when either argument is empty.
@@ -295,35 +316,37 @@ namespace aMyFunction {
     }
 
     // Normalizes the ray direction, rejects tangencies, and returns whether the selected intersection is ahead of StartPoint. No segment-length bound.
-    std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint, EC_Struct::TPointF& Intersection, float Radius) {
+    std::uint8_t RayIntersectsOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF ThroughPoint,
+        EC_Struct::TPointF& Intersection, float Radius) {
         float T2{};
-        float DX = static_cast<long double>(ThroughPoint.X) - StartPoint.X;
-        float DY = static_cast<long double>(ThroughPoint.Y) - StartPoint.Y;
-        float T1 = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(DX) * DX + static_cast<long double>(DY) * DY));
-        DX = static_cast<long double>(DX) * T1;
-        DY = static_cast<long double>(DY) * T1;
+        float DX = static_cast<float>(static_cast<double>(ThroughPoint.X) - StartPoint.X);
+        float DY = static_cast<float>(static_cast<double>(ThroughPoint.Y) - StartPoint.Y);
+        float T1 = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(DX) * DX) + static_cast<float>(static_cast<double>(DY) * DY))));
+        DX = static_cast<float>(static_cast<double>(DX) * T1);
+        DY = static_cast<float>(static_cast<double>(DY) * T1);
         float CX = -StartPoint.X;
         float CY = -StartPoint.Y;
-        float CenterDistanceSquared = static_cast<long double>(CX) * CX + static_cast<long double>(CY) * CY;
-        float Projection = static_cast<long double>(CX) * DX + static_cast<long double>(CY) * DY;
-        float Discriminant = pas::sqr(static_cast<pas::Extended>(Radius)) - CenterDistanceSquared + static_cast<long double>(Projection) * Projection;
-        if (Discriminant <= 0.0L) {
+        float CenterDistanceSquared = static_cast<float>(static_cast<float>(static_cast<double>(CX) * CX) + static_cast<float>(static_cast<double>(CY) * CY));
+        float Projection = static_cast<float>(static_cast<float>(static_cast<double>(CX) * DX) + static_cast<float>(static_cast<double>(CY) * DY));
+        float Discriminant = static_cast<float>(static_cast<float>(pas::sqr(static_cast<double>(Radius)) - CenterDistanceSquared) +
+            static_cast<float>(static_cast<double>(Projection) * Projection));
+        if (Discriminant <= 0.0) {
             return false;
         }
         Discriminant = System::Sqrt(Discriminant);
         if (Projection < Discriminant) {
-            T1 = static_cast<long double>(Projection) + Discriminant;
-            T2 = static_cast<long double>(Projection) - Discriminant;
+            T1 = static_cast<float>(static_cast<double>(Projection) + Discriminant);
+            T2 = static_cast<float>(static_cast<double>(Projection) - Discriminant);
         } else {
-            T1 = static_cast<long double>(Projection) - Discriminant;
-            T2 = static_cast<long double>(Projection) + Discriminant;
+            T1 = static_cast<float>(static_cast<double>(Projection) - Discriminant);
+            T2 = static_cast<float>(static_cast<double>(Projection) + Discriminant);
         }
-        if (std::fabs(static_cast<pas::Extended>(T1)) < 0.001L) {
+        if (std::fabs(static_cast<double>(T1)) < 0.001) {
             T1 = T2;
         }
-        Intersection.X = static_cast<long double>(DX) * T1 + StartPoint.X;
-        Intersection.Y = static_cast<long double>(DY) * T1 + StartPoint.Y;
-        return T1 > 0.001L;
+        Intersection.X = static_cast<float>(static_cast<float>(static_cast<double>(DX) * T1) + StartPoint.X);
+        Intersection.Y = static_cast<float>(static_cast<float>(static_cast<double>(DY) * T1) + StartPoint.Y);
+        return T1 > 0.001;
     }
 
     // Returns a decremented value, wrapping below Minimum to Maximum. Value is passed by value.
@@ -347,15 +370,39 @@ namespace aMyFunction {
     }
 
     double FractionalQuotient(std::int32_t Numerator, std::int32_t Denominator) {
-        return System::Frac(pas::real_divide(Numerator, Denominator));
+        return NumericPorts::FractionalQuotient(Numerator, Denominator);
     }
 
     std::int32_t RoundAndTruncateToFives(double Value) {
-        return System::Round(Value) / 5 * 5;
+        return pas::real_round(Value) / 5 * 5;
     }
 
     std::int32_t RoundAndTruncateToHundreds(double Value) {
-        return System::Round(Value) / 100 * 100;
+        return pas::real_round(Value) / 100 * 100;
+    }
+
+    // Angle is in radians, measured from the positive X axis.
+    EC_Struct::TPointF PointFromRadiusAngle(float Radius, float Angle) {
+        EC_Struct::TPointF Result{};
+        // The original FSINCOS kernel's existing portable expression, with each
+        // component stored as Single through the TPointF result fields.
+        Result.X = static_cast<float>(Radius * System::Cos(Angle));
+        Result.Y = static_cast<float>(Radius * System::Sin(Angle));
+        return Result;
+    }
+
+    EC_Struct::TPointF OffsetPointByRadiusAngle(EC_Struct::TPointF Origin, float Radius, float Angle) {
+        EC_Struct::TPointF Result{};
+        Result.X = static_cast<float>(static_cast<float>(Radius * System::Cos(Angle)) + Origin.X);
+        Result.Y = static_cast<float>(static_cast<float>(Radius * System::Sin(Angle)) + Origin.Y);
+        return Result;
+    }
+
+    EC_Struct::TPointF RotateAndTranslatePoint(EC_Struct::TPointF Point, EC_Struct::TPointF Translation, float Angle) {
+        EC_Struct::TPointF Result{};
+        Result.X = static_cast<float>(static_cast<float>(static_cast<float>(Point.X * System::Cos(Angle)) - static_cast<float>(Point.Y * System::Sin(Angle))) + Translation.X);
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<float>(Point.X * System::Sin(Angle)) + static_cast<float>(Point.Y * System::Cos(Angle))) + Translation.Y);
+        return Result;
     }
 
     // Angle is ArcTan2(X,Y), measured from positive Y; squared radius uses signed 32-bit integer arithmetic.
@@ -367,20 +414,20 @@ namespace aMyFunction {
     }
 
     std::uint8_t HeadingDegreesToByte(double Angle) {
-        return System::Round(pas::real_divide(Angle * 256.0L, 3.6E+2L));
+        return pas::real_round(static_cast<float>(static_cast<float>(Angle * 256.0) / 3.6E+2));
     }
 
     double ByteToHeadingDegrees(std::uint8_t Angle) {
-        return Angle * 1.40625L;
+        return static_cast<float>(Angle * 1.40625);
     }
 
     // Normalizes finite angles to [-180,180).
     float WrapSignedHeadingDegrees(float Angle) {
-        while (Angle >= 1.8E+2L) {
-            Angle = Angle - 3.6E+2L;
+        while (Angle >= 1.8E+2) {
+            Angle = static_cast<float>(Angle - 3.6E+2);
         }
-        while (Angle < -1.8E+2L) {
-            Angle = 3.6E+2L + Angle;
+        while (Angle < -1.8E+2) {
+            Angle = static_cast<float>(3.6E+2 + Angle);
         }
         return Angle;
     }
@@ -388,12 +435,12 @@ namespace aMyFunction {
     std::uint8_t HeadingWithinArc(float ArcStart, float Heading, float ArcEnd) {
         float A = aMyFunction::HeadingDifferenceDegrees(ArcStart, Heading);
         float B = aMyFunction::HeadingDifferenceDegrees(ArcStart, ArcEnd);
-        if (A < 0.0L && B > 0.0L || A > 0.0L && B < 0.0L) {
+        if (A < 0.0 && B > 0.0 || A > 0.0 && B < 0.0) {
             return false;
         }
         A = aMyFunction::HeadingDifferenceDegrees(ArcEnd, Heading);
         B = aMyFunction::HeadingDifferenceDegrees(ArcEnd, ArcStart);
-        if (A < 0.0L && B > 0.0L || A > 0.0L && B < 0.0L) {
+        if (A < 0.0 && B > 0.0 || A > 0.0 && B < 0.0) {
             return false;
         }
         return true;
@@ -402,10 +449,10 @@ namespace aMyFunction {
     // Within Margin of Radius, scales Point to Radius+Margin; otherwise returns Point.
     EC_Struct::TPointF PushPointOutsideCircleBand(EC_Struct::TPointF Point, float Radius, float Margin) {
         EC_Struct::TPointF Result{};
-        float Distance = System::Sqrt(static_cast<long double>(Point.X) * Point.X + static_cast<long double>(Point.Y) * Point.Y);
-        if (std::fabs(static_cast<long double>(Radius) - Distance) <= Margin) {
-            Result.X = pas::real_divide(Point.X, Distance) * (static_cast<long double>(Radius) + Margin);
-            Result.Y = pas::real_divide(Point.Y, Distance) * (static_cast<long double>(Radius) + Margin);
+        float Distance = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Point.X) + static_cast<float>(static_cast<double>(Point.Y) * Point.Y)));
+        if (std::fabs(static_cast<float>(static_cast<double>(Radius) - Distance)) <= Margin) {
+            Result.X = static_cast<float>(static_cast<float>(static_cast<double>(Point.X) / Distance) * (static_cast<float>(static_cast<double>(Radius) + Margin)));
+            Result.Y = static_cast<float>(static_cast<float>(static_cast<double>(Point.Y) / Distance) * (static_cast<float>(static_cast<double>(Radius) + Margin)));
         } else {
             Result = Point;
         }
@@ -414,31 +461,34 @@ namespace aMyFunction {
 
     EC_Struct::TPointF RotatePointQuarterTurn(EC_Struct::TPointF Center, EC_Struct::TPointF Point) {
         EC_Struct::TPointF Result{};
-        Result.X = Center.X - (static_cast<long double>(Point.Y) - Center.Y);
-        Result.Y = static_cast<long double>(Point.X) - Center.X + Center.Y;
+        Result.X = static_cast<float>(Center.X - (static_cast<float>(static_cast<double>(Point.Y) - Center.Y)));
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<double>(Point.X) - Center.X) + Center.Y);
         return Result;
     }
 
-    std::uint8_t IntersectLines(EC_Struct::TPointF A1, EC_Struct::TPointF A2, EC_Struct::TPointF B1, EC_Struct::TPointF B2, EC_Struct::TPointF& Intersection) {
-        double AX = static_cast<long double>(A2.X) - A1.X;
-        double AY = static_cast<long double>(A2.Y) - A1.Y;
-        double BX = static_cast<long double>(B2.X) - B1.X;
-        double BY = static_cast<long double>(B2.Y) - B1.Y;
-        double Divisor = static_cast<long double>(AY) * BX - static_cast<long double>(BY) * AX;
-        if (Divisor == 0.0L) {
+    std::uint8_t IntersectLines(EC_Struct::TPointF A1, EC_Struct::TPointF A2, EC_Struct::TPointF B1,
+        EC_Struct::TPointF B2, EC_Struct::TPointF& Intersection) {
+        double AX = static_cast<float>(static_cast<double>(A2.X) - A1.X);
+        double AY = static_cast<float>(static_cast<double>(A2.Y) - A1.Y);
+        double BX = static_cast<float>(static_cast<double>(B2.X) - B1.X);
+        double BY = static_cast<float>(static_cast<double>(B2.Y) - B1.Y);
+        double Divisor = static_cast<float>(static_cast<float>(static_cast<double>(AY) * BX) - static_cast<float>(static_cast<double>(BY) * AX));
+        if (Divisor == 0.0) {
             return false;
         }
-        Intersection.X = pas::real_divide((static_cast<long double>(B1.Y) - A1.Y) * AX * BX + static_cast<long double>(AY) * BX * A1.X - static_cast<long double>(BY) * AX * B1.X, Divisor);
-        if (AX != 0.0L) {
-            Intersection.Y = pas::real_divide((static_cast<long double>(Intersection.X) - A1.X) * AY, AX) + A1.Y;
+        Intersection.X = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(B1.Y) - A1.Y)) * AX) * BX) + static_cast<float>(static_cast<float>(static_cast<double>(AY) * BX) * A1.X)) -
+                static_cast<float>(static_cast<float>(static_cast<double>(BY) * AX) * B1.X))) / Divisor);
+        if (AX != 0.0) {
+            Intersection.Y = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Intersection.X) - A1.X)) * AY) / AX) + A1.Y);
         } else {
-            Intersection.Y = pas::real_divide((static_cast<long double>(Intersection.X) - B1.X) * BY, BX) + B1.Y;
+            Intersection.Y = static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Intersection.X) - B1.X)) * BY) / BX) + B1.Y);
         }
         return true;
     }
 
     // Tests top, bottom, left, then right; returns the first edge hit, not the nearest. Corners must be ordered.
-    std::uint8_t SegmentIntersectsRectEdges(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF TopLeft, EC_Struct::TPointF BottomRight, EC_Struct::TPointF& Intersection) {
+    std::uint8_t SegmentIntersectsRectEdges(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint,
+        EC_Struct::TPointF TopLeft, EC_Struct::TPointF BottomRight, EC_Struct::TPointF& Intersection) {
         EC_Struct::TPointF A{};
         EC_Struct::TPointF B{};
         A.X = TopLeft.X;
@@ -446,7 +496,9 @@ namespace aMyFunction {
         B.X = BottomRight.X;
         B.Y = TopLeft.Y;
         if (aMyFunction::IntersectLines(StartPoint, EndPoint, A, B, Intersection)) {
-            if (Intersection.X >= A.X && Intersection.X <= B.X && Intersection.Y >= pas::real_min<float>(StartPoint.Y, EndPoint.Y) && Intersection.Y <= pas::real_max<float>(StartPoint.Y, EndPoint.Y)) {
+            if (Intersection.X >= A.X && Intersection.X <= B.X && Intersection.Y >= pas::real_min_scalar<float>(
+                        StartPoint.Y, EndPoint.Y) && Intersection.Y <= pas::real_max_scalar<float>(StartPoint.Y,
+                        EndPoint.Y)) {
                 return true;
             }
         }
@@ -455,7 +507,9 @@ namespace aMyFunction {
         B.X = BottomRight.X;
         B.Y = BottomRight.Y;
         if (aMyFunction::IntersectLines(StartPoint, EndPoint, A, B, Intersection)) {
-            if (Intersection.X >= A.X && Intersection.X <= B.X && Intersection.Y >= pas::real_min<float>(StartPoint.Y, EndPoint.Y) && Intersection.Y <= pas::real_max<float>(StartPoint.Y, EndPoint.Y)) {
+            if (Intersection.X >= A.X && Intersection.X <= B.X && Intersection.Y >= pas::real_min_scalar<float>(
+                        StartPoint.Y, EndPoint.Y) && Intersection.Y <= pas::real_max_scalar<float>(StartPoint.Y,
+                        EndPoint.Y)) {
                 return true;
             }
         }
@@ -464,7 +518,9 @@ namespace aMyFunction {
         B.X = TopLeft.X;
         B.Y = BottomRight.Y;
         if (aMyFunction::IntersectLines(StartPoint, EndPoint, A, B, Intersection)) {
-            if (Intersection.Y >= A.Y && Intersection.Y <= B.Y && Intersection.X >= pas::real_min<float>(StartPoint.X, EndPoint.X) && Intersection.X <= pas::real_max<float>(StartPoint.X, EndPoint.X)) {
+            if (Intersection.Y >= A.Y && Intersection.Y <= B.Y && Intersection.X >= pas::real_min_scalar<float>(
+                        StartPoint.X, EndPoint.X) && Intersection.X <= pas::real_max_scalar<float>(StartPoint.X,
+                        EndPoint.X)) {
                 return true;
             }
         }
@@ -473,7 +529,9 @@ namespace aMyFunction {
         B.X = BottomRight.X;
         B.Y = BottomRight.Y;
         if (aMyFunction::IntersectLines(StartPoint, EndPoint, A, B, Intersection)) {
-            if (Intersection.Y >= A.Y && Intersection.Y <= B.Y && Intersection.X >= pas::real_min<float>(StartPoint.X, EndPoint.X) && Intersection.X <= pas::real_max<float>(StartPoint.X, EndPoint.X)) {
+            if (Intersection.Y >= A.Y && Intersection.Y <= B.Y && Intersection.X >= pas::real_min_scalar<float>(
+                        StartPoint.X, EndPoint.X) && Intersection.X <= pas::real_max_scalar<float>(StartPoint.X,
+                        EndPoint.X)) {
                 return true;
             }
         }
@@ -481,119 +539,126 @@ namespace aMyFunction {
     }
 
     // Accepts a start inside the circle; rejects tangencies.
-    std::uint8_t SegmentIntersectsCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, EC_Struct::TPointF Center, float Radius) {
+    std::uint8_t SegmentIntersectsCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint,
+        EC_Struct::TPointF Center, float Radius) {
         float T2{};
-        if (pas::sqr(static_cast<long double>(StartPoint.X) - Center.X) + pas::sqr(static_cast<long double>(StartPoint.Y) - Center.Y) < static_cast<long double>(Radius) * Radius) {
+        if (static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(StartPoint.X) - Center.X)) + pas::sqr(static_cast<float>(static_cast<double>(StartPoint.Y) -
+                Center.Y))) < static_cast<float>(static_cast<double>(Radius) * Radius)) {
             return true;
         }
-        float DX = static_cast<long double>(EndPoint.X) - StartPoint.X;
-        float DY = static_cast<long double>(EndPoint.Y) - StartPoint.Y;
-        float T1 = System::Sqrt(static_cast<long double>(DX) * DX + static_cast<long double>(DY) * DY);
-        if (T1 == 0.0L) {
+        float DX = static_cast<float>(static_cast<double>(EndPoint.X) - StartPoint.X);
+        float DY = static_cast<float>(static_cast<double>(EndPoint.Y) - StartPoint.Y);
+        float T1 = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(DX) * DX) + static_cast<float>(static_cast<double>(DY) * DY)));
+        if (T1 == 0.0) {
             return false;
         }
-        T1 = pas::real_divide(1.0L, T1);
-        DX = static_cast<long double>(DX) * T1;
-        DY = static_cast<long double>(DY) * T1;
-        float CX = static_cast<long double>(Center.X) - StartPoint.X;
-        float CY = static_cast<long double>(Center.Y) - StartPoint.Y;
-        float CenterDistanceSquared = static_cast<long double>(CX) * CX + static_cast<long double>(CY) * CY;
-        float Projection = static_cast<long double>(CX) * DX + static_cast<long double>(CY) * DY;
-        float Discriminant = pas::sqr(static_cast<pas::Extended>(Radius)) - CenterDistanceSquared + static_cast<long double>(Projection) * Projection;
-        if (Discriminant <= 0.0L) {
+        T1 = static_cast<float>(1.0 / T1);
+        DX = static_cast<float>(static_cast<double>(DX) * T1);
+        DY = static_cast<float>(static_cast<double>(DY) * T1);
+        float CX = static_cast<float>(static_cast<double>(Center.X) - StartPoint.X);
+        float CY = static_cast<float>(static_cast<double>(Center.Y) - StartPoint.Y);
+        float CenterDistanceSquared = static_cast<float>(static_cast<float>(static_cast<double>(CX) * CX) + static_cast<float>(static_cast<double>(CY) * CY));
+        float Projection = static_cast<float>(static_cast<float>(static_cast<double>(CX) * DX) + static_cast<float>(static_cast<double>(CY) * DY));
+        float Discriminant = static_cast<float>(static_cast<float>(pas::sqr(static_cast<double>(Radius)) - CenterDistanceSquared) +
+            static_cast<float>(static_cast<double>(Projection) * Projection));
+        if (Discriminant <= 0.0) {
             return false;
         }
         Discriminant = System::Sqrt(Discriminant);
         if (Projection < Discriminant) {
-            T1 = static_cast<long double>(Projection) + Discriminant;
-            T2 = static_cast<long double>(Projection) - Discriminant;
+            T1 = static_cast<float>(static_cast<double>(Projection) + Discriminant);
+            T2 = static_cast<float>(static_cast<double>(Projection) - Discriminant);
         } else {
-            T1 = static_cast<long double>(Projection) - Discriminant;
-            T2 = static_cast<long double>(Projection) + Discriminant;
+            T1 = static_cast<float>(static_cast<double>(Projection) - Discriminant);
+            T2 = static_cast<float>(static_cast<double>(Projection) + Discriminant);
         }
-        float SegmentLength = System::Sqrt(pas::sqr(static_cast<long double>(StartPoint.X) - EndPoint.X) + pas::sqr(static_cast<long double>(StartPoint.Y) - EndPoint.Y));
-        return T1 >= 0.0L && T1 <= SegmentLength || T2 >= 0.0L && T2 <= SegmentLength;
+        float SegmentLength = System::Sqrt(static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(StartPoint.X) - EndPoint.X)) +
+            pas::sqr(static_cast<float>(static_cast<double>(StartPoint.Y) - EndPoint.Y))));
+        return T1 >= 0.0 && T1 <= SegmentLength || T2 >= 0.0 && T2 <= SegmentLength;
     }
 
     // Requires both endpoints outside and segment length at least the start's distance from the origin.
     std::uint8_t SegmentCrossesOriginCircle(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, float Radius) {
         EC_Struct::TPointF Delta{};
         std::uint8_t Result = false;
-        float RadiusSquared = static_cast<long double>(Radius) * Radius;
-        float StartDistanceSquared = static_cast<long double>(StartPoint.X) * StartPoint.X + static_cast<long double>(StartPoint.Y) * StartPoint.Y;
+        float RadiusSquared = static_cast<float>(static_cast<double>(Radius) * Radius);
+        float StartDistanceSquared = static_cast<float>(static_cast<float>(static_cast<double>(StartPoint.X) * StartPoint.X) +
+            static_cast<float>(static_cast<double>(StartPoint.Y) * StartPoint.Y));
         if (StartDistanceSquared < RadiusSquared) {
             return Result;
         }
-        if (static_cast<long double>(EndPoint.X) * EndPoint.X + static_cast<long double>(EndPoint.Y) * EndPoint.Y < RadiusSquared) {
+        if (static_cast<float>(static_cast<float>(static_cast<double>(EndPoint.X) * EndPoint.X) + static_cast<float>(static_cast<double>(EndPoint.Y) * EndPoint.Y)) <
+            RadiusSquared) {
             return Result;
         }
-        Delta.X = static_cast<long double>(EndPoint.X) - StartPoint.X;
-        Delta.Y = static_cast<long double>(EndPoint.Y) - StartPoint.Y;
-        float LengthSquared = static_cast<long double>(Delta.X) * Delta.X + static_cast<long double>(Delta.Y) * Delta.Y;
+        Delta.X = static_cast<float>(static_cast<double>(EndPoint.X) - StartPoint.X);
+        Delta.Y = static_cast<float>(static_cast<double>(EndPoint.Y) - StartPoint.Y);
+        float LengthSquared = static_cast<float>(static_cast<float>(static_cast<double>(Delta.X) * Delta.X) + static_cast<float>(static_cast<double>(Delta.Y) * Delta.Y));
         if (LengthSquared < StartDistanceSquared) {
             return Result;
         }
-        float Projection = pas::real_divide(static_cast<long double>(-StartPoint.X) * Delta.X - static_cast<long double>(StartPoint.Y) * Delta.Y, System::Sqrt(LengthSquared));
-        if (Projection < 0.0L) {
+        float Projection = static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(-StartPoint.X) * Delta.X) - static_cast<float>(static_cast<double>(StartPoint.Y) *
+                Delta.Y))) / System::Sqrt(LengthSquared));
+        if (Projection < 0.0) {
             return false;
         }
-        return StartDistanceSquared - static_cast<long double>(Projection) * Projection < static_cast<long double>(Radius) * Radius;
+        return static_cast<float>(StartDistanceSquared - static_cast<float>(static_cast<double>(Projection) * Projection)) < static_cast<float>(static_cast<double>(Radius) *
+                Radius);
     }
 
     // Returns sin(Angle) times the radius of the circle through the endpoints tangent to Heading at StartPoint; angles are degrees.
-    double CalculateTangentArcOffset(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, double Heading, double Angle) {
+    double CalculateTangentArcOffset(EC_Struct::TPointF StartPoint, EC_Struct::TPointF EndPoint, double Heading,
+        double Angle) {
         EC_Struct::TPointF Center{};
         EC_Struct::TPointF Normal{};
         EC_Struct::TPointF Midpoint{};
         double Radians = aMyFunction::HeadingDegreesToRadians(Heading);
-        Normal.X = System::Sin(Radians) * 1.0E+2L + StartPoint.X;
-        Normal.Y = StartPoint.Y - System::Cos(Radians) * 1.0E+2L;
+        Normal.X = static_cast<float>(static_cast<float>(System::Sin(Radians) * 1.0E+2) + StartPoint.X);
+        Normal.Y = static_cast<float>(StartPoint.Y - static_cast<float>(System::Cos(Radians) * 1.0E+2));
         Normal = aMyFunction::RotatePointQuarterTurn(StartPoint, Normal);
-        Midpoint.X = pas::real_divide(static_cast<long double>(StartPoint.X) + EndPoint.X, 2.0L);
-        Midpoint.Y = pas::real_divide(static_cast<long double>(StartPoint.Y) + EndPoint.Y, 2.0L);
-        if (!aMyFunction::IntersectLines(StartPoint, Normal, Midpoint, aMyFunction::RotatePointQuarterTurn(Midpoint, StartPoint), Center)) {
+        Midpoint.X = static_cast<float>((static_cast<float>(static_cast<double>(StartPoint.X) + EndPoint.X)) / 2.0);
+        Midpoint.Y = static_cast<float>((static_cast<float>(static_cast<double>(StartPoint.Y) + EndPoint.Y)) / 2.0);
+        if (!aMyFunction::IntersectLines(StartPoint, Normal, Midpoint,
+            aMyFunction::RotatePointQuarterTurn(Midpoint, StartPoint), Center)) {
             return 0.0;
         }
         double Radius = aMyFunction::PointDistance(StartPoint, Center);
-        double CentralAngle = 1.8E+2L - (9.0E+1L - Angle) * 2.0L;
-        return System::Sin(aMyFunction::HeadingDegreesToRadians(pas::real_divide(CentralAngle, 2.0L))) * Radius;
+        double CentralAngle = static_cast<float>(1.8E+2 - static_cast<float>((static_cast<float>(9.0E+1 - Angle)) * 2.0));
+        return static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(static_cast<float>(CentralAngle / 2.0))) * Radius);
     }
 
-    void CircleTangentPoints(EC_Struct::TPointF Point, float Radius, EC_Struct::TPointF& LeftPoint, EC_Struct::TPointF& RightPoint) {
-        float Distance = System::Sqrt(static_cast<long double>(Point.X) * Point.X + static_cast<long double>(Point.Y) * Point.Y);
-        float Spread = MathImports::ArcCos(pas::real_divide(Radius, Distance));
+    void CircleTangentPoints(EC_Struct::TPointF Point, float Radius, EC_Struct::TPointF& LeftPoint,
+        EC_Struct::TPointF& RightPoint) {
+        float Distance = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Point.X) + static_cast<float>(static_cast<double>(Point.Y) * Point.Y)));
+        float Spread = MathImports::ArcCos(static_cast<float>(static_cast<double>(Radius) / Distance));
         float Angle = Math::ArcTan2(Point.X, -Point.Y);
-        LeftPoint.X = System::Sin(static_cast<long double>(Angle) + Spread) * Radius;
-        LeftPoint.Y = -System::Cos(static_cast<long double>(Angle) + Spread) * Radius;
-        RightPoint.X = System::Sin(static_cast<long double>(Angle) - Spread) * Radius;
-        RightPoint.Y = -System::Cos(static_cast<long double>(Angle) - Spread) * Radius;
+        LeftPoint.X = static_cast<float>(System::Sin(static_cast<float>(static_cast<double>(Angle) + Spread)) * Radius);
+        LeftPoint.Y = static_cast<float>(-System::Cos(static_cast<float>(static_cast<double>(Angle) + Spread)) * Radius);
+        RightPoint.X = static_cast<float>(System::Sin(static_cast<float>(static_cast<double>(Angle) - Spread)) * Radius);
+        RightPoint.Y = static_cast<float>(-System::Cos(static_cast<float>(static_cast<double>(Angle) - Spread)) * Radius);
     }
 
     // Seed selects a heading offset in [90,269] degrees without advancing.
-    EC_Struct::TPointF PointBehindHeading(EC_Struct::TPointF Origin, double Heading, double Distance, std::uint32_t Seed) {
+    EC_Struct::TPointF PointBehindHeading(EC_Struct::TPointF Origin, double Heading, double Distance,
+        std::uint32_t Seed) {
         EC_Struct::TPointF Result{};
-        Heading = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Heading + 1.8E+2L + (static_cast<std::int32_t>(Seed % 180) - 90)));
-        Result.X = System::Sin(Heading) * Distance + Origin.X;
-        Result.Y = Origin.Y - System::Cos(Heading) * Distance;
+        Heading = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<float>(Heading + 1.8E+2) +
+                (static_cast<std::int32_t>(Seed % 180) - 90))));
+        Result.X = static_cast<float>(static_cast<float>(System::Sin(Heading) * Distance) + Origin.X);
+        Result.Y = static_cast<float>(Origin.Y - static_cast<float>(System::Cos(Heading) * Distance));
         return Result;
     }
 
     std::int32_t IntegerPointDistancePlusOne(Types::TPoint PointA, Types::TPoint PointB) {
         std::int32_t X = PointA.X - PointB.X;
         std::int32_t Y = PointA.Y - PointB.Y;
-        return System::Trunc(System::Sqrt(X * X + Y * Y) + 1.0L);
-    }
-
-    EC_Struct::TPointF MakeFloatPoint(std::int32_t X, std::int32_t Y) {
-        EC_Struct::TPointF Result{};
-        Result.X = X;
-        Result.Y = Y;
-        return Result;
+        return pas::real_trunc(static_cast<float>(System::Sqrt(X * X + Y * Y) + 1.0));
     }
 
     pas::WideString NormalizeTextHighlightColors(pas::WideString Text) {
         pas::WideString Result{};
-        Result = aMyFunction::FormatText1(Text, pas::WideString(), MicroModuleHighPriorityColorTag, TextHighlightColorTag);
+        Result = aMyFunction::FormatText1(Text, pas::WideString(), MicroModuleHighPriorityColorTag,
+                TextHighlightColorTag);
         Result = aMyFunction::FormatText1(Result, pas::WideString(), GrayColorTag, TextHighlightColorTag);
         Result = aMyFunction::FormatText1(Result, pas::WideString(), u"<color=191,185,128>"_w, TextHighlightColorTag);
         Result = aMyFunction::FormatText1(Result, pas::WideString(), InfoNameColorTag, TextHighlightColorTag);
@@ -614,8 +679,10 @@ namespace aMyFunction {
             const std::int32_t cpp_first = pas::list_count(this) - 1;
             if (cpp_first >= 0) {
                 for (i = cpp_first; i >= 0; --i) {
-                    if (pas::load_unaligned<void*>(pas::byte_offset(pas::list_data(this), i * sizeof(void*))) != nullptr) {
-                        Item = static_cast<pas::Object*>(pas::load_unaligned<void*>(pas::byte_offset(pas::list_data(this), i * sizeof(void*))));
+                    if (pas::load_unaligned<void*>(pas::byte_offset(pas::list_data(this), i * sizeof(void*))) !=
+                        nullptr) {
+                        Item = static_cast<pas::Object*>(pas::load_unaligned<void*>(pas::byte_offset(
+                                pas::list_data(this), i * sizeof(void*))));
                         pas::list_delete(this, i);
                         pas::free(Item);
                     }

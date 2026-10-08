@@ -1,9 +1,9 @@
 #include "layout/ab_Zone.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/GI_PolyLine.hpp"
 #include "types/GR_GraphBuf.hpp"
 #include "types/SystemImports.hpp"
 #include "types/ab_MainForm.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/GR_Main.hpp"
@@ -20,7 +20,7 @@
 
 // Original source-unit boundary is unresolved; recovered zone/link addresses are bracketed above.
 namespace ab_Zone {
-    void PropagateZoneDistances(PabZone Zone);
+    static void PropagateZoneDistances(PabZone Zone);
 
     std::uint32_t ZoneHeap = 0u;
 
@@ -55,7 +55,8 @@ namespace ab_Zone {
                 pas::raise(pas::make_exception<pas::Exception>("ab_Zone_Add.HeapCreate"_a));
             }
         }
-        PabZone Entry = static_cast<PabZone>(EC_Mem::AllocClearFromHeapEC(ZoneHeap, static_cast<std::int32_t>(sizeof(TabZone))));
+        PabZone Entry = static_cast<PabZone>(EC_Mem::AllocClearFromHeapEC(ZoneHeap,
+            static_cast<std::int32_t>(sizeof(TabZone))));
         if (LastZone != nullptr) {
             LastZone->Next = Entry;
         }
@@ -125,8 +126,10 @@ namespace ab_Zone {
     }
 
     void ab_Zone_UpdatePosition(PabZone Zone) {
-        Zone->Radius = pas::real_divide(SystemImports::Pi * ab_Global::SphereRadius * Zone->RadiusDegrees, 1.8E+2L);
-        pas::store_unaligned<EC_Struct::TVector3D>(&Zone->Position, ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Zone->Longitude), aMyFunction::HeadingDegreesToRadians(Zone->PolarAngle), ab_Global::SphereRadius));
+        Zone->Radius = static_cast<float>(static_cast<float>(static_cast<float>(SystemImports::Pi * ab_Global::SphereRadius) * Zone->RadiusDegrees) / 1.8E+2);
+        pas::store_unaligned<EC_Struct::TVector3D>(&Zone->Position,
+            ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(Zone->Longitude),
+                aMyFunction::HeadingDegreesToRadians(Zone->PolarAngle), ab_Global::SphereRadius));
     }
 
     void ab_Zone_UpdateImages(PabZone Zone) {
@@ -169,22 +172,30 @@ namespace ab_Zone {
             if (0 <= cpp_last_2) {
                 for (Index = 0; Index <= cpp_last_2; ++Index) {
                     if (Zone->WorldLines[Index] == nullptr) {
-                        Zone->WorldLines[Index] = ab_WorldLine::ab_WorldLine_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), EC_Struct::MakeVector3D(0.0, 0.0, 0.0), 1, Color, 0u, false);
+                        Zone->WorldLines[Index] = ab_WorldLine::ab_WorldLine_Create(
+                                EC_Struct::MakeVector3D(0.0, 0.0, 0.0), EC_Struct::MakeVector3D(0.0, 0.0, 0.0), 1,
+                                Color, 0u, false);
                     }
                 }
             }
         }
-        double Step = pas::real_divide(3.6E+2L, Zone->WorldLines.length() - 1 + 1 - 1);
+        double Step = static_cast<float>(3.6E+2 / (Zone->WorldLines.length() - 1 + 1 - 1));
         double Bearing = -Step;
-        FirstState = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(Zone->Longitude, Zone->PolarAngle, Bearing), Zone->Radius);
-        First = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(FirstState.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(FirstState.PolarAngleDegrees), ab_Global::SphereRadius);
+        FirstState = ab_Global::AdvanceSphericalStateOnCurrentSphere(
+                ab_Global::MakeSphericalBearingState(Zone->Longitude, Zone->PolarAngle, Bearing), Zone->Radius);
+        First = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(FirstState.LongitudeDegrees),
+                aMyFunction::HeadingDegreesToRadians(FirstState.PolarAngleDegrees), ab_Global::SphereRadius);
         {
             const std::int32_t cpp_last_3 = Zone->WorldLines.length() - 1;
             if (0 <= cpp_last_3) {
                 for (Index = 0; Index <= cpp_last_3; ++Index) {
-                    Bearing = static_cast<long double>(Bearing) + Step;
-                    LastState = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(Zone->Longitude, Zone->PolarAngle, Bearing), Zone->Radius);
-                    Last = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(LastState.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(LastState.PolarAngleDegrees), ab_Global::SphereRadius);
+                    Bearing = static_cast<float>(static_cast<double>(Bearing) + Step);
+                    LastState = ab_Global::AdvanceSphericalStateOnCurrentSphere(
+                            ab_Global::MakeSphericalBearingState(Zone->Longitude, Zone->PolarAngle, Bearing),
+                            Zone->Radius);
+                    Last = ab_Global::SphericalToVector3D(
+                            aMyFunction::HeadingDegreesToRadians(LastState.LongitudeDegrees),
+                            aMyFunction::HeadingDegreesToRadians(LastState.PolarAngleDegrees), ab_Global::SphereRadius);
                     ab_WorldLine::ab_WorldLine_Set(Zone->WorldLines[Index], First, Last, 1, Color, 0u, false);
                     First = Last;
                 }
@@ -192,9 +203,11 @@ namespace ab_Zone {
         }
         if (Zone->Kind != 20) {
             if (Zone->WorldImage == nullptr) {
-                Zone->WorldImage = ab_WorldImage::ab_WorldImage_Create(Zone->Position, u"GI,Bm.PI.Path4"_wref.get(), u""_wref.get(), false);
+                Zone->WorldImage = ab_WorldImage::ab_WorldImage_Create(Zone->Position, u"GI,Bm.PI.Path4"_wref.get(),
+                        u""_wref.get(), false);
             } else {
-                ab_WorldImage::ab_WorldImage_Set(Zone->WorldImage, Zone->Position, u"GI,Bm.PI.Path4"_wref.get(), u""_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Zone->WorldImage, Zone->Position, u"GI,Bm.PI.Path4"_wref.get(),
+                    u""_wref.get());
             }
         }
     }
@@ -228,9 +241,13 @@ namespace ab_Zone {
     void ab_Zone_ClearSegments(PabZone Zone) {
         std::int32_t Index{};
         for (Index = 0; Index <= 3; ++Index) {
-            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Zone->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
-                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Zone->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
-                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Zone->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
+            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Zone->Segments,
+                Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
+                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(
+                    pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Zone->Segments,
+                        Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
+                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(
+                    pas::byte_offset(&Zone->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
             }
         }
     }
@@ -290,7 +307,8 @@ namespace ab_Zone {
                 pas::raise(pas::make_exception<pas::Exception>("ab_ZoneLink_Add.HeapCreate"_a));
             }
         }
-        PabZoneLink Entry = static_cast<PabZoneLink>(EC_Mem::AllocClearFromHeapEC(ZoneLinkHeap, static_cast<std::int32_t>(sizeof(TabZoneLink))));
+        PabZoneLink Entry = static_cast<PabZoneLink>(EC_Mem::AllocClearFromHeapEC(ZoneLinkHeap,
+            static_cast<std::int32_t>(sizeof(TabZoneLink))));
         if (LastZoneLink != nullptr) {
             LastZoneLink->Next = Entry;
         }
@@ -331,7 +349,9 @@ namespace ab_Zone {
 
     void ab_ZoneLink_UpdateDistance(PabZoneLink Link) {
         double Bearing{};
-        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Link->Distance), Link->First->Longitude, Link->First->PolarAngle, 0.0, Link->Last->Longitude, Link->Last->PolarAngle, ab_Global::SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Link->Distance),
+            Link->First->Longitude, Link->First->PolarAngle, 0.0, Link->Last->Longitude, Link->Last->PolarAngle,
+            ab_Global::SphereRadius);
     }
 
     void ab_ZoneLink_ClearImages() {
@@ -348,9 +368,13 @@ namespace ab_Zone {
     void ab_ZoneLink_ClearSegments(PabZoneLink Link) {
         std::int32_t Index{};
         for (Index = 0; Index <= 1; ++Index) {
-            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Link->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
-                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Link->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
-                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Link->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
+            if (pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Link->Segments,
+                Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))) != nullptr) {
+                Globals::ArcadeBattleScreen->WorldLines->RetireSegment(
+                    pas::load_unaligned<GI_PolyLine::PPolyLineSegmentGI>(pas::byte_offset(&Link->Segments,
+                        Index * sizeof(GI_PolyLine::PPolyLineSegmentGI))));
+                pas::store_unaligned<GI_PolyLine::PPolyLineSegmentGI>(
+                    pas::byte_offset(&Link->Segments, Index * sizeof(GI_PolyLine::PPolyLineSegmentGI)), nullptr);
             }
         }
     }
@@ -361,27 +385,27 @@ namespace ab_Zone {
         PabZoneLink Link{};
         ab_Zone::ab_ZoneLink_Clear();
         ab_Zone::ab_Zone_Clear();
-        std::int32_t Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t Count = Buffer->GetInt32();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Zone = ab_Zone::ab_Zone_Add();
-            Zone->Longitude = EC_Buf::TBufEC_GetSingle(Buffer);
-            Zone->PolarAngle = EC_Buf::TBufEC_GetSingle(Buffer);
-            Zone->RadiusDegrees = EC_Buf::TBufEC_GetSingle(Buffer);
-            Zone->Kind = EC_Buf::TBufEC_GetInt32(Buffer);
+            Zone->Longitude = Buffer->GetSingle();
+            Zone->PolarAngle = Buffer->GetSingle();
+            Zone->RadiusDegrees = Buffer->GetSingle();
+            Zone->Kind = Buffer->GetInt32();
             Zone->Name = Buffer->ReadWideString();
-            Zone->BarrierHealth = EC_Buf::TBufEC_GetInt32(Buffer);
-            Zone->GravityStrength = EC_Buf::TBufEC_GetInt32(Buffer);
-            Zone->DamagePerTick = EC_Buf::TBufEC_GetInt32(Buffer);
-            Zone->BonusFlags = EC_Buf::TBufEC_GetUInt32(Buffer);
-            Zone->BonusRespawnClass = EC_Buf::TBufEC_GetInt32(Buffer);
+            Zone->BarrierHealth = Buffer->GetInt32();
+            Zone->GravityStrength = Buffer->GetInt32();
+            Zone->DamagePerTick = Buffer->GetInt32();
+            Zone->BonusFlags = Buffer->GetUInt32();
+            Zone->BonusRespawnClass = Buffer->GetInt32();
             ab_Zone::ab_Zone_UpdatePosition(Zone);
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(Index); ) {
             Link = ab_Zone::ab_ZoneLink_Add();
-            Link->First = ab_Zone::ab_Zone_Get(EC_Buf::TBufEC_GetInt32(Buffer));
-            Link->Last = ab_Zone::ab_Zone_Get(EC_Buf::TBufEC_GetInt32(Buffer));
-            Link->BarrierLinkMode = EC_Buf::TBufEC_GetInt32(Buffer);
+            Link->First = ab_Zone::ab_Zone_Get(Buffer->GetInt32());
+            Link->Last = ab_Zone::ab_Zone_Get(Buffer->GetInt32());
+            Link->BarrierLinkMode = Buffer->GetInt32();
             ab_Zone::ab_ZoneLink_UpdateDistance(Link);
         }
     }
@@ -392,22 +416,17 @@ namespace ab_Zone {
 
     ab_Global::TSphericalBearingState ab_Zone_RandomPosition(PabZone Zone) {
         ab_Global::TSphericalBearingState Result{};
-        Result = ([&] {
-            double cpp_arg = ([&] {
-                pas::Extended cpp_left = pas::real_divide(([&] {
-                    pas::Extended cpp_left_2 = pas::random_real(&System::RandSeed);
-                    return cpp_left_2 * Zone->Radius;
-                }()), 2.0L);
-                return cpp_left + pas::real_divide(Zone->Radius, 4.0L);
-            }());
-            ab_Global::TSphericalBearingState makeSphericalBearingState = ([&] {
-                double longitude = Zone->Longitude;
-                double polarAngle = Zone->PolarAngle;
-                double randomIntRange = aMyFunction::RandomIntRange(0, 360);
-                return ab_Global::MakeSphericalBearingState(longitude, polarAngle, randomIntRange);
-            }());
-            return ab_Global::AdvanceSphericalStateOnCurrentSphere(makeSphericalBearingState, cpp_arg);
-        }());
+        {
+            double cpp_left_2 = pas::random_real(&System::RandSeed);
+            double cpp_left = static_cast<float>(static_cast<float>(cpp_left_2 * Zone->Radius) / 2.0);
+            double cpp_arg = static_cast<float>(cpp_left + static_cast<float>(Zone->Radius / 4.0));
+            double longitude = Zone->Longitude;
+            double polarAngle = Zone->PolarAngle;
+            double randomIntRange = aMyFunction::RandomIntRange(0, 360);
+            ab_Global::TSphericalBearingState makeSphericalBearingState = ab_Global::MakeSphericalBearingState(
+                longitude, polarAngle, randomIntRange);
+            Result = ab_Global::AdvanceSphericalStateOnCurrentSphere(makeSphericalBearingState, cpp_arg);
+        }
         return Result;
     }
 
@@ -422,14 +441,15 @@ namespace ab_Zone {
             Zone = FirstZone;
             while (Zone != nullptr) {
                 if (Zone->Kind < 5) {
-                    ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
+                    ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude,
+                        PolarAngle, ab_Global::SphereRadius);
                     if (Distance < Zone->Radius) {
                         Result = true;
                         Nearest = Zone;
                         return Result;
                     }
-                    if (static_cast<long double>(Distance) - Zone->Radius < BestDistance) {
-                        BestDistance = static_cast<long double>(Distance) - Zone->Radius;
+                    if (static_cast<float>(static_cast<double>(Distance) - Zone->Radius) < BestDistance) {
+                        BestDistance = static_cast<float>(static_cast<double>(Distance) - Zone->Radius);
                         Nearest = Zone;
                     }
                 }
@@ -446,7 +466,8 @@ namespace ab_Zone {
         PabZone Zone = FirstZone;
         while (Zone != nullptr) {
             if (Zone->Kind <= 1) {
-                ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
+                ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude,
+                    PolarAngle, ab_Global::SphereRadius);
                 if (Distance > Zone->Radius && Distance < BestDistance) {
                     BestDistance = Distance;
                     Result = Zone;
@@ -468,12 +489,14 @@ namespace ab_Zone {
             Zone = FirstZone;
             while (Zone != nullptr) {
                 if (Zone->GravityStrength != 0) {
-                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
+                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing),
+                        pas::Var<double>(&Distance), Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle,
+                        ab_Global::SphereRadius);
                     if (Distance < Zone->Radius) {
                         return Zone;
                     }
-                    if (static_cast<long double>(Distance) - Zone->Radius < BestDistance) {
-                        BestDistance = static_cast<long double>(Distance) - Zone->Radius;
+                    if (static_cast<float>(static_cast<double>(Distance) - Zone->Radius) < BestDistance) {
+                        BestDistance = static_cast<float>(static_cast<double>(Distance) - Zone->Radius);
                         Result = Zone;
                     }
                 }
@@ -488,7 +511,8 @@ namespace ab_Zone {
         PabZone Zone = FirstZone;
         while (Zone != nullptr) {
             if (Zone->Kind == 10) {
-                ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude, PolarAngle, ab_Global::SphereRadius);
+                ab_Global::ComputeSphericalDistance(Distance, Zone->Longitude, Zone->PolarAngle, 0.0, Longitude,
+                    PolarAngle, ab_Global::SphereRadius);
                 if (Distance < Zone->Radius) {
                     return true;
                 }
@@ -565,17 +589,21 @@ namespace ab_Zone {
         return pas::list_at<TabZone>(Source->Routes, Target->RouteIndex);
     }
 
-    std::uint8_t ab_Zone_IsHeadingInside(ab_Global::TSphericalBearingState Source, PabZone Zone, double& BearingDelta, double& AngularRadius) {
+    std::uint8_t ab_Zone_IsHeadingInside(ab_Global::TSphericalBearingState Source, PabZone Zone, double& BearingDelta,
+        double& AngularRadius) {
         std::uint8_t Result{};
         double Bearing{};
         double Distance{};
-        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
+        ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance),
+            Source.LongitudeDegrees, Source.PolarAngleDegrees, Source.BearingDegrees, Zone->Longitude, Zone->PolarAngle,
+            ab_Global::SphereRadius);
         if (Zone->Radius >= Distance) {
             Result = true;
             BearingDelta = 0.0;
         } else {
-            AngularRadius = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(pas::real_divide(Zone->Radius, Distance)));
-            Result = std::fabs(static_cast<pas::Extended>(Bearing)) < AngularRadius;
+            AngularRadius = aMyFunction::RadiansToHeadingDegrees(MathImports::ArcSin(static_cast<float>(static_cast<double>(Zone->Radius) /
+                    Distance)));
+            Result = std::fabs(static_cast<double>(Bearing)) < AngularRadius;
             BearingDelta = Bearing;
         }
         return Result;
@@ -591,8 +619,10 @@ namespace ab_Zone {
         PabZone Zone = FirstZone;
         while (Zone != nullptr) {
             if (Zone != Source && Zone->Kind < 5) {
-                ab_Global::ComputeSphericalDistance(Distance, Source->Longitude, Source->PolarAngle, 0.0, Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
-                if (Distance < BestDistance && static_cast<std::uint8_t>(ab_StopLine::ab_StopLine_IsBlocked(Source->Longitude, Source->PolarAngle, Zone->Longitude, Zone->PolarAngle) ^ 1)) {
+                ab_Global::ComputeSphericalDistance(Distance, Source->Longitude, Source->PolarAngle, 0.0,
+                    Zone->Longitude, Zone->PolarAngle, ab_Global::SphereRadius);
+                if (Distance < BestDistance && !ab_StopLine::ab_StopLine_IsBlocked(Source->Longitude,
+                        Source->PolarAngle, Zone->Longitude, Zone->PolarAngle)) {
                     Result = Zone;
                     BestDistance = Distance;
                 }
@@ -615,12 +645,13 @@ namespace ab_Zone {
             Attempts = 5;
             while (Attempts > 0) {
                 --Attempts;
-                Candidate = ([&] {
+                {
                     std::int32_t randomIntRange = aMyFunction::RandomIntRange(0, pas::list_count(Current->Routes) - 1);
                     pas::List* routes = Current->Routes;
-                    return pas::list_at<TabZone>(routes, randomIntRange);
-                }());
-                if (Candidate != nullptr && Candidate->Routes != nullptr && pas::list_count(Candidate->Routes) >= 1 && Candidate != Source && Candidate != Current) {
+                    Candidate = pas::list_at<TabZone>(routes, randomIntRange);
+                }
+                if (Candidate != nullptr && Candidate->Routes != nullptr && pas::list_count(Candidate->Routes) >= 1 &&
+                    Candidate != Source && Candidate != Current) {
                     Current = Candidate;
                     break;
                 }
@@ -632,17 +663,17 @@ namespace ab_Zone {
         return Current;
     }
 
-    void PropagateZoneDistances(PabZone Zone) {
+    static void PropagateZoneDistances(PabZone Zone) {
         PabZoneLink Link = FirstZoneLink;
         while (Link != nullptr) {
             if (Link->First == Zone) {
-                if (static_cast<long double>(Zone->RouteDistance) + Link->Distance < Link->Last->RouteDistance) {
-                    Link->Last->RouteDistance = static_cast<long double>(Zone->RouteDistance) + Link->Distance;
+                if (static_cast<float>(static_cast<double>(Zone->RouteDistance) + Link->Distance) < Link->Last->RouteDistance) {
+                    Link->Last->RouteDistance = static_cast<float>(static_cast<double>(Zone->RouteDistance) + Link->Distance);
                     ab_Zone::PropagateZoneDistances(Link->Last);
                 }
             } else if (Link->Last == Zone) {
-                if (static_cast<long double>(Zone->RouteDistance) + Link->Distance < Link->First->RouteDistance) {
-                    Link->First->RouteDistance = static_cast<long double>(Zone->RouteDistance) + Link->Distance;
+                if (static_cast<float>(static_cast<double>(Zone->RouteDistance) + Link->Distance) < Link->First->RouteDistance) {
+                    Link->First->RouteDistance = static_cast<float>(static_cast<double>(Zone->RouteDistance) + Link->Distance);
                     ab_Zone::PropagateZoneDistances(Link->First);
                 }
             }

@@ -1,14 +1,13 @@
 #include "layout/ParameterDeltaClass.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/ParameterClass.hpp"
 #include "types/TextFieldClass.hpp"
 #include "types/TextQuestInterface.hpp"
 #include "units/CalcParseClass.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/EventClass.hpp"
 #include "units/ParameterDeltaClass.hpp"
-#include "units/System.hpp"
 #include "units/ValueListClass.hpp"
 
 namespace ParameterDeltaClass {
@@ -63,9 +62,11 @@ namespace ParameterDeltaClass {
         if (ParameterIndex <= 0 || pas::list_count(Parameters) < ParameterIndex) {
             return Result;
         }
-        ParameterClass::TParameter* Parameter = pas::list_at<ParameterClass::TParameter>(Parameters, ParameterIndex - 1);
+        ParameterClass::TParameter* Parameter = pas::list_at<ParameterClass::TParameter>(Parameters,
+            ParameterIndex - 1);
         Result = false;
-        if (Parameter->GetNonCriticalMinimum() >= MinValue && Parameter->GetNonCriticalMaximum() <= MaxValue && ValueConstraint->Count <= 0 && MultipleConstraint->Count <= 0) {
+        if (Parameter->GetNonCriticalMinimum() >= MinValue && Parameter->GetNonCriticalMaximum() <= MaxValue &&
+            ValueConstraint->Count <= 0 && MultipleConstraint->Count <= 0) {
             return true;
         }
         return Result;
@@ -123,7 +124,7 @@ namespace ParameterDeltaClass {
                 } else if (SetValue) {
                     NewValue = ChangeValue;
                 } else if (ChangeByPercent) {
-                    NewValue = System::Round(Parameter->Value * 0.01L * ChangeValue) + Parameter->Value;
+                    NewValue = pas::real_round(static_cast<float>(static_cast<float>(Parameter->Value * 0x1.47ae147ae147ap-7) * ChangeValue)) + Parameter->Value;
                 } else {
                     NewValue = Parameter->Value + ChangeValue;
                 }
@@ -150,7 +151,8 @@ namespace ParameterDeltaClass {
         if (ParameterIndex <= 0 || pas::list_count(Parameters) < ParameterIndex) {
             return Result;
         }
-        ParameterClass::TParameter* Parameter = pas::list_at<ParameterClass::TParameter>(Parameters, ParameterIndex - 1);
+        ParameterClass::TParameter* Parameter = pas::list_at<ParameterClass::TParameter>(Parameters,
+            ParameterIndex - 1);
         if (Parameter->Enabled) {
             Result = false;
             if (Parameter->GetNonCriticalMaximum() > MaxValue && Parameter->Value > MaxValue) {
@@ -174,12 +176,12 @@ namespace ParameterDeltaClass {
     // Quest versions 1111111111..1111111115.
     void TParameterDelta::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        ChangeValue = EC_Buf::TBufEC_GetInt32(Reader);
-        VisibilityChange = static_cast<TParameterVisibilityChange>(EC_Buf::TBufEC_GetInt32(Reader));
-        LegacyFlag = EC_Buf::TBufEC_GetBoolean(Reader);
-        ChangeByPercent = EC_Buf::TBufEC_GetBoolean(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        ChangeValue = Reader->GetInt32();
+        VisibilityChange = static_cast<TParameterVisibilityChange>(Reader->GetInt32());
+        LegacyFlag = Reader->GetBoolean();
+        ChangeByPercent = Reader->GetBoolean();
         CriticalEvent->ClearTextFields();
         CriticalEvent->Text->LoadTextLinesFromReader(Reader);
     }
@@ -187,13 +189,13 @@ namespace ParameterDeltaClass {
     // Quest version 1111111116.
     void TParameterDelta::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
-        EC_Buf::TBufEC_GetInt32(Reader);
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        ChangeValue = EC_Buf::TBufEC_GetInt32(Reader);
-        VisibilityChange = static_cast<TParameterVisibilityChange>(EC_Buf::TBufEC_GetInt32(Reader));
-        LegacyFlag = EC_Buf::TBufEC_GetBoolean(Reader);
-        ChangeByPercent = EC_Buf::TBufEC_GetBoolean(Reader);
+        Reader->GetInt32();
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        ChangeValue = Reader->GetInt32();
+        VisibilityChange = static_cast<TParameterVisibilityChange>(Reader->GetInt32());
+        LegacyFlag = Reader->GetBoolean();
+        ChangeByPercent = Reader->GetBoolean();
         ValueConstraint->LoadFromReader(Reader);
         MultipleConstraint->LoadFromReader(Reader);
         CriticalEvent->ClearTextFields();
@@ -203,14 +205,14 @@ namespace ParameterDeltaClass {
     // Quest versions 1111111117..1111111118.
     void TParameterDelta::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
-        EC_Buf::TBufEC_GetInt32(Reader);
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        ChangeValue = EC_Buf::TBufEC_GetInt32(Reader);
-        VisibilityChange = static_cast<TParameterVisibilityChange>(EC_Buf::TBufEC_GetInt32(Reader));
-        LegacyFlag = EC_Buf::TBufEC_GetBoolean(Reader);
-        ChangeByPercent = EC_Buf::TBufEC_GetBoolean(Reader);
-        SetValue = EC_Buf::TBufEC_GetBoolean(Reader);
+        Reader->GetInt32();
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        ChangeValue = Reader->GetInt32();
+        VisibilityChange = static_cast<TParameterVisibilityChange>(Reader->GetInt32());
+        LegacyFlag = Reader->GetBoolean();
+        ChangeByPercent = Reader->GetBoolean();
+        SetValue = Reader->GetBoolean();
         ValueConstraint->LoadFromReader(Reader);
         MultipleConstraint->LoadFromReader(Reader);
         CriticalEvent->ClearTextFields();
@@ -220,15 +222,15 @@ namespace ParameterDeltaClass {
     // Quest versions 1111111119..1111111124.
     void TParameterDelta::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         Reset();
-        EC_Buf::TBufEC_GetInt32(Reader);
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        ChangeValue = EC_Buf::TBufEC_GetInt32(Reader);
-        VisibilityChange = static_cast<TParameterVisibilityChange>(EC_Buf::TBufEC_GetInt32(Reader));
-        LegacyFlag = EC_Buf::TBufEC_GetBoolean(Reader);
-        ChangeByPercent = EC_Buf::TBufEC_GetBoolean(Reader);
-        SetValue = EC_Buf::TBufEC_GetBoolean(Reader);
-        UseExpression = EC_Buf::TBufEC_GetBoolean(Reader);
+        Reader->GetInt32();
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        ChangeValue = Reader->GetInt32();
+        VisibilityChange = static_cast<TParameterVisibilityChange>(Reader->GetInt32());
+        LegacyFlag = Reader->GetBoolean();
+        ChangeByPercent = Reader->GetBoolean();
+        SetValue = Reader->GetBoolean();
+        UseExpression = Reader->GetBoolean();
         ExpressionText->LoadTextLinesFromReader(Reader);
         ValueConstraint->LoadFromReader(Reader);
         MultipleConstraint->LoadFromReader(Reader);
@@ -238,17 +240,17 @@ namespace ParameterDeltaClass {
 
     void TParameterDelta::LoadValueConstraintsFromReader(EC_Buf::TBufEC* Reader) {
         ClearValueConstraints();
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
         ValueConstraint->LoadFromReader(Reader);
         MultipleConstraint->LoadFromReader(Reader);
     }
 
     void TParameterDelta::LoadChangeFromReader(EC_Buf::TBufEC* Reader) {
         ClearChange();
-        ChangeValue = EC_Buf::TBufEC_GetInt32(Reader);
-        VisibilityChange = static_cast<TParameterVisibilityChange>(EC_Buf::TBufEC_GetByte(Reader));
-        std::uint8_t ChangeKind = EC_Buf::TBufEC_GetByte(Reader);
+        ChangeValue = Reader->GetInt32();
+        VisibilityChange = static_cast<TParameterVisibilityChange>(Reader->GetByte());
+        std::uint8_t ChangeKind = Reader->GetByte();
         SetValue = ChangeKind == 0;
         ChangeByPercent = ChangeKind == 2;
         UseExpression = ChangeKind == 3;

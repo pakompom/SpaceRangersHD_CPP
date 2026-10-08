@@ -53,10 +53,13 @@ namespace SE_Hole {
         }
         Animation->SetSequenceFrame(SavedSequenceFrameIndex);
         Animation->RestartPlayback();
-        MapImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+        MapImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                Globals::SpaceObjectUiLoop->ContentPanel);
         MapImage->SetPositionModeW(true);
         MapImage->SetDepthByName(DepthExpression);
-        MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+        MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+            static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+            static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
         MapImage->SetImagePath(MapImagePath);
         {
             Types::TPoint contentSize_2 = MapImage->GetContentSize();
@@ -98,14 +101,18 @@ namespace SE_Hole {
         SE_Space::TObjectSE::SetPosition(APosition);
         if (IsAttachedToSpace()) {
             Animation->SetPosition(EC_Struct::TruncatePointF(APosition));
-            MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+            MapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
         }
     }
 
     void THoleSE::DrawMap() {
         SE_Process::TProcessSE* cpp_with = pas::checked_cast<SE_Process::TProcessSE*>(Space->Process);
-        if (static_cast<long double>(aMyFunction::PointDistanceSquared(Position, cpp_with->RadarCenter)) < pas::sqr(cpp_with->RadarRange)) {
-            MapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+        if (static_cast<double>(aMyFunction::PointDistanceSquared(Position, cpp_with->RadarCenter)) <
+            pas::sqr(cpp_with->RadarRange)) {
+            MapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
     }
 

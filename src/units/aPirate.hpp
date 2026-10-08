@@ -26,24 +26,30 @@ namespace aPirate {
     void TPirate_NextDayLogic(TPirate* Self);
 
     // AI ownership check only; does not test travel range.
-    std::uint8_t TPirate_CanQueueReachablePlanet(TPirate* Self, aPlanet::TPlanet* Planet);
+    inline std::uint8_t TPirate_CanQueueReachablePlanet(TPirate* Self, aPlanet::TPlanet* Planet);
 
     std::uint8_t TPirate_RecomputeFearState(TPirate* Self);
 
     std::uint8_t TPirate_AcceptsRansomDemandFrom(TPirate* Self, aShip::TShip* Ship);
 
-    std::uint8_t TPirate_TrustsAttackRequester(TPirate* Self, aShip::TShip* Ship);
+    inline std::uint8_t TPirate_TrustsAttackRequester(TPirate* Self, aShip::TShip* Ship);
 
-    std::uint8_t TPirate_BuildMoneyExtortionResponse(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
+    std::uint8_t TPirate_BuildMoneyExtortionResponse(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t DemandedAmount);
 
     std::uint8_t TPirate_BuildCargoExtortionResponse(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response);
 
-    std::uint8_t TPirate_BuildAttackRequestResponse(TPirate* Self, aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target);
+    std::uint8_t TPirate_BuildAttackRequestResponse(TPirate* Self, aShip::TShip* Requester, pas::WideString& Response,
+        aShip::TShip* Target);
 
-    std::uint8_t TPirate_AcceptPartnershipOffer(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TPirate_AcceptPartnershipOffer(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
-    std::uint8_t TPirate_BuildPartnershipOfferResponse(TPirate* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TPirate_BuildPartnershipOfferResponse(TPirate* Self, aShip::TShip* OtherShip,
+        pas::WideString& Response, std::int32_t PaymentAmount);
 
     void TPirate_RefreshCurrentStanding(TPirate* Self);
 
 } // namespace aPirate
+
+#include "inline/aPirate.hpp"

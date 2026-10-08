@@ -10,7 +10,8 @@
 // Translator: Borland Software Corporation
 // *******************************************************
 namespace WindowsSdk {
-    const WindowsSdk::MakeIntResource IDC_ARROW = reinterpret_cast<WindowsSdk::MakeIntResource>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(32512)));
+    const WindowsSdk::MakeIntResource IDC_ARROW = reinterpret_cast<WindowsSdk::MakeIntResource>(
+        static_cast<std::uintptr_t>(static_cast<std::uint32_t>(32512)));
 
     const pas::WideString advapi32 = u"advapi32.dll"_w;
 
@@ -50,18 +51,6 @@ namespace WindowsSdk {
         return cpp_import(&lpBuffer);
     }
 
-    THandle PAS_STDCALL HeapCreate(std::uint32_t flOptions, std::uint32_t dwInitialSize, std::uint32_t dwMaximumSize) {
-        using CppImport = THandle (PAS_STDCALL *)(std::uint32_t, std::uint32_t, std::uint32_t);
-        static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "HeapCreate");
-        return cpp_import(flOptions, dwInitialSize, dwMaximumSize);
-    }
-
-    BOOL PAS_STDCALL HeapDestroy(THandle hHeap) {
-        using CppImport = BOOL (PAS_STDCALL *)(THandle);
-        static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "HeapDestroy");
-        return cpp_import(hHeap);
-    }
-
     BOOL PAS_STDCALL SetProcessAffinityMask(THandle hProcess, std::uint32_t dwProcessAffinityMask) {
         using CppImport = BOOL (PAS_STDCALL *)(THandle, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "SetProcessAffinityMask");
@@ -74,7 +63,9 @@ namespace WindowsSdk {
         return cpp_import();
     }
 
-    THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize, TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags, std::uint32_t& lpThreadId) {
+    THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize,
+        TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags,
+        std::uint32_t& lpThreadId) {
         using CppImport = THandle (PAS_STDCALL *)(void*, std::uint32_t, TFNThreadStartRoutine, void*, std::uint32_t, std::uint32_t*);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "CreateThread");
         return cpp_import(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, &lpThreadId);
@@ -122,7 +113,8 @@ namespace WindowsSdk {
         return cpp_import(hHandle, dwMilliseconds);
     }
 
-    std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll, std::uint32_t dwMilliseconds) {
+    std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll,
+        std::uint32_t dwMilliseconds) {
         using CppImport = std::uint32_t (PAS_STDCALL *)(std::uint32_t, PWOHandleArray, BOOL, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "WaitForMultipleObjects");
         return cpp_import(nCount, lpHandles, bWaitAll, dwMilliseconds);
@@ -146,19 +138,22 @@ namespace WindowsSdk {
         return cpp_import(&lpSystemInfo);
     }
 
-    BOOL PAS_STDCALL FileTimeToSystemTime(pas::ConstRef<Windows::TFileTime> lpFileTime, Windows::TSystemTime& lpSystemTime) {
+    BOOL PAS_STDCALL FileTimeToSystemTime(pas::ConstRef<Windows::TFileTime> lpFileTime,
+        Windows::TSystemTime& lpSystemTime) {
         using CppImport = BOOL (PAS_STDCALL *)(const Windows::TFileTime*, Windows::TSystemTime*);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "FileTimeToSystemTime");
         return cpp_import(static_cast<const Windows::TFileTime*>(lpFileTime.address), &lpSystemTime);
     }
 
-    std::int32_t PAS_STDCALL CompareFileTime(pas::ConstRef<Windows::TFileTime> lpFileTime1, const Windows::TFileTime& lpFileTime2) {
+    std::int32_t PAS_STDCALL CompareFileTime(pas::ConstRef<Windows::TFileTime> lpFileTime1,
+        const Windows::TFileTime& lpFileTime2) {
         using CppImport = std::int32_t (PAS_STDCALL *)(const Windows::TFileTime*, const Windows::TFileTime*);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "CompareFileTime");
         return cpp_import(static_cast<const Windows::TFileTime*>(lpFileTime1.address), &lpFileTime2);
     }
 
-    std::uint32_t PAS_STDCALL FormatMessageA(std::uint32_t dwFlags, void* lpSource, std::uint32_t dwMessageId, std::uint32_t dwLanguageId, std::uint8_t* lpBuffer, std::uint32_t nSize, void* Arguments) {
+    std::uint32_t PAS_STDCALL FormatMessageA(std::uint32_t dwFlags, void* lpSource, std::uint32_t dwMessageId,
+        std::uint32_t dwLanguageId, std::uint8_t* lpBuffer, std::uint32_t nSize, void* Arguments) {
         using CppImport = std::uint32_t (PAS_STDCALL *)(std::uint32_t, void*, std::uint32_t, std::uint32_t, std::uint8_t*, std::uint32_t, void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "FormatMessageA");
         return cpp_import(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, Arguments);
@@ -248,10 +243,13 @@ namespace WindowsSdk {
         return cpp_import(lpExistingFileName, lpNewFileName);
     }
 
-    BOOL PAS_STDCALL GetVolumeInformationA(std::uint8_t* lpRootPathName, std::uint8_t* lpVolumeNameBuffer, std::uint32_t nVolumeNameSize, PDWORD lpVolumeSerialNumber, std::uint32_t& lpMaximumComponentLength, std::uint32_t& lpFileSystemFlags, std::uint8_t* lpFileSystemNameBuffer, std::uint32_t nFileSystemNameSize) {
+    BOOL PAS_STDCALL GetVolumeInformationA(std::uint8_t* lpRootPathName, std::uint8_t* lpVolumeNameBuffer,
+        std::uint32_t nVolumeNameSize, PDWORD lpVolumeSerialNumber, std::uint32_t& lpMaximumComponentLength,
+        std::uint32_t& lpFileSystemFlags, std::uint8_t* lpFileSystemNameBuffer, std::uint32_t nFileSystemNameSize) {
         using CppImport = BOOL (PAS_STDCALL *)(std::uint8_t*, std::uint8_t*, std::uint32_t, PDWORD, std::uint32_t*, std::uint32_t*, std::uint8_t*, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "GetVolumeInformationA");
-        return cpp_import(lpRootPathName, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber, &lpMaximumComponentLength, &lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
+        return cpp_import(lpRootPathName, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber,
+            &lpMaximumComponentLength, &lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
     }
 
     BOOL PAS_STDCALL SetPriorityClass(THandle hProcess, std::uint32_t dwPriorityClass) {
@@ -314,13 +312,15 @@ namespace WindowsSdk {
         return cpp_import(&lpMsg);
     }
 
-    BOOL PAS_STDCALL PeekMessage(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg) {
+    BOOL PAS_STDCALL PeekMessage(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax,
+        UINT wRemoveMsg) {
         using CppImport = BOOL (PAS_STDCALL *)(Windows::TMsg*, HWND, UINT, UINT, UINT);
         static const auto cpp_import = pas::win::load_import<CppImport>("user32.dll", "PeekMessageA");
         return cpp_import(&lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
     }
 
-    BOOL PAS_STDCALL PeekMessageW(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg) {
+    BOOL PAS_STDCALL PeekMessageW(Windows::TMsg& lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax,
+        UINT wRemoveMsg) {
         using CppImport = BOOL (PAS_STDCALL *)(Windows::TMsg*, HWND, UINT, UINT, UINT);
         static const auto cpp_import = pas::win::load_import<CppImport>("user32.dll", "PeekMessageW");
         return cpp_import(&lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
@@ -368,7 +368,8 @@ namespace WindowsSdk {
         return cpp_import(hWnd, nCmdShow);
     }
 
-    BOOL PAS_STDCALL SetWindowPos(HWND hWnd, HWND hWndInsertAfter, std::int32_t X, std::int32_t Y, std::int32_t cx, std::int32_t cy, UINT uFlags) {
+    BOOL PAS_STDCALL SetWindowPos(HWND hWnd, HWND hWndInsertAfter, std::int32_t X, std::int32_t Y, std::int32_t cx,
+        std::int32_t cy, UINT uFlags) {
         using CppImport = BOOL (PAS_STDCALL *)(HWND, HWND, std::int32_t, std::int32_t, std::int32_t, std::int32_t, UINT);
         static const auto cpp_import = pas::win::load_import<CppImport>("user32.dll", "SetWindowPos");
         return cpp_import(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
@@ -428,7 +429,8 @@ namespace WindowsSdk {
         return cpp_import(vKey);
     }
 
-    std::uint32_t PAS_STDCALL MsgWaitForMultipleObjects(std::uint32_t nCount, void* pHandles, BOOL fWaitAll, std::uint32_t dwMilliseconds, std::uint32_t dwWakeMask) {
+    std::uint32_t PAS_STDCALL MsgWaitForMultipleObjects(std::uint32_t nCount, void* pHandles, BOOL fWaitAll,
+        std::uint32_t dwMilliseconds, std::uint32_t dwWakeMask) {
         using CppImport = std::uint32_t (PAS_STDCALL *)(std::uint32_t, void*, BOOL, std::uint32_t, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("user32.dll", "MsgWaitForMultipleObjects");
         return cpp_import(nCount, pHandles, fWaitAll, dwMilliseconds, dwWakeMask);
@@ -572,13 +574,15 @@ namespace WindowsSdk {
         return cpp_import(&piconinfo);
     }
 
-    std::int32_t PAS_STDCALL CompareString(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1, std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2) {
+    std::int32_t PAS_STDCALL CompareString(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1,
+        std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2) {
         using CppImport = std::int32_t (PAS_STDCALL *)(LCID, std::uint32_t, std::uint8_t*, std::int32_t, std::uint8_t*, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "CompareStringA");
         return cpp_import(Locale, dwCmpFlags, lpString1, cchCount1, lpString2, cchCount2);
     }
 
-    std::int32_t PAS_STDCALL CompareStringA(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1, std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2) {
+    std::int32_t PAS_STDCALL CompareStringA(LCID Locale, std::uint32_t dwCmpFlags, std::uint8_t* lpString1,
+        std::int32_t cchCount1, std::uint8_t* lpString2, std::int32_t cchCount2) {
         using CppImport = std::int32_t (PAS_STDCALL *)(LCID, std::uint32_t, std::uint8_t*, std::int32_t, std::uint8_t*, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("kernel32.dll", "CompareStringA");
         return cpp_import(Locale, dwCmpFlags, lpString1, cchCount1, lpString2, cchCount2);
@@ -590,10 +594,13 @@ namespace WindowsSdk {
         return cpp_import(hKey);
     }
 
-    std::int32_t PAS_STDCALL RegCreateKeyExW(HKEY hKey, char16_t* lpSubKey, std::uint32_t Reserved, char16_t* lpClass, std::uint32_t dwOptions, REGSAM samDesired, PSecurityAttributes lpSecurityAttributes, HKEY& phkResult, PDWORD lpdwDisposition) {
+    std::int32_t PAS_STDCALL RegCreateKeyExW(HKEY hKey, char16_t* lpSubKey, std::uint32_t Reserved, char16_t* lpClass,
+        std::uint32_t dwOptions, REGSAM samDesired, PSecurityAttributes lpSecurityAttributes, HKEY& phkResult,
+        PDWORD lpdwDisposition) {
         using CppImport = std::int32_t (PAS_STDCALL *)(HKEY, char16_t*, std::uint32_t, char16_t*, std::uint32_t, REGSAM, PSecurityAttributes, HKEY*, PDWORD);
         static const auto cpp_import = pas::win::load_import<CppImport>("advapi32.dll", "RegCreateKeyExW");
-        return cpp_import(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, &phkResult, lpdwDisposition);
+        return cpp_import(hKey, lpSubKey, Reserved, lpClass, dwOptions, samDesired, lpSecurityAttributes, &phkResult,
+            lpdwDisposition);
     }
 
     std::int32_t PAS_STDCALL RegFlushKey(HKEY hKey) {
@@ -602,19 +609,22 @@ namespace WindowsSdk {
         return cpp_import(hKey);
     }
 
-    std::int32_t PAS_STDCALL RegOpenKeyExA(HKEY hKey, std::uint8_t* lpSubKey, std::uint32_t ulOptions, REGSAM samDesired, HKEY& phkResult) {
+    std::int32_t PAS_STDCALL RegOpenKeyExA(HKEY hKey, std::uint8_t* lpSubKey, std::uint32_t ulOptions,
+        REGSAM samDesired, HKEY& phkResult) {
         using CppImport = std::int32_t (PAS_STDCALL *)(HKEY, std::uint8_t*, std::uint32_t, REGSAM, HKEY*);
         static const auto cpp_import = pas::win::load_import<CppImport>("advapi32.dll", "RegOpenKeyExA");
         return cpp_import(hKey, lpSubKey, ulOptions, samDesired, &phkResult);
     }
 
-    std::int32_t PAS_STDCALL RegQueryValueExA(HKEY hKey, std::uint8_t* lpValueName, void* lpReserved, PDWORD lpType, std::uint8_t* lpData, PDWORD lpcbData) {
+    std::int32_t PAS_STDCALL RegQueryValueExA(HKEY hKey, std::uint8_t* lpValueName, void* lpReserved, PDWORD lpType,
+        std::uint8_t* lpData, PDWORD lpcbData) {
         using CppImport = std::int32_t (PAS_STDCALL *)(HKEY, std::uint8_t*, void*, PDWORD, std::uint8_t*, PDWORD);
         static const auto cpp_import = pas::win::load_import<CppImport>("advapi32.dll", "RegQueryValueExA");
         return cpp_import(hKey, lpValueName, lpReserved, lpType, lpData, lpcbData);
     }
 
-    std::int32_t PAS_STDCALL RegSetValueExW(HKEY hKey, char16_t* lpValueName, std::uint32_t Reserved, std::uint32_t dwType, void* lpData, std::uint32_t cbData) {
+    std::int32_t PAS_STDCALL RegSetValueExW(HKEY hKey, char16_t* lpValueName, std::uint32_t Reserved,
+        std::uint32_t dwType, void* lpData, std::uint32_t cbData) {
         using CppImport = std::int32_t (PAS_STDCALL *)(HKEY, char16_t*, std::uint32_t, std::uint32_t, void*, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("advapi32.dll", "RegSetValueExW");
         return cpp_import(hKey, lpValueName, Reserved, dwType, lpData, cbData);

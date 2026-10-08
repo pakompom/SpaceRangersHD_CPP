@@ -97,12 +97,18 @@ namespace aTranclucator {
         std::uint8_t AcceptsAppealFrom(aShip::TShip* Ship) override;
         void ProcessCombatDialogue() override;
         void ReactToExtortionDemand(void* Ranger) override;
-        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount) override;
-        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response) override;
-        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t OfferedAmount) override;
-        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target) override;
-        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
-        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildMoneyExtortionResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t DemandedAmount) override;
+        std::uint8_t virtual_TShip_BuildCargoExtortionResponse(aShip::TShip* OtherShip,
+            pas::WideString& Response) override;
+        std::uint8_t BuildTrucePaymentResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t OfferedAmount) override;
+        std::uint8_t virtual_TShip_BuildAttackRequestResponse(aShip::TShip* Requester, pas::WideString& Response,
+            aShip::TShip* Target) override;
+        std::uint8_t virtual_TShip_AcceptPartnershipOffer(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
+        std::uint8_t virtual_TShip_BuildPartnershipOfferResponse(aShip::TShip* OtherShip, pas::WideString& Response,
+            std::int32_t PaymentAmount) override;
         void virtual_TShip_RefreshCurrentStanding() override;
         float EvaluateStatBonus(aConst::TEquipmentBonusKind BonusKind, std::int32_t Value) override;
         std::int32_t ArtefactSize;

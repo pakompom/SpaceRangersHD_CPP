@@ -54,14 +54,18 @@ namespace SE_Ship2 {
         if (Index < 3) {
             pas::raise(pas::make_exception<pas::Exception>("Error in TShip2AnimSE.Load"_a));
         }
-        Weight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Specification), 0, u","sv)));
+        Weight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Specification), 0,
+                u","sv)));
         Specification = EC_Str::ExtractDelimitedRangeW(pas::view(Specification), 1, Index - 1, u","sv);
         std::int32_t RangeCount = (EC_Str::CountDelimitedPartsW(pas::view(Specification), u"[]"sv) - 1) / 2;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, RangeCount - 1); cpp_range.next(Index); ) {
             RangeText = EC_Str::ExtractDelimitedPartW(pas::view(Specification), Index * 2 + 1, u"[]"sv);
-            Delay = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 0, u",-"sv)));
-            First = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 1, u",-"sv)));
-            Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 2, u",-"sv)));
+            Delay = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 0,
+                    u",-"sv)));
+            First = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 1,
+                    u",-"sv)));
+            Last = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(RangeText), 2,
+                    u",-"sv)));
             Count = pas::abs(First - Last) + 1;
             FrameCount += Count;
             Frames.set_length(FrameCount);
@@ -87,8 +91,10 @@ namespace SE_Ship2 {
     void TShip2SE_Create(TShip2SE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition) {
         Self->AngleOverride = -1;
         if (EC_Str::CountDelimitedPartsW(pas::view(GraphKey), u","sv) > 1) {
-            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv), UnusedPosition);
-            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 1, u","sv)));
+            SE_Space::TObjectSE_Create(Self, EC_Str::ExtractDelimitedPartW(pas::view(GraphKey), 0, u","sv),
+                UnusedPosition);
+            Self->AlphaLimit = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(GraphKey),
+                    1, u","sv)));
         } else {
             SE_Space::TObjectSE_Create(Self, GraphKey, UnusedPosition);
             Self->AlphaLimit = 255;
@@ -215,7 +221,8 @@ namespace SE_Ship2 {
             Stage = 1;
             SE_Space::TObjectSE::AttachToSpace(ASpace);
             Stage = 2;
-            Image = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, nullptr);
+            Image = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create,
+                    nullptr);
             Stage = 3;
             if (Space->MapPanel != nullptr) {
                 Space->MapPanel->AttachOwnedChild(Image);
@@ -223,23 +230,24 @@ namespace SE_Ship2 {
             Stage = 4;
             Image->SetPositionModeW(true);
             Image->SetDepthByName(DepthExpression);
-            {
-                std::int32_t trunc = System::Trunc(Position.Y);
-                std::int32_t trunc_2 = System::Trunc(Position.X);
-                Image->SetPosition(ClassesImports::Point(trunc_2, trunc));
-            }
+            Image->SetPosition(ClassesImports::Point(pas::real_trunc(Position.X), pas::real_trunc(Position.Y)));
             if (AngleOverride >= 0) {
                 Image->SetAngle(AngleOverride);
             } else {
                 Image->SetAngle(Angle);
             }
-            Image->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), ASpace->AlphaShift));
+            Image->SetAlpha(pas::shr(
+                std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                ASpace->AlphaShift));
             Stage = 5;
-            MinimapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Globals::SpaceObjectUiLoop->ContentPanel);
+            MinimapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create,
+                    Globals::SpaceObjectUiLoop->ContentPanel);
             Stage = 6;
             MinimapImage->SetPositionModeW(true);
             MinimapImage->SetDepthByName(DepthExpression);
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(Position.X) * Space->MinimapScale, static_cast<long double>(Position.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(Position.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(Position.Y) * Space->MinimapScale))));
             MinimapImage->SetImagePath(MinimapImagePath);
             {
                 WindowsSdk::TPoint contentSize = MinimapImage->GetContentSize();
@@ -269,7 +277,7 @@ namespace SE_Ship2 {
             Stage = 9;
             if (TailMode > 0) {
                 for (Index = 1; Index <= 10; ++Index) {
-                    if (TailOrigins[Index].Y > 0.0L) {
+                    if (TailOrigins[Index].Y > 0.0) {
                         Tails[Index] = pas::construct_call<GI_Tail::TTailGI>(GI_Tail::TTailGI_Create, Space->MapPanel);
                         if (TailEmitIntervalMs > 0) {
                             Tails[Index]->EmitIntervalMs = TailEmitIntervalMs;
@@ -278,7 +286,8 @@ namespace SE_Ship2 {
                         Tails[Index]->SetOrigin(EC_Struct::HalfPoint(Tails[Index]->ClientSize));
                         Tails[Index]->SetDepthByName(u"Tail"_wref.get());
                         Tails[Index]->SetPositionModeW(true);
-                        Tails[Index]->SetImagePath(pas::concat_wide({u"Bm.Tail.", TailPrefix, u"0", pas::wide_int_to_str(TailMode - 1)}));
+                        Tails[Index]->SetImagePath(pas::concat_wide({u"Bm.Tail.", TailPrefix, u"0",
+                            pas::wide_int_to_str(TailMode - 1)}));
                         Tails[Index]->SetEmitting(Alpha == 255 && Space->AlphaShift == 0);
                     }
                 }
@@ -289,18 +298,27 @@ namespace SE_Ship2 {
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                 GR_Main::AppendLogLineThreadSafe("TShip2SE.Connect"_a);
                 GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(GraphKey));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"lastLabel=", EC_Str::IntToWideString(GI_RotateImage5::RotateImageConstructionStage)})));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"self=", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(this)))})));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"sp=", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ASpace)))})));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"FSpace=", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space)))})));
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"FImage=", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Image)))})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"lastLabel=",
+                    EC_Str::IntToWideString(GI_RotateImage5::RotateImageConstructionStage)})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"self=",
+                    EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(this)))})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"sp=",
+                    EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ASpace)))})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"FSpace=",
+                    EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space)))})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"FImage=",
+                    EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Image)))})));
                 if (Space != nullptr) {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"PGI=", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space->MapPanel)))})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"PGI=",
+                        EC_Str::IntToWideString(
+                            static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space->MapPanel)))})));
                 }
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error in procedure TShip2SE.Connect, label = ", SysUtils::IntToStr(Stage)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "Error in procedure TShip2SE.Connect, label = ", SysUtils::IntToStr(Stage)})));
             } else {
                 throw;
             }
@@ -372,8 +390,8 @@ namespace SE_Ship2 {
     void TShip2SE::SetSize(Types::TPoint Value) {
         if (Size.X != Value.X || Size.Y != Value.Y) {
             SE_Space::TObjectSE::SetSize(Value);
-            ImageScale.X = pas::real_divide(Size.X, ImageSize.X);
-            ImageScale.Y = pas::real_divide(Size.Y, ImageSize.Y);
+            ImageScale.X = static_cast<float>(static_cast<double>(Size.X) / ImageSize.X);
+            ImageScale.Y = static_cast<float>(static_cast<double>(Size.Y) / ImageSize.Y);
         }
     }
 
@@ -382,13 +400,11 @@ namespace SE_Ship2 {
         std::int32_t Index{};
         SE_Space::TObjectSE::SetPosition(APosition);
         if (IsAttachedToSpace()) {
-            {
-                std::int32_t trunc = System::Trunc(APosition.Y);
-                std::int32_t trunc_2 = System::Trunc(APosition.X);
-                PixelPosition = ClassesImports::Point(trunc_2, trunc);
-            }
+            PixelPosition = ClassesImports::Point(pas::real_trunc(APosition.X), pas::real_trunc(APosition.Y));
             Image->SetPosition(PixelPosition);
-            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(static_cast<long double>(APosition.X) * Space->MinimapScale, static_cast<long double>(APosition.Y) * Space->MinimapScale)));
+            MinimapImage->SetPosition(EC_Struct::TruncatePointF(EC_Struct::MakePointF(
+                static_cast<float>(static_cast<double>(APosition.X) * Space->MinimapScale),
+                static_cast<float>(static_cast<double>(APosition.Y) * Space->MinimapScale))));
             for (Index = 1; Index <= 10; ++Index) {
                 if (Tails[Index] != nullptr) {
                     Tails[Index]->EmitterPosition = ImagePointToWorld(TailOrigins[Index]);
@@ -447,9 +463,9 @@ namespace SE_Ship2 {
         EC_Struct::TPointF Delta{};
         std::int32_t Index{};
         if (IsAttachedToSpace()) {
-            Radians = pas::real_divide(GetAngle(), 256.0L) * pas::constant(2.0L * SystemImports::Pi) + SystemImports::Pi;
-            Delta.X = System::Sin(Radians) * Distance;
-            Delta.Y = System::Cos(Radians) * -Distance;
+            Radians = static_cast<float>(static_cast<float>(static_cast<float>(GetAngle() / 256.0) * pas::constant(2.0 * SystemImports::Pi)) + SystemImports::Pi);
+            Delta.X = static_cast<float>(System::Sin(Radians) * Distance);
+            Delta.Y = static_cast<float>(System::Cos(Radians) * -Distance);
             for (Index = 1; Index <= 10; ++Index) {
                 if (Tails[Index] != nullptr) {
                     Tails[Index]->OffsetSegments(Delta);
@@ -484,7 +500,9 @@ namespace SE_Ship2 {
         std::int32_t Index{};
         Alpha = Value;
         if (IsAttachedToSpace()) {
-            Image->SetAlpha(pas::shr(std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)), Space->AlphaShift));
+            Image->SetAlpha(pas::shr(
+                std::min<std::int32_t>(static_cast<std::int32_t>(Alpha), static_cast<std::int32_t>(AlphaLimit)),
+                Space->AlphaShift));
             for (Index = 1; Index <= 10; ++Index) {
                 if (Tails[Index] != nullptr) {
                     Tails[Index]->SetEmitting(Alpha == 255 && Space->AlphaShift == 0);
@@ -495,26 +513,26 @@ namespace SE_Ship2 {
 
     EC_Struct::TPointF TShip2SE::GetOrbitCenter() {
         EC_Struct::TPointF Result{};
-        Result.X = static_cast<long double>(ImageOrigin.X) * ImageScale.X;
-        Result.Y = static_cast<long double>(ImageOrigin.Y) * ImageScale.Y;
+        Result.X = static_cast<float>(static_cast<double>(ImageOrigin.X) * ImageScale.X);
+        Result.Y = static_cast<float>(static_cast<double>(ImageOrigin.Y) * ImageScale.Y);
         return Result;
     }
 
     EC_Struct::TPointF TShip2SE::ScaleImagePoint(EC_Struct::TPointF Point) {
         EC_Struct::TPointF Result{};
-        Result.X = (static_cast<long double>(Point.X) - ImageOrigin.X) * ImageScale.X;
-        Result.Y = (static_cast<long double>(Point.Y) - ImageOrigin.Y) * ImageScale.Y;
+        Result.X = static_cast<float>((static_cast<float>(static_cast<double>(Point.X) - ImageOrigin.X)) * ImageScale.X);
+        Result.Y = static_cast<float>((static_cast<float>(static_cast<double>(Point.Y) - ImageOrigin.Y)) * ImageScale.Y);
         return Result;
     }
 
     EC_Struct::TPointF TShip2SE::ImagePointToWorld(EC_Struct::TPointF Point) {
         EC_Struct::TPointF Result{};
         Point = ScaleImagePoint(Point);
-        double Radians = pas::real_divide(Angle, 256.0L) * aMyFunction::GameTwoPi;
+        double Radians = static_cast<float>(static_cast<float>(Angle / 256.0) * aMyFunction::GameTwoPi);
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
-        Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;
-        Result.Y = static_cast<long double>(Point.X) * Sine + static_cast<long double>(Point.Y) * Cosine + Position.Y;
+        Result.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Cosine) - static_cast<float>(static_cast<double>(Point.Y) * Sine)) + Position.X);
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Sine) + static_cast<float>(static_cast<double>(Point.Y) * Cosine)) + Position.Y);
         return Result;
     }
 
@@ -526,13 +544,13 @@ namespace SE_Ship2 {
             float cpp_arg_2 = pas::imod(Seed * 45452 + 3247, ImageSize.Y);
             Point = ScaleImagePoint(EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
         }
-        Point.X = static_cast<long double>(Point.X) * TargetSizeScale;
-        Point.Y = static_cast<long double>(Point.Y) * TargetSizeScale;
-        double Radians = pas::real_divide(Heading, 256.0L) * aMyFunction::GameTwoPi;
+        Point.X = static_cast<float>(static_cast<double>(Point.X) * TargetSizeScale);
+        Point.Y = static_cast<float>(static_cast<double>(Point.Y) * TargetSizeScale);
+        double Radians = static_cast<float>(static_cast<float>(Heading / 256.0) * aMyFunction::GameTwoPi);
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
-        Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;
-        Result.Y = static_cast<long double>(Point.X) * Sine + static_cast<long double>(Point.Y) * Cosine + Position.Y;
+        Result.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Cosine) - static_cast<float>(static_cast<double>(Point.Y) * Sine)) + Position.X);
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Sine) + static_cast<float>(static_cast<double>(Point.Y) * Cosine)) + Position.Y);
         return Result;
     }
 
@@ -543,12 +561,13 @@ namespace SE_Ship2 {
             Result = Position;
             return Result;
         }
-        Point = ScaleImagePoint(WeaponPorts[1 + pas::imod(pas::sqr(static_cast<std::int32_t>(Seed)) / 11, WeaponPortCount)]);
-        double Radians = pas::real_divide(Heading, 256.0L) * aMyFunction::GameTwoPi;
+        Point = ScaleImagePoint(WeaponPorts[1 + pas::imod(pas::sqr(static_cast<std::int32_t>(Seed)) / 11,
+                    WeaponPortCount)]);
+        double Radians = static_cast<float>(static_cast<float>(Heading / 256.0) * aMyFunction::GameTwoPi);
         double Sine = System::Sin(Radians);
         double Cosine = System::Cos(Radians);
-        Result.X = static_cast<long double>(Point.X) * Cosine - static_cast<long double>(Point.Y) * Sine + Position.X;
-        Result.Y = static_cast<long double>(Point.X) * Sine + static_cast<long double>(Point.Y) * Cosine + Position.Y;
+        Result.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Cosine) - static_cast<float>(static_cast<double>(Point.Y) * Sine)) + Position.X);
+        Result.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Point.X) * Sine) + static_cast<float>(static_cast<double>(Point.Y) * Cosine)) + Position.Y);
         return Result;
     }
 
@@ -622,7 +641,8 @@ namespace SE_Ship2 {
     void TShip2SE::StartAnimationTimer() {
         StopAnimationTimer();
         std::int32_t Delay = CurrentAnimation->Delays[CurrentFrameIndex];
-        AnimationTimer = Space->Screen->ScheduleCallbackTimer(Delay, Delay, pas::bind_method<&TShip2SE::AdvanceAnimation>(this), 0);
+        AnimationTimer = Space->Screen->ScheduleCallbackTimer(Delay, Delay,
+                pas::bind_method<&TShip2SE::AdvanceAnimation>(this), 0);
     }
 
     void TShip2SE::StopAnimationTimer() {
@@ -635,7 +655,8 @@ namespace SE_Ship2 {
     void TShip2SE::StartStateTimer() {
         StopStateTimer();
         SelectNextAnimation(nullptr, 0);
-        StateTimer = Space->Screen->ScheduleCallbackTimer(StateIntervalMs, StateIntervalMs, pas::bind_method<&TShip2SE::SelectNextAnimation>(this), 0);
+        StateTimer = Space->Screen->ScheduleCallbackTimer(StateIntervalMs, StateIntervalMs,
+                pas::bind_method<&TShip2SE::SelectNextAnimation>(this), 0);
     }
 
     void TShip2SE::StopStateTimer() {
@@ -648,7 +669,10 @@ namespace SE_Ship2 {
     void TShip2SE::AdvanceAnimation(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {
         {
             WindowsSdk::TRect& cpp_with = Image->HitTestBounds;
-            if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) * -0.1L > cpp_with.Right || static_cast<std::uint32_t>(GR_Main::GameScreenWidth) * 1.1L < cpp_with.Left || static_cast<std::uint32_t>(GR_Main::GameScreenHeight) * -0.1L > cpp_with.Bottom || static_cast<std::uint32_t>(GR_Main::GameScreenHeight) * 1.1L < cpp_with.Top) {
+            if (static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth) * -0x1.999999999999bp-4) > cpp_with.Right ||
+                static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth) * 0x1.199999999999bp+0) < cpp_with.Left ||
+                static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight) * -0x1.999999999999bp-4) > cpp_with.Bottom ||
+                static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight) * 0x1.199999999999bp+0) < cpp_with.Top) {
                 SetTailsEmitting(false);
                 return;
             }
@@ -716,8 +740,11 @@ namespace SE_Ship2 {
 
     void TShip2SE::DrawMap() {
         SE_Process::TProcessSE* CurrentProcess = pas::checked_cast<SE_Process::TProcessSE*>(Space->Process);
-        if (static_cast<long double>(aMyFunction::PointDistanceSquared(Position, CurrentProcess->RadarCenter)) < pas::sqr(CurrentProcess->RadarRange) || AlternateImagePath != u"" && CurrentProcess->RadarRange > 0 || aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Graphic == this) {
-            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width, GR_Main::RenderScratchBuffer->Height));
+        if (static_cast<double>(aMyFunction::PointDistanceSquared(Position, CurrentProcess->RadarCenter)) <
+            pas::sqr(CurrentProcess->RadarRange) || AlternateImagePath != u"" && CurrentProcess->RadarRange > 0 ||
+            aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Graphic == this) {
+            MinimapImage->Draw(ClassesImports::Rect(0, 0, GR_Main::RenderScratchBuffer->Width,
+                GR_Main::RenderScratchBuffer->Height));
         }
     }
 
@@ -754,7 +781,9 @@ namespace SE_Ship2 {
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 10); cpp_range.next(Index); ) {
             TailOrigins[Index] = EC_Struct::MakePointF(0.0f, 0.0f);
             if (Block->CountParams(pas::concat_wide({u"Tail", EC_Str::IntToWideString(Index)})) > 0) {
-                TailOrigins[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"Tail", EC_Str::IntToWideString(Index)}))))));
+                TailOrigins[Index] =
+                    EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({
+                        u"Tail", EC_Str::IntToWideString(Index)}))))));
             }
         }
         if (Block->CountParams(u"TailPrefix"_wref.get()) > 0) {
@@ -767,7 +796,9 @@ namespace SE_Ship2 {
             if (Block->CountParams(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)})) <= 0) {
                 break;
             }
-            WeaponPorts[Index] = EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
+            WeaponPorts[Index] =
+                EC_Struct::PointToPointF(GI_Main::GetPointGI(pas::view(Block->GetParam(pas::view(pas::concat_wide({
+                    u"WeaponPort", EC_Str::IntToWideString(Index)}))))));
             ++WeaponPortCount;
         }
         StateIntervalMs = SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"StateTime"sv)));
@@ -827,14 +858,16 @@ namespace SE_Ship2 {
     }
 
     void TShip2SE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
-        GI_RotateImage5::TRotateImage5GI* MainImage = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, Owner);
+        GI_RotateImage5::TRotateImage5GI* MainImage = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(
+            GI_RotateImage5::TRotateImage5GI_Create, Owner);
         if (GlobalsV::AnimShipFull) {
             GI_RotateImage5::TRotateImage5GI::QueueImagePath(PendingLoads, ImagePath);
         } else {
             GI_RotateImage5::TRotateImage5GI::QueueImagePath(PendingLoads, ReducedImagePath);
         }
         pas::free(MainImage);
-        GI_AlphaImage::TAlphaImageGI* MapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(GI_AlphaImage::TAlphaImageGI_Create, Owner);
+        GI_AlphaImage::TAlphaImageGI* MapImage = pas::construct_call<GI_AlphaImage::TAlphaImageGI>(
+            GI_AlphaImage::TAlphaImageGI_Create, Owner);
         MapImage->SetImagePath(MinimapImagePath);
         MapImage->QueueImageLoad(PendingLoads);
         pas::free(MapImage);

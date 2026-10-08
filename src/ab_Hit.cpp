@@ -16,7 +16,6 @@
 #include "units/GI_GAI.hpp"
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -59,9 +58,14 @@ namespace ab_Hit {
         std::int32_t Index{};
         pas::Object* Effect{};
         if (Self->Effects != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->Effects) - 1); cpp_range.next(Index); ) {
-                Effect = pas::list_at<pas::Object>(Self->Effects, Index);
-                pas::free(Effect);
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->Effects) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Effect = pas::list_at<pas::Object>(Self->Effects, Index);
+                        pas::free(Effect);
+                    }
+                }
             }
             pas::free(Self->Effects);
             Self->Effects = nullptr;
@@ -75,11 +79,15 @@ namespace ab_Hit {
         std::uint8_t Invulnerable{};
         GI_GAI::TgaiGI* Animation{};
         if (Health > 0) {
-            Invulnerable = aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->GodModEnabled == 1 && ab_Ship::PlayerArcadeShip == this;
-            if (this != KellerFragments[0] && this != KellerFragments[1] && this != KellerFragments[2] && this != KellerFragments[3]) {
+            Invulnerable = aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->GodModEnabled == 1 &&
+                    ab_Ship::PlayerArcadeShip == this;
+            if (this != KellerFragments[0] && this != KellerFragments[1] && this != KellerFragments[2] && this !=
+                    KellerFragments[3]) {
                 if (Source != nullptr) {
-                    if (pas::class_cast_if<ab_Ship::TabShip*>(this) != nullptr && pas::class_cast_if<ab_Ship::TabShip*>(Source) != nullptr) {
-                        if (pas::list_indexof(static_cast<ab_Ship::TabShip*>(Source)->Enemies, reinterpret_cast<void*>(this)) < 0) {
+                    if (pas::class_cast_if<ab_Ship::TabShip*>(this) != nullptr &&
+                        pas::class_cast_if<ab_Ship::TabShip*>(Source) != nullptr) {
+                        if (pas::list_indexof(static_cast<ab_Ship::TabShip*>(Source)->Enemies,
+                            reinterpret_cast<void*>(this)) < 0) {
                             Amount = Amount / 4;
                         }
                     }
@@ -87,14 +95,18 @@ namespace ab_Hit {
             }
             if (ab_Ship::PlayerArcadeShip == this && aPlayer::GetPlayer() != nullptr) {
                 if (ab_Global::ArcadeAutopilotEnabled) {
-                    Amount = System::Round(Amount * 0.7L);
+                    Amount = pas::real_round(static_cast<float>(Amount * 0x1.6666666666665p-1));
                 }
                 if (ab_Ship::KellerArcadeShip != nullptr) {
-                    Amount = System::Round(static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount + aPlayer::GetPlayer()->HyperspaceKillCount, 5.0, 7.0E+1, 0.1, 1.0)) * Amount);
+                    Amount = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+                            aPlayer::GetPlayer()->BlackHoleKillCount + aPlayer::GetPlayer()->HyperspaceKillCount, 5.0,
+                            7.0E+1, 0.1, 1.0)) * Amount));
                 }
-                Amount = System::Round(static_cast<long double>(Amount) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].ArcadeDamageTakenScale);
+                Amount = pas::real_round(static_cast<float>(static_cast<double>(Amount) *
+                        aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].ArcadeDamageTakenScale));
             }
-            if (ab_Ship::KellerArcadeShip == this && (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0)) {
+            if (ab_Ship::KellerArcadeShip == this && (ab_Ship::PlayerArcadeShip == nullptr ||
+                    ab_Ship::PlayerArcadeShip->Health <= 0)) {
                 Amount = 0;
             }
             if (Disrupt) {
@@ -116,10 +128,14 @@ namespace ab_Hit {
                 Health = 100;
             }
             if (ab_Ship::KellerArcadeShip == this && Health == 0) {
-                Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(this)->Visual)->Animation;
+                Animation =
+                    pas::checked_cast<SE_Ruins::TRuinsSE*>(
+                        pas::checked_cast<ab_Ship::TabShip*>(this)->Visual)->Animation;
                 Frame = Animation->SequenceFrame;
                 {
-                    const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"[20,0-", SysUtils::IntToStr(Animation->GetMainImageFrameCount() - 1), "][20,0-", SysUtils::IntToStr(Animation->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg = pas::concat_wide({u"[20,0-",
+                        pas::wide_int_to_str(Animation->GetMainImageFrameCount() - 1), u"][20,0-",
+                        pas::wide_int_to_str(Animation->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* animation = Animation;
                     animation->LoadFrameSequenceFromText(cpp_arg);
                 }
@@ -130,13 +146,15 @@ namespace ab_Hit {
             if (Health > 0 || ab_Ship::KellerArcadeShip != this) {
                 if (Health <= 0) {
                     if (ab_Global::IsDepthBeforeSphereHorizon(GetProjectedPosition().Z)) {
-                        Effect = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Globals::ArcadeBattleScreen->WorldPanel);
+                        Effect = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create,
+                                Globals::ArcadeBattleScreen->WorldPanel);
                         pas::list_add(Effects, reinterpret_cast<void*>(Effect));
                         if (ab_Global::IsDepthBeforeSphereHorizon(GetProjectedPosition().Z)) {
                             if (ab_Ship::KellerArcadeShip == this || ab_Ship::KellerAuxiliaryShip == this) {
                                 reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->SetImagePath(u"Bm.Weapon.ExplM"_wref.get());
                             } else {
-                                reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->SetImagePath(static_cast<pas::WideString>(pas::concat_ansi({"Bm.Weapon.Expl", SysUtils::IntToStr(aMyFunction::RandomIntRange(0, 1))})));
+                                reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->SetImagePath(pas::concat_wide({
+                                    u"Bm.Weapon.Expl", pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))}));
                             }
                             Effect->SetDepth(ab_Global::ExplosionFrontDepth);
                         } else {
@@ -147,7 +165,8 @@ namespace ab_Hit {
                         Effect->UpdateAutoGeometry();
                         Effect->SetSize(reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->GetContentSize());
                         Effect->SetOrigin(EC_Struct::HalfPoint(Effect->ClientSize));
-                        reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->CycleCompleteCallback = pas::bind_method<&TabHit::ExplosionComplete>(this);
+                        reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->CycleCompleteCallback = pas::bind_method<
+                                &TabHit::ExplosionComplete>(this);
                         reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->RestartPlayback();
                         Effect->SetActive(true);
                         if (pas::class_cast_if<abWall::TabWall*>(this) != nullptr) {
@@ -157,7 +176,8 @@ namespace ab_Hit {
                                 GR_Main::SoundManager->PlaySound(u"Sound.ab_Expl1"_wref.get());
                             }
                         } else {
-                            auto cpp_arg_2 = pas::borrow(Globals::ArcadeExplosionSounds[aMyFunction::RandomIntRange(0, Globals::ArcadeExplosionSounds.length() - 1)]);
+                            auto cpp_arg_2 = pas::borrow(Globals::ArcadeExplosionSounds[aMyFunction::RandomIntRange(0,
+                                Globals::ArcadeExplosionSounds.length() - 1)]);
                             GR_Sound::TSoundControl* soundManager = GR_Main::SoundManager;
                             soundManager->PlaySound(cpp_arg_2.get());
                         }
@@ -165,7 +185,8 @@ namespace ab_Hit {
                         DeletionPending = true;
                     }
                 } else if (Source != nullptr && pas::list_count(Effects) < 5 || pas::list_count(Effects) < 1) {
-                    Effect = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Globals::ArcadeBattleScreen->WorldPanel);
+                    Effect = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create,
+                            Globals::ArcadeBattleScreen->WorldPanel);
                     pas::list_add(Effects, reinterpret_cast<void*>(Effect));
                     if (ab_Global::IsDepthBeforeSphereHorizon(GetProjectedPosition().Z)) {
                         reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->SetImagePath(u"Bm.AB.hit00_f"_wref.get());
@@ -178,17 +199,21 @@ namespace ab_Hit {
                     Effect->UpdateAutoGeometry();
                     Effect->SetSize(reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->GetContentSize());
                     {
-                        std::int32_t cpp_right_2 = aMyFunction::RandomIntRange(-EffectOriginSpread / 4, EffectOriginSpread / 4);
+                        std::int32_t cpp_right_2 = aMyFunction::RandomIntRange(-EffectOriginSpread / 4,
+                            EffectOriginSpread / 4);
                         std::int32_t cpp_arg_3 = Effect->ClientSize.Y / 2 + cpp_right_2;
-                        std::int32_t cpp_right = aMyFunction::RandomIntRange(-EffectOriginSpread / 4, EffectOriginSpread / 4);
+                        std::int32_t cpp_right = aMyFunction::RandomIntRange(-EffectOriginSpread / 4,
+                            EffectOriginSpread / 4);
                         std::int32_t cpp_arg_4 = Effect->ClientSize.X / 2 + cpp_right;
                         Effect->SetOrigin(ClassesImports::Point(cpp_arg_4, cpp_arg_3));
                     }
-                    reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->CycleCompleteCallback = pas::bind_method<&TabHit::HitEffectComplete>(this);
+                    reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->CycleCompleteCallback = pas::bind_method<
+                            &TabHit::HitEffectComplete>(this);
                     reinterpret_cast<GI_GAI::TgaiGI*>(Effect)->RestartPlayback();
                     Effect->SetActive(true);
                     if (ab_Ship::PlayerArcadeShip == this) {
-                        auto cpp_arg_5 = pas::borrow(Globals::ArcadeHitSounds[aMyFunction::RandomIntRange(0, Globals::ArcadeHitSounds.length() - 1)]);
+                        auto cpp_arg_5 = pas::borrow(Globals::ArcadeHitSounds[aMyFunction::RandomIntRange(0,
+                            Globals::ArcadeHitSounds.length() - 1)]);
                         GR_Sound::TSoundControl* soundManager_2 = GR_Main::SoundManager;
                         soundManager_2->PlaySound(cpp_arg_5.get());
                     }
@@ -229,7 +254,9 @@ namespace ab_Hit {
         }
         if (ab_Ship::KellerArcadeShip == this && KellerFragments[0] != nullptr) {
             ++KellerBreakupTicks;
-            if (KellerBreakupTicks > 150 && aPlayer::GetPlayer() != nullptr && aKling::KellerShip != nullptr && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && KellerFinishRequested) {
+            if (KellerBreakupTicks > 150 && aPlayer::GetPlayer() != nullptr && aKling::KellerShip != nullptr &&
+                ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 &&
+                KellerFinishRequested) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 3); cpp_range.next(Index); ) {
                     KellerFragments[Index]->ApplyDamage(KellerFragments[Index]->Health, this, false);
                     KellerFragments[Index] = nullptr;
@@ -246,18 +273,31 @@ namespace ab_Hit {
                     Source.BearingDegrees = 0.0;
                     Bearing = ab_Global::GetSphericalBearingAndDistance(Source, KellerFragments[Index]->State);
                     if (KellerBreakupTicks < 150) {
-                        KellerFragmentDistances[Index] = pas::real_max<double>(KellerFragmentDistances[Index], Bearing.Distance);
-                        OutwardAnimation = pas::checked_cast<SE_Ruins::TRuinsSE*>(reinterpret_cast<ab_Ship::TabShip*>(KellerFragments[Index])->Visual)->Animation;
-                        OutwardAnimation->SetSequenceFrame(System::Round(OutwardAnimation->SequenceFrameCount / 2 * pas::real_divide(KellerBreakupTicks, 1.5E+2L)));
+                        KellerFragmentDistances[Index] = pas::real_max_scalar<double>(KellerFragmentDistances[Index],
+                                Bearing.Distance);
+                        OutwardAnimation =
+                            pas::checked_cast<SE_Ruins::TRuinsSE*>(
+                                reinterpret_cast<ab_Ship::TabShip*>(KellerFragments[Index])->Visual)->Animation;
+                        OutwardAnimation->SetSequenceFrame(pas::real_round(static_cast<float>(OutwardAnimation->SequenceFrameCount / 2 *
+                            (static_cast<float>(KellerBreakupTicks / 1.5E+2)))));
                     } else {
-                        InwardAnimation = pas::checked_cast<SE_Ruins::TRuinsSE*>(reinterpret_cast<ab_Ship::TabShip*>(KellerFragments[Index])->Visual)->Animation;
-                        InwardAnimation->SetSequenceFrame(std::min<std::int64_t>(static_cast<std::int64_t>(InwardAnimation->SequenceFrameCount - 1), System::Round(InwardAnimation->SequenceFrameCount / 2 * pas::real_divide(KellerBreakupTicks, 1.5E+2L))));
+                        InwardAnimation =
+                            pas::checked_cast<SE_Ruins::TRuinsSE*>(
+                                reinterpret_cast<ab_Ship::TabShip*>(KellerFragments[Index])->Visual)->Animation;
+                        InwardAnimation->SetSequenceFrame(std::min<std::int64_t>(
+                            static_cast<std::int64_t>(InwardAnimation->SequenceFrameCount - 1),
+                            pas::real_round(static_cast<float>(InwardAnimation->SequenceFrameCount / 2 * (static_cast<float>(KellerBreakupTicks / 1.5E+2))))));
                         KellerFragments[Index]->Velocity.X = 0.0f;
                         KellerFragments[Index]->Velocity.Y = 0.0f;
                         KellerFragments[Index]->State = State;
-                        KellerFragments[Index]->State.BearingDegrees = aMyFunction::WrapHeadingDegrees(Bearing.BearingDeltaDegrees);
-                        ArcDistance = (1.0L - pas::real_divide(KellerBreakupTicks - 150, 1.5E+2L)) * KellerFragmentDistances[Index];
-                        ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&KellerFragments[Index]->State.LongitudeDegrees), pas::Var<double>(&KellerFragments[Index]->State.PolarAngleDegrees), pas::Var<double>(&KellerFragments[Index]->State.BearingDegrees), ab_Global::SphereRadius, ArcDistance);
+                        KellerFragments[Index]->State.BearingDegrees =
+                            aMyFunction::WrapHeadingDegrees(Bearing.BearingDeltaDegrees);
+                        ArcDistance = static_cast<float>((static_cast<float>(1.0 - static_cast<float>((KellerBreakupTicks - 150) / 1.5E+2))) * KellerFragmentDistances[Index]);
+                        ab_Global::AdvanceSphericalBearingState(
+                            pas::Var<double>(&KellerFragments[Index]->State.LongitudeDegrees),
+                            pas::Var<double>(&KellerFragments[Index]->State.PolarAngleDegrees),
+                            pas::Var<double>(&KellerFragments[Index]->State.BearingDegrees), ab_Global::SphereRadius,
+                            ArcDistance);
                         if (KellerBreakupTicks >= 300) {
                             KellerFragments[Index]->DeletionPending = true;
                             KellerFragments[Index] = nullptr;
@@ -270,7 +310,8 @@ namespace ab_Hit {
                     Health = MaxHealth;
                     pas::checked_cast<ab_Ship::TabShip*>(this)->AttachVisual();
                     if (KellerDeathPending) {
-                        DeathAnimation = pas::checked_cast<SE_Ruins::TRuinsSE*>(ab_Ship::KellerArcadeShip->Visual)->Animation;
+                        DeathAnimation =
+                            pas::checked_cast<SE_Ruins::TRuinsSE*>(ab_Ship::KellerArcadeShip->Visual)->Animation;
                         DeathAnimation->SetImagePath(u"Bm.Ruins.Keller_Out"_wref.get());
                         DeathAnimation->SequenceIndex = 0;
                         DeathAnimation->UpdateAutoGeometry();
@@ -301,13 +342,16 @@ namespace ab_Hit {
         EC_Struct::TVector3D Position{};
         ab_Object::TabObject::UpdateVisuals();
         Position = GetWorldPosition();
-        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Effects) - 1); cpp_range.next(Index); ) {
-            Effect = pas::list_at<GI_MessageLoop::TObjectGI>(Effects, Index);
-            {
-                std::int32_t round = System::Round(Position.Y);
-                std::int32_t round_2 = System::Round(Position.X);
-                Effect->SetPosition(ClassesImports::Point(round_2, round));
+        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                pas::ConstRef<EC_Struct::TVector3D>(&Position));
+        {
+            const std::int32_t cpp_last = pas::list_count(Effects) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Effect = pas::list_at<GI_MessageLoop::TObjectGI>(Effects, Index);
+                    Effect->SetPosition(ClassesImports::Point(pas::real_round(Position.X),
+                        pas::real_round(Position.Y)));
+                }
             }
         }
     }
@@ -342,18 +386,22 @@ namespace ab_Hit {
         }
         KellerBreakupTicks = 0;
         KellerFinishRequested = false;
-        SourcePoint = Globals::ArcadeBattleScreen->WorldPanel->ToAbsolutePoint(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation->LocalPosition);
+        SourcePoint =
+            Globals::ArcadeBattleScreen->WorldPanel->ToAbsolutePoint(
+                pas::checked_cast<SE_Ruins::TRuinsSE*>(
+                    pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation->LocalPosition);
         if (!Globals::ArcadeBattleScreen->ScreenPointToSphere(SourcePoint, SourceLongitude, SourcePolarAngle)) {
             SourceLongitude = -1.0E+20;
             SourcePolarAngle = -1.0E+20;
         }
-        GI_GAI::TgaiGI* Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation;
+        GI_GAI::TgaiGI* Animation = pas::checked_cast<SE_Ruins::TRuinsSE*>(
+            pas::checked_cast<ab_Ship::TabShip*>(Self)->Visual)->Animation;
         Animation->CycleCompleteCallback = nullptr;
         static_cast<ab_Ship::TabShip*>(Self)->DetachVisual();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 3); cpp_range_2.next(Index); ) {
             Ship = pas::construct_call<ab_Ship::TabShip>(ab_Ship::TabShip_Create);
             ab_Object::ab_Object_Add(Ship);
-            Ship->CreateRuinsVisual(static_cast<pas::WideString>(pas::concat_ansi({"Ruins.Keller_P", SysUtils::IntToStr(Index + 1)})), 128);
+            Ship->CreateRuinsVisual(pas::concat_wide({u"Ruins.Keller_P", pas::wide_int_to_str(Index + 1)}), 128);
             Ship->MaxSpeed = 8.0;
             Ship->TurnSpeed = 1.8;
             Ship->Thrust = 0.0;
@@ -381,16 +429,18 @@ namespace ab_Hit {
             } else {
                 Angle = aMyFunction::HeadingDegreesToRadians(2.7E+2);
             }
-            Ship->Velocity.X = System::Sin(Angle) * 1.0E+1L;
-            Ship->Velocity.Y = System::Cos(Angle) * -1.0E+1L;
-            if (SourceLongitude > -1.0E+10L) {
-                TargetPoint.X = SourcePoint.X + System::Round(System::Sin(Angle) * 1.0E+2L);
-                TargetPoint.Y = SourcePoint.Y - System::Round(System::Cos(Angle) * 1.0E+2L);
+            Ship->Velocity.X = static_cast<float>(System::Sin(Angle) * 1.0E+1);
+            Ship->Velocity.Y = static_cast<float>(System::Cos(Angle) * -1.0E+1);
+            if (SourceLongitude > -1.0E+10) {
+                TargetPoint.X = SourcePoint.X + pas::real_round(static_cast<float>(System::Sin(Angle) * 1.0E+2));
+                TargetPoint.Y = SourcePoint.Y - pas::real_round(static_cast<float>(System::Cos(Angle) * 1.0E+2));
                 if (Globals::ArcadeBattleScreen->ScreenPointToSphere(TargetPoint, TargetLongitude, TargetPolarAngle)) {
-                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
+                    ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&Bearing),
+                        pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude,
+                        TargetPolarAngle, ab_Global::SphereRadius);
                     Bearing = aMyFunction::HeadingDegreesToRadians(aMyFunction::WrapHeadingDegrees(Bearing));
-                    Ship->Velocity.X = System::Sin(Bearing) * 1.0E+1L;
-                    Ship->Velocity.Y = -System::Cos(Bearing) * 1.0E+1L;
+                    Ship->Velocity.X = static_cast<float>(System::Sin(Bearing) * 1.0E+1);
+                    Ship->Velocity.Y = static_cast<float>(-System::Cos(Bearing) * 1.0E+1);
                     Ship->State.BearingDegrees = Bearing;
                 }
             }

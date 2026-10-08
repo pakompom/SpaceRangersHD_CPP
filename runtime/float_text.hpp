@@ -8,37 +8,49 @@
 namespace pas {
 // Delphi 2007 System._Pow10 uses three table factors, in this order. Keep
 // ordinary floating operations and the caller's x87 precision/rounding mode.
-inline long double scale_decimal(long double value, int power) {
+inline Real scale_decimal(Real value, int power) {
+#if !SRHD_NATIVE_REALS
 #pragma STDC FENV_ACCESS ON
-#if LDBL_MANT_DIG == 64
-  static constexpr long double small[] = {1e0L, 1e1L, 1e2L, 1e3L, 1e4L, 1e5L, 1e6L, 1e7L, 1e8L, 1e9L, 1e10L, 1e11L, 1e12L, 1e13L, 1e14L, 1e15L, 1e16L, 1e17L, 1e18L, 1e19L, 1e20L, 1e21L, 1e22L, 1e23L, 1e24L, 1e25L, 1e26L, 1e27L, 1e28L, 1e29L, 1e30L, 1e31L};
-  static constexpr long double middle[] = {1e32L, 1e64L, 1e96L, 1e128L, 1e160L, 1e192L, 1e224L, 1e256L, 1e288L, 1e320L, 1e352L, 1e384L, 1e416L, 1e448L, 1e480L};
-  static constexpr long double large[] = {1e512L, 1e1024L, 1e1536L, 1e2048L, 1e2560L, 1e3072L, 1e3584L, 1e4096L, 1e4608L};
+#endif
+#if !SRHD_NATIVE_REALS && LDBL_MANT_DIG == 64
+  static constexpr Real small[] = {1e0L, 1e1L, 1e2L, 1e3L, 1e4L, 1e5L, 1e6L, 1e7L, 1e8L, 1e9L, 1e10L, 1e11L, 1e12L, 1e13L, 1e14L, 1e15L, 1e16L, 1e17L, Real(1e18), 1e19L, 1e20L, 1e21L, 1e22L, 1e23L, 1e24L, 1e25L, 1e26L, 1e27L, 1e28L, 1e29L, 1e30L, 1e31L};
+  static constexpr Real middle[] = {1e32L, 1e64L, 1e96L, 1e128L, 1e160L, 1e192L, 1e224L, 1e256L, 1e288L, 1e320L, 1e352L, 1e384L, 1e416L, 1e448L, 1e480L};
+  static constexpr Real large[] = {1e512L, 1e1024L, 1e1536L, 1e2048L, 1e2560L, 1e3072L, 1e3584L, 1e4096L, 1e4608L};
   bool divide = power < 0;
   unsigned n = unsigned(divide ? -power : power);
   if (!n) return value;
-  if (n >= 5120) return divide ? 0.0L : std::numeric_limits<long double>::infinity();
-  const auto apply = [&](long double factor) { value = divide ? value / factor : value * factor; };
+  if (n >= 5120) return divide ? Real(0) : std::numeric_limits<Real>::infinity();
+  const auto apply = [&](Real factor) { value = divide ? value / factor : value * factor; };
   apply(small[n % 32]);
   if (unsigned index = (n / 32) % 16) apply(middle[index - 1]);
   if (unsigned index = n / 512) apply(large[index - 1]);
   return value;
+#elif SRHD_NATIVE_REALS
+  // Split scales outside double's exponent range so a finite result does not
+  // overflow/underflow just because the standalone power of ten would do so.
+  while (power > 308) { value *= 1e308; power -= 308; }
+  while (power < -308) { value *= 1e-308; power += 308; }
+  return value * std::pow(10.0, power);
 #else
-  return value * std::pow(10.0L, power);
+  return value * std::pow(Real(10), power);
 #endif
 }
 
 // Selected SysUtils.TextToFloat grammar and decimal accumulation. In particular,
 // a decimal point alone and an exponent without digits are accepted by this RTL.
 // Conversion always uses nearest rounding and the full x87 significand.
-inline long double str_to_float(const AnsiString& text, std::uint8_t decimal_separator) {
+inline Real str_to_float(const AnsiString& text, std::uint8_t decimal_separator) {
+#if !SRHD_NATIVE_REALS
 #pragma STDC FENV_ACCESS ON
+#endif
 #pragma STDC FP_CONTRACT OFF
+#if !SRHD_NATIVE_REALS
   struct Control {
     std::uint16_t saved = get_fpu_control();
     Control() { set_fpu_control(0x133f); }
     ~Control() { set_fpu_control(saved); }
   } control;
+#endif
   auto invalid = [&]() -> void {
     raise(make_exception<ConvertError>(AnsiString("'") + text + AnsiString("' is not a valid floating point value")));
   };
@@ -47,7 +59,7 @@ inline long double str_to_float(const AnsiString& text, std::uint8_t decimal_sep
   const bool negative = *cursor == '-';
   if (*cursor == '+' || negative) ++cursor;
   auto* start = cursor;
-  long double value = 0;
+  Real value = 0;
   auto digits = [&]() {
     int count = 0;
     while (*cursor >= '0' && *cursor <= '9') {
@@ -73,9 +85,12 @@ inline long double str_to_float(const AnsiString& text, std::uint8_t decimal_sep
   while (*cursor == ' ') ++cursor;
   if (*cursor) invalid();
   const auto power = std::int64_t(exponent) - fraction;
-  value = power <= -5120 ? 0.0L : scale_decimal(value, int(power));
+  value = power <= -5120 ? Real(0) : scale_decimal(value, int(power));
   if (negative) value = -value;
-  if (!std::isfinite(value) || std::fetestexcept(FE_INVALID | FE_OVERFLOW)) invalid();
+  if (!std::isfinite(value)) invalid();
+#if !SRHD_NATIVE_REALS
+  if (std::fetestexcept(FE_INVALID | FE_OVERFLOW)) invalid();
+#endif
   return value;
 }
 
@@ -83,13 +98,15 @@ inline long double str_to_float(const AnsiString& text, std::uint8_t decimal_sep
 // As in selected FloatToDecimal, the first rounding obeys x87 mode and the
 // significant/fractional digit cut then rounds half-up.
 struct DecimalDigits { std::string digits; int exponent = 0; };
-inline DecimalDigits decimal_digits(long double value, int precision, int decimals) {
+inline DecimalDigits decimal_digits(Real value, int precision, int decimals) {
+#if !SRHD_NATIVE_REALS
 #pragma STDC FENV_ACCESS ON
+#endif
   if (value == 0 || std::fpclassify(value) == FP_SUBNORMAL) return {};
   const auto exponent_product = std::int64_t(std::ilogb(value)) * 19728;
   int exponent = int((exponent_product >= 0 ? exponent_product : exponent_product - 65535) / 65536) + 1;
-  long double scaled = std::rint(scale_decimal(std::fabs(value), 18 - exponent));
-  if (scaled >= 1e18L) { scaled = std::rint(scaled / 10.0L); ++exponent; }
+  Real scaled = std::rint(scale_decimal(std::fabs(value), 18 - exponent));
+  if (scaled >= Real(1e18)) { scaled = std::rint(scaled / Real(10)); ++exponent; }
   auto digits = std::to_string(std::uint64_t(scaled));
   if (digits.size() < 18) digits.insert(0, 18 - digits.size(), '0');
   const int keep = std::min(precision, exponent + decimals);
@@ -126,12 +143,12 @@ inline AnsiString general_decimal(DecimalDigits number, bool negative, int preci
   }
   return AnsiString(result.data(), std::int32_t(result.size()));
 }
-inline AnsiString float_to_str(long double value, std::uint8_t separator) {
+inline AnsiString float_to_str(Real value, std::uint8_t separator) {
   if (std::isnan(value)) return "NAN";
   if (std::isinf(value)) return std::signbit(value) ? "-INF" : "INF";
   return general_decimal(decimal_digits(value, 15, 9999), std::signbit(value), 15, separator);
 }
-inline AnsiString float_to_fixed(long double value, int precision, int decimals, std::uint8_t separator) {
+inline AnsiString float_to_fixed(Real value, int precision, int decimals, std::uint8_t separator) {
   if (std::isnan(value)) return "NAN";
   if (std::isinf(value)) return std::signbit(value) ? "-INF" : "INF";
   precision = std::clamp(precision, 2, 18);

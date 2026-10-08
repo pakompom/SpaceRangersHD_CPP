@@ -20,7 +20,7 @@ namespace SE_Space {
     // Clears Obj; frees its previous value when the decremented reference count is nonpositive.
     void ReleaseSpaceObject(pas::Var<TObjectSE*> Obj);
 
-    void TObjectSE_CreateEmpty(TObjectSE* Self);
+    inline void TObjectSE_CreateEmpty(TObjectSE* Self);
 
     // UnusedPosition is copied but does not initialize Position.
     void TObjectSE_Create(TObjectSE* Self, const pas::WideString& AGraphKey, WindowsSdk::TPoint UnusedPosition);
@@ -33,3 +33,5 @@ namespace SE_Space {
     void TSpaceSE_Destroy(TSpaceSE* Self);
 
 } // namespace SE_Space
+
+#include "inline/SE_Space.hpp"

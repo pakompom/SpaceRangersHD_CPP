@@ -22,10 +22,6 @@
 #include "units/fAchievements.hpp"
 
 namespace fAchievements {
-    void TfAchievements_Create(TfAchievements* Self) {
-        GI_MessageLoop::TMessageLoopGI_Create(Self);
-    }
-
     void TfAchievements_Destroy(TfAchievements* Self) {
         GI_MessageLoop::TMessageLoopGI_Destroy(Self);
     }
@@ -37,23 +33,28 @@ namespace fAchievements {
         {
             GI_MessageLoop::TObjectGI* cpp_with = GetByName(u""sv);
             cpp_with->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            cpp_with->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            cpp_with->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* MainPanel = cpp_with->FindByNameRecursive(u"MainPanel"sv);
-                MainPanel->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - MainPanel->ClientSize.X) / 2, (GR_Main::GameScreenHeight - MainPanel->ClientSize.Y) / 2));
+                MainPanel->SetPosition(ClassesImports::Point((GR_Main::GameScreenWidth - MainPanel->ClientSize.X) / 2,
+                    (GR_Main::GameScreenHeight - MainPanel->ClientSize.Y) / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfAchievements::KeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfAchievements::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<
+                &TfAchievements::CloseClicked>(this);
     }
 
     void TfAchievements::OnOpen() {
         GI_MessageLoop::TMessageLoopGI::OnOpen();
-        if (GlobalsV::PreviousScreenId != GlobalsV::screenArcadeBattle && GR_Main::AuxRenderBuffer->GetPixels() == nullptr) {
+        if (GlobalsV::PreviousScreenId != GlobalsV::screenArcadeBattle && GR_Main::AuxRenderBuffer->GetPixels() ==
+                nullptr) {
             GR_Main::CaptureScreenBackground(true, 0);
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         RebuildAchievementList();
     }
 
@@ -84,28 +85,35 @@ namespace fAchievements {
         if (Key == WindowsSdk::VK_ESCAPE) {
             CloseClicked(Sender);
         } else if (Key == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
-                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
+                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position -
+                    PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (Key == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
-                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
+                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position +
+                    PanelSlot_2->VerticalScrollBar->LargeChange);
             }
         }
     }
 
     void TfAchievements::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSlot"sv));
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (PanelSlot->VerticalScrollBar->Active) {
-                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->SmallChange);
+                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position -
+                    PanelSlot->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
             if (PanelSlot->VerticalScrollBar->Active) {
-                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position + PanelSlot->VerticalScrollBar->SmallChange);
+                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position +
+                    PanelSlot->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         }
@@ -127,13 +135,16 @@ namespace fAchievements {
         GI_Panel::TPanelGI* Row{};
         std::int32_t Index{};
         SimpleSteamApi::PAchievementData Data{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         Rows.set_length(0);
         std::int32_t Count = Achievements::GetAvailableAchievementCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count); cpp_range.next(I); ) {
             Index = AppendRow(0);
-            Data = Achievements::GetAchievementData(static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[I].Key));
+            Data =
+                Achievements::GetAchievementData(
+                    static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[I].Key));
             Rows[Index].Key = static_cast<pas::WideString>(Achievements::AchievementDefinitionTable[I].Key);
             Rows[Index].Data = Data;
             if (Data->HasProgress) {
@@ -208,16 +219,20 @@ namespace fAchievements {
             cpp_with_3->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         }
         if (Rows[Index].Data->HasProgress && static_cast<std::uint8_t>(Rows[Index].Data->Achieved ^ 1)) {
-            TfAchievements::BuildProgressBars(Owner, 0, Rows[Index].Data->MaxValue, Rows[Index].Data->Value, Achievements::GetCurrentAchievementProgress(pas::view(Rows[Index].Key), Rows[Index].Data->Value));
+            TfAchievements::BuildProgressBars(Owner, 0, Rows[Index].Data->MaxValue, Rows[Index].Data->Value,
+                Achievements::GetCurrentAchievementProgress(pas::view(Rows[Index].Key), Rows[Index].Data->Value));
             {
-                GI_Label::TLabelGI* cpp_with_4 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
+                GI_Label::TLabelGI* cpp_with_4 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                    Owner);
                 cpp_with_4->SetPosition(ClassesImports::Point(600, 45));
                 cpp_with_4->SetSize(ClassesImports::Point(205, 20));
                 cpp_with_4->SetDepth(7.0);
                 cpp_with_4->SetFontName(GlobalsV::SmallFontName);
                 cpp_with_4->SetTextAlignX(GI_Main::taxCenter);
                 cpp_with_4->SetTextAlignY(GI_Main::tayCenterEx);
-                cpp_with_4->SetText(pas::concat_wide({pas::wide_int_to_str(Rows[Index].Data->Value), GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"Achievements.Of"_wref.get()), pas::wide_int_to_str(Rows[Index].Data->MaxValue)}));
+                cpp_with_4->SetText(pas::concat_wide({pas::wide_int_to_str(Rows[Index].Data->Value),
+                    GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"Achievements.Of"_wref.get()),
+                    pas::wide_int_to_str(Rows[Index].Data->MaxValue)}));
                 cpp_with_4->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             }
         }
@@ -229,7 +244,8 @@ namespace fAchievements {
             cpp_with_5->SetFontName(GlobalsV::SmallFontName);
             cpp_with_5->SetTextAlignX(GI_Main::taxRight);
             cpp_with_5->SetTextAlignY(GI_Main::tayCenterEx);
-            cpp_with_5->SetText(pas::concat_wide_reverse({GR_Main::FormatUnixDateTime(Rows[Index].Data->Date), GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"Achievements.Achieved"_wref.get())}));
+            cpp_with_5->SetText(pas::concat_wide_reverse({GR_Main::FormatUnixDateTime(Rows[Index].Data->Date),
+                GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"Achievements.Achieved"_wref.get())}));
             cpp_with_5->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         }
         {
@@ -259,16 +275,23 @@ namespace fAchievements {
     void TfAchievements::SelectMusic() {
     }
 
-    void TfAchievements::BuildProgressBars(GI_MessageLoop::TObjectGI* Owner, std::int32_t MinValue, std::int32_t MaxValue, std::int32_t StoredValue, std::int32_t CurrentValue) {
-        GI_CountBar::TCountBarGI* Bar = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create, Owner);
+    void TfAchievements::BuildProgressBars(GI_MessageLoop::TObjectGI* Owner, std::int32_t MinValue,
+        std::int32_t MaxValue, std::int32_t StoredValue, std::int32_t CurrentValue) {
+        GI_CountBar::TCountBarGI* Bar = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create,
+            Owner);
         Bar->SetPosition(ClassesImports::Point(630, 60));
         Bar->SetSize(ClassesImports::Point(145, 20));
         Bar->SetPositionModeW(false);
-        Bar->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeft"}));
-        Bar->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRight"}));
-        Bar->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Bar->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Bar->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Bar->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackLeft"}));
+        Bar->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackRight"}));
+        Bar->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
+        Bar->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Bar->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
         Bar->SetRange(MinValue, MaxValue);
         Bar->SetPositionInternal(std::min<std::int32_t>(StoredValue, MaxValue));
         Bar->SetHitTestDisabled(true);
@@ -276,14 +299,19 @@ namespace fAchievements {
         Bar->Invalidate();
         Bar = pas::construct_call<GI_CountBar::TCountBarGI>(GI_CountBar::TCountBarGI_Create, Owner);
         Bar->SetPosition(ClassesImports::Point(630, 60));
-        Bar->SetDepth(Bar->Depth - 1.0L);
+        Bar->SetDepth(static_cast<float>(Bar->Depth - 1.0));
         Bar->SetSize(ClassesImports::Point(145, 20));
         Bar->SetPositionModeW(false);
-        Bar->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackLeftAlt"}));
-        Bar->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackRightAlt"}));
-        Bar->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Bar->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
-        Bar->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Bar->AfterThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackLeftAlt"}));
+        Bar->BeforeThumbImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackRightAlt"}));
+        Bar->ThumbButton->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
+        Bar->ThumbButton->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormOptions2.",
+            GR_Main::GiResourceSuffix(), u"TrackPol"}));
+        Bar->ThumbButton->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormOptions2.", GR_Main::GiResourceSuffix(),
+            u"TrackPol"}));
         Bar->SetRange(MinValue, MaxValue);
         Bar->SetPositionInternal(std::min<std::int32_t>(CurrentValue, MaxValue));
         Bar->SetHitTestDisabled(true);

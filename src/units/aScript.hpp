@@ -140,9 +140,11 @@ namespace aScript {
 
     void RunGlobalScriptsForContext(aGalaxy::TStar* Star, std::int32_t RunFrom);
 
-    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, const std::u16string_view& Name);
+    std::uint8_t TryStartScriptByName(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet,
+        const std::u16string_view& Name);
 
-    std::uint8_t TryStartScriptInstanceFromTemplate(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet, std::int32_t TemplateIndex);
+    std::uint8_t TryStartScriptInstanceFromTemplate(aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet,
+        std::int32_t TemplateIndex);
 
     // Replaces and frees Script on success; retains it on failure. Requires an existing Galaxy.Scripts entry.
     std::uint8_t TryRestartScript(TScript* Script, aGalaxy::TStar* AnchorStar, aPlanet::TPlanet* AnchorPlanet);
@@ -164,7 +166,8 @@ namespace aScript {
 
     TScriptShipTypeMask DecodeScriptShipTypeMask(std::uint32_t Value);
 
-    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value, aGalaxyStruct::TKlingType KlingType);
+    aGalaxyStruct::TDominatorSeriesMask DecodeScriptDominatorMask(std::uint32_t Value,
+        aGalaxyStruct::TKlingType KlingType);
 
     // Values outside 0..7 become owner 6.
     aGalaxyStruct::TOwnerId DecodeScriptItemOwner(std::int32_t Value);
@@ -173,7 +176,8 @@ namespace aScript {
     aGalaxyStruct::TRelationLevel DecodeScriptRelationLevel(std::int32_t Value);
 
     // DominatorMasks requires eight entries indexed by TKlingType. StationNames is a comma-separated filter when ship-type bit 8 is set.
-    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask, const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks);
+    std::uint8_t ScriptShipMatchesType(aShip::TShip* Ship, TScriptShipTypeMask ShipTypeMask,
+        const std::u16string_view& StationNames, pas::OpenArray<aGalaxyStruct::TDominatorSeriesMask> DominatorMasks);
 
     // Caller owns the list; ship references are borrowed.
     pas::List* CollectScriptCandidateShips(aGalaxy::TStar* Star);
@@ -208,16 +212,16 @@ namespace aScript {
     std::int32_t RunItemUseCode(aItem::TItem* Item, aShip::TShip* Ship);
 
     // Uses artifact or useless-item configuration code. Object slots can carry event-specific integers.
-    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+    std::int32_t RunItemConfigActionCode(aItem::TItem* Item, aGalaxyStruct::TScriptActionType ActionType,
+        aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
 
     // Returns the event parameter after script changes. Object slots can carry event-specific integers.
-    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, aGalaxyStruct::TScriptActionType ActionType, aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
+    std::int32_t RunCustomShipInfoActionCode(aShip::PCustomShipInfo Info, aGalaxyStruct::TScriptActionType ActionType,
+        aShip::TShip* Ship, pas::Object* Object1, pas::Object* Object2, std::int32_t Param);
 
     pas::WideString GetScriptContextDescription();
 
-    void TScriptThread_Create(TScriptThread* Self);
-
-    void TScriptThread_Execute(TScriptThread* Self);
+    inline void TScriptThread_Create(TScriptThread* Self);
 
     void TScriptStar_Create(TScriptStar* Self);
 
@@ -272,7 +276,8 @@ namespace aScript {
 
     void TScript_CallDialog(TScript* Self, std::int32_t Index);
 
-    void TLibraryHandler_Create(TLibraryHandler* Self, pas::WideString LibraryName, std::uint32_t ModuleHandle, EC_BlockPar::TBlockParEC* DefinitionBlock);
+    void TLibraryHandler_Create(TLibraryHandler* Self, pas::WideString LibraryName, std::uint32_t ModuleHandle,
+        EC_BlockPar::TBlockParEC* DefinitionBlock);
 
     void TLibraryHandler_Destroy(TLibraryHandler* Self);
 
@@ -297,3 +302,5 @@ namespace aScript {
     void TScriptGICacheUnit_Destroy(TScriptGICacheUnit* Self);
 
 } // namespace aScript
+
+#include "inline/aScript.hpp"

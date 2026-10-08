@@ -16,7 +16,7 @@ namespace ThreadCalc {
     #endif
     struct TThreadCalc : EC_Thread::TThreadEC {
         PAS_CLASS_META(TThreadCalc, EC_Thread::TThreadEC, "TThreadCalc", 48)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         TTurnCalculationJob Job;
     };
     #if INTPTR_MAX == INT32_MAX

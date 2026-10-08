@@ -44,7 +44,9 @@ namespace fPanelLoad {
         void StartClosingShutters();
         void UpdateOpeningShutters(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void UpdateClosingShutters(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
-        std::uint8_t IsAnimatingShutters();
+        inline std::uint8_t IsAnimatingShutters() {
+            return ShutterTimer != nullptr;
+        }
         // Returns zero without an active timer.
         std::int32_t GetShutterDirection();
         GI_MessageLoop::TMessageLoopGI* Screen;

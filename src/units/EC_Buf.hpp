@@ -2,23 +2,9 @@
 #include "types/EC_Buf.hpp"
 
 namespace EC_Buf {
-    void TBufEC_Create(TBufEC* Self);
+    inline void TBufEC_Create(TBufEC* Self);
 
     void TBufEC_Destroy(TBufEC* Self);
-
-    // Several scalar readers contain native inline assembly after the bounds check.
-    inline std::uint8_t TBufEC_GetByte(TBufEC* Self);
-
-    inline std::uint16_t TBufEC_GetWord(TBufEC* Self);
-
-    inline std::uint32_t TBufEC_GetUInt32(TBufEC* Self);
-
-    inline std::int32_t TBufEC_GetInt32(TBufEC* Self);
-
-    // Replaces NaN with zero.
-    inline float TBufEC_GetSingle(TBufEC* Self);
-
-    inline std::uint8_t TBufEC_GetBoolean(TBufEC* Self);
 
 } // namespace EC_Buf
 

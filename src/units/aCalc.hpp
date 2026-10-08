@@ -6,18 +6,20 @@ namespace aCalc {
     extern ThreadCalc::TTurnCalculationPhase TurnCalculationPhase;
 
     // UI-facing turn calculation wrappers.
-    void WaitForTurnCalculationUI();
+    inline void WaitForTurnCalculationUI();
 
-    std::uint8_t IsTurnCalculationRunningUI();
+    inline std::uint8_t IsTurnCalculationRunningUI();
 
     void CalculateGalaxyTurnAndWait();
 
-    void QueueGalaxyTurnCalculation();
+    inline void QueueGalaxyTurnCalculation();
 
     void CalculatePlayerStarTurnAndWait();
 
-    void QueuePlayerStarTurnCalculation();
+    inline void QueuePlayerStarTurnCalculation();
 
-    void QueuePlayerStarPreparation();
+    inline void QueuePlayerStarPreparation();
 
 } // namespace aCalc
+
+#include "inline/aCalc.hpp"

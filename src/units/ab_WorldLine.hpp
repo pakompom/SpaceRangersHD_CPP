@@ -16,9 +16,11 @@ namespace ab_WorldLine {
 
     void ab_WorldLine_Delete(PabWorldLine Line);
 
-    PabWorldLine ab_WorldLine_Create(EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind, std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere);
+    PabWorldLine ab_WorldLine_Create(EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind,
+        std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere);
 
-    void ab_WorldLine_Set(PabWorldLine Line, EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind, std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere);
+    void ab_WorldLine_Set(PabWorldLine Line, EC_Struct::TVector3D First, EC_Struct::TVector3D Last, std::int32_t Kind,
+        std::uint32_t FrontColor, std::uint32_t BackColor, std::uint8_t ShowBehindSphere);
 
     void ab_WorldLine_Update();
 

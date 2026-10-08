@@ -97,9 +97,11 @@ namespace aModsInfo {
                         FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
                         FileName = EC_Str::LowerCaseWideString(FileName);
                         if (([&] {
-                            pas::WideString cpp_string = EC_Str::LowerCaseWideString(pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"}));
+                            pas::WideString cpp_string = EC_Str::LowerCaseWideString(pas::concat_wide({u"install_",
+                                GR_Main::SelectedLanguage, u".txt"}));
                             return FileName != cpp_string;
-                        }()) && FileName.length() > 12 && EC_Str::FindTextOffsetW(FileName, u"install_"_wref.get(), 0) == 0) {
+                        }()) && FileName.length() > 12 && EC_Str::FindTextOffsetW(FileName, u"install_"_wref.get(),
+                                0) == 0) {
                             Result = true;
                             WindowsImports::FindClose(Handle);
                             return Result;
@@ -120,10 +122,12 @@ namespace aModsInfo {
                             if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != 0) {
                                 FileName = pas::array_text<pas::WideString>(FindData.cFileName.elements, 260);
                                 if (FileName != u"." && FileName != u".." && ([&] {
-                                    pas::WideString cpp_string_2 = EC_Str::LowerCaseWideString(FileName);
-                                    pas::WideString cpp_string_3 = EC_Str::LowerCaseWideString(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv));
-                                    return cpp_string_2 != cpp_string_3;
-                                }()) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({FileName, u"\\Lang.dat"})))) {
+                                        pas::WideString cpp_string_2 = EC_Str::LowerCaseWideString(FileName);
+                                        pas::WideString cpp_string_3 = EC_Str::LowerCaseWideString(
+                                            GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv));
+                                        return cpp_string_2 != cpp_string_3;
+                                    }()) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({
+                                        FileName, u"\\Lang.dat"})))) {
                                     Result = true;
                                     WindowsImports::FindClose(Handle);
                                     cpp_flow = pas::FinallyFlow::Return;
@@ -157,14 +161,19 @@ namespace aModsInfo {
             std::exception_ptr cpp_error{};
             try {
                 SysUtilsImports::SetCurrentDir(static_cast<pas::AnsiString>(Folder));
-                if (SysUtilsImports::FileExists("install.txt"_a) || SysUtilsImports::FileExists("CFG\\Main.dat"_a) || SysUtilsImports::FileExists("CFG\\CacheData.dat"_a)) {
+                if (SysUtilsImports::FileExists("install.txt"_a) || SysUtilsImports::FileExists("CFG\\Main.dat"_a) ||
+                    SysUtilsImports::FileExists("CFG\\CacheData.dat"_a)) {
                     HasCommonResources = true;
                 }
                 Language = GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv);
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", GR_Main::SelectedLanguage, u".txt"}))) || SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"CFG\\", Language, u"\\Lang.dat"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_",
+                    GR_Main::SelectedLanguage, u".txt"}))) ||
+                    SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"CFG\\", Language,
+                        u"\\Lang.dat"})))) {
                     HasLanguageResources = true;
                 }
-                if (static_cast<std::uint8_t>(HasCommonResources ^ 1) && static_cast<std::uint8_t>(HasLanguageResources ^ 1)) {
+                if (static_cast<std::uint8_t>(HasCommonResources ^ 1) &&
+                    static_cast<std::uint8_t>(HasLanguageResources ^ 1)) {
                     HasForeignResources = HasOtherLanguageResources();
                 }
                 Result = HasCommonResources || HasLanguageResources || HasForeignResources;
@@ -198,50 +207,68 @@ namespace aModsInfo {
                         Info->Name = EC_Str::TrimWideString(Block->GetParam(u"Name"sv));
                     }
                     if (Block->CountParams(pas::concat_wide({u"Section", Language})) > 0) {
-                        Info->Section = EC_Str::TrimWideString(Block->GetParam(pas::view(pas::concat_wide({u"Section", Language}))));
+                        Info->Section = EC_Str::TrimWideString(Block->GetParam(pas::view(pas::concat_wide({u"Section",
+                                Language}))));
                     } else if (Block->CountParams(u"Section"_wref.get()) > 0) {
                         Info->Section = EC_Str::TrimWideString(Block->GetParam(u"Section"sv));
                     }
                     if (Block->CountParams(pas::concat_wide({u"SmallDescription", Language})) > 0) {
                         Count = Block->CountParams(pas::concat_wide({u"SmallDescription", Language}));
-                        Info->SmallDescription = Block->GetParamByPath(pas::concat_wide({u"SmallDescription", Language, u":0"}));
+                        Info->SmallDescription = Block->GetParamByPath(pas::concat_wide({u"SmallDescription", Language,
+                                u":0"}));
                         for (auto cpp_range = pas::for_to<std::int32_t>(1, Count - 1); cpp_range.next(I); ) {
-                            Info->SmallDescription = pas::concat_wide({Info->SmallDescription, u"\r\n", Block->GetParamByPath(pas::concat_wide({u"SmallDescription", Language, u":", EC_Str::IntToWideString(I)}))});
+                            Info->SmallDescription = pas::concat_wide({Info->SmallDescription, u"\r\n",
+                                    Block->GetParamByPath(pas::concat_wide({u"SmallDescription", Language, u":",
+                                        EC_Str::IntToWideString(I)}))});
                         }
                     } else if (Block->CountParams(u"SmallDescription"_wref.get()) > 0) {
                         Count = Block->CountParams(u"SmallDescription"_wref.get());
                         Info->SmallDescription = Block->GetParamByPath(u"SmallDescription:0"_wref.get());
                         for (auto cpp_range_2 = pas::for_to<std::int32_t>(1, Count - 1); cpp_range_2.next(I); ) {
-                            Info->SmallDescription = pas::concat_wide({Info->SmallDescription, u"\r\n", Block->GetParamByPath(pas::concat_wide({u"SmallDescription:", EC_Str::IntToWideString(I)}))});
+                            Info->SmallDescription = pas::concat_wide({Info->SmallDescription, u"\r\n",
+                                    Block->GetParamByPath(pas::concat_wide({u"SmallDescription:",
+                                        EC_Str::IntToWideString(I)}))});
                         }
                     }
                     if (Block->CountParams(pas::concat_wide({u"FullDescription", Language})) > 0) {
                         Count = Block->CountParams(pas::concat_wide({u"FullDescription", Language}));
-                        Info->FullDescription = Block->GetParamByPath(pas::concat_wide({u"FullDescription", Language, u":0"}));
+                        Info->FullDescription = Block->GetParamByPath(pas::concat_wide({u"FullDescription", Language,
+                                u":0"}));
                         for (auto cpp_range_3 = pas::for_to<std::int32_t>(1, Count - 1); cpp_range_3.next(I); ) {
-                            Info->FullDescription = pas::concat_wide({Info->FullDescription, u"\r\n", Block->GetParamByPath(pas::concat_wide({u"FullDescription", Language, u":", EC_Str::IntToWideString(I)}))});
+                            Info->FullDescription = pas::concat_wide({Info->FullDescription, u"\r\n",
+                                    Block->GetParamByPath(pas::concat_wide({u"FullDescription", Language, u":",
+                                        EC_Str::IntToWideString(I)}))});
                         }
                     } else if (Block->CountParams(u"FullDescription"_wref.get()) > 0) {
                         Count = Block->CountParams(u"FullDescription"_wref.get());
                         Info->FullDescription = Block->GetParamByPath(u"FullDescription:0"_wref.get());
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, Count - 1); cpp_range_4.next(I); ) {
-                            Info->FullDescription = pas::concat_wide({Info->FullDescription, u"\r\n", Block->GetParamByPath(pas::concat_wide({u"FullDescription:", EC_Str::IntToWideString(I)}))});
+                            Info->FullDescription = pas::concat_wide({Info->FullDescription, u"\r\n",
+                                    Block->GetParamByPath(pas::concat_wide({u"FullDescription:",
+                                        EC_Str::IntToWideString(I)}))});
                         }
                     }
                     if (Block->CountParams(pas::concat_wide({u"Author", Language})) > 0) {
-                        Info->Author = EC_Str::TrimWideString(Block->GetParam(pas::view(pas::concat_wide({u"Author", Language}))));
+                        Info->Author = EC_Str::TrimWideString(Block->GetParam(pas::view(pas::concat_wide({u"Author",
+                                Language}))));
                     } else if (Block->CountParams(u"Author"_wref.get()) > 0) {
                         Info->Author = EC_Str::TrimWideString(Block->GetParam(u"Author"sv));
                     }
                     if (Block->CountParams(u"Languages"_wref.get()) > 0) {
                         Info->UnsupportedLanguage = true;
-                        Language = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Language)));
+                        Language =
+                            static_cast<pas::WideString>(
+                                SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Language)));
                         Languages = EC_Str::TrimWideString(Block->GetParam(u"Languages"sv));
                         Count = EC_Str::CountDelimitedPartsW(pas::view(Languages), u","sv);
                         if (Languages != u"") {
                             for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
                                 if (([&] {
-                                    pas::WideString cpp_string = static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Languages), I, u","sv)))));
+                                    pas::WideString cpp_string = static_cast<pas::WideString>(
+                                        SysUtilsImports::LowerCase(
+                                            static_cast<pas::AnsiString>(
+                                                EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(
+                                                pas::view(Languages), I, u","sv)))));
                                     return cpp_string == Language;
                                 }())) {
                                     Info->UnsupportedLanguage = false;
@@ -391,7 +418,8 @@ namespace aModsInfo {
                         Info = pas::construct_call<TModInfo>(TModInfo_Create);
                         pas::list_put(ModInfos, Index, reinterpret_cast<void*>(Info));
                         pas::list_add(SelectedModInfos, reinterpret_cast<void*>(Info));
-                        if (SysUtilsImports::DirectoryExists(static_cast<pas::AnsiString>(pas::concat_wide({Folder, u"\\", Name}))) && aModsInfo::LoadModInfo(pas::concat_wide({Folder, u"\\", Name}), Info)) {
+                        if (SysUtilsImports::DirectoryExists(static_cast<pas::AnsiString>(pas::concat_wide({Folder,
+                            u"\\", Name}))) && aModsInfo::LoadModInfo(pas::concat_wide({Folder, u"\\", Name}), Info)) {
                             Info->Folder = Name;
                             if (Info->Name != u"") {
                                 if (ModIdCounts->CountParams(Info->Name) <= 0) {
@@ -418,7 +446,8 @@ namespace aModsInfo {
             if (Info->ConflictNames != u"") {
                 Count = EC_Str::CountDelimitedPartsW(pas::view(Info->ConflictNames), u","sv);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(J); ) {
-                    Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->ConflictNames), J, u","sv));
+                    Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->ConflictNames), J,
+                            u","sv));
                     if (ModConflictIndex->CountParams(Indices) <= 0) {
                         ModConflictIndex->AddParam(Indices, u""_wref.get());
                     }
@@ -427,7 +456,8 @@ namespace aModsInfo {
             if (Info->DependencyNames != u"") {
                 Count = EC_Str::CountDelimitedPartsW(pas::view(Info->DependencyNames), u","sv);
                 for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(J); ) {
-                    Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J, u","sv));
+                    Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J,
+                            u","sv));
                     if (ModDependencyIndex->CountParams(Indices) <= 0) {
                         ModDependencyIndex->AddParam(Indices, u""_wref.get());
                     }
@@ -444,7 +474,8 @@ namespace aModsInfo {
                 if (Indices == u"") {
                     ModConflictIndex->SetParam(pas::view(Info->Name), EC_Str::IntToWideString(I));
                 } else {
-                    ModConflictIndex->SetParam(pas::view(Info->Name), pas::concat_wide({Indices, u",", EC_Str::IntToWideString(I)}));
+                    ModConflictIndex->SetParam(pas::view(Info->Name),
+                        pas::concat_wide({Indices, u",", EC_Str::IntToWideString(I)}));
                 }
             }
             if (ModDependencyIndex->CountParams(Info->Name) > 0) {
@@ -452,7 +483,8 @@ namespace aModsInfo {
                 if (Indices == u"") {
                     ModDependencyIndex->SetParam(pas::view(Info->Name), EC_Str::IntToWideString(I));
                 } else {
-                    ModDependencyIndex->SetParam(pas::view(Info->Name), pas::concat_wide({Indices, u",", EC_Str::IntToWideString(I)}));
+                    ModDependencyIndex->SetParam(pas::view(Info->Name),
+                        pas::concat_wide({Indices, u",", EC_Str::IntToWideString(I)}));
                 }
             }
         }
@@ -464,13 +496,16 @@ namespace aModsInfo {
             Info->DependencyCount = EC_Str::CountDelimitedPartsW(pas::view(Info->DependencyNames), u","sv);
             Info->Dependencies.set_length(Info->DependencyCount);
             for (auto cpp_range_7 = pas::for_to<std::int32_t>(0, Info->DependencyCount - 1); cpp_range_7.next(J); ) {
-                Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J, u","sv));
+                Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->DependencyNames), J,
+                        u","sv));
                 Indices = ModDependencyIndex->GetParam(pas::view(Indices));
                 if (Indices == u"") {
                     Info->MissingDependency = true;
                     Info->Dependencies[J] = nullptr;
                 } else {
-                    Info->Dependencies[J] = pas::list_at<TModInfo>(ModInfos, EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), 0, u","sv))));
+                    Info->Dependencies[J] = pas::list_at<TModInfo>(ModInfos,
+                            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), 0,
+                                u","sv))));
                 }
             }
         }
@@ -482,28 +517,35 @@ namespace aModsInfo {
             Info->ConflictCount = EC_Str::CountDelimitedPartsW(pas::view(Info->ConflictNames), u","sv);
             Info->Conflicts.set_length(Info->ConflictCount);
             for (auto cpp_range_9 = pas::for_to<std::int32_t>(0, Info->ConflictCount - 1); cpp_range_9.next(J); ) {
-                Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->ConflictNames), J, u","sv));
+                Indices = EC_Str::TrimWideString(EC_Str::ExtractDelimitedPartW(pas::view(Info->ConflictNames), J,
+                        u","sv));
                 Indices = ModConflictIndex->GetParam(pas::view(Indices));
                 if (Indices == u"") {
                     Info->Conflicts[J] = nullptr;
                 } else {
-                    Info->Conflicts[J] = pas::list_at<TModInfo>(ModInfos, EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), 0, u","sv))));
+                    Info->Conflicts[J] = pas::list_at<TModInfo>(ModInfos,
+                            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), 0,
+                                u","sv))));
                 }
             }
         }
-        for (auto cpp_range_10 = pas::for_to<std::int32_t>(0, ModConflictIndex->GetParamCount() - 1); cpp_range_10.next(I); ) {
+        for (auto cpp_range_10 = pas::for_to<std::int32_t>(0,
+            ModConflictIndex->GetParamCount() - 1); cpp_range_10.next(I); ) {
             Indices = ModConflictIndex->GetParamValue(I);
             Count = EC_Str::CountDelimitedPartsW(pas::view(Indices), u","sv);
             for (auto cpp_range_11 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_11.next(J); ) {
-                Index = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), J, u","sv)));
+                Index = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), J,
+                        u","sv)));
                 pas::list_at<TModInfo>(ModInfos, Index)->ReferencedAsConflict = true;
             }
         }
-        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0, ModDependencyIndex->GetParamCount() - 1); cpp_range_12.next(I); ) {
+        for (auto cpp_range_12 = pas::for_to<std::int32_t>(0,
+            ModDependencyIndex->GetParamCount() - 1); cpp_range_12.next(I); ) {
             Indices = ModDependencyIndex->GetParamValue(I);
             Count = EC_Str::CountDelimitedPartsW(pas::view(Indices), u","sv);
             for (auto cpp_range_13 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_13.next(J); ) {
-                Index = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), J, u","sv)));
+                Index = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), J,
+                        u","sv)));
                 pas::list_at<TModInfo>(ModInfos, Index)->ReferencedAsDependency = true;
             }
         }
@@ -515,8 +557,13 @@ namespace aModsInfo {
         std::int32_t Index{};
         ModInfosInitialized = false;
         if (ModInfos != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ModInfos) - 1); cpp_range.next(Index); ) {
-                pas::free(pas::list_at<pas::Object>(ModInfos, Index));
+            {
+                const std::int32_t cpp_last = pas::list_count(ModInfos) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        pas::free(pas::list_at<pas::Object>(ModInfos, Index));
+                    }
+                }
             }
             pas::list_clear(ModInfos);
         }
@@ -592,7 +639,9 @@ namespace aModsInfo {
         if (VariantIndex < 0 || VariantIndex >= Count) {
             return Result;
         }
-        return pas::list_at<TModInfo>(ModInfos, EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), VariantIndex, u","sv))));
+        return pas::list_at<TModInfo>(ModInfos,
+            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), VariantIndex,
+                u","sv))));
     }
 
     TModInfo* TModInfo::GetDependency(std::int32_t Index, std::int32_t VariantIndex) {
@@ -614,7 +663,9 @@ namespace aModsInfo {
         if (VariantIndex < 0 || VariantIndex >= Count) {
             return Result;
         }
-        return pas::list_at<TModInfo>(ModInfos, EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), VariantIndex, u","sv))));
+        return pas::list_at<TModInfo>(ModInfos,
+            EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Indices), VariantIndex,
+                u","sv))));
     }
 
     void TModInfo::p_destroy() {

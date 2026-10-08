@@ -10,7 +10,6 @@
 #include "units/GI_Panel.hpp"
 #include "units/GI_StatusBar.hpp"
 #include "units/GR_Main.hpp"
-#include "units/System.hpp"
 
 namespace GI_StatusBar {
     void TStatusBarGI_Create(TStatusBarGI* Self, GI_MessageLoop::TObjectGI* Owner) {
@@ -80,10 +79,11 @@ namespace GI_StatusBar {
 
     void TStatusBarGI::UpdateImageLayout() {
         std::int32_t Width{};
-        if (static_cast<long double>(Maximum) - Minimum == 0.0L) {
+        if (static_cast<float>(static_cast<double>(Maximum) - Minimum) == 0.0) {
             Width = 0;
         } else {
-            Width = System::Round(pas::real_divide(static_cast<long double>(Value) - Minimum, static_cast<long double>(Maximum) - Minimum) * ClientSize.X);
+            Width = pas::real_round(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Value) - Minimum)) / (static_cast<float>(static_cast<double>(Maximum) - Minimum))) *
+                    ClientSize.X));
         }
         if (Minimum == Value) {
             LeftImage->SetSize(ClassesImports::Point(0, ClientSize.Y));
@@ -118,7 +118,8 @@ namespace GI_StatusBar {
                     GI_Image::TImageGI* leftImage_2 = LeftImage;
                     leftImage_2->SetSize(point_3);
                 }
-                CenterImage->SetSize(ClassesImports::Point(Width - LeftImage->ClientSize.X - RightImage->ClientSize.X, ClientSize.Y));
+                CenterImage->SetSize(ClassesImports::Point(Width - LeftImage->ClientSize.X - RightImage->ClientSize.X,
+                    ClientSize.Y));
                 {
                     std::int32_t x_4 = RightImage->GetContentSize().X;
                     std::int32_t y_4 = ClientSize.Y;

@@ -6,6 +6,4 @@ namespace EC_FileStream {
 
     void TFileStreamEC_Destroy(TFileStreamEC* Self);
 
-    void TFileStreamEC_Execute(TFileStreamEC* Self);
-
 } // namespace EC_FileStream

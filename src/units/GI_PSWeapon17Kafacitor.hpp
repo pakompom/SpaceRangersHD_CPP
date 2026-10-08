@@ -13,7 +13,8 @@ namespace GI_PSWeapon17Kafacitor {
 
     void LoadKafacitorPalettes();
 
-    void TPSWeapon17Kafacitor_Create(TPSWeapon17Kafacitor* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon17Kafacitor_Create(TPSWeapon17Kafacitor* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon17Kafacitor_Destroy(TPSWeapon17Kafacitor* Self);
 

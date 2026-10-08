@@ -15,9 +15,11 @@ namespace aSaveLoad {
     #endif
     struct TSaver : EC_Thread::TThreadEC {
         PAS_CLASS_META(TSaver, EC_Thread::TThreadEC, "TSaver", 68)
-        void virtual_TThreadEC_Execute() override;
+        // Owns and frees all five buffers. Writes Save.tmp before replacing the destination; shares SaveLoadLock with the loader.
+        void Execute() override;
         // Waits for the preceding job, then takes ownership of all five buffers.
-        void QueueSave(pas::WideString AFileName, EC_Buf::TBufEC* Header, EC_Buf::TBufEC* Preview, EC_Buf::TBufEC* SecondaryPreview, EC_Buf::TBufEC* GameState, EC_Buf::TBufEC* Films);
+        void QueueSave(pas::WideString AFileName, EC_Buf::TBufEC* Header, EC_Buf::TBufEC* Preview,
+            EC_Buf::TBufEC* SecondaryPreview, EC_Buf::TBufEC* GameState, EC_Buf::TBufEC* Films);
         pas::WideString FileName;
         EC_Buf::TBufEC* HeaderBuffer;
         EC_Buf::TBufEC* PreviewBuffer;

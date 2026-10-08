@@ -52,7 +52,8 @@ namespace GI_PolyLine {
     }
 
     PPolyLineSegmentGI TPolyLineGI::AllocateSegment() {
-        PPolyLineSegmentGI Segment = static_cast<PPolyLineSegmentGI>(EC_Mem::AllocFromHeapEC(SegmentHeap, static_cast<std::int32_t>(sizeof(TPolyLineSegmentGI))));
+        PPolyLineSegmentGI Segment = static_cast<PPolyLineSegmentGI>(EC_Mem::AllocFromHeapEC(SegmentHeap,
+            static_cast<std::int32_t>(sizeof(TPolyLineSegmentGI))));
         Segment->Next = nullptr;
         Segment->Prev = LastSegment;
         Segment->SavedPixels = nullptr;
@@ -155,8 +156,10 @@ namespace GI_PolyLine {
                 Size = ClassesImports::Point(1, 1);
                 Segment = FirstSegment;
                 while (Segment != nullptr) {
-                    pas::store_unaligned<WindowsSdk::TPoint>(&Segment->First, ClassesImports::Point(Segment->First.X - Minimum.X, Segment->First.Y - Minimum.Y));
-                    pas::store_unaligned<WindowsSdk::TPoint>(&Segment->Last, ClassesImports::Point(Segment->Last.X - Minimum.X, Segment->Last.Y - Minimum.Y));
+                    pas::store_unaligned<WindowsSdk::TPoint>(&Segment->First,
+                        ClassesImports::Point(Segment->First.X - Minimum.X, Segment->First.Y - Minimum.Y));
+                    pas::store_unaligned<WindowsSdk::TPoint>(&Segment->Last,
+                        ClassesImports::Point(Segment->Last.X - Minimum.X, Segment->Last.Y - Minimum.Y));
                     if (Size.X <= Segment->First.X) {
                         Size.X = Segment->First.X + 1;
                     }
@@ -176,10 +179,13 @@ namespace GI_PolyLine {
         }
     }
 
-    PPolyLineSegmentGI TPolyLineGI::AddParentLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t UserData) {
+    PPolyLineSegmentGI TPolyLineGI::AddParentLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last,
+        std::uint32_t Color, std::int32_t UserData) {
         PPolyLineSegmentGI Segment = AllocateSegment();
-        pas::store_unaligned<WindowsSdk::TPoint>(&Segment->First, ClassesImports::Point(First.X - LocalPosition.X, First.Y - LocalPosition.Y));
-        pas::store_unaligned<WindowsSdk::TPoint>(&Segment->Last, ClassesImports::Point(Last.X - LocalPosition.X, Last.Y - LocalPosition.Y));
+        pas::store_unaligned<WindowsSdk::TPoint>(&Segment->First,
+            ClassesImports::Point(First.X - LocalPosition.X, First.Y - LocalPosition.Y));
+        pas::store_unaligned<WindowsSdk::TPoint>(&Segment->Last,
+            ClassesImports::Point(Last.X - LocalPosition.X, Last.Y - LocalPosition.Y));
         Segment->Color = Color;
         Segment->PixelCount = aMyFunction::IntegerPointDistancePlusOne(First, Last);
         Segment->PixelCapacity = Segment->PixelCount;
@@ -195,7 +201,8 @@ namespace GI_PolyLine {
         return AddLocalLine(First, Last, Color, 0);
     }
 
-    PPolyLineSegmentGI TPolyLineGI::AddLocalLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t UserData) {
+    PPolyLineSegmentGI TPolyLineGI::AddLocalLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+        std::int32_t UserData) {
         PPolyLineSegmentGI Segment = AllocateSegment();
         pas::store_unaligned<WindowsSdk::TPoint>(&Segment->First, First);
         pas::store_unaligned<WindowsSdk::TPoint>(&Segment->Last, Last);
@@ -215,8 +222,10 @@ namespace GI_PolyLine {
         if (Count > Segment->PixelCapacity) {
             Segment->PixelCount = Count;
             Segment->PixelCapacity = Segment->PixelCount;
-            Segment->SavedPixels = EC_Mem::ReAllocFromHeapREC(SegmentHeap, Segment->SavedPixels, Segment->PixelCount * 2 + 10);
-            Segment->PreviousPixels = EC_Mem::ReAllocFromHeapREC(SegmentHeap, Segment->PreviousPixels, Segment->PixelCount * 2 + 10);
+            Segment->SavedPixels = EC_Mem::ReAllocFromHeapREC(SegmentHeap, Segment->SavedPixels,
+                    Segment->PixelCount * 2 + 10);
+            Segment->PreviousPixels = EC_Mem::ReAllocFromHeapREC(SegmentHeap, Segment->PreviousPixels,
+                    Segment->PixelCount * 2 + 10);
         } else {
             Segment->PixelCount = Count;
         }
@@ -237,7 +246,8 @@ namespace GI_PolyLine {
             MessageLoop->CancelCallbackTimer(AnimationTimer);
             AnimationTimer = nullptr;
         }
-        AnimationTimer = MessageLoop->ScheduleCallbackTimer(100, 100, pas::bind_method<&TPolyLineGI::AdvanceAnimation>(this), 0);
+        AnimationTimer = MessageLoop->ScheduleCallbackTimer(100, 100,
+                pas::bind_method<&TPolyLineGI::AdvanceAnimation>(this), 0);
     }
 
     void TPolyLineGI::StopAnimation() {
@@ -302,10 +312,14 @@ namespace GI_PolyLine {
         Segment = FirstSegment;
         while (Segment != nullptr) {
             AllocatePixelBuffers(Segment);
-            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelFirst, ClassesImports::Point(Segment->First.X + AbsolutePosition.X, Segment->First.Y + AbsolutePosition.Y));
-            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelLast, ClassesImports::Point(Segment->Last.X + AbsolutePosition.X, Segment->Last.Y + AbsolutePosition.Y));
+            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelFirst,
+                ClassesImports::Point(Segment->First.X + AbsolutePosition.X, Segment->First.Y + AbsolutePosition.Y));
+            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelLast,
+                ClassesImports::Point(Segment->Last.X + AbsolutePosition.X, Segment->Last.Y + AbsolutePosition.Y));
             if (Segment->Kind != 2) {
-                if (GR_Main::Ex_OKGR_Line_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X), pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::int32_t>(&Segment->PixelLast.X), pas::Var<std::int32_t>(&Segment->PixelLast.Y), Clip) == 0) {
+                if (GR_Main::Ex_OKGR_Line_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X),
+                    pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::int32_t>(&Segment->PixelLast.X),
+                    pas::Var<std::int32_t>(&Segment->PixelLast.Y), Clip) == 0) {
                     Segment->Visible = false;
                 } else {
                     Segment->Visible = true;
@@ -313,7 +327,10 @@ namespace GI_PolyLine {
             } else {
                 Segment->ClippedColor = Segment->Color;
                 Segment->ClippedEndColor = Segment->EndColor;
-                if (GR_Main::Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X), pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::uint32_t>(&Segment->ClippedColor), pas::Var<std::int32_t>(&Segment->PixelLast.X), pas::Var<std::int32_t>(&Segment->PixelLast.Y), pas::Var<std::uint32_t>(&Segment->ClippedEndColor), Clip) == 0) {
+                if (GR_Main::Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X),
+                    pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::uint32_t>(&Segment->ClippedColor),
+                    pas::Var<std::int32_t>(&Segment->PixelLast.X), pas::Var<std::int32_t>(&Segment->PixelLast.Y),
+                    pas::Var<std::uint32_t>(&Segment->ClippedEndColor), Clip) == 0) {
                     Segment->Visible = false;
                 } else {
                     Segment->Visible = true;
@@ -341,8 +358,10 @@ namespace GI_PolyLine {
         FrameDrawing = false;
         PPolyLineSegmentGI Segment = FirstSegment;
         while (Segment != nullptr) {
-            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelFirst, ClassesImports::Point(Segment->First.X + AbsolutePosition.X, Segment->First.Y + AbsolutePosition.Y));
-            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelLast, ClassesImports::Point(Segment->Last.X + AbsolutePosition.X, Segment->Last.Y + AbsolutePosition.Y));
+            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelFirst,
+                ClassesImports::Point(Segment->First.X + AbsolutePosition.X, Segment->First.Y + AbsolutePosition.Y));
+            pas::store_unaligned<WindowsSdk::TPoint>(&Segment->PixelLast,
+                ClassesImports::Point(Segment->Last.X + AbsolutePosition.X, Segment->Last.Y + AbsolutePosition.Y));
             DrawSegment(Segment, ClipRect);
             Segment = Segment->Next;
         }
@@ -351,14 +370,23 @@ namespace GI_PolyLine {
     void TPolyLineGI::DrawSegment(PPolyLineSegmentGI Segment, WindowsSdk::TRect ClipRect) {
         if (GlobalsV::HardwareRenderingEnabled) {
             if (Segment->Animated) {
-                GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), AnimationPhase, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                    Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), AnimationPhase,
+                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
             } else {
-                GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), 0, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                    Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), 0,
+                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
             }
         } else if (Segment->Animated) {
-            GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, AnimationPhase, ClipRect);
+            GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, AnimationPhase,
+                ClipRect);
         } else {
-            GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
+            GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
         }
     }
 
@@ -370,23 +398,38 @@ namespace GI_PolyLine {
             if (Segment->Kind == 0) {
                 if (GlobalsV::HardwareRenderingEnabled) {
                     if (Segment->Animated) {
-                        GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), AnimationPhase, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                            Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), AnimationPhase,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                     } else {
-                        GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), 0, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                        GR_DX::DrawAnimatedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                            Segment->PixelLast.Y, GR_DX::Color565ToArgb(Segment->Color), 0,
+                            reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                     }
                 } else if (Segment->Animated) {
-                    GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, AnimationPhase, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                        ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                        ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color,
+                        AnimationPhase, ClipRect);
                 } else {
-                    GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                        ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                        ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
                 }
             } else if (Segment->Kind == 1) {
                 if (GlobalsV::HardwareRenderingEnabled) {
-                    GR_DX::DrawAlphaLine(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, Segment->Color, Segment->Color >> 24 & 0x000000ff, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                    GR_DX::DrawAlphaLine(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                        Segment->PixelLast.Y, Segment->Color, Segment->Color >> 24 & 0x000000ff,
+                        reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
                 } else {
-                    GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawLine16Clipped(
+                        ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                        ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, ClipRect);
                 }
             } else if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawGradientLine(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->ClippedColor, Segment->PixelLast.X, Segment->PixelLast.Y, Segment->ClippedEndColor, reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
+                GR_DX::DrawGradientLine(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->ClippedColor,
+                    Segment->PixelLast.X, Segment->PixelLast.Y, Segment->ClippedEndColor,
+                    reinterpret_cast<WindowsSdk::PRect>(&ClipRect));
             } else {
                 Rasterizer = GR_Main::LineRasterizer16;
                 {
@@ -401,7 +444,8 @@ namespace GI_PolyLine {
                     Rasterizer(pixels, pitchBytes, x_2, y_2, clippedColor, x, y, clippedEndColor);
                 }
             }
-        } else if (ShadowCircle->LightBuffer != nullptr && ShadowCircle->LightBuffer->GetPixels() != nullptr && Segment->Visible) {
+        } else if (ShadowCircle->LightBuffer != nullptr && ShadowCircle->LightBuffer->GetPixels() != nullptr &&
+            Segment->Visible) {
             if (!GlobalsV::SkipSavedPixelRestore) {
                 {
                     std::int32_t x_3 = Segment->PixelFirst.X;
@@ -424,7 +468,8 @@ namespace GI_PolyLine {
                     WindowsSdk::TPoint point = ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y);
                     WindowsSdk::TPoint point_2 = ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y);
                     GR_GraphBuf::TGraphBufGR* screenRenderBuffer = GR_Main::ScreenRenderBuffer;
-                    screenRenderBuffer->DrawShadowLine16(point_2, point, color, animationPhase, clipRect, addPointerOffset, pitchBytes_3);
+                    screenRenderBuffer->DrawShadowLine16(point_2, point, color, animationPhase, clipRect,
+                        addPointerOffset, pitchBytes_3);
                 } else {
                     std::uint32_t color_2 = Segment->Color;
                     WindowsSdk::TRect clipRect_2 = ClipRect;
@@ -435,12 +480,18 @@ namespace GI_PolyLine {
                     WindowsSdk::TPoint point_3 = ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y);
                     WindowsSdk::TPoint point_4 = ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y);
                     GR_GraphBuf::TGraphBufGR* screenRenderBuffer_2 = GR_Main::ScreenRenderBuffer;
-                    screenRenderBuffer_2->DrawShadowLine16(point_4, point_3, color_2, 0, clipRect_2, addPointerOffset_2, pitchBytes_4);
+                    screenRenderBuffer_2->DrawShadowLine16(point_4, point_3, color_2, 0, clipRect_2, addPointerOffset_2,
+                        pitchBytes_4);
                 }
             } else if (Segment->Animated) {
-                GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, AnimationPhase, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                    ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                    ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, AnimationPhase,
+                    ClipRect);
             } else {
-                GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y), ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawAnimatedLine16(
+                    ClassesImports::Point(Segment->PixelFirst.X, Segment->PixelFirst.Y),
+                    ClassesImports::Point(Segment->PixelLast.X, Segment->PixelLast.Y), Segment->Color, 0, ClipRect);
             }
         }
     }

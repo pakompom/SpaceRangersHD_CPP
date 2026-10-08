@@ -1,7 +1,7 @@
 #include "layout/SysUtilsImports.hpp"
+#include "types/System.hpp"
 #include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 
@@ -91,11 +91,18 @@ namespace SysUtilsImports {
     }
 
     std::int32_t FileOpen(const pas::AnsiString& FileName, std::uint32_t Mode) {
-        static const pas::Array<std::uint32_t, 0, 2> AccessMode = pas::Array<std::uint32_t, 0, 2>{{WindowsImports::GENERIC_READ, static_cast<std::uint32_t>(WindowsImports::GENERIC_WRITE), WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE}};
-        static const pas::Array<std::uint32_t, 0, 4> ShareMode = pas::Array<std::uint32_t, 0, 4>{{0u, 0u, static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_READ), static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_WRITE), static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_READ | WindowsImports::FILE_SHARE_WRITE)}};
+        static const pas::Array<std::uint32_t, 0, 2> AccessMode = pas::Array<std::uint32_t, 0, 2>{{
+            WindowsImports::GENERIC_READ, static_cast<std::uint32_t>(WindowsImports::GENERIC_WRITE),
+            WindowsImports::GENERIC_READ | WindowsImports::GENERIC_WRITE}};
+        static const pas::Array<std::uint32_t, 0, 4> ShareMode = pas::Array<std::uint32_t, 0, 4>{{0u, 0u,
+            static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_READ),
+            static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_WRITE),
+            static_cast<std::uint32_t>(WindowsImports::FILE_SHARE_READ | WindowsImports::FILE_SHARE_WRITE)}};
         std::int32_t Result = -1;
         if ((Mode & 3) <= 2 && (Mode & 0x000000f0) <= 0x00000040) {
-            return WindowsImports::CreateFileA(FileName.pchar(), AccessMode[Mode & 3], ShareMode[(Mode & 0x000000f0) >> 4], nullptr, WindowsImports::OPEN_EXISTING, WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
+            return WindowsImports::CreateFileA(FileName.pchar(), AccessMode[Mode & 3],
+                ShareMode[(Mode & 0x000000f0) >> 4], nullptr, WindowsImports::OPEN_EXISTING,
+                WindowsImports::FILE_ATTRIBUTE_NORMAL, 0u);
         }
         return Result;
     }
@@ -108,7 +115,8 @@ namespace SysUtilsImports {
         }
         std::uint32_t Error = WindowsImports::GetLastError();
         std::uint8_t Result = false;
-        if (Error == WindowsImports::ERROR_FILE_NOT_FOUND || Error == WindowsImports::ERROR_PATH_NOT_FOUND || Error == WindowsImports::ERROR_INVALID_NAME) {
+        if (Error == WindowsImports::ERROR_FILE_NOT_FOUND || Error == WindowsImports::ERROR_PATH_NOT_FOUND || Error ==
+                WindowsImports::ERROR_INVALID_NAME) {
             return Result;
         }
         std::uint32_t Handle = WindowsImports::FindFirstFileA(FileName.pchar(), Data);
@@ -182,14 +190,10 @@ namespace SysUtilsImports {
             return 0;
         }
         while (*Left == *Right && *Left != '\000') {
-            ++Left;
-            ++Right;
+            pas::inc(Left);
+            pas::inc(Right);
         }
         return *Left - *Right;
-    }
-
-    std::int32_t AnsiStrComp(std::uint8_t* Left, std::uint8_t* Right) {
-        return WindowsSdk::CompareStringA(WindowsSdk::LOCALE_USER_DEFAULT, 0u, Left, -1, Right, -1) - 2;
     }
 
     pas::AnsiString StrPas(std::uint8_t* Str) {
@@ -201,19 +205,20 @@ namespace SysUtilsImports {
         Size += static_cast<std::int32_t>(sizeof(std::uint32_t));
         pas::get_mem_at(&Result, static_cast<std::int32_t>(Size));
         pas::store_unaligned<std::uint32_t>(reinterpret_cast<System::PCardinal>(Result), Size);
-        Result += static_cast<std::int32_t>(sizeof(std::uint32_t));
+        pas::inc(Result, static_cast<std::int32_t>(sizeof(std::uint32_t)));
         return Result;
     }
 
     void StrDispose(std::uint8_t* Str) {
         if (Str != nullptr) {
-            Str -= static_cast<std::int32_t>(sizeof(std::uint32_t));
+            pas::dec(Str, static_cast<std::int32_t>(sizeof(std::uint32_t)));
             pas::free_mem(Str);
         }
     }
 
     std::uint8_t IsLeapYear(std::uint16_t Year) {
-        return static_cast<std::int32_t>(Year) % 4 == 0 && (static_cast<std::int32_t>(Year) % 100 != 0 || static_cast<std::int32_t>(Year) % 400 == 0);
+        return static_cast<std::int32_t>(Year) % 4 == 0 && (static_cast<std::int32_t>(Year) % 100 != 0 ||
+                static_cast<std::int32_t>(Year) % 400 == 0);
     }
 
     System::TDateTime EncodeDate(std::uint16_t Year, std::uint16_t Month, std::uint16_t Day) {
@@ -221,8 +226,7 @@ namespace SysUtilsImports {
             static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(28), static_cast<std::uint16_t>(31),
             static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30),
             static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30),
-            static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31),
-        }};
+            static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31)}};
         std::int32_t I{};
         if (Year < 1 || Year > 9999 || Month < 1 || Month > 12) {
             pas::raise(pas::make_exception<pas::ConvertError>("Invalid argument to date encode"_a));
@@ -253,10 +257,10 @@ namespace SysUtilsImports {
         if (Hour >= 24 || Min >= 60 || Sec >= 60 || MSec >= 1000) {
             pas::raise(pas::make_exception<pas::ConvertError>("Invalid argument to time encode"_a));
         }
-        return pas::real_divide(Hour * 3600000 + Min * 60000 + Sec * 1000 + MSec, 8.64E+7L);
+        return static_cast<float>((Hour * 3600000 + Min * 60000 + Sec * 1000 + MSec) / 8.64E+7);
     }
 
-    pas::AnsiString FloatToStrF(pas::Extended Value, TFloatFormat Format, std::int32_t Precision, std::int32_t Digits) {
+    pas::AnsiString FloatToStrF(double Value, TFloatFormat Format, std::int32_t Precision, std::int32_t Digits) {
         if (Format != ffFixed) {
             pas::raise(pas::make_exception<pas::ConvertError>("Unsupported FloatToStrF format"_a));
         }
@@ -266,8 +270,8 @@ namespace SysUtilsImports {
     System::TDateTime Now() {
         Windows::TSystemTime Local{};
         WindowsSdk::GetLocalTime(Local);
-        pas::Extended cpp_left = SysUtilsImports::EncodeDate(Local.wYear, Local.wMonth, Local.wDay);
-        return cpp_left + SysUtilsImports::EncodeTime(Local.wHour, Local.wMinute, Local.wSecond, Local.wMilliseconds);
+        double cpp_left = SysUtilsImports::EncodeDate(Local.wYear, Local.wMonth, Local.wDay);
+        return static_cast<float>(cpp_left + SysUtilsImports::EncodeTime(Local.wHour, Local.wMinute, Local.wSecond, Local.wMilliseconds));
     }
 
     void DecodeDate(System::TDateTime DateTime, std::uint16_t& Year, std::uint16_t& Month, std::uint16_t& Day) {
@@ -275,8 +279,7 @@ namespace SysUtilsImports {
             static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(28), static_cast<std::uint16_t>(31),
             static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30),
             static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30),
-            static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31),
-        }};
+            static_cast<std::uint16_t>(31), static_cast<std::uint16_t>(30), static_cast<std::uint16_t>(31)}};
         std::int32_t T{};
         std::int32_t Time{};
         std::int32_t DaysInMonth{};
@@ -325,7 +328,8 @@ namespace SysUtilsImports {
         Day = T + 1;
     }
 
-    void DecodeTime(System::TDateTime DateTime, std::uint16_t& Hour, std::uint16_t& Min, std::uint16_t& Sec, std::uint16_t& MSec) {
+    void DecodeTime(System::TDateTime DateTime, std::uint16_t& Hour, std::uint16_t& Min, std::uint16_t& Sec,
+        std::uint16_t& MSec) {
         std::int32_t Date{};
         std::int32_t Time{};
         SysUtilsImports::DateDayAndTime(DateTime, Date, Time);
@@ -337,11 +341,12 @@ namespace SysUtilsImports {
 
     System::TDateTime SystemTimeToDateTime(const Windows::TSystemTime& SystemTime) {
         System::TDateTime Result = SysUtilsImports::EncodeDate(SystemTime.wYear, SystemTime.wMonth, SystemTime.wDay);
-        System::TDateTime Time = SysUtilsImports::EncodeTime(SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond, SystemTime.wMilliseconds);
-        if (Result >= 0.0L) {
-            return static_cast<long double>(Result) + Time;
+        System::TDateTime Time = SysUtilsImports::EncodeTime(SystemTime.wHour, SystemTime.wMinute, SystemTime.wSecond,
+            SystemTime.wMilliseconds);
+        if (Result >= 0.0) {
+            return static_cast<float>(static_cast<double>(Result) + Time);
         }
-        return static_cast<long double>(Result) - Time;
+        return static_cast<float>(static_cast<double>(Result) - Time);
     }
 
     // Game numeric formats and the default locale date/time expansion. Named
@@ -414,14 +419,16 @@ namespace SysUtilsImports {
                         case 'M': {
                             Number = Month;
                             if (Count > 2) {
-                                pas::raise(pas::make_exception<pas::ConvertError>("Unsupported date format: month name"_a));
+                                pas::raise(
+                                    pas::make_exception<pas::ConvertError>("Unsupported date format: month name"_a));
                             }
                             break;
                         }
                         case 'D': {
                             Number = Day;
                             if (Count > 2) {
-                                pas::raise(pas::make_exception<pas::ConvertError>("Unsupported date format: day name"_a));
+                                pas::raise(
+                                    pas::make_exception<pas::ConvertError>("Unsupported date format: day name"_a));
                             }
                             break;
                         }
@@ -429,9 +436,11 @@ namespace SysUtilsImports {
                             BetweenQuotes = false;
                             P = I;
                             while (P <= Format.length() && Format.read(P) != '\000') {
-                                if (pas::in_set<'A', 'A', 'a', 'a'>(Format.read(P)) && static_cast<std::uint8_t>(BetweenQuotes ^ 1)) {
+                                if (pas::in_set<'A', 'A', 'a', 'a'>(Format.read(P)) &&
+                                    static_cast<std::uint8_t>(BetweenQuotes ^ 1)) {
                                     Text = SysUtilsImports::UpperCase(pas::copy(Format, P, 5));
-                                    if (Text == "AM/PM" || pas::copy(Text, 1, 3) == "A/P" || pas::copy(Text, 1, 4) == "AMPM") {
+                                    if (Text == "AM/PM" || pas::copy(Text, 1, 3) == "A/P" || pas::copy(Text, 1, 4) ==
+                                            "AMPM") {
                                         Use12HourClock = true;
                                     }
                                     break;
@@ -483,37 +492,38 @@ namespace SysUtilsImports {
                     while (Text.length() < Digits) {
                         Text = pas::concat_ansi({"0", Text});
                     }
-                    Result = pas::concat_ansi({Result, Text});
+                    Result.append(pas::view(Text));
                     break;
                 }
                 case 'A': {
                     Text = SysUtilsImports::UpperCase(pas::copy(Format, I - 1, 5));
                     if (Text == "AM/PM") {
                         if (Hour < 12) {
-                            Result = pas::concat_ansi({Result, pas::copy(Format, I - 1, 2)});
+                            Result.append(pas::view(pas::copy(Format, I - 1, 2)));
                         } else {
-                            Result = pas::concat_ansi({Result, pas::copy(Format, I + 2, 2)});
+                            Result.append(pas::view(pas::copy(Format, I + 2, 2)));
                         }
                         I += 4;
                         Use12HourClock = true;
                     } else if (pas::copy(Text, 1, 3) == "A/P") {
                         if (Hour < 12) {
-                            Result = pas::concat_ansi({Result, Format.read(I - 1)});
+                            Result.append(Format.read(I - 1));
                         } else {
-                            Result = pas::concat_ansi({Result, Format.read(I + 1)});
+                            Result.append(Format.read(I + 1));
                         }
                         I += 2;
                         Use12HourClock = true;
                     } else if (pas::copy(Text, 1, 4) == "AMPM") {
                         if (Hour < 12) {
-                            Result = pas::concat_ansi({Result, TimeAMString});
+                            Result.append(pas::view(TimeAMString));
                         } else {
-                            Result = pas::concat_ansi({Result, TimePMString});
+                            Result.append(pas::view(TimePMString));
                         }
                         I += 3;
                         Use12HourClock = true;
                     } else {
-                        pas::raise(pas::make_exception<pas::ConvertError>(pas::concat_ansi({"Unsupported date format token: ", Starter})));
+                        pas::raise(pas::make_exception<pas::ConvertError>(pas::concat_ansi({
+                            "Unsupported date format token: ", Starter})));
                     }
                     break;
                 }
@@ -521,26 +531,28 @@ namespace SysUtilsImports {
                     while (I <= Format.length() && Format.read(I) == Starter) {
                         ++I;
                     }
-                    Result = pas::concat_ansi({Result, SysUtilsImports::FormatDateTime(ShortDateFormat, DateTime)});
+                    Result.append(pas::view(SysUtilsImports::FormatDateTime(ShortDateFormat, DateTime)));
                     if (Hour != 0 || Min != 0 || Sec != 0) {
-                        Result = pas::concat_ansi({Result, " ", SysUtilsImports::FormatDateTime(LongTimeFormat, DateTime)});
+                        Result = pas::concat_ansi({Result, " ",
+                                SysUtilsImports::FormatDateTime(LongTimeFormat, DateTime)});
                     }
                     break;
                 }
                 case 'E':
                 case 'G':
                 case 'T': {
-                    pas::raise(pas::make_exception<pas::ConvertError>(pas::concat_ansi({"Unsupported date format token: ", Starter})));
+                    pas::raise(pas::make_exception<pas::ConvertError>(pas::concat_ansi({
+                        "Unsupported date format token: ", Starter})));
                 }
                 case '/': {
                     if (DateSeparator != '\000') {
-                        Result = pas::concat_ansi({Result, DateSeparator});
+                        Result.append(DateSeparator);
                     }
                     break;
                 }
                 case ':': {
                     if (TimeSeparator != '\000') {
-                        Result = pas::concat_ansi({Result, TimeSeparator});
+                        Result.append(TimeSeparator);
                     }
                     break;
                 }
@@ -550,13 +562,13 @@ namespace SysUtilsImports {
                     while (I <= Format.length() && Format.read(I) != '\000' && Format.read(I) != Starter) {
                         ++I;
                     }
-                    Result = pas::concat_ansi({Result, pas::copy(Format, Start, I - Start)});
+                    Result.append(pas::view(pas::copy(Format, Start, I - Start)));
                     if (I <= Format.length() && Format.read(I) != '\000') {
                         ++I;
                     }
                     break;
                 }
-                default: Result = pas::concat_ansi({Result, Starter}); break;
+                default: Result.append(Starter); break;
             }
         }
         // Selected DateTimeToString writes into a 256-byte buffer.
@@ -577,7 +589,10 @@ namespace SysUtilsImports {
     pas::AnsiString SysErrorMessage(std::int32_t ErrorCode) {
         pas::AnsiString Result{};
         pas::Array<std::uint8_t, 0, 255> Buffer{};
-        std::int32_t Len = WindowsSdk::FormatMessageA(WindowsSdk::FORMAT_MESSAGE_FROM_SYSTEM | WindowsSdk::FORMAT_MESSAGE_IGNORE_INSERTS | WindowsSdk::FORMAT_MESSAGE_ARGUMENT_ARRAY, nullptr, ErrorCode, 0u, Buffer.elements, static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>)), nullptr);
+        std::int32_t Len = WindowsSdk::FormatMessageA(
+            WindowsSdk::FORMAT_MESSAGE_FROM_SYSTEM | WindowsSdk::FORMAT_MESSAGE_IGNORE_INSERTS |
+                WindowsSdk::FORMAT_MESSAGE_ARGUMENT_ARRAY, nullptr, ErrorCode, 0u, Buffer.elements,
+            static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>)), nullptr);
         while (Len > 0 && pas::in_set<'\000', ' ', '.', '.'>(Buffer[Len - 1])) {
             --Len;
         }
@@ -603,7 +618,8 @@ namespace SysUtilsImports {
                 return WindowsImports::GetLastError();
             }
         }
-        WindowsImports::FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime>(&F.FindData.ftLastWriteTime), LocalFileTime);
+        WindowsImports::FileTimeToLocalFileTime(pas::ConstRef<Windows::TFileTime>(&F.FindData.ftLastWriteTime),
+            LocalFileTime);
         WindowsImports::FileTimeToDosDateTime(LocalFileTime, DatePart, TimePart);
         F.Time = pas::shl(static_cast<std::int32_t>(DatePart), 16) | TimePart;
         F.Size = F.FindData.nFileSizeLow | pas::shl(static_cast<std::int64_t>(F.FindData.nFileSizeHigh), 32);
@@ -615,9 +631,9 @@ namespace SysUtilsImports {
     // Semantic port of the selected RTL's millisecond timestamp conversion.
     // The day is truncated toward zero; the time is the positive remainder.
     void DateDayAndTime(System::TDateTime DateTime, std::int32_t& Date, std::int32_t& Time) {
-        pas::Extended Value{};
+        double Value{};
         Value = DateTime;
-        std::int64_t Ticks = System::Round(Value * 8.64E+7L);
+        std::int64_t Ticks = pas::real_round(static_cast<float>(Value * 8.64E+7));
         Date = Ticks / 86400000 + 693594;
         Time = pas::abs(Ticks % 86400000);
     }

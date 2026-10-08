@@ -12,10 +12,14 @@ namespace EC_Thread {
         PAS_CLASS_META(TThreadEC, EC_Struct::TObjectEx, "TThreadEC", 44)
         void p_destroy() override;
         void ProcessRequests();
-        virtual void virtual_TThreadEC_Execute();
+        virtual void Execute();
         void SetPriority(std::uint8_t Value);
-        void SetFlag18();
-        void ClearFlag18();
+        inline void SetFlag18() {
+            Flag18 = true;
+        }
+        inline void ClearFlag18() {
+            Flag18 = false;
+        }
         void RequestStop();
         std::uint8_t IsStopRequested();
         void SetStopRequested(std::uint8_t Value);

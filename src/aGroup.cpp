@@ -1,11 +1,10 @@
 #include "layout/aGroup.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/SystemImports.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aPlanet.hpp"
 #include "types/aShip.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Struct.hpp"
-#include "units/System.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
 #include "units/aGroup.hpp"
@@ -16,7 +15,8 @@ namespace aGroup {
         EC_Struct::TObjectEx_Create(Self);
         if (aGalaxy::Galaxy != nullptr) {
             Self->CreatedTurn = aGalaxy::Galaxy->CurrentTurn;
-            Self->GenerationSeed = aMyFunction::SeededRandomIntRange(100000, SystemImports::MaxInt, aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn);
+            Self->GenerationSeed = aMyFunction::SeededRandomIntRange(100000, SystemImports::MaxInt,
+                    aGalaxy::Galaxy->GenerationSeed * aGalaxy::Galaxy->CurrentTurn);
             Self->RandomState = Self->GenerationSeed;
         }
         Self->Ships = pas::make_object<pas::List>();
@@ -78,35 +78,36 @@ namespace aGroup {
     // Ships initially contains serialized IDs, pending reference resolution. Does not clear existing entries.
     void TGroup::Load(EC_Buf::TBufEC* Buffer, aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
-        CreatedTurn = EC_Buf::TBufEC_GetWord(Buffer);
+        CreatedTurn = Buffer->GetWord();
         std::int32_t OldestTurn = Galaxy->CurrentTurn - 1000;
         while (CreatedTurn < OldestTurn) {
             CreatedTurn += 0x00010000;
         }
-        GenerationSeed = EC_Buf::TBufEC_GetUInt32(Buffer);
-        RandomState = EC_Buf::TBufEC_GetUInt32(Buffer);
-        EC_Buf::TBufEC_GetByte(Buffer);
-        std::int32_t Count = EC_Buf::TBufEC_GetWord(Buffer);
+        GenerationSeed = Buffer->GetUInt32();
+        RandomState = Buffer->GetUInt32();
+        Buffer->GetByte();
+        std::int32_t Count = Buffer->GetWord();
         if (Count < 0 || Count > aGalaxyStruct::MaxSavedListCount) {
             pas::raise(pas::make_exception<pas::Abort>("Err TGroup.Load FShips"_a));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-            void* uInt32 = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-            pas::List* ships = Ships;
-            pas::list_add(ships, uInt32);
+            pas::list_add(Ships,
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32()))));
         }
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
+        Count = Buffer->GetWord();
         if (Count < 0 || Count > aGalaxyStruct::MaxSavedListCount) {
             pas::raise(pas::make_exception<pas::Abort>("Err TGroup.Load FOrders"_a));
         }
         Route.set_length(Count);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
-            Route[I].Kind = static_cast<aShip::TShipOrder>(EC_Buf::TBufEC_GetByte(Buffer));
-            Route[I].Target = reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EC_Buf::TBufEC_GetUInt32(Buffer))));
-            Route[I].Destination.X = EC_Buf::TBufEC_GetSingle(Buffer);
-            Route[I].Destination.Y = EC_Buf::TBufEC_GetSingle(Buffer);
-            Route[I].WaitMode = static_cast<TGroupWaitMode>(EC_Buf::TBufEC_GetByte(Buffer));
-            Route[I].WaitUntilTurn = EC_Buf::TBufEC_GetInt32(Buffer);
+            Route[I].Kind = static_cast<aShip::TShipOrder>(Buffer->GetByte());
+            Route[I].Target =
+                reinterpret_cast<pas::Object*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Buffer->GetUInt32())));
+            Route[I].Destination.X = Buffer->GetSingle();
+            Route[I].Destination.Y = Buffer->GetSingle();
+            Route[I].WaitMode = static_cast<TGroupWaitMode>(Buffer->GetByte());
+            Route[I].WaitUntilTurn = Buffer->GetInt32();
         }
     }
 
@@ -114,27 +115,52 @@ namespace aGroup {
     void TGroup::ResolveLoadedReferences(aGalaxy::TGalaxy* Galaxy) {
         std::int32_t I{};
         aShip::TShip* Ship{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
-            pas::list_put(Ships, I, reinterpret_cast<void*>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ships, I))), true)))));
-            Ship = pas::list_at<aShip::TShip>(Ships, I);
-            Ship->LiberationGroup = this;
-        }
         {
-            const std::int32_t cpp_last = Route.length() - 1;
+            const std::int32_t cpp_last = pas::list_count(Ships) - 1;
             if (0 <= cpp_last) {
                 for (I = 0; I <= cpp_last; ++I) {
+                    pas::list_put(Ships, I,
+                        reinterpret_cast<void*>(
+                            pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ships, I))),
+                                true)))));
+                    Ship = pas::list_at<aShip::TShip>(Ships, I);
+                    Ship->LiberationGroup = this;
+                }
+            }
+        }
+        {
+            const std::int32_t cpp_last_2 = Route.length() - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
                     if (Route[I].Kind == aShip::soJump) {
-                        Route[I].Target = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));
+                        Route[I].Target =
+                            pas::checked_cast<aGalaxy::TStar*>(
+                                static_cast<pas::Object*>(
+                                    Galaxy->IdToStar(
+                                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));
                     } else if (Route[I].Kind == aShip::soJumpHole) {
-                        Route[I].Target = pas::checked_cast<aGalaxy::THole*>(static_cast<pas::Object*>(Galaxy->IdToHole(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));
+                        Route[I].Target =
+                            pas::checked_cast<aGalaxy::THole*>(
+                                static_cast<pas::Object*>(
+                                    Galaxy->IdToHole(
+                                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));
                     } else if (Route[I].Kind == aShip::soLand) {
-                        if ((static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) & aGalaxyStruct::OrderTargetShipFlag) == aGalaxyStruct::OrderTargetShipFlag) {
-                            Route[I].Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) & aGalaxyStruct::TaggedObjectIdMask, true)));
+                        if ((static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) &
+                            aGalaxyStruct::OrderTargetShipFlag) == aGalaxyStruct::OrderTargetShipFlag) {
+                            Route[I].Target =
+                                pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) &
+                                        aGalaxyStruct::TaggedObjectIdMask, true)));
                         } else {
-                            Route[I].Target = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)), true)));
+                            Route[I].Target =
+                                pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(
+                                    static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)),
+                                    true)));
                         }
                     } else if (Route[I].Kind == aShip::soFollowShip) {
-                        Route[I].Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)), true)));
+                        Route[I].Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(
+                                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)), true)));
                     } else {
                         Route[I].Target = nullptr;
                     }
@@ -153,7 +179,8 @@ namespace aGroup {
     // May remove and free Self when empty or older than 150 days.
     void TGroup::NextDay() {
         if (pas::list_count(Ships) == 0) {
-            pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
+            pas::list_delete(aGalaxy::Galaxy->LiberationGroups,
+                pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
             pas::free(this);
         } else if (aGalaxy::Galaxy->CurrentTurn > CreatedTurn + 150) {
             Disband();
@@ -173,27 +200,32 @@ namespace aGroup {
                 }
             }
         }
-        pas::list_delete(aGalaxy::Galaxy->LiberationGroups, pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
+        pas::list_delete(aGalaxy::Galaxy->LiberationGroups,
+            pas::list_indexof(aGalaxy::Galaxy->LiberationGroups, reinterpret_cast<void*>(this)));
         pas::free(this);
     }
 
     // Chooses TargetStar and a Coalition AssemblyStar within 28 parsecs. Failure disbands and frees Self.
     std::uint8_t TGroup::SelectLiberationTarget() {
         std::uint8_t Result{};
-        TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(), aGalaxyStruct::sfCoalition);
+        TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(),
+                aGalaxyStruct::sfCoalition);
         std::int32_t Attempts = 0;
-        while (TargetStar == nullptr || TargetStar->HasLiberationGroupOrder() || aGalaxy::TGalaxy::HasMilitaryBaseAssignedToStar(TargetStar)) {
+        while (TargetStar == nullptr || TargetStar->HasLiberationGroupOrder() ||
+            aGalaxy::TGalaxy::HasMilitaryBaseAssignedToStar(TargetStar)) {
             if (Attempts > 10) {
                 TargetStar = nullptr;
                 AssemblyStar = nullptr;
                 Disband();
                 return false;
             }
-            TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(), aGalaxyStruct::sfCoalition);
+            TargetStar = aGalaxy::Galaxy->SelectStarForLiberationAttack(FindCentralMemberStar(),
+                    aGalaxyStruct::sfCoalition);
             ++Attempts;
         }
         AssemblyStar = TargetStar->FindNearestStarByFaction(aGalaxyStruct::sfCoalition, false);
-        if (AssemblyStar == nullptr || aMyFunction::PointDistance(AssemblyStar->Position, TargetStar->Position) > 28.0L) {
+        if (AssemblyStar == nullptr || aMyFunction::PointDistance(AssemblyStar->Position, TargetStar->Position) >
+                28.0) {
             TargetStar = nullptr;
             AssemblyStar = nullptr;
             Result = false;
@@ -218,7 +250,8 @@ namespace aGroup {
             cpp_with.WaitMode = GroupWaitArrival;
             cpp_with.WaitUntilTurn = 0;
         }
-        aPlanet::TPlanet* Planet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(AssemblyStar->FindFirstInhabitedPlanet()));
+        aPlanet::TPlanet* Planet = pas::checked_cast<aPlanet::TPlanet*>(
+            static_cast<pas::Object*>(AssemblyStar->FindFirstInhabitedPlanet()));
         if (Planet == nullptr) {
             Result = false;
             Disband();
@@ -235,7 +268,8 @@ namespace aGroup {
             TGroupRouteOrder& cpp_with_3 = Route[2];
             cpp_with_3.Kind = aShip::soMove;
             cpp_with_3.Target = nullptr;
-            pas::store_unaligned<EC_Struct::TPointF>(&cpp_with_3.Destination, AssemblyStar->GetBoundaryPointTowardStar(TargetStar));
+            pas::store_unaligned<EC_Struct::TPointF>(&cpp_with_3.Destination,
+                AssemblyStar->GetBoundaryPointTowardStar(TargetStar));
             cpp_with_3.WaitMode = GroupWaitUntilTurn;
             {
                 std::int32_t cpp_right = aMyFunction::NextRandomIntRange(45, 55, RandomState);
@@ -250,11 +284,15 @@ namespace aGroup {
             cpp_with_4.WaitUntilTurn = 0;
         }
         if (TargetStar->Status.CustomFaction != u"") {
-            Text = aConst::PickLocalizedTextVariant(pas::concat_wide({u"GalaxyNews.Group.WarriorLiberator.Create", TargetStar->Status.CustomFaction}), RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
+            Text = aConst::PickLocalizedTextVariant(
+                    pas::concat_wide({u"GalaxyNews.Group.WarriorLiberator.Create", TargetStar->Status.CustomFaction}),
+                    RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
         } else if (TargetStar->Status.ControlFaction == aGalaxyStruct::sfPirates) {
-            Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.Group.WarriorLiberator.CreatePirates"_wref.get(), RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
+            Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.Group.WarriorLiberator.CreatePirates"_wref.get(),
+                    RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
         } else {
-            Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.Group.WarriorLiberator.Create"_wref.get(), RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
+            Text = aConst::PickLocalizedTextVariant(u"GalaxyNews.Group.WarriorLiberator.Create"_wref.get(),
+                    RandomState * (aGalaxy::Galaxy->CurrentTurn % 71));
         }
         aMyFunction::ReplaceTextToken(Text, u"<StarNormal>"_w, AssemblyStar->Name, aMyFunction::TextHighlightColorTag);
         aMyFunction::ReplaceTextToken(Text, u"<StarEnemy>"_w, TargetStar->Name, aMyFunction::TextHighlightColorTag);
@@ -282,10 +320,17 @@ namespace aGroup {
         std::int32_t I{};
         aShip::TShip* Ship = pas::list_at<aShip::TShip>(Ships, 0);
         std::int32_t RouteIndex = Ship->LiberationGroupRouteIndex;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Ships, I);
-            if (Ship->LiberationGroupRouteIndex != RouteIndex || static_cast<std::uint8_t>(pas::is_one_of<aShip::soNone, aShip::soMove>(Ship->Order) ^ 1) || aMyFunction::PointDistanceSquared(Ship->Position, Route[RouteIndex].Destination) > 9.0E+4L) {
-                return false;
+        {
+            const std::int32_t cpp_last = pas::list_count(Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(Ships, I);
+                    if (Ship->LiberationGroupRouteIndex != RouteIndex || !pas::is_one_of<aShip::soNone,
+                            aShip::soMove>(Ship->Order) || aMyFunction::PointDistanceSquared(Ship->Position,
+                            Route[RouteIndex].Destination) > 9.0E+4) {
+                        return false;
+                    }
+                }
             }
         }
         return true;
@@ -319,15 +364,21 @@ namespace aGroup {
             if (aGalaxy::Galaxy->CurrentTurn < Route[2].WaitUntilTurn) {
                 auto name = pas::borrow(Star->Name);
                 pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Route[2].WaitUntilTurn);
-                pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"ShipGreetings.Group.WarriorLiberatorBefore"_wref.get(), aMyFunction::NextRandomIntRange(100, 1000, RandomState));
+                pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(
+                    u"ShipGreetings.Group.WarriorLiberatorBefore"_wref.get(),
+                    aMyFunction::NextRandomIntRange(100, 1000, RandomState));
                 pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<StarEnemy>"_w, name.get(), u"<Date>"_w, std::move(formatTurnDate));
+                return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag),
+                    u"<StarEnemy>"_w, name.get(), u"<Date>"_w, std::move(formatTurnDate));
             }
             auto name_2 = pas::borrow(Star->Name);
             pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(Route[2].WaitUntilTurn);
-            pas::WideString pickLocalizedTextVariant_2 = aConst::PickLocalizedTextVariant(u"ShipGreetings.Group.WarriorLiberatorAfter"_wref.get(), aMyFunction::NextRandomIntRange(100, 1000, RandomState));
+            pas::WideString pickLocalizedTextVariant_2 = aConst::PickLocalizedTextVariant(
+                u"ShipGreetings.Group.WarriorLiberatorAfter"_wref.get(),
+                aMyFunction::NextRandomIntRange(100, 1000, RandomState));
             pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_2), std::move(textHighlightColorTag_2), u"<StarEnemy>"_w, name_2.get(), u"<Date>"_w, std::move(formatTurnDate_2));
+            return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant_2), std::move(textHighlightColorTag_2),
+                u"<StarEnemy>"_w, name_2.get(), u"<Date>"_w, std::move(formatTurnDate_2));
         }
         return Result;
     }
@@ -347,9 +398,15 @@ namespace aGroup {
                 for (I = cpp_first; I >= 0; --I) {
                     Ship = pas::list_at<aShip::TShip>(Ships, I);
                     Distance = 0;
-                    for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range.next(J); ) {
-                        Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, J);
-                        Distance += System::Round(aMyFunction::PointDistance(Ship->CurrentStar->Position, Planet->CurrentStar->Position));
+                    {
+                        const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Planets) - 1;
+                        if (0 <= cpp_last) {
+                            for (J = 0; J <= cpp_last; ++J) {
+                                Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, J);
+                                Distance += pas::real_round(aMyFunction::PointDistance(Ship->CurrentStar->Position,
+                                        Planet->CurrentStar->Position));
+                            }
+                        }
                     }
                     if (BestDistance > Distance) {
                         Result = Ship->CurrentStar;

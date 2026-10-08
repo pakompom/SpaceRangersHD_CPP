@@ -1,11 +1,13 @@
 #pragma once
 #include "runtime.hpp"
+#if SRHD_NATIVE_REALS
+#include "native_reals.hpp"
+#else
+#include "legacy_numeric.hpp"
 #include <cfenv>
 // Default Win32 Delphi evaluates reals with the x87 64-bit significand. The game
-// selects 24-bit precision in the renderer. The two worker-thread setup seams
-// and general strict compiler floating-environment access remain to be ported.
-// The shared runtime selects startup precision. Floating exception identities
-// remain a separate RTL surface; native arm64 cannot validate x87 precision.
+// selects 24-bit precision in the renderer and simulation/generation workers.
+// Non-x87 hosts emulate only the audited boundaries below, not every operation.
 #include <bit>
 #include <cmath>
 #include <cstdint>
@@ -13,9 +15,13 @@ namespace pas {
 inline thread_local std::uint16_t fpu_control_word = 0x1332;
 // x87 reads reserved bit 6 as one, even when it was clear in FLDCW's operand.
 inline std::uint16_t get_fpu_control() { return fpu_control_word | 0x40; }
+inline bool legacy_pc24_nearest() { return (fpu_control_word & 0x0f00) == 0; }
 inline long double random_real(Cardinal *seed) {
 #pragma STDC FENV_ACCESS ON
-  return static_cast<long double>(next_random(seed)) * 0x1p-32L;
+  const auto value = next_random(seed);
+  if (legacy_pc24_nearest())
+    return legacy_numeric::round24(double(value) * 0x1p-32);
+  return static_cast<long double>(value) * 0x1p-32L;
 }
 inline long double real_arctan2(long double y, long double x) {
 #pragma STDC FENV_ACCESS ON
@@ -28,6 +34,10 @@ inline void set_fpu_control(std::uint16_t value) {
   // so they cannot escape through a foreign SEH boundary.
   const std::uint16_t native = value | 0x3f;
   asm volatile("fnclex; fldcw %0" : : "m"(native));
+#if defined(SRHD_PORTABLE_REALS) && SRHD_PORTABLE_REALS
+  const int rounding[] = {FE_TONEAREST, FE_DOWNWARD, FE_UPWARD, FE_TOWARDZERO};
+  std::fesetround(rounding[(value >> 10) & 3]);
+#endif
 #else
   const int rounding[] = {FE_TONEAREST, FE_DOWNWARD, FE_UPWARD, FE_TOWARDZERO};
   std::fesetround(rounding[(value >> 10) & 3]);
@@ -46,15 +56,62 @@ inline std::int64_t real_integer(long double value, bool truncate) {
 }
 std::int64_t real_trunc(long double value);
 std::int64_t real_round(long double value);
+namespace detail {
+std::int64_t extended_integer(const Extended& value, bool truncate);
+#if LDBL_MANT_DIG == 53 && !(defined(__i386__) || defined(__x86_64__))
+inline bool zero_integer_operand(const Extended& value) {
+  std::uint64_t significand;
+  std::uint16_t encoded;
+  std::memcpy(&significand, value.bytes, 8);
+  std::memcpy(&encoded, value.bytes + 8, 2);
+  return !significand && !(encoded & 0x7fff);
+}
+inline bool binary64_integer_operand(const Extended& value) {
+  std::uint64_t significand;
+  std::uint16_t encoded;
+  std::memcpy(&significand, value.bytes, 8);
+  std::memcpy(&encoded, value.bytes + 8, 2);
+  const unsigned exponent = encoded & 0x7fff;
+  return exponent - 0x3c01u <= 0x7fdu
+      && (significand & 0x80000000000007ffull) == 0x8000000000000000ull;
+}
+#endif
+template<bool Truncate> inline std::int64_t extended_integer_dispatch(const Extended& value) {
+#if LDBL_MANT_DIG == 64 && (defined(__i386__) || defined(__x86_64__))
+  // Unsupported encodings need the raw validation when errors are enabled.
+  if (!(fpu_control_word & 1) && !(value.bytes[7] & 0x80)
+      && (value.bytes[8] || (value.bytes[9] & 0x7f)))
+    return extended_integer(value, Truncate);
+#elif LDBL_MANT_DIG == 53 && !(defined(__i386__) || defined(__x86_64__))
+  // Exactly representable normal operands can use the native scalar helper.
+  // Retained binary80 low bits, subnormals and exceptional encodings keep the
+  // full converter out of the ordinary path.
+  if (zero_integer_operand(value)) return 0;
+  if (!binary64_integer_operand(value)) return extended_integer(value, Truncate);
+#else
+  return extended_integer(value, Truncate);
+#endif
+  if constexpr (Truncate) return real_trunc(static_cast<long double>(value));
+  else return real_round(static_cast<long double>(value));
+}
+}
+inline std::int64_t real_round(const Extended& value) {
+  return detail::extended_integer_dispatch<false>(value);
+}
+inline std::int64_t real_trunc(const Extended& value) {
+  return detail::extended_integer_dispatch<true>(value);
+}
 inline long double real_sqrt(long double value) {
 #pragma STDC FENV_ACCESS ON
   if (value < 0 && !(fpu_control_word & 1)) raise(make_exception<InvalidOp>(AnsiString("Invalid floating point operation")));
   return std::sqrt(value);
 }
-// The selected RTL chooses its second operand for ties and unordered values.
-// std::min/max choose the first, which differs for signed zero and NaN.
+// Extended saved-inline selection. The scalar overloads below have the
+// opposite unordered policy; all overloads choose the second operand on ties.
 template<class T> T real_min(T a, T b) { return a < b ? a : b; }
-template<class T> T real_max(T a, T b) { return a > b ? a : b; }
+template<class T> T real_max(T a, T b) { return a <= b ? b : a; }
+template<class T> T real_min_scalar(T a, T b) { return quiet_scalar_nan(b <= a ? b : a); }
+template<class T> T real_max_scalar(T a, T b) { return quiet_scalar_nan(b < a ? a : b); }
 inline long double real_sin(long double value) {
 #pragma STDC FENV_ACCESS ON
   if (std::isinf(value) && !(fpu_control_word & 1))
@@ -131,4 +188,53 @@ inline bool is_nan(float value) {
 inline bool is_nan(double value) {
   return (std::bit_cast<std::uint64_t>(value) & 0x7fffffffffffffffULL) > 0x7ff0000000000000ULL;
 }
+
+// Explicit ports of the game's RNG/quest arithmetic. Keep other control modes
+// on the original expressions; these helpers are not general PC24 lowering.
+inline std::int64_t legacy_random_bound(double value) {
+#pragma STDC FENV_ACCESS ON
+  if (legacy_pc24_nearest()) return real_trunc(legacy_numeric::random_bound(value));
+  return real_trunc(static_cast<long double>(value) * 1000.0L + 1.0L);
 }
+inline double legacy_random_milli(std::int32_t value) {
+#pragma STDC FENV_ACCESS ON
+  if (legacy_pc24_nearest()) return legacy_numeric::round24(double(value) / 1000.0);
+  return real_divide(value, 1000.0L);
+}
+inline double legacy_seed_fraction(std::uint32_t seed) {
+#pragma STDC FENV_ACCESS ON
+  if (legacy_pc24_nearest()) {
+    // UInt32/10011001 cannot double-round across a PC24 midpoint. The seed
+    // stays an exact integer until division, including its upper 32-bit values.
+    const double quotient = legacy_numeric::round24(double(seed) / 10011001.0);
+    return quotient - std::trunc(quotient);
+  }
+  return real_frac(real_divide(seed, 10011001.0L));
+}
+inline double legacy_fractional_quotient(std::int32_t numerator, std::int32_t denominator) {
+#pragma STDC FENV_ACCESS ON
+  if (legacy_pc24_nearest() && denominator != 0) {
+    const double quotient = legacy_numeric::signed_quotient(numerator, denominator);
+    return quotient - std::trunc(quotient);
+  }
+  return real_frac(real_divide(numerator, denominator));
+}
+inline std::int64_t legacy_quest_round(long double value) {
+#pragma STDC FENV_ACCESS ON
+#if !(LDBL_MANT_DIG == 64 && (defined(__i386__) || defined(__x86_64__)))
+  if (legacy_pc24_nearest() && std::isfinite(value) && std::abs(value) <= 2.0e9L)
+    return real_round(legacy_numeric::quest_value(value));
+#endif
+  return real_round(value + 1.0e-11L);
+}
+inline std::int64_t legacy_quest_round(const Extended& value) {
+#pragma STDC FENV_ACCESS ON
+#if !(LDBL_MANT_DIG == 64 && (defined(__i386__) || defined(__x86_64__)))
+  long double rounded;
+  if (legacy_pc24_nearest() && legacy_numeric::quest_value_binary80(value, rounded))
+    return real_round(rounded);
+#endif
+  return legacy_quest_round(static_cast<long double>(value));
+}
+}
+#endif

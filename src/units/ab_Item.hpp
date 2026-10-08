@@ -15,7 +15,8 @@ namespace ab_Object {
 namespace ab_Item {
     void ab_Item_Update();
 
-    void ab_Item_Drop(ab_Object::TabObject* Origin, aItem::TItem* Item, std::int32_t MinDistance, std::int32_t MaxDistance);
+    void ab_Item_Drop(ab_Object::TabObject* Origin, aItem::TItem* Item, std::int32_t MinDistance,
+        std::int32_t MaxDistance);
 
     TabItem* ab_Item_FindNearestBonus(ab_Zone::PabZone Origin);
 

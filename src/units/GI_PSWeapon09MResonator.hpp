@@ -13,11 +13,13 @@ namespace GI_PSWeapon09MResonator {
 
     void LoadMResonatorPalettes();
 
-    void TPSWeapon09BranchGI_Create(TPSWeapon09BranchGI* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon09BranchGI_Create(TPSWeapon09BranchGI* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon09BranchGI_Destroy(TPSWeapon09BranchGI* Self);
 
-    void TPSWeapon09MResonator_Create(TPSWeapon09MResonator* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex);
+    void TPSWeapon09MResonator_Create(TPSWeapon09MResonator* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex);
 
     void TPSWeapon09MResonator_Destroy(TPSWeapon09MResonator* Self);
 

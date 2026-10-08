@@ -411,9 +411,11 @@ namespace GI_GraphButton {
         }
         if (CaptionLabel != nullptr) {
             if (!Down) {
-                CaptionLabel->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&CaptionOffsets, 0)));
+                CaptionLabel->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&CaptionOffsets,
+                    0)));
             } else {
-                CaptionLabel->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&CaptionOffsets, 8)));
+                CaptionLabel->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&CaptionOffsets,
+                    8)));
             }
             if (Disabled && (Kind == gbkDisable || Kind == gbkFixDisable)) {
                 if (MessageLoop->HoveredControl == this) {
@@ -668,7 +670,7 @@ namespace GI_GraphButton {
                 }
                 ExecuteOnPressCode();
             }
-            if (static_cast<std::uint8_t>(pas::assigned(UpCallback) ^ 1) && static_cast<std::uint8_t>(pas::assigned(DownCallback) ^ 1)) {
+            if (!pas::assigned(UpCallback) && !pas::assigned(DownCallback)) {
                 ExecuteOnPressCode();
             }
             UpdateStateVisuals();
@@ -879,13 +881,19 @@ namespace GI_GraphButton {
             if (ImageNormal != nullptr) {
                 pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageNormal->GetContentOrigin());
                 pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageNormal->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 Bounds = ImageBounds;
             }
             if (ImageNormalActive != nullptr) {
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageNormalActive->GetContentOrigin());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageNormalActive->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0),
+                    ImageNormalActive->GetContentOrigin());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    ImageNormalActive->GetContentSize());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 if (Bounds.Right - Bounds.Left < 1) {
                     Bounds = ImageBounds;
                 } else {
@@ -895,7 +903,9 @@ namespace GI_GraphButton {
             if (ImageDown != nullptr) {
                 pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageDown->GetContentOrigin());
                 pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageDown->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 if (Bounds.Right - Bounds.Left < 1) {
                     Bounds = ImageBounds;
                 } else {
@@ -903,9 +913,13 @@ namespace GI_GraphButton {
                 }
             }
             if (ImageDownActive != nullptr) {
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageDownActive->GetContentOrigin());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageDownActive->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0),
+                    ImageDownActive->GetContentOrigin());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    ImageDownActive->GetContentSize());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 if (Bounds.Right - Bounds.Left < 1) {
                     Bounds = ImageBounds;
                 } else {
@@ -913,9 +927,12 @@ namespace GI_GraphButton {
                 }
             }
             if (ImageDisabled != nullptr) {
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageDisabled->GetContentOrigin());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0),
+                    ImageDisabled->GetContentOrigin());
                 pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageDisabled->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 if (Bounds.Right - Bounds.Left < 1) {
                     Bounds = ImageBounds;
                 } else {
@@ -923,9 +940,13 @@ namespace GI_GraphButton {
                 }
             }
             if (ImageDisabledActive != nullptr) {
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0), ImageDisabledActive->GetContentOrigin());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), ImageDisabledActive->GetContentSize());
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8), EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0),
+                    ImageDisabledActive->GetContentOrigin());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    ImageDisabledActive->GetContentSize());
+                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8),
+                    EC_Struct::AddPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 0)),
+                        pas::load_unaligned<Types::TPoint>(pas::byte_offset(&ImageBounds, 8))));
                 if (Bounds.Right - Bounds.Left < 1) {
                     Bounds = ImageBounds;
                 } else {
@@ -933,10 +954,12 @@ namespace GI_GraphButton {
                 }
             }
             if ((ImageAutoUpdateFlags & GI_Main::agfPosition) == GI_Main::agfPosition) {
-                SetPosition(Parent->ToLocalPoint(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Bounds, 0))));
+                SetPosition(Parent->ToLocalPoint(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Bounds,
+                    0))));
             }
             if ((ImageAutoUpdateFlags & GI_Main::agfSize) == GI_Main::agfSize) {
-                SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Bounds, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Bounds, 0))));
+                SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Bounds, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&Bounds, 0))));
             }
         }
         GI_MessageLoop::TObjectGI::UpdateAutoGeometry();

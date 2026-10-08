@@ -42,7 +42,8 @@ namespace GI_PSEyes {
         if (Block != nullptr) {
             BlockCount = Block->GetBlockCount();
             for (auto cpp_range = pas::for_to<std::int32_t>(0, BlockCount - 1); cpp_range.next(Index); ) {
-                Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+                Count = std::max<std::int32_t>(Count,
+                        EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
             }
         }
         if (Block == nullptr || Count == 0) {
@@ -76,32 +77,43 @@ namespace GI_PSEyes {
                     if (PaletteBlock->CountParams(u"Color"_wref.get()) > 0) {
                         Text = PaletteBlock->GetParam(u"Color"sv);
                         EyesPalettes[Index][0] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                     if (PaletteBlock->CountParams(u"ColorDark"_wref.get()) > 0) {
                         Text = PaletteBlock->GetParam(u"ColorDark"sv);
                         EyesPalettes[Index][1] = ([&] {
-                            double extractDecimalToSingleW_4 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_5 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_6 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW_4, extractDecimalToSingleW_5, extractDecimalToSingleW_6);
-                        }());
+                                double extractDecimalToSingleW_4 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_5 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_6 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW_4,
+                                    extractDecimalToSingleW_5, extractDecimalToSingleW_6);
+                            }());
                     }
                     if (PaletteBlock->CountParams(u"Width"_wref.get()) > 0) {
                         EyesWidths[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Width"sv)));
                     }
                     if (PaletteBlock->CountParams(u"SegmentLength"_wref.get()) > 0) {
-                        EyesSegmentLengths[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"SegmentLength"sv)));
+                        EyesSegmentLengths[Index] =
+                            EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"SegmentLength"sv)));
                     }
                     if (PaletteBlock->CountParams(u"Dispersion"_wref.get()) > 0) {
-                        EyesDispersions[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Dispersion"sv)));
+                        EyesDispersions[Index] =
+                            EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"Dispersion"sv)));
                     }
                     if (PaletteBlock->CountParams(u"StartingAlpha"_wref.get()) > 0) {
-                        EyesStartingAlphas[Index] = EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"StartingAlpha"sv)));
+                        EyesStartingAlphas[Index] =
+                            EC_Str::ExtractDigitsToIntW(pas::view(PaletteBlock->GetParam(u"StartingAlpha"sv)));
                     }
                 }
             }
@@ -153,20 +165,25 @@ namespace GI_PSEyes {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth) * Cosine;
-        float D = static_cast<long double>(HalfWidth) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSEyesGI::UpdateHitTestBounds() {
@@ -186,7 +203,8 @@ namespace GI_PSEyes {
     }
 
     PEyesParticle TPSEyesGI::AddParticle() {
-        PEyesParticle Particle = static_cast<PEyesParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEyesParticle))));
+        PEyesParticle Particle = static_cast<PEyesParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TEyesParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -230,7 +248,8 @@ namespace GI_PSEyes {
     void TPSEyesGI::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - HalfWidth;
         Rect.Right = Target.X + HalfWidth;
@@ -246,7 +265,8 @@ namespace GI_PSEyes {
         std::int32_t Y{};
         PEyesParticle Particle{};
         for (auto cpp_range = pas::for_to<std::int32_t>(-Radius, Radius); cpp_range.next(Y); ) {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(-Radius + pas::abs(Y), Radius - pas::abs(Y)); cpp_range_2.next(X); ) {
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(-Radius + pas::abs(Y),
+                Radius - pas::abs(Y)); cpp_range_2.next(X); ) {
                 Particle = AddParticle();
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Origin, EC_Struct::MakePointF(Point.X, Point.Y));
                 pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, Particle->Origin);
@@ -254,24 +274,22 @@ namespace GI_PSEyes {
                 Particle->Alpha = 255;
                 Particle->State = 1;
                 Particle->Countdown = 7;
-                {
-                    float cpp_arg = pas::real_divide(X, Radius) * 1.1L;
-                    float cpp_arg_2 = pas::real_divide(Y, Radius) * 1.1L;
-                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity, EC_Struct::MakePointF(cpp_arg, cpp_arg_2));
-                }
-                if (Particle->Velocity.X < 0.0L) {
-                    pas::Extended cpp_right = pas::real_divide(pas::random(11, &System::RandSeed), 16.0L);
-                    Particle->Velocity.X = Particle->Velocity.X - cpp_right;
+                pas::store_unaligned<EC_Struct::TPointF>(&Particle->Velocity,
+                    EC_Struct::MakePointF(static_cast<float>(static_cast<float>(static_cast<double>(X) / Radius) * 0x1.199999999999bp+0),
+                        static_cast<float>(static_cast<float>(static_cast<double>(Y) / Radius) * 0x1.199999999999bp+0)));
+                if (Particle->Velocity.X < 0.0) {
+                    double cpp_right = static_cast<float>(pas::random(11, &System::RandSeed) / 16.0);
+                    Particle->Velocity.X = static_cast<float>(Particle->Velocity.X - cpp_right);
                 } else {
-                    pas::Extended cpp_right_2 = pas::real_divide(pas::random(11, &System::RandSeed), 16.0L);
-                    Particle->Velocity.X = Particle->Velocity.X + cpp_right_2;
+                    double cpp_right_2 = static_cast<float>(pas::random(11, &System::RandSeed) / 16.0);
+                    Particle->Velocity.X = static_cast<float>(Particle->Velocity.X + cpp_right_2);
                 }
-                if (Particle->Velocity.Y < 0.0L) {
-                    pas::Extended cpp_right_3 = pas::real_divide(pas::random(11, &System::RandSeed), 16.0L);
-                    Particle->Velocity.Y = Particle->Velocity.Y - cpp_right_3;
+                if (Particle->Velocity.Y < 0.0) {
+                    double cpp_right_3 = static_cast<float>(pas::random(11, &System::RandSeed) / 16.0);
+                    Particle->Velocity.Y = static_cast<float>(Particle->Velocity.Y - cpp_right_3);
                 } else {
-                    pas::Extended cpp_right_4 = pas::real_divide(pas::random(11, &System::RandSeed), 16.0L);
-                    Particle->Velocity.Y = Particle->Velocity.Y + cpp_right_4;
+                    double cpp_right_4 = static_cast<float>(pas::random(11, &System::RandSeed) / 16.0);
+                    Particle->Velocity.Y = static_cast<float>(Particle->Velocity.Y + cpp_right_4);
                 }
             }
         }
@@ -293,9 +311,11 @@ namespace GI_PSEyes {
                 Particle = Particle->Next;
                 switch (Current->State) {
                     case 2: {
-                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Position, EC_Struct::MakePointF(static_cast<long double>(Current->Position.X) + Current->Velocity.X, static_cast<long double>(Current->Position.Y) + Current->Velocity.Y));
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
+                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Position,
+                            EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X),
+                                static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y)));
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
                         --Current->Countdown;
                         if (Current->Countdown == 0) {
                             Current->State = 3;
@@ -304,9 +324,11 @@ namespace GI_PSEyes {
                         break;
                     }
                     case 3: {
-                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Position, EC_Struct::MakePointF(static_cast<long double>(Current->Position.X) + Current->Velocity.X, static_cast<long double>(Current->Position.Y) + Current->Velocity.Y));
-                        Current->Velocity.X = 0.95L * Current->Velocity.X;
-                        Current->Velocity.Y = 0.95L * Current->Velocity.Y;
+                        pas::store_unaligned<EC_Struct::TPointF>(&Current->Position,
+                            EC_Struct::MakePointF(static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X),
+                                static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y)));
+                        Current->Velocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.X);
+                        Current->Velocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->Velocity.Y);
                         if (Current->Alpha > 10) {
                             Current->Alpha -= 4;
                         }
@@ -334,8 +356,8 @@ namespace GI_PSEyes {
         PEyesParticle Particle = FirstParticle;
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
-                DX = System::Round(Particle->Position.X) + X;
-                DY = System::Round(Particle->Position.Y) + Y;
+                DX = pas::real_round(Particle->Position.X) + X;
+                DY = pas::real_round(Particle->Position.Y) + Y;
                 GR_DX::QueueDrawPoint(DX, DY, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 Particle = Particle->Next;
             }
@@ -375,38 +397,50 @@ namespace GI_PSEyes {
                     Line.Alpha = pas::idiv((255 - StartingAlpha) * (Progress + Step), Distance) + StartingAlpha;
                     Line.Color = SecondaryColor;
                     if (pas::abs(DX) > pas::abs(DY)) {
-                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
-                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                            ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                            ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                     } else {
-                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
-                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                            ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                            ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                     }
                     Shadow.Alpha = Line.Alpha;
                     Shadow.Color = PrimaryColor;
                     Progress += Step;
-                    GR_DX::DrawAntialiasedLineDX(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, GR_DX::Color565ToArgb(Line.Color), Line.Alpha, &ClipRect);
-                    GR_DX::DrawAntialiasedLineDX(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, GR_DX::Color565ToArgb(Shadow.Color), Line.Alpha, &ClipRect);
+                    GR_DX::DrawAntialiasedLineDX(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y,
+                        GR_DX::Color565ToArgb(Line.Color), Line.Alpha, &ClipRect);
+                    GR_DX::DrawAntialiasedLineDX(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y,
+                        GR_DX::Color565ToArgb(Shadow.Color), Line.Alpha, &ClipRect);
                 }
                 pas::store_unaligned<Types::TPoint>(&Line.First, P);
                 pas::store_unaligned<Types::TPoint>(&Line.Last, ClassesImports::Point(X + DX, Y + DY));
                 Line.Alpha = 255;
                 Line.Color = PrimaryColor;
                 if (pas::abs(DX) > pas::abs(DY)) {
-                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
-                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                        ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                        ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                 } else {
-                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
-                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                        ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                        ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                 }
                 Shadow.Alpha = Line.Alpha;
                 Shadow.Color = PrimaryColor;
-                GR_DX::DrawAntialiasedLineDX(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, GR_DX::Color565ToArgb(Line.Color), Line.Alpha, &ClipRect);
-                GR_DX::DrawAntialiasedLineDX(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, GR_DX::Color565ToArgb(Shadow.Color), Line.Alpha, &ClipRect);
+                GR_DX::DrawAntialiasedLineDX(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y,
+                    GR_DX::Color565ToArgb(Line.Color), Line.Alpha, &ClipRect);
+                GR_DX::DrawAntialiasedLineDX(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y,
+                    GR_DX::Color565ToArgb(Shadow.Color), Line.Alpha, &ClipRect);
             }
         } else {
             while (Particle != nullptr) {
-                DX = System::Round(Particle->Position.X) + X;
-                DY = System::Round(Particle->Position.Y) + Y;
+                DX = pas::real_round(Particle->Position.X) + X;
+                DY = pas::real_round(Particle->Position.Y) + Y;
                 if (DX >= ClipRect.Left && DX < ClipRect.Right && DY >= ClipRect.Top && DY < ClipRect.Bottom) {
                     GR_Main::ScreenRenderBuffer->BlendPixel16(DX, DY, Particle->Color, Particle->Alpha);
                 }
@@ -447,33 +481,45 @@ namespace GI_PSEyes {
                     Line.Alpha = pas::idiv((255 - StartingAlpha) * (Progress + Step), Distance) + StartingAlpha;
                     Line.Color = SecondaryColor;
                     if (pas::abs(DX) > pas::abs(DY)) {
-                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
-                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                            ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                            ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                     } else {
-                        pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
-                        pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                            ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                        pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                            ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                     }
                     Shadow.Alpha = Line.Alpha;
                     Shadow.Color = PrimaryColor;
                     Progress += Step;
-                    GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, Line.Color, Line.Alpha, ClipRect);
-                    GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, Shadow.Color, Line.Alpha, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y,
+                        Line.Color, Line.Alpha, ClipRect);
+                    GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Shadow.First.X, Shadow.First.Y, Shadow.Last.X,
+                        Shadow.Last.Y, Shadow.Color, Line.Alpha, ClipRect);
                 }
                 pas::store_unaligned<Types::TPoint>(&Line.First, P);
                 pas::store_unaligned<Types::TPoint>(&Line.Last, ClassesImports::Point(X + DX, Y + DY));
                 Line.Alpha = 255;
                 Line.Color = PrimaryColor;
                 if (pas::abs(DX) > pas::abs(DY)) {
-                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X, Line.First.Y - 1));
-                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                        ClassesImports::Point(Line.First.X, Line.First.Y - 1));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                        ClassesImports::Point(Line.Last.X, Line.Last.Y - 1));
                 } else {
-                    pas::store_unaligned<Types::TPoint>(&Shadow.First, ClassesImports::Point(Line.First.X - 1, Line.First.Y));
-                    pas::store_unaligned<Types::TPoint>(&Shadow.Last, ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.First,
+                        ClassesImports::Point(Line.First.X - 1, Line.First.Y));
+                    pas::store_unaligned<Types::TPoint>(&Shadow.Last,
+                        ClassesImports::Point(Line.Last.X - 1, Line.Last.Y));
                 }
                 Shadow.Alpha = Line.Alpha;
                 Shadow.Color = PrimaryColor;
-                GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y, Line.Color, Line.Alpha, ClipRect);
-                GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Shadow.First.X, Shadow.First.Y, Shadow.Last.X, Shadow.Last.Y, Shadow.Color, Line.Alpha, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Line.First.X, Line.First.Y, Line.Last.X, Line.Last.Y,
+                    Line.Color, Line.Alpha, ClipRect);
+                GR_Main::ScreenRenderBuffer->DrawAlphaLine16(Shadow.First.X, Shadow.First.Y, Shadow.Last.X,
+                    Shadow.Last.Y, Shadow.Color, Line.Alpha, ClipRect);
             }
         }
     }

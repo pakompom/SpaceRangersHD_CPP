@@ -32,10 +32,11 @@ namespace ab_W04 {
         State = Owner->State;
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 25;
-        if (Offset != 0.0L) {
+        if (Offset != 0.0) {
             State = ab_Global::AdvanceSphericalStateOnCurrentSphere(State, Offset);
         }
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w04_f"_wref.get(), u"GAI,Bm.AB.w04_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w04_f"_wref.get(), u"GAI,Bm.AB.w04_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetFrameMode(Image, ab_WorldImage::afmRandomStart);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
@@ -44,13 +45,14 @@ namespace ab_W04 {
         SourceObject = Parent->SourceObject;
         Damage = Parent->Damage / 3;
         State = Parent->State;
-        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Angle);
+        State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) + Angle));
         Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
         ExpireTick = ab_Global::ArcadeTickCount + 30;
         AimTick = ab_Global::ArcadeTickCount + 8;
         Thrust = 1.0;
         Phase = 2;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w04b_f"_wref.get(), u"GAI,Bm.AB.w04b_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w04b_f"_wref.get(), u"GAI,Bm.AB.w04b_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetFrameMode(Image, ab_WorldImage::afmRandomStart);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
@@ -86,12 +88,14 @@ namespace ab_W04 {
             }
             if (Phase == 0) {
                 Phase = 1;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04a_f"_wref.get(), u"GAI,Bm.AB.w04a_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04a_f"_wref.get(),
+                    u"GAI,Bm.AB.w04a_s"_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
             } else {
                 Phase = 4;
-                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04c_f"_wref.get(), u"GAI,Bm.AB.w04c_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w04c_f"_wref.get(),
+                    u"GAI,Bm.AB.w04c_s"_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
             }
@@ -101,9 +105,10 @@ namespace ab_W04 {
             } else {
                 Enemy = nullptr;
             }
-            if (Enemy != nullptr && Bearing.Distance < 5.0E+2L) {
+            if (Enemy != nullptr && Bearing.Distance < 5.0E+2) {
                 Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
-                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(State.BearingDegrees) + Bearing.BearingDeltaDegrees);
+                State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(State.BearingDegrees) +
+                        Bearing.BearingDeltaDegrees));
                 Thrust = 3.0;
             }
             Phase = 3;

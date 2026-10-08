@@ -10,7 +10,9 @@ namespace BlockParException {
     struct EBlockPar : pas::Exception {
         PAS_CLASS_META(EBlockPar, pas::Exception, "EBlockPar", 16)
         // False suppresses the reporting flag in ExceptionInfo.
-        std::uint8_t IsReportable();
+        inline std::uint8_t IsReportable() {
+            return Reportable;
+        }
         std::uint8_t Reportable;
         std::uint8_t cpp_padding[3];
     };

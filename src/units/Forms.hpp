@@ -6,6 +6,8 @@ namespace Forms {
 
     void UnitInitialize();
 
-    void UnitFinalize();
+    inline void UnitFinalize();
 
 } // namespace Forms
+
+#include "inline/Forms.hpp"

@@ -60,30 +60,39 @@ namespace fLoadQuest {
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         GI_MessageLoop::TObjectGI* Root = GetByName(u""sv);
         Root->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Root->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         GI_MessageLoop::TObjectGI* Panel = Root->FindByNameRecursive(u"MainPanel"sv);
         if (GR_Main::ExtraScreenHeight < 0) {
-            Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X, (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
+            Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X,
+                (GR_Main::GameScreenHeight - Panel->ClientSize.Y) / 2));
         } else {
-            Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X, GR_Main::ExtraScreenHeight / 2 + Panel->LocalPosition.Y));
+            Panel->SetPosition(ClassesImports::Point(GR_Main::ExtraScreenWidth / 2 + Panel->LocalPosition.X,
+                GR_Main::ExtraScreenHeight / 2 + Panel->LocalPosition.Y));
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfLoadQuest::QuestListKeyDown>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<&TfLoadQuest::ReturnToMenu>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<&TfLoadQuest::StartSelectedQuest>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClose"sv))->UpCallback = pas::bind_method<
+                &TfLoadQuest::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCancel"sv))->UpCallback = pas::bind_method<
+                &TfLoadQuest::ReturnToMenu>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv))->UpCallback = pas::bind_method<
+                &TfLoadQuest::StartSelectedQuest>(this);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv));
             ButGroup0->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup0->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup1"sv));
             ButGroup1->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup1->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup2"sv));
             ButGroup2->UpCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
             ButGroup2->DownCallback = pas::bind_method<&TfLoadQuest::SelectCategory>(this);
         }
@@ -99,17 +108,21 @@ namespace fLoadQuest {
                 GR_Main::CaptureScreenBackground(true, 0);
             }
         }
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup0"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup0 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup0"sv));
             ButGroup0->SetDown(Category == 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup1"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup1 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup1"sv));
             ButGroup1->SetDown(Category == 1);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv));
+            GI_GraphButton::TGraphButtonGI* ButGroup2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButGroup2"sv));
             ButGroup2->SetDown(Category == 2);
         }
         RebuildQuestList();
@@ -146,9 +159,11 @@ namespace fLoadQuest {
                 if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                     if (Entries[SelectedIndex].QuestId >= 0) {
                         LoadCompletionData();
-                        if (Entries[SelectedIndex].QuestId >= 0 && Entries[SelectedIndex].QuestId < aGalaxyStruct::FirstLicensedQuestId) {
+                        if (Entries[SelectedIndex].QuestId >= 0 && Entries[SelectedIndex].QuestId <
+                                aGalaxyStruct::FirstLicensedQuestId) {
                             QuestId = Entries[SelectedIndex].QuestId;
-                            if (QuestId < 0 || (CompletionData.length() - 1 + 1) / 2 <= QuestId || CompletionData[QuestId * 2 + 1] == 0) {
+                            if (QuestId < 0 || (CompletionData.length() - 1 + 1) / 2 <= QuestId ||
+                                CompletionData[QuestId * 2 + 1] == 0) {
                                 RecordCompletion(QuestId, 0, 1);
                                 SaveCompletionData();
                                 RebuildQuestList();
@@ -163,14 +178,18 @@ namespace fLoadQuest {
         } else if (VirtualKey == 'Q') {
             ReturnToMenu(Sender);
         } else if (VirtualKey == WindowsSdk::VK_PRIOR) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot->VerticalScrollBar->Active) {
-                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position - PanelSlot->VerticalScrollBar->LargeChange);
+                PanelSlot->VerticalScrollBar->SetPosition_2(PanelSlot->VerticalScrollBar->Position -
+                    PanelSlot->VerticalScrollBar->LargeChange);
             }
         } else if (VirtualKey == WindowsSdk::VK_NEXT) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot_2 = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             if (PanelSlot_2->VerticalScrollBar->Active) {
-                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position + PanelSlot_2->VerticalScrollBar->LargeChange);
+                PanelSlot_2->VerticalScrollBar->SetPosition_2(PanelSlot_2->VerticalScrollBar->Position +
+                    PanelSlot_2->VerticalScrollBar->LargeChange);
             }
         } else if (VirtualKey == WindowsSdk::VK_HOME) {
             if (Entries.length() - 1 + 1 > 0) {
@@ -235,12 +254,14 @@ namespace fLoadQuest {
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
-                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
+                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position -
+                    Panel->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
             if (Panel->VerticalScrollBar->Active) {
-                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->SmallChange);
+                Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position +
+                    Panel->VerticalScrollBar->SmallChange);
             }
             GR_Main::PostMouseMoveMessage();
         }
@@ -269,7 +290,8 @@ namespace fLoadQuest {
         EC_BlockPar::TBlockParEC* List{};
         EC_BlockPar::TBlockParEC* Entry{};
         pas::WideString Name{};
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"PanelSlot"sv));
         Panel->FreeOwnedChildren();
         LoadCompletionData();
         std::int32_t QuestIdAndTop = 0;
@@ -286,15 +308,20 @@ namespace fLoadQuest {
                 }
                 if (Entry->CountParams(u"Group"_wref.get()) > 0) {
                     if (EC_Str::ExtractSignedDigitsToIntW(pas::view(Entry->GetParam(u"Group"sv))) == Category) {
-                        Index = InsertEntryByAccess(EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Access"sv))));
+                        Index =
+                            InsertEntryByAccess(EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParam(u"Access"sv))));
                         Entries[Index].Name = Name;
                         Entries[Index].Title = Entry->GetParam(u"Name"sv);
-                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
+                        Entries[Index].Description =
+                            GR_Main::LanguageDataConfig->GetBlock(
+                                u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
                         Entries[Index].QuestId = QuestIdAndTop;
                         Entries[Index].Image = Entry->GetParamOrMarker(u"Image"sv);
                         Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"sv);
-                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
-                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
+                        Entries[Index].Length =
+                            EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
+                        Entries[Index].Difficulty =
+                            EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
                     }
                 }
             }
@@ -313,12 +340,16 @@ namespace fLoadQuest {
                         Index = InsertEntryByAccess(0);
                         Entries[Index].Name = Name;
                         Entries[Index].Title = Entry->GetParam(u"Name"sv);
-                        Entries[Index].Description = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
+                        Entries[Index].Description =
+                            GR_Main::LanguageDataConfig->GetBlock(
+                                u"PlanetQuest"sv)->GetBlock(u"PlanetQuest"sv)->GetParam(pas::view(Name));
                         Entries[Index].QuestId = QuestIdAndTop;
                         Entries[Index].Image = Entry->GetParamOrMarker(u"Image"sv);
                         Entries[Index].Genre = Entry->GetParamOrMarker(u"Genre"sv);
-                        Entries[Index].Length = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
-                        Entries[Index].Difficulty = EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
+                        Entries[Index].Length =
+                            EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Length"sv)));
+                        Entries[Index].Difficulty =
+                            EC_Str::ExtractDigitsToIntW(pas::view(Entry->GetParamOrMarker(u"Dif"sv)));
                     }
                 }
             }
@@ -379,12 +410,15 @@ namespace fLoadQuest {
         Background->SetDepth(1.0E+1);
         if (Entries[Index].RequiredAccess <= AccessLevel) {
             if (!Entries[Index].AlternateGroup) {
-                Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotNormal"}));
+                Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                    u"SlotNormal"}));
             } else {
-                Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotNormal2"}));
+                Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                    u"SlotNormal2"}));
             }
         } else {
-            Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotDisabled"}));
+            Background->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                u"SlotDisabled"}));
         }
         Background->SetSize(Background->GetContentSize());
         Row->SetSize(Background->ClientSize);
@@ -394,12 +428,15 @@ namespace fLoadQuest {
             LengthImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Row);
             LengthImage->SetDepth(9.0);
             if (Entries[Index].RequiredAccess <= AccessLevel) {
-                LengthImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"D", pas::wide_int_to_str(Entries[Index].Length + 1)}));
+                LengthImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"D",
+                    pas::wide_int_to_str(Entries[Index].Length + 1)}));
             } else {
-                LengthImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"D", pas::wide_int_to_str(Entries[Index].Length + 1), u"D"}));
+                LengthImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"D",
+                    pas::wide_int_to_str(Entries[Index].Length + 1), u"D"}));
             }
             LengthImage->SetSize(LengthImage->GetContentSize());
-            LengthImage->SetPosition(ClassesImports::Point(TitleRight - LengthImage->ClientSize.X, Row->ClientSize.Y / 2 - LengthImage->ClientSize.Y / 2));
+            LengthImage->SetPosition(ClassesImports::Point(TitleRight - LengthImage->ClientSize.X,
+                Row->ClientSize.Y / 2 - LengthImage->ClientSize.Y / 2));
             LengthImage->SetActive(true);
             TitleRight = TitleRight - LengthImage->ClientSize.X - 1;
         }
@@ -413,9 +450,12 @@ namespace fLoadQuest {
                     CompletionImage = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, Row);
                     CompletionImage->SetPosition(ClassesImports::Point(0, 0));
                     CompletionImage->SetDepth(9.0);
-                    CompletionImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(), u"_33"}));
+                    CompletionImage->SetImagePath(pas::concat_wide({u"GI,Bm.FormRewards.", GR_Main::GiResourceSuffix(),
+                        u"_33"}));
                     CompletionImage->SetSize(CompletionImage->GetContentSize());
-                    CompletionImage->SetPosition(ClassesImports::Point(Row->ClientSize.X - CompletionImage->ClientSize.X - GR_Main::GiScalePixels(10), Row->ClientSize.Y / 2 - CompletionImage->ClientSize.Y / 2));
+                    CompletionImage->SetPosition(ClassesImports::Point(
+                        Row->ClientSize.X - CompletionImage->ClientSize.X - GR_Main::GiScalePixels(10),
+                        Row->ClientSize.Y / 2 - CompletionImage->ClientSize.Y / 2));
                     GenreRight = CompletionImage->LocalPosition.X;
                     CompletionImage->SetActive(true);
                 }
@@ -479,7 +519,8 @@ namespace fLoadQuest {
             return;
         }
         if (SelectedIndex >= 0) {
-            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"PanelSlot"sv));
             {
                 GI_MessageLoop::TObjectGI* cpp_with_2 = Entries[SelectedIndex].BackgroundImage->Parent;
                 PanelSlot->ScrollRectIntoView(cpp_with_2->GetLocalBounds());
@@ -497,13 +538,17 @@ namespace fLoadQuest {
             return;
         }
         if (SelectedIndex == Index) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotActive"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                u"SlotActive"}));
         } else if (HoveredIndex == Index) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotOnMouse"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                u"SlotOnMouse"}));
         } else if (!Entries[Index].AlternateGroup) {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotNormal"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                u"SlotNormal"}));
         } else {
-            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(), u"SlotNormal2"}));
+            Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormLoadQuest.", GR_Main::GiResourceSuffix(),
+                u"SlotNormal2"}));
         }
     }
 
@@ -527,13 +572,15 @@ namespace fLoadQuest {
         }
     }
 
-    void TfLoadQuest::QuestRowMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfLoadQuest::QuestRowMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         GR_Main::SoundManager->PlaySound(u"Sound.ButtonClick"_wref.get());
         SelectQuest(Sender->UserValue);
         GI_Main::BreakUiMessage();
     }
 
-    void TfLoadQuest::QuestRowDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfLoadQuest::QuestRowDoubleClick(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         StartSelectedQuest(nullptr);
     }
 
@@ -544,7 +591,8 @@ namespace fLoadQuest {
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButGroup2"sv))->SetDown(NewCategory == 2);
         if (Category != NewCategory) {
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"PanelSlot"sv));
+                GI_PanelScrollBar::TPanelScrollBarGI* PanelSlot = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                    GetByName(u"PanelSlot"sv));
                 PanelSlot->ScrollRectIntoView(ClassesImports::Rect(0, 0, 1, 1));
             }
             Category = NewCategory;
@@ -580,7 +628,8 @@ namespace fLoadQuest {
         EC_CacheBuf::TCBufControlEC* Control{};
         EC_CacheBuf::TCBufEC* Data{};
         {
-            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButStart"sv));
+            GI_GraphButton::TGraphButtonGI* ButStart = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButStart"sv));
             ButStart->SetDisabled(SelectedIndex < 0 || Entries.length() - 1 < SelectedIndex);
         }
         {
@@ -589,22 +638,28 @@ namespace fLoadQuest {
             if (SelectedIndex >= 0 && Entries.length() - 1 >= SelectedIndex) {
                 if (Entries[SelectedIndex].Image != u"") {
                     ImageMap->SetActive(true);
-                    ImageMap->LoadBitmapPathAsRgba(pas::concat_wide({Entries[SelectedIndex].Image, EC_CacheBitmap::RgbaImagePathSuffix}));
-                    if (ImageMap->ClientSize.X != ImageMap->GraphBuf->Width || ImageMap->ClientSize.Y != ImageMap->GraphBuf->Height) {
+                    ImageMap->LoadBitmapPathAsRgba(pas::concat_wide({Entries[SelectedIndex].Image,
+                        EC_CacheBitmap::RgbaImagePathSuffix}));
+                    if (ImageMap->ClientSize.X != ImageMap->GraphBuf->Width || ImageMap->ClientSize.Y !=
+                            ImageMap->GraphBuf->Height) {
                         ImageMap->GraphBuf->RescaleRgba(ImageMap->ClientSize.X, ImageMap->ClientSize.Y, 5);
                     }
-                    RowSkip = ImageMap->GraphBuf->PitchBytes - ImageMap->GraphBuf->Width * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA));
+                    RowSkip = ImageMap->GraphBuf->PitchBytes - ImageMap->GraphBuf->Width *
+                                static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA));
                     Pixel = ImageMap->GraphBuf->GetPixels();
-                    for (auto cpp_range = pas::for_to<std::int32_t>(0, ImageMap->GraphBuf->Height - 1); cpp_range.next(Y); ) {
-                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ImageMap->GraphBuf->Width - 1); cpp_range_2.next(X); ) {
+                    for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                        ImageMap->GraphBuf->Height - 1); cpp_range.next(Y); ) {
+                        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                            ImageMap->GraphBuf->Width - 1); cpp_range_2.next(X); ) {
                             if (Y < 23 && ImageMap->GraphBuf->Width - 23 + Y < X) {
                                 *(&static_cast<GR_GraphBuf::PColorRGBA>(Pixel)->A) = 0;
                             } else {
                                 *(&static_cast<GR_GraphBuf::PColorRGBA>(Pixel)->A) = 255;
                             }
-                            Pixel = static_cast<std::uint8_t*>(Pixel) + static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA));
+                            Pixel = pas::pointer_add(static_cast<std::uint8_t*>(Pixel),
+                                    static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA)));
                         }
-                        Pixel = static_cast<std::uint8_t*>(Pixel) + RowSkip;
+                        Pixel = pas::pointer_add(static_cast<std::uint8_t*>(Pixel), RowSkip);
                     }
                     ImageMap->Invalidate();
                 }
@@ -620,9 +675,11 @@ namespace fLoadQuest {
                     {
                         std::exception_ptr cpp_error{};
                         try {
-                            Control = pas::construct_call<EC_CacheBuf::TCBufControlEC>(EC_Cache::TCacheControlEC_Create);
+                            Control =
+                                pas::construct_call<EC_CacheBuf::TCBufControlEC>(EC_Cache::TCacheControlEC_Create);
                             EC_Cache::TCacheEC::ResetControl(Control);
-                            Control->SetCacheKey(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.", SysUtils::IntToStr(Entries[SelectedIndex].QuestId)})));
+                            Control->SetCacheKey(pas::concat_wide({u"PlanetQuest.",
+                                pas::wide_int_to_str(Entries[SelectedIndex].QuestId)}));
                             Data = EC_CacheBuf::AcquireOrCreateBuffer(Control);
                             Quest->LoadFromReader(Data->Buffer, true);
                         } catch (...) {
@@ -641,7 +698,8 @@ namespace fLoadQuest {
                     {
                         std::exception_ptr cpp_error_2{};
                         try {
-                            Control = pas::construct_call<EC_CacheBuf::TCBufControlEC>(EC_Cache::TCacheControlEC_Create);
+                            Control =
+                                pas::construct_call<EC_CacheBuf::TCBufControlEC>(EC_Cache::TCacheControlEC_Create);
                             EC_Cache::TCacheEC::ResetControl(Control);
                             Control->SetCacheKey(pas::concat_wide({u"PlanetQuest.", Entries[SelectedIndex].Name}));
                             Data = EC_CacheBuf::AcquireOrCreateBuffer(Control);
@@ -662,37 +720,47 @@ namespace fLoadQuest {
                 {
                     auto brightBlueColorTag = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText = aConst::LocalizedText(u"FormLoadQuest.PRanger"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<Ranger>"_w, std::move(localizedText), brightBlueColorTag.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Ranger>"_w, std::move(localizedText),
+                        brightBlueColorTag.get());
                 }
                 {
                     auto brightBlueColorTag_2 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_2 = aConst::LocalizedText(u"FormLoadQuest.PToPlanet"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, std::move(localizedText_2), brightBlueColorTag_2.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<ToPlanet>"_w, std::move(localizedText_2),
+                        brightBlueColorTag_2.get());
                 }
                 {
                     auto brightBlueColorTag_3 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_3 = aConst::LocalizedText(u"FormLoadQuest.PToStar"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, std::move(localizedText_3), brightBlueColorTag_3.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<ToStar>"_w, std::move(localizedText_3),
+                        brightBlueColorTag_3.get());
                 }
-                aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::wide_int_to_str(10), aMyFunction::BrightBlueColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Parsec>"_w, pas::wide_int_to_str(10),
+                    aMyFunction::BrightBlueColorTag);
                 {
                     auto brightBlueColorTag_4 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(1000);
-                    aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatGameTurnDate), brightBlueColorTag_4.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<Date>"_w, std::move(formatGameTurnDate),
+                        brightBlueColorTag_4.get());
                 }
-                aMyFunction::ReplaceTextToken(Text, u"<Day>"_w, pas::wide_int_to_str(30), aMyFunction::BrightBlueColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(10000), aMyFunction::BrightBlueColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Day>"_w, pas::wide_int_to_str(30),
+                    aMyFunction::BrightBlueColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(10000),
+                    aMyFunction::BrightBlueColorTag);
                 {
                     auto brightBlueColorTag_5 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_4 = aConst::LocalizedText(u"FormLoadQuest.PFromPlanet"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, std::move(localizedText_4), brightBlueColorTag_5.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, std::move(localizedText_4),
+                        brightBlueColorTag_5.get());
                 }
                 {
                     auto brightBlueColorTag_6 = pas::borrow(aMyFunction::BrightBlueColorTag);
                     pas::WideString localizedText_5 = aConst::LocalizedText(u"FormLoadQuest.PFromStar"_wref.get());
-                    aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, std::move(localizedText_5), brightBlueColorTag_6.get());
+                    aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, std::move(localizedText_5),
+                        brightBlueColorTag_6.get());
                 }
-                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(), pas::view(aMyFunction::BrightBlueColorTag));
+                Text = EC_Str::ReplaceAllWideString(Text, u"<clr>"_wref.get(),
+                        pas::view(aMyFunction::BrightBlueColorTag));
                 aConst::ExpandLocalizedTextMarkup(Text);
                 pas::free(Quest);
                 with_MessageText->SetActive(true);
@@ -700,12 +768,16 @@ namespace fLoadQuest {
             }
         }
         {
-            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"MessageWindow"sv));
+            GI_PanelScrollBar::TPanelScrollBarGI* MessageWindow = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"MessageWindow"sv));
             MessageWindow->SetScrollOffset(ClassesImports::Point(0, 0));
             MessageWindow->UpdateScrollRanges();
-            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active && pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
+            MessageWindow->VerticalScrollBar->SetActive(MessageWindow->FindByNameRecursive(u"MessageText"sv)->Active &&
+                pas::checked_cast<GI_Label::TLabelGI*>(
+                    MessageWindow->FindByNameRecursive(u"MessageText"sv))->ClientSize.Y > MessageWindow->ClientSize.Y);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(
+                    MessageWindow->FindByNameRecursive(u"MessageText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = MessageWindow->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -721,20 +793,22 @@ namespace fLoadQuest {
         std::int32_t I{};
         std::int32_t Count{};
         CompletionData = nullptr;
-        if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"QuestComplate.dat"})))) {
+        if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+            u"QuestComplate.dat"})))) {
             try {
                 Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
-                Buffer->LoadFromWideFilePath((cpp_text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"QuestComplate.dat"}), cpp_text.pchar()));
+                Buffer->LoadFromWideFilePath((cpp_text = pas::concat_wide({GR_Main::GetGameUserDirectory(),
+                        u"QuestComplate.dat"}), cpp_text.pchar()));
                 {
                     std::uint32_t cpp_left = Buffer->ComputeCrc32Range(4, Buffer->DataSize);
-                    if (cpp_left != EC_Buf::TBufEC_GetUInt32(Buffer)) {
+                    if (cpp_left != Buffer->GetUInt32()) {
                         SysUtilsImports::Abort();
                     }
                 }
-                Count = EC_Buf::TBufEC_GetInt32(Buffer);
+                Count = Buffer->GetInt32();
                 CompletionData.set_length(Count);
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                    CompletionData[I] = EC_Buf::TBufEC_GetInt32(Buffer);
+                    CompletionData[I] = Buffer->GetInt32();
                 }
                 pas::free(Buffer);
             } catch (...) {
@@ -756,7 +830,8 @@ namespace fLoadQuest {
                 }
             }
         }
-        pas::store_unaligned<std::uint32_t>(static_cast<System::PCardinal>(Buffer->Data), Buffer->ComputeCrc32Range(4, Buffer->DataSize));
+        pas::store_unaligned<std::uint32_t>(static_cast<System::PCardinal>(Buffer->Data),
+            Buffer->ComputeCrc32Range(4, Buffer->DataSize));
         EC_File::TFileEC* FileHandle = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
         FileHandle->SetFileName(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"QuestComplate.dat"}));
         FileHandle->CreateNew();
@@ -892,7 +967,7 @@ namespace fLoadQuest {
             }
         }
         Counts = GetCompletionCounts();
-        return static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Counts.X), "/", SysUtils::IntToStr(Total)}));
+        return pas::concat_wide({pas::wide_int_to_str(Counts.X), u"/", pas::wide_int_to_str(Total)});
     }
 
     // Empty implementation.

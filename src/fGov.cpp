@@ -35,7 +35,6 @@
 #include "units/Robot.hpp"
 #include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
-#include "units/System.hpp"
 #include "units/ThreadCalc.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/aCalc.hpp"
@@ -104,38 +103,50 @@ namespace fGov {
                 PortraitY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 10;
                 TableY = PortraitY + Panel->FindByNameRecursive(u"Gov_Anim0"sv)->ClientSize.Y / 10 * 6;
                 Bottom = TableY + Panel->FindByNameRecursive(u"Table"sv)->ClientSize.Y / 10 * 9;
-                DeltaX = Panel->FindByNameRecursive(u"Gov_Anim0"sv)->LocalPosition.X - Panel->FindByNameRecursive(u"Gov_Anim1"sv)->LocalPosition.X;
-                DeltaY = Panel->FindByNameRecursive(u"Gov_Anim0"sv)->ClientSize.Y - Panel->FindByNameRecursive(u"Gov_Anim1"sv)->ClientSize.Y;
+                DeltaX = Panel->FindByNameRecursive(u"Gov_Anim0"sv)->LocalPosition.X -
+                        Panel->FindByNameRecursive(u"Gov_Anim1"sv)->LocalPosition.X;
+                DeltaY = Panel->FindByNameRecursive(u"Gov_Anim0"sv)->ClientSize.Y -
+                        Panel->FindByNameRecursive(u"Gov_Anim1"sv)->ClientSize.Y;
                 if (GR_Main::GameScreenHeight > Bottom) {
                     PortraitY = PortraitY + GR_Main::GameScreenHeight - Bottom;
                     TableY = TableY + GR_Main::GameScreenHeight - Bottom;
                 }
                 {
                     GI_MessageLoop::TObjectGI* Table = Panel->FindByNameRecursive(u"Table"sv);
-                    Table->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table->ClientSize.X) / 2, TableY));
+                    Table->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table->ClientSize.X) / 2,
+                        TableY));
                     Table->SetActive(this->UseClassicPortrait);
                 }
                 if (Panel->FindByNameRecursive(u"Table2"sv) != nullptr) {
                     GI_MessageLoop::TObjectGI* Table2 = Panel->FindByNameRecursive(u"Table2"sv);
-                    Table2->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table2->ClientSize.X) / 2, TableY));
+                    Table2->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - Table2->ClientSize.X) / 2,
+                        TableY));
                     Table2->SetActive(false);
                 }
                 PortraitX = HalfWidth / 2 * 3 - Panel->FindByNameRecursive(u"Gov_Anim0"sv)->ClientSize.X / 2;
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, 1); cpp_range.next(I); ) {
                     {
-                        GI_MessageLoop::TObjectGI* cpp_with_3 = Panel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Gov_Anim", SysUtils::IntToStr(I)}))));
+                        GI_MessageLoop::TObjectGI* cpp_with_3 = Panel->FindByNameRecursive(pas::view(pas::concat_wide({
+                            u"Gov_Anim", pas::wide_int_to_str(I)})));
                         if (!this->UseClassicPortrait) {
-                            cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth, cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                            cpp_with_3->SetPosition(ClassesImports::Point(
+                                cpp_with_3->LocalPosition.X + GR_Main::ExtraScreenWidth,
+                                cpp_with_3->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         } else {
-                            cpp_with_3->SetPosition(ClassesImports::Point(PortraitX - I * DeltaX, PortraitY + I * DeltaY));
+                            cpp_with_3->SetPosition(ClassesImports::Point(PortraitX - I * DeltaX,
+                                PortraitY + I * DeltaY));
                         }
                     }
                     {
-                        GI_MessageLoop::TObjectGI* cpp_with_4 = Panel->FindByNameRecursive(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"GovHD_Anim", SysUtils::IntToStr(I)}))));
-                        cpp_with_4->SetPosition(ClassesImports::Point(HalfWidth + (HalfWidth - cpp_with_4->ClientSize.X) / 2, cpp_with_4->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        GI_MessageLoop::TObjectGI* cpp_with_4 = Panel->FindByNameRecursive(pas::view(pas::concat_wide({
+                            u"GovHD_Anim", pas::wide_int_to_str(I)})));
+                        cpp_with_4->SetPosition(ClassesImports::Point(
+                            HalfWidth + (HalfWidth - cpp_with_4->ClientSize.X) / 2,
+                            cpp_with_4->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                 }
-                Panel->FindByNameRecursive(u"BG"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+                Panel->FindByNameRecursive(u"BG"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                    GR_Main::GameScreenHeight));
             }
         };
         GI_MessageLoop::TMessageLoopGI::InitializeLayout();
@@ -150,11 +161,13 @@ namespace fGov {
             HalfWidth = static_cast<std::uint32_t>(GR_Main::GameScreenWidth) / 2;
             UseHdPortrait = false;
             UseClassicPortrait = false;
-            if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1280 && static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 960) {
+            if (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) >= 1280 &&
+                static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 960) {
                 UseHdPortrait = true;
                 UseClassicPortrait = GlobalsV::UseTablesForGov;
             }
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Owner); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+                aGalaxyStruct::oiPirate); cpp_range.next(Owner); ) {
                 LayoutPortrait(pas::concat_wide({u"Gov", aConst::OwnerInfo[Owner].InternalName}), this);
             }
             {
@@ -163,51 +176,73 @@ namespace fGov {
                 ChoiceGrowth = HalfWidth / 4 * 3;
                 HalfWidth = HalfWidth * 3 - ChoiceGrowth;
                 if (GR_Main::ExtraScreenHeight < 0) {
-                    PanelTalk->SetPosition(ClassesImports::Point(PanelTalk->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelTalk->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                    PanelTalk->SetPosition(ClassesImports::Point(
+                        PanelTalk->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                        PanelTalk->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
                 } else {
-                    PanelTalk->SetPosition(ClassesImports::Point(PanelTalk->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelTalk->LocalPosition.Y));
+                    PanelTalk->SetPosition(ClassesImports::Point(
+                        PanelTalk->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelTalk->LocalPosition.Y));
                 }
-                PanelTalk->SetSize(ClassesImports::Point(PanelTalk->ClientSize.X, PanelTalk->ClientSize.Y + HalfWidth + ChoiceGrowth));
+                PanelTalk->SetSize(ClassesImports::Point(PanelTalk->ClientSize.X,
+                    PanelTalk->ClientSize.Y + HalfWidth + ChoiceGrowth));
                 {
                     GI_MessageLoop::TObjectGI* cpp_with_3 = PanelTalk->FirstChild;
-                    cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X, cpp_with_3->LocalPosition.Y + HalfWidth));
-                    cpp_with_3->SetSize(ClassesImports::Point(cpp_with_3->ClientSize.X, cpp_with_3->ClientSize.Y + ChoiceGrowth));
+                    cpp_with_3->SetPosition(ClassesImports::Point(cpp_with_3->LocalPosition.X,
+                        cpp_with_3->LocalPosition.Y + HalfWidth));
+                    cpp_with_3->SetSize(ClassesImports::Point(cpp_with_3->ClientSize.X,
+                        cpp_with_3->ClientSize.Y + ChoiceGrowth));
                 }
                 {
                     GI_MessageLoop::TObjectGI* UserMsgAdd = PanelTalk->FindByNameRecursive(u"UserMsgAdd"sv);
-                    UserMsgAdd->SetPosition(ClassesImports::Point(UserMsgAdd->LocalPosition.X, UserMsgAdd->LocalPosition.Y + HalfWidth));
+                    UserMsgAdd->SetPosition(ClassesImports::Point(UserMsgAdd->LocalPosition.X,
+                        UserMsgAdd->LocalPosition.Y + HalfWidth));
                 }
                 {
                     GI_MessageLoop::TObjectGI* ButFormClose = PanelTalk->FindByNameRecursive(u"ButFormClose"sv);
-                    ButFormClose->SetPosition(ClassesImports::Point(ButFormClose->LocalPosition.X, ButFormClose->LocalPosition.Y + HalfWidth + ChoiceGrowth));
+                    ButFormClose->SetPosition(ClassesImports::Point(ButFormClose->LocalPosition.X,
+                        ButFormClose->LocalPosition.Y + HalfWidth + ChoiceGrowth));
                 }
                 {
-                    GI_PanelScrollBar::TPanelScrollBarGI* TextScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(PanelTalk->FindByNameRecursive(u"TextScroll"sv));
-                    TextScroll->SetSize(ClassesImports::Point(TextScroll->ClientSize.X, TextScroll->ClientSize.Y + HalfWidth));
-                    TextScroll->VerticalScrollBar->SetSize(ClassesImports::Point(TextScroll->VerticalScrollBar->ClientSize.X, TextScroll->VerticalScrollBar->ClientSize.Y + HalfWidth));
+                    GI_PanelScrollBar::TPanelScrollBarGI* TextScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                        PanelTalk->FindByNameRecursive(u"TextScroll"sv));
+                    TextScroll->SetSize(ClassesImports::Point(TextScroll->ClientSize.X,
+                        TextScroll->ClientSize.Y + HalfWidth));
+                    TextScroll->VerticalScrollBar->SetSize(ClassesImports::Point(
+                        TextScroll->VerticalScrollBar->ClientSize.X,
+                        TextScroll->VerticalScrollBar->ClientSize.Y + HalfWidth));
                     {
                         GI_MessageLoop::TObjectGI* TalkText = TextScroll->FindByNameRecursive(u"TalkText"sv);
-                        TalkText->SetSize(ClassesImports::Point(TalkText->ClientSize.X, TalkText->ClientSize.Y + HalfWidth));
+                        TalkText->SetSize(ClassesImports::Point(TalkText->ClientSize.X,
+                            TalkText->ClientSize.Y + HalfWidth));
                     }
                 }
                 {
-                    GI_PanelScrollBar::TPanelScrollBarGI* TalkPA = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(PanelTalk->FindByNameRecursive(u"TalkPA"sv));
-                    TalkPA->SetPosition(ClassesImports::Point(TalkPA->LocalPosition.X, TalkPA->LocalPosition.Y + HalfWidth));
+                    GI_PanelScrollBar::TPanelScrollBarGI* TalkPA = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                        PanelTalk->FindByNameRecursive(u"TalkPA"sv));
+                    TalkPA->SetPosition(ClassesImports::Point(TalkPA->LocalPosition.X,
+                        TalkPA->LocalPosition.Y + HalfWidth));
                     TalkPA->SetSize(ClassesImports::Point(TalkPA->ClientSize.X, TalkPA->ClientSize.Y + ChoiceGrowth));
-                    TalkPA->VerticalScrollBar->SetPosition(ClassesImports::Point(TalkPA->VerticalScrollBar->LocalPosition.X, TalkPA->VerticalScrollBar->LocalPosition.Y + HalfWidth));
-                    TalkPA->VerticalScrollBar->SetSize(ClassesImports::Point(TalkPA->VerticalScrollBar->ClientSize.X, TalkPA->VerticalScrollBar->ClientSize.Y + ChoiceGrowth));
+                    TalkPA->VerticalScrollBar->SetPosition(ClassesImports::Point(
+                        TalkPA->VerticalScrollBar->LocalPosition.X,
+                        TalkPA->VerticalScrollBar->LocalPosition.Y + HalfWidth));
+                    TalkPA->VerticalScrollBar->SetSize(ClassesImports::Point(TalkPA->VerticalScrollBar->ClientSize.X,
+                        TalkPA->VerticalScrollBar->ClientSize.Y + ChoiceGrowth));
                     {
                         GI_MessageLoop::TObjectGI* cpp_with_9 = TalkPA->NextSibling;
-                        cpp_with_9->SetSize(ClassesImports::Point(cpp_with_9->ClientSize.X, cpp_with_9->ClientSize.Y + HalfWidth + ChoiceGrowth));
+                        cpp_with_9->SetSize(ClassesImports::Point(cpp_with_9->ClientSize.X,
+                            cpp_with_9->ClientSize.Y + HalfWidth + ChoiceGrowth));
                         {
                             GI_MessageLoop::TObjectGI* cpp_with_10 = cpp_with_9->NextSibling;
-                            cpp_with_10->SetPosition(ClassesImports::Point(cpp_with_10->LocalPosition.X, cpp_with_10->LocalPosition.Y + HalfWidth + ChoiceGrowth));
+                            cpp_with_10->SetPosition(ClassesImports::Point(cpp_with_10->LocalPosition.X,
+                                cpp_with_10->LocalPosition.Y + HalfWidth + ChoiceGrowth));
                             {
                                 GI_MessageLoop::TObjectGI* cpp_with_11 = cpp_with_10->NextSibling;
-                                cpp_with_11->SetPosition(ClassesImports::Point(cpp_with_11->LocalPosition.X, cpp_with_11->LocalPosition.Y + HalfWidth));
+                                cpp_with_11->SetPosition(ClassesImports::Point(cpp_with_11->LocalPosition.X,
+                                    cpp_with_11->LocalPosition.Y + HalfWidth));
                                 {
                                     GI_MessageLoop::TObjectGI* cpp_with_12 = cpp_with_11->NextSibling;
-                                    cpp_with_12->SetPosition(ClassesImports::Point(cpp_with_12->LocalPosition.X, cpp_with_12->LocalPosition.Y + HalfWidth));
+                                    cpp_with_12->SetPosition(ClassesImports::Point(cpp_with_12->LocalPosition.X,
+                                        cpp_with_12->LocalPosition.Y + HalfWidth));
                                 }
                             }
                         }
@@ -218,11 +253,13 @@ namespace fGov {
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfGov::MainPanelKeyDown>(this);
         {
-            GI_GraphButton::TGraphButtonGI* UserMsgAdd_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
+            GI_GraphButton::TGraphButtonGI* UserMsgAdd_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"UserMsgAdd"sv));
             UserMsgAdd_2->UpCallback = pas::bind_method<&TfGov::AddMessageClicked>(this);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButFormClose_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv));
+            GI_GraphButton::TGraphButtonGI* ButFormClose_2 = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButFormClose"sv));
             ButFormClose_2->UpCallback = pas::bind_method<&fPanelPlanet::TfPanelPlanet::PlanetClicked>(PlanetPanel);
         }
     }
@@ -252,8 +289,10 @@ namespace fGov {
             LoadPanel->OnOpen();
             SavedChoiceScroll = -1;
             Stage = 1;
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfGov::EndTurnClicked>(this);
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<&TfGov::ShipClicked>(this);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback =
+                pas::bind_method<&TfGov::EndTurnClicked>(this);
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_Ship"sv))->UpCallback = pas::bind_method<
+                    &TfGov::ShipClicked>(this);
             if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
                 SoundSection = 0;
             } else {
@@ -270,7 +309,8 @@ namespace fGov {
                 fEquipmentShop::BuildTemporaryShopSlotGrid();
             }
             Stage = 3;
-            if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
+            if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr &&
+                    aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerDeath"_w, nullptr);
                 Event->AddTextData(u"PlanetCaptured"_w);
                 GlobalsV::GameEndReason = GlobalsV::gerPlayerDeath;
@@ -282,55 +322,73 @@ namespace fGov {
                 aPlayer::GetPlayer()->PendingDockDialogue = 0;
             }
             Stage = 4;
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc, aGalaxyStruct::oiPirate); cpp_range.next(Owner); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TOwnerId>(aGalaxyStruct::oiMaloc,
+                aGalaxyStruct::oiPirate); cpp_range.next(Owner); ) {
                 Portrait = FindControlByPath(pas::concat_wide({u"Gov", aConst::OwnerInfo[Owner].InternalName}));
                 if (Portrait != nullptr) {
                     Portrait->SetActive(false);
                 }
             }
-            if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
+            if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet &&
+                aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                 PortraitPanel = GetByName(u"GovPirateClan"sv);
             } else {
-                PortraitPanel = GetByName(pas::view(pas::concat_wide({u"Gov", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName})));
+                PortraitPanel = GetByName(pas::view(pas::concat_wide({u"Gov",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName})));
             }
             PortraitPanel->SetActive(true);
             {
                 GI_MessageLoop::TObjectGI* cpp_with = PortraitPanel;
                 if (cpp_with->FindByNameRecursive(u"Table2"sv) != nullptr) {
-                    cpp_with->FindByNameRecursive(u"Table"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiPirate && UseHdPortrait && UseClassicPortrait);
-                    cpp_with->FindByNameRecursive(u"Table2"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate && UseHdPortrait && UseClassicPortrait);
+                    cpp_with->FindByNameRecursive(u"Table"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->OwnerId !=
+                        aGalaxyStruct::oiPirate && UseHdPortrait && UseClassicPortrait);
+                    cpp_with->FindByNameRecursive(
+                        u"Table2"sv)->SetActive(aPlayer::GetPlayer()->CurrentPlanet->OwnerId ==
+                        aGalaxyStruct::oiPirate && UseHdPortrait && UseClassicPortrait);
                 } else {
                     cpp_with->FindByNameRecursive(u"Table"sv)->SetActive(UseHdPortrait && UseClassicPortrait);
                 }
                 {
-                    GI_Image::TImageGI* BG = pas::checked_cast<GI_Image::TImageGI*>(cpp_with->FindByNameRecursive(u"BG"sv));
+                    GI_Image::TImageGI* BG = pas::checked_cast<GI_Image::TImageGI*>(
+                        cpp_with->FindByNameRecursive(u"BG"sv));
                     if (aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
                         BG->SetImagePath(u"GI,Bm.Gov.PirateBG"_w);
                     } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
-                        BG->SetImagePath(pas::concat_wide({u"GI,Bm.Gov.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"PirateBG"}));
+                        BG->SetImagePath(pas::concat_wide({u"GI,Bm.Gov.",
+                            aConst::OwnerInfo[
+                                aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                            u"PirateBG"}));
                     } else {
-                        BG->SetImagePath(pas::concat_wide({u"GI,Bm.Gov.2", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"BGi"}));
+                        BG->SetImagePath(pas::concat_wide({u"GI,Bm.Gov.2",
+                            aConst::OwnerInfo[
+                                aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                            u"BGi"}));
                     }
                 }
                 if (UseHdPortrait && static_cast<std::uint8_t>(UseClassicPortrait ^ 1)) {
                     {
-                        GI_GAI::TgaiGI* GovHD_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(cpp_with->FindByNameRecursive(u"GovHD_Anim0"sv));
+                        GI_GAI::TgaiGI* GovHD_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                            cpp_with->FindByNameRecursive(u"GovHD_Anim0"sv));
                         GovHD_Anim0->FirstFrameOnly = GlobalsV::AnimGov == 0;
                         GovHD_Anim0->PrimeImageCaches();
                     }
                     if (GlobalsV::AnimGov == 2) {
-                        GI_GAI::TgaiGI* GovHD_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(cpp_with->FindByNameRecursive(u"GovHD_Anim1"sv));
+                        GI_GAI::TgaiGI* GovHD_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                            cpp_with->FindByNameRecursive(u"GovHD_Anim1"sv));
                         GovHD_Anim1->FirstFrameOnly = GlobalsV::AnimGov == 0;
                         GovHD_Anim1->PrimeImageCaches();
                     }
                 } else {
                     {
-                        GI_GAI::TgaiGI* Gov_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(cpp_with->FindByNameRecursive(u"Gov_Anim0"sv));
+                        GI_GAI::TgaiGI* Gov_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                            cpp_with->FindByNameRecursive(u"Gov_Anim0"sv));
                         Gov_Anim0->FirstFrameOnly = GlobalsV::AnimGov == 0;
                         Gov_Anim0->PrimeImageCaches();
                     }
                     if (GlobalsV::AnimGov == 2) {
-                        GI_GAI::TgaiGI* Gov_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(cpp_with->FindByNameRecursive(u"Gov_Anim1"sv));
+                        GI_GAI::TgaiGI* Gov_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                            cpp_with->FindByNameRecursive(u"Gov_Anim1"sv));
                         Gov_Anim1->FirstFrameOnly = GlobalsV::AnimGov == 0;
                         Gov_Anim1->PrimeImageCaches();
                     }
@@ -357,26 +415,40 @@ namespace fGov {
                 Stage = 8;
                 MapIndex = Globals::FindRobotMapById(PlanetBattleMapId);
                 Text = Globals::RobotMapDefinitions[MapIndex].RobotsStart;
-                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(Text);
                 Text = pas::concat_wide({pas::wide_int_to_str(GovernmentBattleDifficulty), Text});
-                Text = pas::concat_wide({pas::wide_int_to_str(std::min<std::int32_t>(static_cast<std::int32_t>(aGalaxy::Galaxy->GetDifficultyTierIndex()), 3) + 1), Text});
+                Text = pas::concat_wide({
+                        pas::wide_int_to_str(std::min<std::int32_t>(
+                            static_cast<std::int32_t>(aGalaxy::Galaxy->GetDifficultyTierIndex()), 3) + 1), Text});
                 Text = pas::concat_wide({pas::wide_int_to_str(aPlayer::GetPlayer()->CurrentPlanet->RaceId + 1), Text});
                 WinText = Globals::RobotMapDefinitions[MapIndex].RobotsWin;
-                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(WinText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(WinText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(WinText, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(WinText);
                 LossText = Globals::RobotMapDefinitions[MapIndex].RobotsLoss;
-                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(LossText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(LossText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(LossText, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
                 aConst::ExpandLocalizedTextMarkupAndPrefixLines(LossText);
-                TerronName = pas::concat_wide({aPlayer::GetPlayer()->CurrentPlanet->GetFullName(u" "_w), u", ", GR_Main::LookupLocalizedTextOrEmpty(u"FormShip.StorageInfo.StarInfo"_wref.get()), u" ", aPlayer::GetPlayer()->CurrentStar->Name});
+                TerronName = pas::concat_wide({aPlayer::GetPlayer()->CurrentPlanet->GetFullName(u" "_w), u", ",
+                        GR_Main::LookupLocalizedTextOrEmpty(u"FormShip.StorageInfo.StarInfo"_wref.get()), u" ",
+                        aPlayer::GetPlayer()->CurrentStar->Name});
                 Stage = 9;
-                if (ThreadCalc::IsTurnCalculationRunning() && WindowsSdk::WaitForSingleObject(Globals::ScriptUiRequestEvent, 0u) != WindowsSdk::WAIT_OBJECT_0) {
+                if (ThreadCalc::IsTurnCalculationRunning() && WindowsSdk::WaitForSingleObject(
+                        Globals::ScriptUiRequestEvent, 0u) != WindowsSdk::WAIT_OBJECT_0) {
                     ThreadCalc::WaitForTurnCalculation();
                 }
                 if (!GlobalsV::MemorySnapshotActive) {
@@ -388,11 +460,13 @@ namespace fGov {
                 Stage = 10;
                 try {
                     Failed = false;
-                    PendingTransition = Robot::FRun(Globals::RobotMapDefinitions[MapIndex].Map, Text, WinText, LossText, TerronName);
+                    PendingTransition = Robot::FRun(Globals::RobotMapDefinitions[MapIndex].Map, Text, WinText, LossText,
+                            TerronName);
                 } catch (...) {
                     auto cpp_exception = pas::caught_object();
                     if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                            static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
                         Failed = true;
                     } else {
                         throw;
@@ -405,9 +479,11 @@ namespace fGov {
                 Stage = 12;
                 if (Failed) {
                     if (([&] {
-                        const pas::WideString& localizedColorText = aConst::LocalizedColorText(u"FormGov.BattlePlanetQuestCrashed"_wref.get());
+                        const pas::WideString& localizedColorText = aConst::LocalizedColorText(
+                            u"FormGov.BattlePlanetQuestCrashed"_wref.get());
                         GI_MessageLoop::TMessageLoopGI* self = this;
-                        return GI_MessageBox::ShowMessageBoxGI(self, localizedColorText, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0);
+                        return GI_MessageBox::ShowMessageBoxGI(self, localizedColorText,
+                            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0);
                     }()) == GI_MessageBox::mbgResultOK) {
                         PendingTransition = 3;
                     } else {
@@ -441,32 +517,38 @@ namespace fGov {
             if (PendingTransition == 2) {
                 Stage = 13;
                 MapIndex = Globals::FindRobotMapById(PlanetBattleMapId);
-                Money = aMyFunction::RoundAndTruncateToTens(pas::real_min<pas::Extended>(aPlayer::GetPlayer()->Wealth * 0.03L, ([&] {
-                    pas::Extended cpp_arg = static_cast<pas::Extended>(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman) * 7);
-                    pas::Extended cpp_arg_2 = aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 1.5L;
-                    return pas::real_min<pas::Extended>(cpp_arg, cpp_arg_2);
-                }())));
-                Money = System::Round(static_cast<long double>(Money) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].ArcadeRewardScale);
+                Money = aMyFunction::RoundAndTruncateToTens(pas::real_min<double>(static_cast<float>(aPlayer::GetPlayer()->Wealth * 0x1.eb851eb851eb7p-6),
+                        pas::real_min<double>(
+                            static_cast<double>(aGalaxy::Galaxy->ComputeScaledAverageMoney(aGalaxyStruct::oiHuman) * 7),
+                            static_cast<float>(aGalaxy::Galaxy->ComputeScaledHugeMoney(aGalaxyStruct::oiHuman) * 1.5))));
+                Money = pas::real_round(static_cast<float>(static_cast<double>(Money) *
+                        aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].ArcadeRewardScale));
                 switch (GovernmentBattleDifficulty) {
-                    case 1: Money = aMyFunction::RoundAndTruncateToTens(Money * 0.5L); break;
-                    case 2: Money = aMyFunction::RoundAndTruncateToTens(Money * 0.2L); break;
-                    case 3: Money = aMyFunction::RoundAndTruncateToTens(Money * 0.1L); break;
+                    case 1: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 0.5)); break;
+                    case 2: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 0x1.999999999999bp-3)); break;
+                    case 3: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 0x1.999999999999bp-4)); break;
                 }
                 Stage = 14;
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Money);
                 GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
                 aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), -40);
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextLoss;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money),
+                    aMyFunction::TextHighlightColorTag);
                 Stage = 15;
                 BuildGovernmentChoices(true);
                 Stage = 16;
-                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
+                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(
+                    aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
                 {
-                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_8 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
+                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_8 = aPlayer::GetPlayer()->PlanetBattleHistory[
+                        aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_8.MapId = PlanetBattleMapId;
                     cpp_with_8.Statistics.SignedTimeMs = Robot::RobotBattleStatistics.SignedTimeMs;
                     cpp_with_8.Statistics.RobotsBuilt = Robot::RobotBattleStatistics.RobotsBuilt;
@@ -482,27 +564,38 @@ namespace fGov {
             } else if (PendingTransition == 3) {
                 Stage = 17;
                 MapIndex = Globals::FindRobotMapById(PlanetBattleMapId);
-                Money = aMyFunction::RoundAndTruncateToTens(pas::real_max<pas::Extended>(aPlayer::GetPlayer()->Wealth * 0.03L, static_cast<pas::Extended>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman))));
-                Money = System::Round(static_cast<long double>(Money) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor);
+                Money = aMyFunction::RoundAndTruncateToTens(pas::real_max<double>(static_cast<float>(aPlayer::GetPlayer()->Wealth * 0x1.eb851eb851eb7p-6),
+                        static_cast<double>(aGalaxy::Galaxy->ComputeScaledBigMoney(aGalaxyStruct::oiHuman))));
+                Money = pas::real_round(static_cast<float>(static_cast<double>(Money) *
+                        aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[5]].QuestMoneyFactor));
                 if (aPlayer::GetPlayer()->IsHealthEffectActive(aGalaxyStruct::heDoubleplex)) {
-                    Money = System::Round(static_cast<long double>(aMyFunction::SeededRandomFloatRange((static_cast<std::int32_t>(aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed) + aGalaxy::Galaxy->CurrentTurn) / 33, 1.3, 2.3)) * Money);
+                    Money = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::SeededRandomFloatRange(
+                            (static_cast<std::int32_t>(aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed) +
+                                aGalaxy::Galaxy->CurrentTurn) / 33, 1.3, 2.3)) * Money));
                 }
-                Money += System::Round(Money * aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma, false) * 0.1L);
+                Money += pas::real_round(static_cast<float>(Money * aPlayer::GetPlayer()->GetEffectiveSkillLevel(aGalaxyStruct::psCharisma,
+                            false) * 0x1.999999999999bp-4));
                 switch (GovernmentBattleDifficulty) {
-                    case 1: Money = aMyFunction::RoundAndTruncateToTens(Money * 4.0L); break;
-                    case 2: Money = aMyFunction::RoundAndTruncateToTens(Money * 1.6L); break;
-                    case 3: Money = aMyFunction::RoundAndTruncateToTens(Money * 0.8L); break;
+                    case 1: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 4.0)); break;
+                    case 2: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 0x1.999999999999bp+0)); break;
+                    case 3: Money = aMyFunction::RoundAndTruncateToTens(static_cast<float>(Money * 0x1.999999999999bp-1)); break;
                 }
                 Stage = 18;
                 aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money + Money);
                 GR_Main::SoundManager->PlaySound(u"Sound.LiberationSystem"_wref.get());
                 Stage = 19;
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextWin;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money), aMyFunction::TextHighlightColorTag);
-                DialogText = pas::concat_wide_reverse({aRanger::TRanger_GrantPlanetQuestReward(aPlayer::GetPlayer(), GovernmentBattleDifficulty, ExperienceAwarded), DialogText});
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Money),
+                    aMyFunction::TextHighlightColorTag);
+                DialogText = pas::concat_wide_reverse({
+                        aRanger::TRanger_GrantPlanetQuestReward(aPlayer::GetPlayer(), GovernmentBattleDifficulty,
+                            ExperienceAwarded), DialogText});
                 Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerFinishesPlanetaryBattle"_w, nullptr);
                 Event->AddData(PlanetBattleMapId);
                 Event->AddData(Money);
@@ -510,9 +603,11 @@ namespace fGov {
                 Stage = 20;
                 BuildGovernmentChoices(true);
                 Stage = 21;
-                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
+                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(
+                    aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
                 {
-                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_9 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
+                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_9 = aPlayer::GetPlayer()->PlanetBattleHistory[
+                        aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_9.MapId = PlanetBattleMapId;
                     cpp_with_9.Statistics.SignedTimeMs = Robot::RobotBattleStatistics.SignedTimeMs;
                     cpp_with_9.Statistics.RobotsBuilt = Robot::RobotBattleStatistics.RobotsBuilt;
@@ -531,32 +626,44 @@ namespace fGov {
                 Stage = 23;
                 Globals::LoadRobotScreen->LoadCompletionData();
                 if (GovernmentBattleDifficulty == 1) {
-                    Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
+                    Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId,
+                        -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 2);
                 } else {
-                    Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId, -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 1);
+                    Globals::LoadRobotScreen->RecordCompletion(PlanetBattleMapId,
+                        -Robot::RobotBattleStatistics.SignedTimeMs / 1000, 1);
                 }
                 Globals::LoadRobotScreen->SaveCompletionData();
             } else if (PendingTransition == 4) {
                 Stage = 24;
-                aPlayer::GetPlayer()->CurrentPlanet->SetRelationLevelToRanger(aPlayer::GetPlayer(), aGalaxyStruct::rlBad);
-                DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovAfterCancel"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 124);
+                aPlayer::GetPlayer()->CurrentPlanet->SetRelationLevelToRanger(aPlayer::GetPlayer(),
+                    aGalaxyStruct::rlBad);
+                DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovAfterCancel"_wref.get(),
+                        aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 124);
                 ClearDialogChoices();
                 {
-                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<&TfGov::DeclineBattleAndLeave>(this);
-                    pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerAfterCancelNormal"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 123);
+                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<
+                        &TfGov::DeclineBattleAndLeave>(this);
+                    pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(
+                        u"FormGov.PlanetBattle.PlayerAfterCancelNormal"_wref.get(),
+                        aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 123);
                     TfGov* self_2 = this;
-                    self_2->AddChoice(std::move(pickLocalizedTextVariant), 0, cpp_arg_3);
+                    self_2->AddChoice(std::move(pickLocalizedTextVariant), 0, cpp_arg);
                 }
                 {
-                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_4 = pas::bind_method<&TfGov::ChoosePrisonInsteadOfBattle>(this);
-                    pas::WideString pickLocalizedTextVariant_2 = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerAfterCancelPrison"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 123);
+                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_2 = pas::bind_method<
+                        &TfGov::ChoosePrisonInsteadOfBattle>(this);
+                    pas::WideString pickLocalizedTextVariant_2 = aConst::PickLocalizedTextVariant(
+                        u"FormGov.PlanetBattle.PlayerAfterCancelPrison"_wref.get(),
+                        aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 123);
                     TfGov* self_3 = this;
-                    self_3->AddChoice(std::move(pickLocalizedTextVariant_2), 0, cpp_arg_4);
+                    self_3->AddChoice(std::move(pickLocalizedTextVariant_2), 0, cpp_arg_2);
                 }
                 Stage = 25;
-                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
+                aPlayer::GetPlayer()->PlanetBattleHistory.set_length(
+                    aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
                 {
-                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_10 = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
+                    aPlayer::TPlanetBattleHistoryEntry& cpp_with_10 = aPlayer::GetPlayer()->PlanetBattleHistory[
+                        aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
                     cpp_with_10.MapId = PlanetBattleMapId;
                     cpp_with_10.Statistics.SignedTimeMs = Robot::RobotBattleStatistics.SignedTimeMs;
                     cpp_with_10.Statistics.RobotsBuilt = Robot::RobotBattleStatistics.RobotsBuilt;
@@ -579,7 +686,8 @@ namespace fGov {
             RestartTextPresentation(false);
             Stage = 28;
             {
-                GI_PanelScrollBar::TPanelScrollBarGI* TalkPA = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
+                GI_PanelScrollBar::TPanelScrollBarGI* TalkPA = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                    GetByName(u"TalkPA"sv));
                 TalkPA->SetVerticalScrollbarEnabled(false);
             }
             AnimationRestartRequested = false;
@@ -592,8 +700,10 @@ namespace fGov {
         } catch (...) {
             auto cpp_exception_2 = pas::caught_object();
             if (pas::Exception* E_2 = pas::class_cast_if<pas::Exception*>(cpp_exception_2)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error in procedure TfGov.BeforeRun, label = ", SysUtils::IntToStr(Stage)})));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E_2))), " ", E_2->message}));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "Error in procedure TfGov.BeforeRun, label = ", SysUtils::IntToStr(Stage)})));
             } else {
                 throw;
             }
@@ -616,7 +726,8 @@ namespace fGov {
     }
 
     void TfGov::EndTurnClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) > aGalaxyStruct::rlHostile && aPlayer::GetPlayer()->PendingDockDialogue <= 1) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) >
+            aGalaxyStruct::rlHostile && aPlayer::GetPlayer()->PendingDockDialogue <= 1) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(172);
             fEquipmentShop::RestoreTemporaryShopStock();
             MainPanel->EndTurnClicked(Sender);
@@ -662,7 +773,8 @@ namespace fGov {
         }
         if (UseHdPortrait && static_cast<std::uint8_t>(UseClassicPortrait ^ 1)) {
             {
-                GI_GAI::TgaiGI* GovHD_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(PortraitPanel->FindByNameRecursive(u"GovHD_Anim0"sv));
+                GI_GAI::TgaiGI* GovHD_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                    PortraitPanel->FindByNameRecursive(u"GovHD_Anim0"sv));
                 GovHD_Anim0->CycleCompleteCallback = pas::bind_method<&TfGov::PortraitAnimationComplete>(this);
                 GovHD_Anim0->SetSequenceFrame(0);
                 GovHD_Anim0->StopAutoPlayback();
@@ -674,7 +786,8 @@ namespace fGov {
                 GovHD_Anim0->SetActive(static_cast<std::uint8_t>(Talking ^ 1));
             }
             {
-                GI_GAI::TgaiGI* GovHD_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(PortraitPanel->FindByNameRecursive(u"GovHD_Anim1"sv));
+                GI_GAI::TgaiGI* GovHD_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                    PortraitPanel->FindByNameRecursive(u"GovHD_Anim1"sv));
                 GovHD_Anim1->CycleCompleteCallback = pas::bind_method<&TfGov::PortraitAnimationComplete>(this);
                 GovHD_Anim1->SetSequenceFrame(0);
                 GovHD_Anim1->StopAutoPlayback();
@@ -687,7 +800,8 @@ namespace fGov {
             }
         } else {
             {
-                GI_GAI::TgaiGI* Gov_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(PortraitPanel->FindByNameRecursive(u"Gov_Anim0"sv));
+                GI_GAI::TgaiGI* Gov_Anim0 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                    PortraitPanel->FindByNameRecursive(u"Gov_Anim0"sv));
                 Gov_Anim0->CycleCompleteCallback = pas::bind_method<&TfGov::PortraitAnimationComplete>(this);
                 Gov_Anim0->SetSequenceFrame(0);
                 Gov_Anim0->StopAutoPlayback();
@@ -699,7 +813,8 @@ namespace fGov {
                 Gov_Anim0->SetActive(static_cast<std::uint8_t>(Talking ^ 1));
             }
             {
-                GI_GAI::TgaiGI* Gov_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(PortraitPanel->FindByNameRecursive(u"Gov_Anim1"sv));
+                GI_GAI::TgaiGI* Gov_Anim1 = pas::checked_cast<GI_GAI::TgaiGI*>(
+                    PortraitPanel->FindByNameRecursive(u"Gov_Anim1"sv));
                 Gov_Anim1->CycleCompleteCallback = pas::bind_method<&TfGov::PortraitAnimationComplete>(this);
                 Gov_Anim1->SetSequenceFrame(0);
                 Gov_Anim1->StopAutoPlayback();
@@ -714,7 +829,9 @@ namespace fGov {
     }
 
     void TfGov::RememberChoiceScroll() {
-        SavedChoiceScroll = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv))->VerticalScrollBar->Position;
+        SavedChoiceScroll =
+            pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+                GetByName(u"TalkPA"sv))->VerticalScrollBar->Position;
     }
 
     void TfGov::ClearDialogChoices() {
@@ -722,7 +839,9 @@ namespace fGov {
         GI_MessageLoop::TObjectGI* Panel = GetByName(u"TalkPA"sv);
         GI_MessageLoop::TObjectGI* Child = Panel->FirstChild;
         while (Child != nullptr) {
-            pas::free(reinterpret_cast<pas::Object*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Child->UserValue))));
+            pas::free(
+                reinterpret_cast<pas::Object*>(
+                    static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Child->UserValue))));
             Child = Child->NextSibling;
         }
         Panel->FreeOwnedChildren();
@@ -733,16 +852,21 @@ namespace fGov {
         std::int32_t I{};
         std::uint8_t BlockMode = 0;
         if (aScript::ScriptDialogBlocks != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aScript::ScriptDialogBlocks) - 1); cpp_range.next(I); ) {
-                if (EC_Str::FindTextOffsetW(Text, pas::list_at<aScript::TDialogBlock>(aScript::ScriptDialogBlocks, I)->Text, 0) >= 0) {
-                    BlockMode = std::max<std::int32_t>(static_cast<std::int32_t>(BlockMode), static_cast<std::int32_t>(pas::list_at<aScript::TDialogBlock>(aScript::ScriptDialogBlocks, I)->Mode));
+            for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                pas::list_count(aScript::ScriptDialogBlocks) - 1); cpp_range.next(I); ) {
+                if (EC_Str::FindTextOffsetW(Text,
+                    pas::list_at<aScript::TDialogBlock>(aScript::ScriptDialogBlocks, I)->Text, 0) >= 0) {
+                    BlockMode = std::max<std::int32_t>(static_cast<std::int32_t>(BlockMode),
+                            static_cast<std::int32_t>(pas::list_at<aScript::TDialogBlock>(aScript::ScriptDialogBlocks,
+                                I)->Mode));
                 }
             }
         }
         if (BlockMode >= 2) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"TalkPA"sv));
         I = 0;
         while (I < Text.length()) {
             if (Text.read(I + 1) != u'-' && Text.read(I + 1) != u' ') {
@@ -795,14 +919,17 @@ namespace fGov {
             if (!pas::assigned(Callback)) {
                 Text = EC_Str::RemoveTextTagsW(Text);
             }
-            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>", EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag))}));
+            cpp_with->SetText(pas::concat_wide({u"<Object=0,20,14,0>",
+                EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag,
+                    pas::view(aMyFunction::DialogHighlightColorTag))}));
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
             if (!pas::assigned(Choice->Callback)) {
                 cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(127, 127, 127));
             }
             cpp_with->CreateEmbeddedControl = pas::bind_static_method<&TfGov::CreateDialogObject>(this);
             cpp_with->SetTextAlignY(GI_Main::tayCenterEx);
-            Row->SetSize(ClassesImports::Point(Row->ClientSize.X, cpp_with->ClientSize.Y + 2 * GR_Main::GiScalePixelsEx(2, 2)));
+            Row->SetSize(ClassesImports::Point(Row->ClientSize.X,
+                cpp_with->ClientSize.Y + 2 * GR_Main::GiScalePixelsEx(2, 2)));
             cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X, Row->ClientSize.Y));
             Highlight->SetSize(Row->ClientSize);
             NextChoiceTop += cpp_with->ClientSize.Y;
@@ -818,17 +945,22 @@ namespace fGov {
     }
 
     void TfGov::ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (Sender->FirstChild != nullptr && Sender->FirstChild->NextSibling != nullptr && Sender->FirstChild->NextSibling->FirstChild != nullptr && Sender->FirstChild->NextSibling->FirstChild->FirstChild != nullptr) {
+        if (Sender->FirstChild != nullptr && Sender->FirstChild->NextSibling != nullptr &&
+            Sender->FirstChild->NextSibling->FirstChild != nullptr &&
+            Sender->FirstChild->NextSibling->FirstChild->FirstChild != nullptr) {
             Sender->FirstChild->NextSibling->FirstChild->FirstChild->SetPosition(ClassesImports::Point(2, 0));
         }
     }
 
     void TfGov::ChoiceMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (Sender->FirstChild != nullptr && Sender->FirstChild->NextSibling != nullptr && Sender->FirstChild->NextSibling->FirstChild != nullptr && Sender->FirstChild->NextSibling->FirstChild->FirstChild != nullptr) {
+        if (Sender->FirstChild != nullptr && Sender->FirstChild->NextSibling != nullptr &&
+            Sender->FirstChild->NextSibling->FirstChild != nullptr &&
+            Sender->FirstChild->NextSibling->FirstChild->FirstChild != nullptr) {
             Sender->FirstChild->NextSibling->FirstChild->FirstChild->SetPosition(ClassesImports::Point(0, 0));
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum(174);
-        fTalk::TfTalkA* Choice = reinterpret_cast<fTalk::TfTalkA*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+        fTalk::TfTalkA* Choice = reinterpret_cast<fTalk::TfTalkA*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         if (pas::assigned(Choice->Callback)) {
             Choice->Callback(Choice->Value);
         } else if (pas::assigned(Choice->FallbackCallback)) {
@@ -864,7 +996,8 @@ namespace fGov {
             Choices = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
             Choices->SetActive(true);
             {
-                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetLineHeight();
+                std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar = Choices->VerticalScrollBar;
                 verticalScrollBar->SetSmallChange(lineHeight);
             }
@@ -885,18 +1018,25 @@ namespace fGov {
             SavedChoiceScroll = -1;
             GR_Main::PostMouseMoveMessage();
         } else {
-            DialogText = pas::concat_wide_reverse({EC_Str::TrimWideString(DialogText), aConst::LocalizedTextLinePrefix});
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"sv);
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(), pas::view(pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix})));
+            DialogText = pas::concat_wide_reverse({EC_Str::TrimWideString(DialogText),
+                    aConst::LocalizedTextLinePrefix});
+            DialogText = EC_Str::ReplaceAllWideString(DialogText,
+                    pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix}), u"\r\n"sv);
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, u"\r\n"_wref.get(),
+                    pas::view(pas::concat_wide({u"\r\n", aConst::LocalizedTextLinePrefix})));
             FormattedTextLength = DialogText.length();
-            DialogText = EC_Str::ReplaceAllWideString(DialogText, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
+            DialogText = EC_Str::ReplaceAllWideString(DialogText, aMyFunction::TextHighlightColorTag,
+                    pas::view(aMyFunction::DialogHighlightColorTag));
             pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->SetText(DialogText);
             TextPanel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
             TextPanel->SetScrollOffset(ClassesImports::Point(0, 0));
             TextPanel->UpdateScrollRanges();
-            TextPanel->VerticalScrollBar->SetActive(pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->ClientSize.Y > TextPanel->ClientSize.Y);
+            TextPanel->VerticalScrollBar->SetActive(
+                pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->ClientSize.Y >
+                    TextPanel->ClientSize.Y);
             {
-                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(TextPanel->FindByNameRecursive(u"TalkText"sv))->GetLineHeight();
+                std::int32_t lineHeight_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    TextPanel->FindByNameRecursive(u"TalkText"sv))->GetLineHeight();
                 GI_ScrollBar::TScrollBarGI* verticalScrollBar_2 = TextPanel->VerticalScrollBar;
                 verticalScrollBar_2->SetSmallChange(lineHeight_2);
             }
@@ -907,19 +1047,24 @@ namespace fGov {
     }
 
     void TfGov::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TalkPA"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"TalkPA"sv));
         if (!Panel->ContainsPoint(Point)) {
             Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
         }
         if (Delta == WindowsSdk::WHEEL_DELTA) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position -
+                Panel->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->SmallChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position +
+                Panel->VerticalScrollBar->SmallChange);
         }
     }
 
-    GI_MessageLoop::TObjectGI* TfGov::CreateDialogObject(GI_Label::TLabelGI* LabelControl, EC_CacheFont::PFontObjectEC Item) {
-        GI_MessageLoop::TObjectGI* Result = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, LabelControl);
+    GI_MessageLoop::TObjectGI* TfGov::CreateDialogObject(GI_Label::TLabelGI* LabelControl,
+        EC_CacheFont::PFontObjectEC Item) {
+        GI_MessageLoop::TObjectGI* Result = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+            LabelControl);
         GI_Image::TImageGI* Image = pas::checked_cast<GI_Image::TImageGI*>(Result);
         Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormGov2.", GR_Main::GiResourceSuffix(), u"Answer"}));
         Image->SetImageKindX(GI_Main::ikxLeft);
@@ -928,10 +1073,12 @@ namespace fGov {
 
     void TfGov::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         GI_GraphButton::TGraphButtonGI* Button{};
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) || ExitCode != 0) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) || ExitCode != 0) {
             return;
         }
-        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(GetByName(u"TextScroll"sv));
+        GI_PanelScrollBar::TPanelScrollBarGI* Panel = pas::checked_cast<GI_PanelScrollBar::TPanelScrollBarGI*>(
+            GetByName(u"TextScroll"sv));
         if (Key == WindowsSdk::VK_SPACE) {
             if (GetByName(u"PM_EndTurn"sv)->Active) {
                 EndTurnClicked(nullptr);
@@ -939,13 +1086,17 @@ namespace fGov {
         } else if (Key == 'S') {
             ShipClicked(nullptr);
         } else if (Key == WindowsSdk::VK_UP) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->SmallChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position -
+                Panel->VerticalScrollBar->SmallChange);
         } else if (Key == WindowsSdk::VK_DOWN) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->SmallChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position +
+                Panel->VerticalScrollBar->SmallChange);
         } else if (Key == WindowsSdk::VK_PRIOR) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position - Panel->VerticalScrollBar->LargeChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position -
+                Panel->VerticalScrollBar->LargeChange);
         } else if (Key == WindowsSdk::VK_NEXT) {
-            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position + Panel->VerticalScrollBar->LargeChange);
+            Panel->VerticalScrollBar->SetPosition_2(Panel->VerticalScrollBar->Position +
+                Panel->VerticalScrollBar->LargeChange);
         } else if (Key == WindowsSdk::VK_INSERT) {
             Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"UserMsgAdd"sv));
             AddMessageClicked(Button);
@@ -958,7 +1109,8 @@ namespace fGov {
     void TfGov::AddMessageClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::WideString Text{};
         Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"TalkText"sv))->GetText();
-        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::DialogHighlightColorTag, pas::view(aMyFunction::TextHighlightColorTag));
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::DialogHighlightColorTag,
+                pas::view(aMyFunction::TextHighlightColorTag));
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
         Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Text, u""_wref.get());
@@ -974,12 +1126,15 @@ namespace fGov {
             GR_Main::MusicManager->RequestFadeOut();
         } else if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
             if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                    u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
             }
         } else {
-            GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+            GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
         }
     }
 
@@ -1001,21 +1156,34 @@ namespace fGov {
                 aPlayer::GetPlayer()->InPrison = false;
                 ++aPlayer::GetPlayer()->PrisonStaysCompleted;
                 Achievements::TryAddAchievementProgress(u"PRISON"_w, 1);
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Planets) - 1); cpp_range.next(I); ) {
-                    Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, I);
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Planet->Warriors) - 1); cpp_range_2.next(J); ) {
-                        Ship = pas::list_at<aShip::TShip>(Planet->Warriors, J);
-                        if (aPlayer::GetPlayer() == Ship->EnemyShip) {
-                            Ship->EnemyShip = nullptr;
-                        }
-                        if (aPlayer::GetPlayer()->EnemyShip == Ship) {
-                            aPlayer::GetPlayer()->EnemyShip = nullptr;
+                {
+                    const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Planets) - 1;
+                    if (0 <= cpp_last) {
+                        for (I = 0; I <= cpp_last; ++I) {
+                            Planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, I);
+                            {
+                                const std::int32_t cpp_last_2 = pas::list_count(Planet->Warriors) - 1;
+                                if (0 <= cpp_last_2) {
+                                    for (J = 0; J <= cpp_last_2; ++J) {
+                                        Ship = pas::list_at<aShip::TShip>(Planet->Warriors, J);
+                                        if (aPlayer::GetPlayer() == Ship->EnemyShip) {
+                                            Ship->EnemyShip = nullptr;
+                                        }
+                                        if (aPlayer::GetPlayer()->EnemyShip == Ship) {
+                                            aPlayer::GetPlayer()->EnemyShip = nullptr;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
                 ClearDialogChoices();
-                AddChoice(aConst::LocalizedColorText(u"FormGov.I_Continue"_wref.get()), 0, pas::bind_method<&TfGov::ContinueAfterPrison>(this));
-            } else if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile && static_cast<std::uint8_t>(aScript::HasPendingScriptRequests() ^ 1) && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
+                AddChoice(aConst::LocalizedColorText(u"FormGov.I_Continue"_wref.get()), 0,
+                    pas::bind_method<&TfGov::ContinueAfterPrison>(this));
+            } else if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+                aGalaxyStruct::rlHostile && !aScript::HasPendingScriptRequests() &&
+                static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
                 if (aPlayer::GetPlayer()->OwnerId != aGalaxyStruct::oiPirate) {
                     DialogText = aConst::LocalizedColorText(u"FormGov.Prison.GovBeforePrison"_wref.get());
                 } else {
@@ -1023,14 +1191,17 @@ namespace fGov {
                 }
                 ClearDialogChoices();
                 if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiPirate) {
-                    AddChoice(aConst::LocalizedColorText(u"FormGov.Prison.PlayerGoToPrison"_wref.get()), 0, pas::bind_method<&TfGov::EnterPrison>(this));
+                    AddChoice(aConst::LocalizedColorText(u"FormGov.Prison.PlayerGoToPrison"_wref.get()), 0,
+                        pas::bind_method<&TfGov::EnterPrison>(this));
                 } else {
-                    AddChoice(aConst::LocalizedColorText(u"FormGov.PirateClanPrison.PlayerGoToPrison"_wref.get()), 0, pas::bind_method<&TfGov::EnterPrison>(this));
+                    AddChoice(aConst::LocalizedColorText(u"FormGov.PirateClanPrison.PlayerGoToPrison"_wref.get()), 0,
+                        pas::bind_method<&TfGov::EnterPrison>(this));
                 }
             } else if (aPlayer::GetPlayer()->PendingLiberationCeremonyPlanet == aPlayer::GetPlayer()->CurrentPlanet) {
                 DialogText = aPlayer::GetPlayer()->CollectLiberationRewards();
                 ClearDialogChoices();
-                AddChoice(aConst::LocalizedColorText(u"FormGov.PlayerAfterCongratulationsLiberator"_wref.get()), 0, pas::bind_method<&TfGov::ExitGovernment>(this));
+                AddChoice(aConst::LocalizedColorText(u"FormGov.PlayerAfterCongratulationsLiberator"_wref.get()), 0,
+                    pas::bind_method<&TfGov::ExitGovernment>(this));
             } else {
                 DialogText = aPlayer::GetPlayer()->CurrentPlanet->BuildGovernmentGreeting();
                 BuildGovernmentChoices(false);
@@ -1071,22 +1242,35 @@ namespace fGov {
             DialogText = Text;
         }
         if (Globals::ScriptDialogIndex < 0) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Scripts) - 1); cpp_range.next(I); ) {
-                Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
-                aScript::TScript_RunDialogCode(Script);
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Scripts) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Script = pas::list_at<aScript::TScript>(aGalaxy::Galaxy->Scripts, I);
+                        aScript::TScript_RunDialogCode(Script);
+                    }
+                }
             }
             if (pas::list_count(aScript::ScriptDialogOverrides) > 0) {
                 Selected = 0;
                 Priority = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, 0)->Priority;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(aScript::ScriptDialogOverrides) - 1); cpp_range_2.next(I); ) {
-                    if (pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, I)->Priority > Priority) {
-                        Selected = I;
-                        Priority = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, I)->Priority;
+                {
+                    const std::int32_t cpp_last_2 = pas::list_count(aScript::ScriptDialogOverrides) - 1;
+                    if (0 <= cpp_last_2) {
+                        for (I = 0; I <= cpp_last_2; ++I) {
+                            if (pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, I)->Priority >
+                                Priority) {
+                                Selected = I;
+                                Priority = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides,
+                                        I)->Priority;
+                            }
+                        }
                     }
                 }
                 Script = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, Selected)->Script;
                 {
-                    std::uint32_t answerData = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides, Selected)->AnswerData;
+                    std::uint32_t answerData = pas::list_at<aScript::TDialogOverride>(aScript::ScriptDialogOverrides,
+                        Selected)->AnswerData;
                     EC_Expression::TVarEC* var = Script->InitCode->LocalVar->GetVar(u"GAnswerData"_wref.get());
                     var->SetDword(answerData);
                 }
@@ -1094,7 +1278,9 @@ namespace fGov {
                 if (Text != u"") {
                     Script->CallDialogByVariable(Text);
                     if (Globals::ScriptDialogIndex < 0) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({Script->ScriptFileName, u" has overriden dialog with ", Text, u" but it failed to start"})));
+                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                            Script->ScriptFileName, u" has overriden dialog with ", Text,
+                            u" but it failed to start"})));
                     }
                 }
                 if (Globals::ScriptDialogIndex < 0) {
@@ -1106,11 +1292,17 @@ namespace fGov {
                 Selected = -1;
                 Priority = 0;
                 if (!SkipScriptResponseText) {
-                    for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(aScript::ScriptDialogInjections) - 1); cpp_range_3.next(I); ) {
-                        if (pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->ReplaceGreeting) {
-                            if (Selected < 0 || pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Priority > Priority) {
-                                Priority = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Priority;
-                                Selected = I;
+                    const std::int32_t cpp_last_3 = pas::list_count(aScript::ScriptDialogInjections) - 1;
+                    if (0 <= cpp_last_3) {
+                        for (I = 0; I <= cpp_last_3; ++I) {
+                            if (pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections,
+                                I)->ReplaceGreeting) {
+                                if (Selected < 0 || pas::list_at<aScript::TDialogInject>(
+                                        aScript::ScriptDialogInjections, I)->Priority > Priority) {
+                                    Priority = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections,
+                                            I)->Priority;
+                                    Selected = I;
+                                }
                             }
                         }
                     }
@@ -1118,41 +1310,61 @@ namespace fGov {
                 if (Selected >= 0) {
                     DialogText = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, Selected)->Text;
                 }
-                for (auto cpp_range_4 = pas::for_to<std::int32_t>(1, pas::list_count(aScript::ScriptDialogInjections) - 1); cpp_range_4.next(I); ) {
-                    for (auto cpp_range_5 = pas::for_downto<std::int32_t>(pas::list_count(aScript::ScriptDialogInjections) - 1, I); cpp_range_5.next(J); ) {
-                        if (([&] {
-                            std::int32_t cpp_left = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, J)->Priority;
-                            return cpp_left > pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, J - 1)->Priority;
-                        }())) {
-                            Swapped = pas::list_get(aScript::ScriptDialogInjections, J);
-                            pas::list_put(aScript::ScriptDialogInjections, J, pas::list_get(aScript::ScriptDialogInjections, J - 1));
-                            pas::list_put(aScript::ScriptDialogInjections, J - 1, Swapped);
+                {
+                    const std::int32_t cpp_last_4 = pas::list_count(aScript::ScriptDialogInjections) - 1;
+                    if (1 <= cpp_last_4) {
+                        for (I = 1; I <= cpp_last_4; ++I) {
+                            for (auto cpp_range = pas::for_downto<std::int32_t>(
+                                pas::list_count(aScript::ScriptDialogInjections) - 1, I); cpp_range.next(J); ) {
+                                std::int32_t cpp_left = pas::list_at<aScript::TDialogInject>(
+                                    aScript::ScriptDialogInjections, J)->Priority;
+                                if (cpp_left > pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections,
+                                        J - 1)->Priority) {
+                                    Swapped = pas::list_get(aScript::ScriptDialogInjections, J);
+                                    pas::list_put(aScript::ScriptDialogInjections, J,
+                                        pas::list_get(aScript::ScriptDialogInjections, J - 1));
+                                    pas::list_put(aScript::ScriptDialogInjections, J - 1, Swapped);
+                                }
+                            }
                         }
                     }
                 }
-                for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, pas::list_count(aScript::ScriptDialogInjections) - 1); cpp_range_6.next(I); ) {
-                    if (!pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->ReplaceGreeting) {
-                        Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Text;
-                        if (Text != u"" && static_cast<std::uint8_t>(SkipScriptResponseText ^ 1)) {
-                            DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
-                        }
-                    }
-                    Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Answer;
-                    if (Text != u"") {
-                        Mode = pas::WideString();
-                        PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
-                        if (PartCount > 1) {
-                            Mode = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"~"sv);
-                            Text = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"~"sv);
-                        }
-                        if (Mode == u"block") {
-                            AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
-                        } else if (Mode == u"snap") {
-                            AddChoice(Text, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aScript::ScriptDialogInjections, I))), pas::bind_method<&TfGov::RunInjectedAnswerKeepingScroll>(this));
-                        } else {
-                            std::int32_t cpp_arg = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aScript::ScriptDialogInjections, I)));
-                            pas::WideString answer = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Answer;
-                            AddChoice(std::move(answer), cpp_arg, pas::bind_method<&TfGov::RunInjectedAnswer>(this));
+                {
+                    const std::int32_t cpp_last_5 = pas::list_count(aScript::ScriptDialogInjections) - 1;
+                    if (0 <= cpp_last_5) {
+                        for (I = 0; I <= cpp_last_5; ++I) {
+                            if (!pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections,
+                                I)->ReplaceGreeting) {
+                                Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Text;
+                                if (Text != u"" && static_cast<std::uint8_t>(SkipScriptResponseText ^ 1)) {
+                                    DialogText = pas::concat_wide({DialogText, u"\r\n", Text});
+                                }
+                            }
+                            Text = pas::list_at<aScript::TDialogInject>(aScript::ScriptDialogInjections, I)->Answer;
+                            if (Text != u"") {
+                                Mode = pas::WideString();
+                                PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
+                                if (PartCount > 1) {
+                                    Mode = EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u"~"sv);
+                                    Text = EC_Str::ExtractDelimitedRangeW(pas::view(Text), 1, PartCount - 1, u"~"sv);
+                                }
+                                if (Mode == u"block") {
+                                    AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
+                                } else if (Mode == u"snap") {
+                                    AddChoice(Text,
+                                        static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                            aScript::ScriptDialogInjections, I))),
+                                        pas::bind_method<&TfGov::RunInjectedAnswerKeepingScroll>(this));
+                                } else {
+                                    std::int32_t cpp_arg = static_cast<std::int32_t>(
+                                        reinterpret_cast<std::uintptr_t>(pas::list_get(aScript::ScriptDialogInjections,
+                                            I)));
+                                    pas::WideString answer = pas::list_at<aScript::TDialogInject>(
+                                        aScript::ScriptDialogInjections, I)->Answer;
+                                    AddChoice(std::move(answer), cpp_arg,
+                                        pas::bind_method<&TfGov::RunInjectedAnswer>(this));
+                                }
+                            }
                         }
                     }
                 }
@@ -1169,19 +1381,30 @@ namespace fGov {
     }
 
     void TfGov::AddBuiltinGovernmentChoices() {
-        if (aPlayer::GetPlayer()->CurrentPlanet->CurrentStar->Constellation->Id != 20 || static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1) && pas::contains(aConst::PlanetOwnerMasks.Coalition, aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QueryQuest"_wref.get()), 0, pas::bind_method<&TfGov::RequestQuest>(this));
+        if (aPlayer::GetPlayer()->CurrentPlanet->CurrentStar->Constellation->Id != 20 ||
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1) && pas::contains(
+                    aConst::PlanetOwnerMasks.Coalition, aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) {
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QueryQuest"_wref.get()), 0,
+                pas::bind_method<&TfGov::RequestQuest>(this));
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <= aGalaxyStruct::rlNormal && static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
-            AddChoice(aConst::PickLocalizedTextVariant(u"FormGov.Bribe.I_Bribe"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 239516), 0, pas::bind_method<&TfGov::ShowBribeOffer>(this));
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) <=
+            aGalaxyStruct::rlNormal &&
+            static_cast<std::uint8_t>(aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet ^ 1)) {
+            AddChoice(
+                aConst::PickLocalizedTextVariant(u"FormGov.Bribe.I_Bribe"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 239516),
+                0, pas::bind_method<&TfGov::ShowBribeOffer>(this));
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation() != nullptr) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.I_BuyMap"_wref.get()), 0, pas::bind_method<&TfGov::ShowMapOffer>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.I_BuyMap"_wref.get()), 0,
+                pas::bind_method<&TfGov::ShowMapOffer>(this));
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->CountBailablePrisoners() > 0) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerAsk"_wref.get()), 0, pas::bind_method<&TfGov::ShowPrisonBail>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerAsk"_wref.get()), 0,
+                pas::bind_method<&TfGov::ShowPrisonBail>(this));
         }
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+            pas::bind_method<&TfGov::ReturnToPlanet>(this));
     }
 
     void TfGov::ContinueScriptDialog() {
@@ -1199,16 +1422,20 @@ namespace fGov {
         if (Globals::ScriptDialogIndex < 0) {
             BuildGovernmentChoices(true);
         } else {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Continue"_wref.get()), static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Script)), pas::bind_method<&TfGov::StartScriptMessage>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Continue"_wref.get()),
+                static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Script)),
+                pas::bind_method<&TfGov::StartScriptMessage>(this));
         }
     }
 
     void TfGov::AddScriptTakeoffChoice(pas::WideString Caption) {
-        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer, pas::bind_method<&TfGov::RunScriptTakeoffAnswer>(this));
+        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer,
+            pas::bind_method<&TfGov::RunScriptTakeoffAnswer>(this));
     }
 
     void TfGov::AddScriptPlanetChoice(pas::WideString Caption) {
-        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer, pas::bind_method<&TfGov::RunScriptPlanetAnswer>(this));
+        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer,
+            pas::bind_method<&TfGov::RunScriptPlanetAnswer>(this));
     }
 
     void TfGov::AddScriptGoodsChoice(pas::WideString Caption) {
@@ -1220,28 +1447,37 @@ namespace fGov {
     }
 
     void TfGov::AddScriptHangarChoice(pas::WideString Caption) {
-        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer, pas::bind_method<&TfGov::RunScriptHangarAnswer>(this));
+        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer,
+            pas::bind_method<&TfGov::RunScriptHangarAnswer>(this));
     }
 
     void TfGov::AddScriptNewsExitChoice(pas::WideString Caption) {
-        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer, pas::bind_method<&TfGov::RunScriptNewsExitAnswer>(this));
+        AddChoice(Caption, aScript::CurrentScript->CurrentAnswer,
+            pas::bind_method<&TfGov::RunScriptNewsExitAnswer>(this));
     }
 
     void TfGov::BuildQuestOfferChoices() {
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0, pas::bind_method<&TfGov::AcceptQuest>(this));
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0, pas::bind_method<&TfGov::RejectQuest>(this));
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestEasy"_wref.get()), 0, pas::bind_method<&TfGov::MakeQuestEasier>(this));
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestDifficult"_wref.get()), 0, pas::bind_method<&TfGov::MakeQuestHarder>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0,
+            pas::bind_method<&TfGov::AcceptQuest>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0,
+            pas::bind_method<&TfGov::RejectQuest>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestEasy"_wref.get()), 0,
+            pas::bind_method<&TfGov::MakeQuestEasier>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestDifficult"_wref.get()), 0,
+            pas::bind_method<&TfGov::MakeQuestHarder>(this));
         if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0, pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0,
+                pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
         }
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+            pas::bind_method<&TfGov::ReturnToPlanet>(this));
     }
 
     void TfGov::StartScriptMessage(std::int32_t Action) {
         ClearDialogChoices();
-        aScript::CurrentScript = reinterpret_cast<aScript::TScript*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
+        aScript::CurrentScript =
+            reinterpret_cast<aScript::TScript*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         aScript::CurrentScript->CallDialogMessage(Globals::ScriptDialogIndex);
     }
 
@@ -1320,15 +1556,25 @@ namespace fGov {
             }
         } else {
             aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 80);
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 20, aConst::PlanetOwnerMasks.Coalition);
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar->Constellation, aRanger::rcmIncrease, 30, aConst::PlanetOwnerMasks.Coalition);
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), nullptr, aRanger::rcmRaiseTo, 20,
+                aConst::PlanetOwnerMasks.Coalition);
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(),
+                aPlayer::GetPlayer()->CurrentStar->Constellation, aRanger::rcmIncrease, 30,
+                aConst::PlanetOwnerMasks.Coalition);
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-            if ((Ship->TypeId == aGalaxyStruct::stWarrior || Ship->TypeId == aGalaxyStruct::stPirate && reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) && aPlayer::GetPlayer() == Ship->EnemyShip) {
-                Ship->EnemyShip = nullptr;
-                if (aPlayer::GetPlayer() == Ship->OrderTarget) {
-                    Ship->OrderNone(false);
+        {
+            const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                    if ((Ship->TypeId == aGalaxyStruct::stWarrior || Ship->TypeId == aGalaxyStruct::stPirate &&
+                            reinterpret_cast<aPirate::TPirate*>(Ship)->PirateType != 0) && aPlayer::GetPlayer() ==
+                            Ship->EnemyShip) {
+                        Ship->EnemyShip = nullptr;
+                        if (aPlayer::GetPlayer() == Ship->OrderTarget) {
+                            Ship->OrderNone(false);
+                        }
+                    }
                 }
             }
         }
@@ -1353,30 +1599,46 @@ namespace fGov {
         pas::WideString Text{};
         if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId != aGalaxyStruct::oiPirate) {
             RelationDeficit = 100 - aPlayer::GetPlayer()->CurrentPlanet->RelationToShip(aPlayer::GetPlayer());
-            Cost = System::Round(static_cast<long double>(aMyFunction::RemapClamped(RelationDeficit, 0.0, 1.0E+2, 1.0, 5.0)) * (aGalaxy::Galaxy->AverageRangerCapital / 100) * aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].FuelPriceFactor);
-            Text = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.Question"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 223429);
-            aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
+            Cost = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(RelationDeficit, 0.0, 1.0E+2, 1.0,
+                    5.0)) * (aGalaxy::Galaxy->AverageRangerCapital / 100)) *
+                    aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].FuelPriceFactor));
+            Text = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.Question"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 223429);
+            aMyFunction::ReplaceTextToken(Text, u"<Money>"_w, pas::wide_int_to_str(Cost),
+                aMyFunction::TextHighlightColorTag);
             DialogText = Text;
             ClearDialogChoices();
             if (aPlayer::GetPlayer()->Money >= Cost) {
-                AddChoice(([&] {
-                    pas::WideString intToStr = pas::wide_int_to_str(Cost);
-                    auto name = pas::borrow(aPlayer::GetPlayer()->CurrentPlanet->Name);
-                    pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.Ok"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 8168236);
-                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr), u"<Planet>"_w, name.get());
-                }()), 0, pas::bind_method<&TfGov::PayBribe>(this));
+                AddChoice(
+                    ([&] {
+                        pas::WideString intToStr = pas::wide_int_to_str(Cost);
+                        auto name = pas::borrow(aPlayer::GetPlayer()->CurrentPlanet->Name);
+                        pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(
+                            u"FormGov.Bribe.Ok"_wref.get(),
+                            aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed +
+                                8168236);
+                        pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                        return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant),
+                            std::move(textHighlightColorTag), u"<Money>"_w, std::move(intToStr), u"<Planet>"_w,
+                            name.get());
+                    }()), 0, pas::bind_method<&TfGov::PayBribe>(this));
             }
-            AddChoice(aConst::PickLocalizedTextVariant(u"FormGov.Bribe.No"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 23985), 0, pas::bind_method<&TfGov::DeclineBribe>(this));
+            AddChoice(
+                aConst::PickLocalizedTextVariant(u"FormGov.Bribe.No"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 23985), 0,
+                pas::bind_method<&TfGov::DeclineBribe>(this));
         } else {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.GotoPB"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 112);
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.GotoPB"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 112);
             BuildGovernmentChoices(true);
         }
     }
 
     void TfGov::PayBribe(std::int32_t Action) {
         std::int32_t RelationDeficit = 100 - aPlayer::GetPlayer()->CurrentPlanet->RelationToShip(aPlayer::GetPlayer());
-        std::int32_t Cost = System::Round(static_cast<long double>(aMyFunction::RemapClamped(RelationDeficit, 0.0, 1.0E+2, 1.0, 5.0)) * (aGalaxy::Galaxy->AverageRangerCapital / 100) * aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].FuelPriceFactor);
+        std::int32_t Cost = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(RelationDeficit, 0.0, 1.0E+2,
+            1.0, 5.0)) * (aGalaxy::Galaxy->AverageRangerCapital / 100)) *
+            aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].FuelPriceFactor));
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
@@ -1387,16 +1649,21 @@ namespace fGov {
             }
         } else {
             aPlayer::GetPlayer()->CurrentPlanet->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
-            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar, aRanger::rcmIncrease, 20, aConst::PlanetOwnerMasks.Coalition);
+            aRanger::TRanger_ChangePlanetRelations(aPlayer::GetPlayer(), aPlayer::GetPlayer()->CurrentStar,
+                aRanger::rcmIncrease, 20, aConst::PlanetOwnerMasks.Coalition);
         }
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionOk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 7156317);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost), aMyFunction::TextHighlightColorTag);
-        aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionOk"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 7156317);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Money>"_w, pas::wide_int_to_str(Cost),
+            aMyFunction::TextHighlightColorTag);
+        aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+            aMyFunction::TextHighlightColorTag);
         BuildGovernmentChoices(true);
     }
 
     void TfGov::DeclineBribe(std::int32_t Action) {
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionNo"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 92874253);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.Bribe.QuestionNo"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 92874253);
         BuildGovernmentChoices(true);
     }
 
@@ -1404,11 +1671,14 @@ namespace fGov {
         pas::WideString ResponseText{};
         std::int32_t MapIndex{};
         std::int32_t MapId{};
-        if (aPlayer::GetPlayer()->CurrentPlanet->CurrentStar->Status.Battle != 0 && aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.DontQuest.WarInSystemPirate"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 118123);
+        if (aPlayer::GetPlayer()->CurrentPlanet->CurrentStar->Status.Battle != 0 &&
+            aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.DontQuest.WarInSystemPirate"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 118123);
             BuildGovernmentChoices(true);
         } else if (aPlayer::GetPlayer()->CurrentPlanet->CurrentStar->Status.Battle != 0) {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.DontQuest.WarInSystem"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 118123);
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.DontQuest.WarInSystem"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 5 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 118123);
             BuildGovernmentChoices(true);
         } else {
             if (aPlayer::GetPlayer()->DeclinePlanetBattleOffers) {
@@ -1419,30 +1689,40 @@ namespace fGov {
             if (MapId >= 0 && GlobalsV::ForcedPlanetQuestId < 0) {
                 MapIndex = Globals::FindRobotMapById(MapId);
                 DialogText = Globals::RobotMapDefinitions[MapIndex].GovTextStart;
-                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Star>"_w, aPlayer::GetPlayer()->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Planet>"_w, aPlayer::GetPlayer()->CurrentPlanet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(DialogText, u"<Player>"_w, aPlayer::GetPlayer()->Name,
+                    aMyFunction::TextHighlightColorTag);
                 ClearDialogChoices();
                 if (Robot::RobotInterface != nullptr && Robot::RobotInterface->Support() == 0) {
-                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<&TfGov::ShowPlanetBattleSupport>(this);
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get());
+                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg = pas::bind_method<
+                        &TfGov::ShowPlanetBattleSupport>(this);
+                    pas::WideString localizedColorText = aConst::LocalizedColorText(
+                        u"FormGov.I_QuestAccept"_wref.get());
                     TfGov* self = this;
                     self->AddChoice(std::move(localizedColorText), MapId, cpp_arg);
                 } else {
                     GI_MessageLoop::TDialogChoiceEventGI scriptDialogBlockCallback = fTalk::ScriptDialogBlockCallback;
-                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get());
+                    pas::WideString localizedColorText_2 = aConst::LocalizedColorText(
+                        u"FormGov.I_QuestAccept"_wref.get());
                     TfGov* self_2 = this;
                     self_2->AddChoice(std::move(localizedColorText_2), 0, scriptDialogBlockCallback);
                 }
                 {
-                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_2 = pas::bind_method<&TfGov::DeclinePlanetBattle>(this);
-                    pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormGov.I_PlanetBattleQuestClose"_wref.get());
+                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_2 = pas::bind_method<
+                        &TfGov::DeclinePlanetBattle>(this);
+                    pas::WideString localizedColorText_3 = aConst::LocalizedColorText(
+                        u"FormGov.I_PlanetBattleQuestClose"_wref.get());
                     TfGov* self_3 = this;
                     self_3->AddChoice(std::move(localizedColorText_3), MapId, cpp_arg_2);
                 }
                 {
-                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<&TfGov::ConfirmDeclineAllPlanetBattles>(this);
-                    pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAll"_wref.get());
+                    GI_MessageLoop::TDialogChoiceEventGI cpp_arg_3 = pas::bind_method<
+                        &TfGov::ConfirmDeclineAllPlanetBattles>(this);
+                    pas::WideString localizedColorText_4 = aConst::LocalizedColorText(
+                        u"FormGov.I_PlanetBattleRejectAll"_wref.get());
                     TfGov* self_4 = this;
                     self_4->AddChoice(std::move(localizedColorText_4), 0, cpp_arg_3);
                 }
@@ -1458,21 +1738,27 @@ namespace fGov {
             } else {
                 QuestNegotiationLevel = 0;
                 DialogText = aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer);
-                if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest && QuestOffer.QuestNumber >= aGalaxyStruct::FirstLicensedQuestId) {
-                    if (GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
-                        pas::WideString cpp_string = ([&] {
-                            const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(QuestOffer.QuestNumber));
-                            EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
-                            return block->GetParamOrMarker(pas::view(intToStr));
-                        }());
-                        pas::WideString cpp_string_2 = fPlanetQuest::TfPlanetQuest::GetQuestContentHash(QuestOffer.QuestNumber);
-                        return cpp_string != cpp_string_2;
-                    }())) {
-                        DialogText = pas::concat_wide({DialogText, u"\r\n", u" ", u"\r\n", aConst::LocalizedText(u"FormGov.QuestCertificate.NotCertificate"_wref.get())});
+                if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest && QuestOffer.QuestNumber >=
+                        aGalaxyStruct::FirstLicensedQuestId) {
+                    if (GR_Main::LanguageDataConfig->GetBlock(
+                        u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) <= 0 || ([&] {
+                            pas::WideString cpp_string = ([&] {
+                                const pas::WideString& intToStr = pas::wide_int_to_str(
+                                    static_cast<std::int32_t>(QuestOffer.QuestNumber));
+                                EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(
+                                    u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
+                                return block->GetParamOrMarker(pas::view(intToStr));
+                            }());
+                            pas::WideString cpp_string_2 = fPlanetQuest::TfPlanetQuest::GetQuestContentHash(
+                                QuestOffer.QuestNumber);
+                            return cpp_string != cpp_string_2;
+                        }())) {
+                        DialogText = pas::concat_wide({DialogText, u"\r\n", u" ", u"\r\n",
+                                aConst::LocalizedText(u"FormGov.QuestCertificate.NotCertificate"_wref.get())});
                     }
                 }
-                QuestRewardStep = System::Round(QuestOffer.RewardMoney * 0.3L);
-                QuestDurationStep = System::Round((QuestOffer.DeadlineTurn - aGalaxy::Galaxy->CurrentTurn) * 0.5L);
+                QuestRewardStep = pas::real_round(static_cast<float>(QuestOffer.RewardMoney * 0x1.3333333333334p-2));
+                QuestDurationStep = pas::real_round(static_cast<float>((QuestOffer.DeadlineTurn - aGalaxy::Galaxy->CurrentTurn) * 0.5));
                 BuildQuestOfferChoices();
             }
         }
@@ -1489,16 +1775,22 @@ namespace fGov {
             }
         }
         QuestOffer.RewardMoney -= QuestRewardStep;
-        DialogText = pas::concat_wide({aConst::LocalizedColorText(u"FormGov.CheckQuest.Easy"_wref.get()), u"\r\n", aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer)});
+        DialogText = pas::concat_wide({aConst::LocalizedColorText(u"FormGov.CheckQuest.Easy"_wref.get()), u"\r\n",
+                aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer)});
         if (QuestNegotiationLevel <= -1) {
             ClearDialogChoices();
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0, pas::bind_method<&TfGov::AcceptQuest>(this));
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0, pas::bind_method<&TfGov::RejectQuest>(this));
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestDifficult"_wref.get()), 0, pas::bind_method<&TfGov::MakeQuestHarder>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0,
+                pas::bind_method<&TfGov::AcceptQuest>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0,
+                pas::bind_method<&TfGov::RejectQuest>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestDifficult"_wref.get()), 0,
+                pas::bind_method<&TfGov::MakeQuestHarder>(this));
             if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest) {
-                AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0, pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
+                AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0,
+                    pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
             }
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+                pas::bind_method<&TfGov::ReturnToPlanet>(this));
         } else {
             BuildQuestOfferChoices();
         }
@@ -1515,16 +1807,22 @@ namespace fGov {
             }
         }
         QuestOffer.RewardMoney += QuestRewardStep;
-        DialogText = pas::concat_wide({aConst::LocalizedColorText(u"FormGov.CheckQuest.Difficult"_wref.get()), u"\r\n", aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer)});
+        DialogText = pas::concat_wide({aConst::LocalizedColorText(u"FormGov.CheckQuest.Difficult"_wref.get()), u"\r\n",
+                aPlayer::GetPlayer()->BuildQuestText(QuestOffer, aRanger::qtkOffer)});
         if (QuestNegotiationLevel >= 1) {
             ClearDialogChoices();
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0, pas::bind_method<&TfGov::AcceptQuest>(this));
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0, pas::bind_method<&TfGov::RejectQuest>(this));
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestEasy"_wref.get()), 0, pas::bind_method<&TfGov::MakeQuestEasier>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestAccept"_wref.get()), 0,
+                pas::bind_method<&TfGov::AcceptQuest>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestReject"_wref.get()), 0,
+                pas::bind_method<&TfGov::RejectQuest>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_QuestEasy"_wref.get()), 0,
+                pas::bind_method<&TfGov::MakeQuestEasier>(this));
             if (QuestOffer.QuestType == aGalaxyStruct::qtPlanetQuest) {
-                AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0, pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
+                AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetQuestClose"_wref.get()), 0,
+                    pas::bind_method<&TfGov::PermanentlyDeclineQuest>(this));
             }
-            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+                pas::bind_method<&TfGov::ReturnToPlanet>(this));
         } else {
             BuildQuestOfferChoices();
         }
@@ -1541,18 +1839,24 @@ namespace fGov {
         static_cast<void>(aPlayer::GetPlayer()), aRanger::TRanger::PublishQuestStatus(Quest, 0);
         if (Quest->QuestType == aGalaxyStruct::qtSendLetter) {
             Item = pas::construct_call<aItem::TUselessItem>(aItem::TUselessItem_Create);
-            Item->Init(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"Quest.SendLetter.", SysUtils::IntToStr(Quest->QuestNumber), ".SysName"}))), aGalaxyStruct::dsBlazer, 0u, false);
+            Item->Init(
+                GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"Quest.SendLetter.",
+                    pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber)), u".SysName"})),
+                aGalaxyStruct::dsBlazer, 0u, false);
             pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(Item));
         }
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.AfterPlayerTakeQuest"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 902983);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.AfterPlayerTakeQuest"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 902983);
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+            pas::bind_method<&TfGov::ReturnToPlanet>(this));
     }
 
     void TfGov::RejectQuest(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormGov.PlayerDontTakeQuest"_wref.get());
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+            pas::bind_method<&TfGov::ReturnToPlanet>(this));
     }
 
     void TfGov::PermanentlyDeclineQuest(std::int32_t Action) {
@@ -1572,9 +1876,11 @@ namespace fGov {
     void TfGov::DeclinePlanetBattle(std::int32_t Action) {
         PlanetBattleMapId = Action;
         DialogText = aConst::LocalizedColorText(u"FormGov.GovAfterBattlePlanetQuestClose"_wref.get());
-        aPlayer::GetPlayer()->PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1 + 1);
+        aPlayer::GetPlayer()->PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 +
+            1 + 1);
         {
-            aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
+            aPlayer::TPlanetBattleHistoryEntry& cpp_with = aPlayer::GetPlayer()->PlanetBattleHistory[
+                aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1];
             cpp_with.MapId = PlanetBattleMapId;
             cpp_with.Statistics.SignedTimeMs = 0;
             cpp_with.Statistics.RobotsBuilt = 0;
@@ -1593,8 +1899,10 @@ namespace fGov {
     void TfGov::ConfirmDeclineAllPlanetBattles(std::int32_t Action) {
         DialogText = aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAllConfirm"_wref.get());
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAllConfirmYes"_wref.get()), Action, pas::bind_method<&TfGov::DeclineAllPlanetBattles>(this));
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAllConfirmNo"_wref.get()), Action, pas::bind_method<&TfGov::CancelDeclineAllPlanetBattles>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAllConfirmYes"_wref.get()), Action,
+            pas::bind_method<&TfGov::DeclineAllPlanetBattles>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_PlanetBattleRejectAllConfirmNo"_wref.get()), Action,
+            pas::bind_method<&TfGov::CancelDeclineAllPlanetBattles>(this));
     }
 
     void TfGov::DeclineAllPlanetBattles(std::int32_t Action) {
@@ -1611,16 +1919,22 @@ namespace fGov {
     void TfGov::ShowPlanetBattleSupport(std::int32_t Action) {
         std::int32_t MapIndex = Globals::FindRobotMapById(Action);
         if (Globals::RobotMapDefinitions[MapIndex].ReinforcementsDisabled) {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforeBattleNoReinforcements"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
+            DialogText = aConst::PickLocalizedTextVariant(
+                    u"FormGov.PlanetBattle.GovBeforeBattleNoReinforcements"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
         } else {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforeBattle"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforeBattle"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
         }
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleNone"_wref.get()), Action, pas::bind_method<&TfGov::StartPlanetBattleWithoutSupport>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleNone"_wref.get()), Action,
+            pas::bind_method<&TfGov::StartPlanetBattleWithoutSupport>(this));
         if (!Globals::RobotMapDefinitions[MapIndex].ReinforcementsDisabled) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleHelp"_wref.get()), Action, pas::bind_method<&TfGov::StartPlanetBattleWithReinforcements>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleHelp"_wref.get()), Action,
+                pas::bind_method<&TfGov::StartPlanetBattleWithReinforcements>(this));
         }
-        AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleDamage"_wref.get()), Action, pas::bind_method<&TfGov::StartPlanetBattleWithBombardment>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.PlanetBattle.PlayerBeforeBattleDamage"_wref.get()), Action,
+            pas::bind_method<&TfGov::StartPlanetBattleWithBombardment>(this));
     }
 
     void TfGov::StartPlanetBattleWithoutSupport(std::int32_t Action) {
@@ -1666,52 +1980,78 @@ namespace fGov {
     }
 
     void TfGov::DeclineBattleAndLeave(std::int32_t Action) {
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforeNormal"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforeNormal"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
         ClearDialogChoices();
-        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0, pas::bind_method<&TfGov::ReturnToPlanet>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.I_Exit"_wref.get()), 0,
+            pas::bind_method<&TfGov::ReturnToPlanet>(this));
     }
 
     void TfGov::ChoosePrisonInsteadOfBattle(std::int32_t Action) {
         aPlayer::GetPlayer()->CurrentPlanet->SetRelationLevelToRanger(aPlayer::GetPlayer(), aGalaxyStruct::rlHostile);
         if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforePrisonPirateClan"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforePrisonPirateClan"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
             ClearDialogChoices();
-            AddChoice(aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerGoToPrisonPirateClan"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 61253), 0, pas::bind_method<&TfGov::EnterPrison>(this));
+            AddChoice(
+                aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerGoToPrisonPirateClan"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 61253), 0,
+                pas::bind_method<&TfGov::EnterPrison>(this));
         } else {
-            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforePrison"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
+            DialogText = aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.GovBeforePrison"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 81263);
             ClearDialogChoices();
-            AddChoice(aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerGoToPrison"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 61253), 0, pas::bind_method<&TfGov::EnterPrison>(this));
+            AddChoice(
+                aConst::PickLocalizedTextVariant(u"FormGov.PlanetBattle.PlayerGoToPrison"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 61253), 0,
+                pas::bind_method<&TfGov::EnterPrison>(this));
         }
     }
 
     void TfGov::ShowMapOffer(std::int32_t Action) {
-        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(std::min<std::int32_t>(aPlayer::GetPlayer()->Wealth / 40, aGalaxy::Galaxy->ComputeScaledBigMoney(aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) + 50);
+        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(std::min<std::int32_t>(
+            aPlayer::GetPlayer()->Wealth / 40,
+            aGalaxy::Galaxy->ComputeScaledBigMoney(aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) + 50);
         DialogText = ([&] {
-            pas::WideString name = pas::checked_cast<aGalaxy::TConstellation*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation()))->GetName();
-            pas::WideString intToStr = pas::wide_int_to_str(Cost);
-            pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAsk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed);
-            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag), u"<Name>"_w, std::move(name), u"<Money>"_w, std::move(intToStr));
-        }());
+                pas::WideString name = pas::checked_cast<aGalaxy::TConstellation*>(
+                    static_cast<pas::Object*>(
+                        aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation()))->GetName();
+                pas::WideString intToStr = pas::wide_int_to_str(Cost);
+                pas::WideString pickLocalizedTextVariant = aConst::PickLocalizedTextVariant(
+                    u"FormGov.BuyMap.GovAsk"_wref.get(),
+                    aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed);
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(pickLocalizedTextVariant), std::move(textHighlightColorTag),
+                    u"<Name>"_w, std::move(name), u"<Money>"_w, std::move(intToStr));
+            }());
         ClearDialogChoices();
         if (aPlayer::GetPlayer()->Money >= Cost) {
-            AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.PlayerOk"_wref.get()), 0, pas::bind_method<&TfGov::BuyMap>(this));
+            AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.PlayerOk"_wref.get()), 0,
+                pas::bind_method<&TfGov::BuyMap>(this));
         }
-        AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.PlayerNO"_wref.get()), 0, pas::bind_method<&TfGov::DeclineMapOffer>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.BuyMap.PlayerNO"_wref.get()), 0,
+            pas::bind_method<&TfGov::DeclineMapOffer>(this));
     }
 
     void TfGov::BuyMap(std::int32_t Action) {
-        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(std::min<std::int32_t>(aPlayer::GetPlayer()->Wealth / 40, aGalaxy::Galaxy->ComputeScaledBigMoney(aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) + 50);
+        std::int32_t Cost = aMyFunction::RoundAndTruncateToTens(std::min<std::int32_t>(
+            aPlayer::GetPlayer()->Wealth / 40,
+            aGalaxy::Galaxy->ComputeScaledBigMoney(aPlayer::GetPlayer()->CurrentPlanet->OwnerId)) + 50);
         aPlayer::GetPlayer()->SetMoney(aPlayer::GetPlayer()->Money - Cost);
-        pas::checked_cast<aGalaxy::TConstellation*>(static_cast<pas::Object*>(aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation()))->Visible = true;
-        static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckMapBuilderAchievement();
+        pas::checked_cast<aGalaxy::TConstellation*>(
+            static_cast<pas::Object*>(
+                aPlayer::GetPlayer()->CurrentPlanet->FindUnchartedNeighborConstellation()))->Visible = true;
+        static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+            Achievements::TAchievementStats::CheckMapBuilderAchievement();
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAfterOk"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 711);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAfterOk"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 711);
         BuildGovernmentChoices(true);
     }
 
     void TfGov::DeclineMapOffer(std::int32_t Action) {
-        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAfterNo"_wref.get(), aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 112);
+        DialogText = aConst::PickLocalizedTextVariant(u"FormGov.BuyMap.GovAfterNo"_wref.get(),
+                aGalaxy::Galaxy->CurrentTurn / 10 * aPlayer::GetPlayer()->CurrentPlanet->GenerationSeed + 112);
         BuildGovernmentChoices(true);
     }
 
@@ -1723,53 +2063,75 @@ namespace fGov {
         std::int32_t Cost{};
         DialogText = aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlanetAsk"_wref.get());
         pas::List* Ships = pas::make_object<pas::List>();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
-            if (aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet && (Ship->ScriptShip == nullptr || pas::checked_cast<aScript::TScriptShip*>(Ship->ScriptShip)->State->StateKind == aScript::sskNormalAI) && aShip::TShip_IsInPrison(Ship) && Ship->GetPrisonTermRemaining() > 0) {
-                RowText = ([&] {
-                    pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
-                    pas::WideString intToStr = pas::wide_int_to_str(Ship->GetPrisonReleaseCost());
-                    pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormGov.GuarantPrison.ShipRow"_wref.get());
-                    pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText2(std::move(localizedColorText), std::move(textHighlightColorTag), u"<Ship>"_w, std::move(fullName), u"<Cost>"_w, std::move(intToStr));
-                }());
-                Text = pas::concat_wide({Text, u"\r\n", u" - ", RowText});
-                pas::list_add(Ships, reinterpret_cast<void*>(Ship));
+        {
+            const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->CurrentStar->Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(aPlayer::GetPlayer()->CurrentStar->Ships, I);
+                    if (aPlayer::GetPlayer()->CurrentPlanet == Ship->CurrentPlanet && (Ship->ScriptShip == nullptr ||
+                            pas::checked_cast<aScript::TScriptShip*>(Ship->ScriptShip)->State->StateKind ==
+                                aScript::sskNormalAI) && aShip::TShip_IsInPrison(Ship) &&
+                        Ship->GetPrisonTermRemaining() > 0) {
+                        RowText = ([&] {
+                                pas::WideString fullName = Ship->GetFullName(u" "_wref.get());
+                                pas::WideString intToStr = pas::wide_int_to_str(Ship->GetPrisonReleaseCost());
+                                pas::WideString localizedColorText = aConst::LocalizedColorText(
+                                    u"FormGov.GuarantPrison.ShipRow"_wref.get());
+                                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(std::move(localizedColorText),
+                                    std::move(textHighlightColorTag), u"<Ship>"_w, std::move(fullName), u"<Cost>"_w,
+                                    std::move(intToStr));
+                            }());
+                        Text = pas::concat_wide({Text, u"\r\n", u" - ", RowText});
+                        pas::list_add(Ships, reinterpret_cast<void*>(Ship));
+                    }
+                }
             }
         }
         DialogText = pas::concat_wide({DialogText, Text});
         ClearDialogChoices();
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Ships) - 1); cpp_range_2.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Ships, I);
-            if (aShip::TShip_IsInPrison(Ship)) {
-                Cost = Ship->GetPrisonReleaseCost();
-                Text = aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerOk"_wref.get());
-                Text = ([&] {
-                    pas::WideString fullName_2 = Ship->GetFullName(u" "_wref.get());
-                    pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
-                    pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                    return aMyFunction::FormatText2(Text, std::move(textHighlightColorTag_2), u"<Ship>"_w, std::move(fullName_2), u"<Cost>"_w, std::move(intToStr_2));
-                }());
-                if (aPlayer::GetPlayer()->Money >= Cost) {
-                    AddChoice(Text, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)), pas::bind_method<&TfGov::PayPrisonBail>(this));
-                } else {
-                    AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(Ships) - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(Ships, I);
+                    if (aShip::TShip_IsInPrison(Ship)) {
+                        Cost = Ship->GetPrisonReleaseCost();
+                        Text = aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerOk"_wref.get());
+                        Text = ([&] {
+                                pas::WideString fullName_2 = Ship->GetFullName(u" "_wref.get());
+                                pas::WideString intToStr_2 = pas::wide_int_to_str(Cost);
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText2(Text, std::move(textHighlightColorTag_2), u"<Ship>"_w,
+                                    std::move(fullName_2), u"<Cost>"_w, std::move(intToStr_2));
+                            }());
+                        if (aPlayer::GetPlayer()->Money >= Cost) {
+                            AddChoice(Text, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Ship)),
+                                pas::bind_method<&TfGov::PayPrisonBail>(this));
+                        } else {
+                            AddChoice(Text, 0, fTalk::ScriptDialogBlockCallback);
+                        }
+                    }
                 }
             }
         }
-        AddChoice(aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerNo"_wref.get()), 0, pas::bind_method<&TfGov::CancelPrisonBail>(this));
+        AddChoice(aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlayerNo"_wref.get()), 0,
+            pas::bind_method<&TfGov::CancelPrisonBail>(this));
         pas::free(Ships);
     }
 
     void TfGov::PayPrisonBail(std::int32_t Action) {
-        aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
+        aShip::TShip* Ship = reinterpret_cast<aShip::TShip*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Action)));
         if (aShip::TShip_IsInPrison(Ship)) {
-            aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0, aPlayer::GetPlayer()->Money - Ship->GetPrisonReleaseCost()));
+            aPlayer::GetPlayer()->SetMoney(std::max<std::int32_t>(0,
+                aPlayer::GetPlayer()->Money - Ship->GetPrisonReleaseCost()));
             Ship->ClearPrisonTerm();
             Ship->ChangeRelationToRanger(aPlayer::GetPlayer(), 100);
             Ship->OrderTakeoff();
             ++aPlayer::GetPlayer()->AchievementStats->PrisonersBailedOut;
-            Achievements::TrySetAchievementProgress(u"PRISONBAIL"_w, aPlayer::GetPlayer()->AchievementStats->PrisonersBailedOut);
+            Achievements::TrySetAchievementProgress(u"PRISONBAIL"_w,
+                aPlayer::GetPlayer()->AchievementStats->PrisonersBailedOut);
         }
         GR_Main::SoundManager->PlaySound(u"Sound.Sell"_wref.get());
         DialogText = aConst::LocalizedColorText(u"FormGov.GuarantPrison.PlanetAfterOk"_wref.get());
@@ -1793,7 +2155,8 @@ namespace fGov {
 
     void TfGov::RunInjectedAnswer(std::int32_t Answer) {
         pas::WideString Text{};
-        aScript::PScriptDialogInjection Injection = reinterpret_cast<aScript::PScriptDialogInjection>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Answer)));
+        aScript::PScriptDialogInjection Injection = reinterpret_cast<aScript::PScriptDialogInjection>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Answer)));
         if (Injection->ActionCode != u"") {
             aScript::CurrentScript = Injection->ActionScript;
             aScript::ExecuteScriptText(Injection->ActionCode, aScript::CurrentScript->InitCode->LocalVar);
@@ -1801,7 +2164,10 @@ namespace fGov {
         Text = Injection->Answer;
         std::int32_t PartCount = EC_Str::CountDelimitedPartsW(pas::view(Text), u"~"sv);
         if (PartCount > 1) {
-            Text = EC_Str::ExtractDelimitedPartW(pas::view(static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)))), 0, u"~"sv);
+            Text = EC_Str::ExtractDelimitedPartW(
+                    pas::view(
+                        static_cast<pas::WideString>(SysUtilsImports::LowerCase(static_cast<pas::AnsiString>(Text)))),
+                    0, u"~"sv);
             if (Text == u"snap") {
                 RememberChoiceScroll();
             }
@@ -1834,7 +2200,8 @@ namespace fGov {
     }
 
     void TfGov::AddScriptRestartChoice(pas::WideString Caption) {
-        AddChoice(pas::concat_wide({u"- ", Caption}), aScript::CurrentScript->CurrentAnswer, pas::bind_method<&TfGov::RunScriptRestartAnswer>(this));
+        AddChoice(pas::concat_wide({u"- ", Caption}), aScript::CurrentScript->CurrentAnswer,
+            pas::bind_method<&TfGov::RunScriptRestartAnswer>(this));
     }
 
     void TfGov::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
@@ -1844,7 +2211,8 @@ namespace fGov {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+            ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10008);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20008);

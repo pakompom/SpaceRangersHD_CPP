@@ -38,9 +38,9 @@ namespace aMyFunction {
     #pragma pack(pop)
 
     // Preserve the native angle approximations and random endpoint quantization.
-    inline constexpr long double GamePi = 3.1415926L;
+    inline constexpr double GamePi = 3.1415926;
 
-    inline constexpr long double GameTwoPi = 6.2831852L;
+    inline constexpr double GameTwoPi = 6.2831852;
 
     inline constexpr std::int32_t RandomFloatResolution = 1000;
 

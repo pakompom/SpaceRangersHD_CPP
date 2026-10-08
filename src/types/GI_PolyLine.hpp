@@ -37,9 +37,11 @@ namespace GI_PolyLine {
         // Empty in native code.
         static void LoadPolyLineProperties(EC_BlockPar::TBlockParEC* Block);
         void RebuildBounds();
-        PPolyLineSegmentGI AddParentLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t UserData);
+        PPolyLineSegmentGI AddParentLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+            std::int32_t UserData);
         PPolyLineSegmentGI AddLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color);
-        PPolyLineSegmentGI AddLocalLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color, std::int32_t UserData);
+        PPolyLineSegmentGI AddLocalLine(WindowsSdk::TPoint First, WindowsSdk::TPoint Last, std::uint32_t Color,
+            std::int32_t UserData);
         void UpdateSegmentLength(PPolyLineSegmentGI Segment);
         void RetireSegment(PPolyLineSegmentGI Segment);
         void StartAnimation();

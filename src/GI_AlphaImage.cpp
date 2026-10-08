@@ -20,7 +20,8 @@
 namespace GI_AlphaImage {
     void TAlphaImageGI_Create(TAlphaImageGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_MessageLoop::TObjectGI_Create(Self, Owner);
-        Self->ImageCache = pas::construct_call<EC_CacheAlphaBitmap::TCAlphaBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
+        Self->ImageCache =
+            pas::construct_call<EC_CacheAlphaBitmap::TCAlphaBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
         EC_Cache::TCacheEC::ResetControl(Self->ImageCache);
         Self->ImageKindX = GI_Main::ikxCenter;
         Self->ImageKindY = GI_Main::ikyCenter;
@@ -90,62 +91,77 @@ namespace GI_AlphaImage {
         Clip.Bottom = Point.Y + 1;
         EC_CacheAlphaBitmap::TCAlphaBitmapEC* Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Bitmap->PixelSize.X;
-            Height = Bitmap->PixelSize.Y;
-            if (ImageKindX == GI_Main::ikxLeftFill) {
-                Left = HitTestBounds.Left;
-                Right = HitTestBounds.Right;
-            } else if (ImageKindX == GI_Main::ikxRightFill) {
-                Right = HitTestBounds.Right;
-                Left = Right;
-                while (Left > Clip.Left) {
-                    Left -= Width;
+            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            std::exception_ptr cpp_error{};
+            try {
+                Width = Bitmap->PixelSize.X;
+                Height = Bitmap->PixelSize.Y;
+                if (ImageKindX == GI_Main::ikxLeftFill) {
+                    Left = HitTestBounds.Left;
+                    Right = HitTestBounds.Right;
+                } else if (ImageKindX == GI_Main::ikxRightFill) {
+                    Right = HitTestBounds.Right;
+                    Left = Right;
+                    while (Left > Clip.Left) {
+                        Left -= Width;
+                    }
+                } else if (ImageKindX == GI_Main::ikxLeft) {
+                    Left = HitTestBounds.Left;
+                    Right = Left + Width;
+                } else if (ImageKindX == GI_Main::ikxRight) {
+                    Right = HitTestBounds.Right;
+                    Left = Right - Width;
+                } else if (ImageKindX == GI_Main::ikxCenter) {
+                    Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
+                    Right = Left + Width;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-            } else if (ImageKindX == GI_Main::ikxLeft) {
-                Left = HitTestBounds.Left;
-                Right = Left + Width;
-            } else if (ImageKindX == GI_Main::ikxRight) {
-                Right = HitTestBounds.Right;
-                Left = Right - Width;
-            } else if (ImageKindX == GI_Main::ikxCenter) {
-                Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
-                Right = Left + Width;
-            } else {
-                return Result;
+                if (ImageKindY == GI_Main::ikyTopFill) {
+                    Top = HitTestBounds.Top;
+                    Bottom = HitTestBounds.Bottom;
+                } else if (ImageKindY == GI_Main::ikyBottomFill) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom;
+                    while (Top > Clip.Top) {
+                        Top -= Height;
+                    }
+                } else if (ImageKindY == GI_Main::ikyTop) {
+                    Top = HitTestBounds.Top;
+                    Bottom = Top + Height;
+                } else if (ImageKindY == GI_Main::ikyBottom) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom - Height;
+                } else if (ImageKindY == GI_Main::ikyCenter) {
+                    Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
+                    Bottom = Top + Height;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
+                }
+                Pixels = EC_Mem::AddPointerOffset(&Pixel,
+                        -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X *
+                            static_cast<std::int32_t>(sizeof(std::uint16_t))));
+                Y = Top;
+                while (Y < Bottom && Pixel == 0) {
+                    X = Left;
+                    while (X < Right && Pixel == 0) {
+                        Bitmap->Draw16(Pixels, GR_Main::ScreenRenderBuffer->PitchBytes, X, Y, Clip);
+                        X += Width;
+                    }
+                    Y += Height;
+                }
+            } catch (...) {
+                cpp_error = std::current_exception();
             }
-            if (ImageKindY == GI_Main::ikyTopFill) {
-                Top = HitTestBounds.Top;
-                Bottom = HitTestBounds.Bottom;
-            } else if (ImageKindY == GI_Main::ikyBottomFill) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom;
-                while (Top > Clip.Top) {
-                    Top -= Height;
-                }
-            } else if (ImageKindY == GI_Main::ikyTop) {
-                Top = HitTestBounds.Top;
-                Bottom = Top + Height;
-            } else if (ImageKindY == GI_Main::ikyBottom) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom - Height;
-            } else if (ImageKindY == GI_Main::ikyCenter) {
-                Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
-                Bottom = Top + Height;
-            } else {
-                return Result;
+            cpp_cleanup:;
+            ImageCache->Release();
+            if (cpp_error) {
+                std::rethrow_exception(cpp_error);
             }
-            Pixels = EC_Mem::AddPointerOffset(&Pixel, -(GR_Main::ScreenRenderBuffer->PitchBytes * Point.Y + Point.X * static_cast<std::int32_t>(sizeof(std::uint16_t))));
-            Y = Top;
-            while (Y < Bottom && Pixel == 0) {
-                X = Left;
-                while (X < Right && Pixel == 0) {
-                    Bitmap->Draw16(Pixels, GR_Main::ScreenRenderBuffer->PitchBytes, X, Y, Clip);
-                    X += Width;
-                }
-                Y += Height;
+            if (cpp_flow == pas::FinallyFlow::Return) {
+                return Result;
             }
         }
         return Pixel != 0;
@@ -161,17 +177,22 @@ namespace GI_AlphaImage {
             Self->ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
             Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(Self->ImageCache);
             {
-                pas::ScopeExit cpp_cleanup = [&]() noexcept {
+                try {
+                    Self->SetSize(Bitmap->PixelSize);
+                } catch (...) {
                     Self->ImageCache->Release();
-                };
-                Self->SetSize(Bitmap->PixelSize);
+                    throw;
+                }
+                Self->ImageCache->Release();
             }
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"sv);
             Self->SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
@@ -195,16 +216,21 @@ namespace GI_AlphaImage {
         ImageCache->SetCacheKey(Block->GetParam(u"Image"sv));
         EC_CacheAlphaBitmap::TCAlphaBitmapEC* Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
+            try {
+                SetSize(Bitmap->PixelSize);
+            } catch (...) {
                 ImageCache->Release();
-            };
-            SetSize(Bitmap->PixelSize);
+                throw;
+            }
+            ImageCache->Release();
         }
         if (Block->CountParams(u"Size"_wref.get()) > 0) {
             Text = Block->GetParam(u"Size"sv);
             SetSize(([&] {
-                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv)));
-                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv)));
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 1, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Text), 0, u","sv)));
                 return ClassesImports::Point(strToInt_2, strToInt);
             }()));
         }
@@ -234,78 +260,92 @@ namespace GI_AlphaImage {
         std::int32_t Y{};
         EC_CacheAlphaBitmap::TCAlphaBitmapEC* Bitmap = EC_CacheAlphaBitmap::AcquireOrCreateAlphaBitmap(ImageCache);
         {
-            pas::ScopeExit cpp_cleanup = [&]() noexcept {
-                ImageCache->Release();
-            };
-            Width = Bitmap->PixelSize.X;
-            Height = Bitmap->PixelSize.Y;
-            if (ImageKindX == GI_Main::ikxLeftFill) {
-                Left = HitTestBounds.Left;
-                Right = HitTestBounds.Right;
-            } else if (ImageKindX == GI_Main::ikxRightFill) {
-                Right = HitTestBounds.Right;
-                Left = Right;
-                while (Left > ClipRect.Left) {
-                    Left -= Width;
-                }
-            } else if (ImageKindX == GI_Main::ikxLeft) {
-                Left = HitTestBounds.Left;
-                Right = Left + Width;
-            } else if (ImageKindX == GI_Main::ikxRight) {
-                Right = HitTestBounds.Right;
-                Left = Right - Width;
-            } else if (ImageKindX == GI_Main::ikxCenter) {
-                Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
-                Right = Left + Width;
-            } else {
-                return;
-            }
-            if (ImageKindY == GI_Main::ikyTopFill) {
-                Top = HitTestBounds.Top;
-                Bottom = HitTestBounds.Bottom;
-            } else if (ImageKindY == GI_Main::ikyBottomFill) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom;
-                while (Top > ClipRect.Top) {
-                    Top -= Height;
-                }
-            } else if (ImageKindY == GI_Main::ikyTop) {
-                Top = HitTestBounds.Top;
-                Bottom = Top + Height;
-            } else if (ImageKindY == GI_Main::ikyBottom) {
-                Bottom = HitTestBounds.Bottom;
-                Top = Bottom - Height;
-            } else if (ImageKindY == GI_Main::ikyCenter) {
-                Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
-                Bottom = Top + Height;
-            } else {
-                return;
-            }
-            if (GlobalsV::HardwareRenderingEnabled) {
-                Y = Top;
-                while (Y < Bottom) {
-                    X = Left;
-                    while (X < Right) {
-                        GR_DX::DrawTexture((Bitmap->GetTexture(cpp_result), cpp_result), X, Y, 255, GR_DX::RgbWhite, &ClipRect, false, false);
-                        X += Width;
+            pas::FinallyFlow cpp_flow = pas::FinallyFlow::Normal;
+            std::exception_ptr cpp_error{};
+            try {
+                Width = Bitmap->PixelSize.X;
+                Height = Bitmap->PixelSize.Y;
+                if (ImageKindX == GI_Main::ikxLeftFill) {
+                    Left = HitTestBounds.Left;
+                    Right = HitTestBounds.Right;
+                } else if (ImageKindX == GI_Main::ikxRightFill) {
+                    Right = HitTestBounds.Right;
+                    Left = Right;
+                    while (Left > ClipRect.Left) {
+                        Left -= Width;
                     }
-                    Y += Height;
+                } else if (ImageKindX == GI_Main::ikxLeft) {
+                    Left = HitTestBounds.Left;
+                    Right = Left + Width;
+                } else if (ImageKindX == GI_Main::ikxRight) {
+                    Right = HitTestBounds.Right;
+                    Left = Right - Width;
+                } else if (ImageKindX == GI_Main::ikxCenter) {
+                    Left = (HitTestBounds.Right - HitTestBounds.Left) / 2 + HitTestBounds.Left - Width / 2;
+                    Right = Left + Width;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
                 }
-            } else {
-                Y = Top;
-                while (Y < Bottom) {
-                    X = Left;
-                    while (X < Right) {
-                        {
-                            WindowsSdk::TRect clipRect = ClipRect;
-                            void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
-                            std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                            Bitmap->Draw16(pixels, pitchBytes, X, Y, clipRect);
+                if (ImageKindY == GI_Main::ikyTopFill) {
+                    Top = HitTestBounds.Top;
+                    Bottom = HitTestBounds.Bottom;
+                } else if (ImageKindY == GI_Main::ikyBottomFill) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom;
+                    while (Top > ClipRect.Top) {
+                        Top -= Height;
+                    }
+                } else if (ImageKindY == GI_Main::ikyTop) {
+                    Top = HitTestBounds.Top;
+                    Bottom = Top + Height;
+                } else if (ImageKindY == GI_Main::ikyBottom) {
+                    Bottom = HitTestBounds.Bottom;
+                    Top = Bottom - Height;
+                } else if (ImageKindY == GI_Main::ikyCenter) {
+                    Top = (HitTestBounds.Bottom - HitTestBounds.Top) / 2 + HitTestBounds.Top - Height / 2;
+                    Bottom = Top + Height;
+                } else {
+                    cpp_flow = pas::FinallyFlow::Return;
+                    goto cpp_cleanup;
+                }
+                if (GlobalsV::HardwareRenderingEnabled) {
+                    Y = Top;
+                    while (Y < Bottom) {
+                        X = Left;
+                        while (X < Right) {
+                            GR_DX::DrawTexture((Bitmap->GetTexture(cpp_result), cpp_result), X, Y, 255, GR_DX::RgbWhite,
+                                &ClipRect, false, false);
+                            X += Width;
                         }
-                        X += Width;
+                        Y += Height;
                     }
-                    Y += Height;
+                } else {
+                    Y = Top;
+                    while (Y < Bottom) {
+                        X = Left;
+                        while (X < Right) {
+                            {
+                                WindowsSdk::TRect clipRect = ClipRect;
+                                void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
+                                std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
+                                Bitmap->Draw16(pixels, pitchBytes, X, Y, clipRect);
+                            }
+                            X += Width;
+                        }
+                        Y += Height;
+                    }
                 }
+            } catch (...) {
+                cpp_error = std::current_exception();
+            }
+            cpp_cleanup:;
+            ImageCache->Release();
+            if (cpp_error) {
+                std::rethrow_exception(cpp_error);
+            }
+            if (cpp_flow == pas::FinallyFlow::Return) {
+                return;
             }
         }
     }

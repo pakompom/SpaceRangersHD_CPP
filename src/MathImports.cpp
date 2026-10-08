@@ -5,34 +5,34 @@
 // Ordinary Delphi 2007 Math RTL algorithms used by equipment calculations.
 namespace MathImports {
     double RoundTo(double AValue, TRoundToRange ADigit) {
-        double Factor = Math::IntPower(1.0E+1L, ADigit);
-        return static_cast<long double>(System::Round(pas::real_divide(AValue, Factor))) * Factor;
+        double Factor = Math::IntPower(1.0E+1, ADigit);
+        return static_cast<float>(static_cast<double>(pas::real_round(static_cast<float>(static_cast<double>(AValue) / Factor))) * Factor);
     }
 
-    std::int32_t Ceil(pas::Extended X) {
-        std::int32_t Result = System::Trunc(X);
-        if (System::Frac(X) > 0.0L) {
+    std::int32_t Ceil(double X) {
+        std::int32_t Result = pas::real_trunc(X);
+        if (System::Frac(X) > 0.0) {
             ++Result;
         }
         return Result;
     }
 
-    std::int32_t Floor(pas::Extended X) {
-        std::int32_t Result = System::Trunc(X);
-        if (System::Frac(X) < 0.0L) {
+    std::int32_t Floor(double X) {
+        std::int32_t Result = pas::real_trunc(X);
+        if (System::Frac(X) < 0.0) {
             --Result;
         }
         return Result;
     }
 
-    pas::Extended ArcSin(pas::Extended X) {
+    double ArcSin(double X) {
         // All game calls pass division expressions, selecting the Extended overload.
-        return Math::ArcTan2(X, System::Sqrt(1.0L - pas::sqr(X)));
+        return Math::ArcTan2(X, System::Sqrt(static_cast<float>(1.0 - pas::sqr(X))));
     }
 
-    pas::Extended ArcCos(pas::Extended X) {
+    double ArcCos(double X) {
         // Selected RTL's Extended formula avoids cancellation in 1-X*X near one.
-        return Math::ArcTan2(System::Sqrt((1.0L + X) * (1.0L - X)), X);
+        return Math::ArcTan2(System::Sqrt(static_cast<float>((static_cast<float>(1.0 + X)) * (static_cast<float>(1.0 - X)))), X);
     }
 
     std::int32_t Sign(double AValue) {

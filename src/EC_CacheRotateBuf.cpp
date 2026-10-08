@@ -21,7 +21,8 @@ namespace EC_CacheRotateBuf {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCRotateBufEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCRotateBufEC>()) ==
+            nullptr) {
             Control = pas::construct_call<TCRotateBufControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -56,14 +57,21 @@ namespace EC_CacheRotateBuf {
             pas::raise(pas::make_exception<pas::Exception>("TCRotateBufEC.Load. Error create rotate buf."_a));
         }
         Buffer = ([&] {
-            std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 3, u","sv)));
-            std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 4, u","sv)));
-            std::int32_t strToInt_3 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 5, u","sv)));
-            std::int32_t strToInt_4 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 2, u","sv)));
-            std::int32_t strToInt_5 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 1, u","sv)));
-            std::int32_t strToInt_6 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Key), 0, u","sv)));
-            return GR_Main::Ex_OKGR_RotateBuf_Build(strToInt_6, strToInt_5, strToInt_4, strToInt, strToInt_2, strToInt_3);
-        }());
+                std::int32_t strToInt = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 3, u","sv)));
+                std::int32_t strToInt_2 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 4, u","sv)));
+                std::int32_t strToInt_3 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 5, u","sv)));
+                std::int32_t strToInt_4 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 2, u","sv)));
+                std::int32_t strToInt_5 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 1, u","sv)));
+                std::int32_t strToInt_6 = SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Key), 0, u","sv)));
+                return GR_Main::Ex_OKGR_RotateBuf_Build(strToInt_6, strToInt_5, strToInt_4, strToInt, strToInt_2,
+                    strToInt_3);
+            }());
         if (Buffer == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("TCRotateBufEC.Load. Error create rotate buf."_a));
         }

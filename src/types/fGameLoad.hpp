@@ -44,7 +44,7 @@ namespace fGameLoad {
     #endif
     struct TThreadGameLoad : EC_Thread::TThreadEC {
         PAS_CLASS_META(TThreadGameLoad, EC_Thread::TThreadEC, "TThreadGameLoad", 48)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         std::uint8_t Succeeded;
         std::uint8_t cpp_padding[3];
     };

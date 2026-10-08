@@ -57,7 +57,9 @@ namespace EC_BlockPar {
         void DeleteChildBlock(const std::u16string_view& BlockName);
         pas::WideString GetParam(const std::u16string_view& ParamName);
         pas::WideString GetParamOrMarker(const std::u16string_view& ParamName);
-        std::int32_t GetParamCount();
+        inline std::int32_t GetParamCount() {
+            return StringParamCount;
+        }
         std::int32_t CountParams(const pas::WideString& ParamName);
         // GetParamValue/GetParamName take zero-based string-entry indexes.
         // Kind-specific indexes use sorted order only when all entries have that kind.
@@ -73,11 +75,15 @@ namespace EC_BlockPar {
         // Raises when absent.
         TBlockParEC* GetBlock(const std::u16string_view& BlockName);
         TBlockParEC* FindBlock(const std::u16string_view& BlockName);
-        std::int32_t GetBlockCount();
+        inline std::int32_t GetBlockCount() {
+            return ChildBlockCount;
+        }
         std::int32_t CountBlocks(const pas::WideString& BlockName);
         TBlockParEC* GetBlockByIndex(std::int32_t Index);
         pas::WideString GetBlockNameByIndex(std::int32_t Index);
-        std::int32_t GetEntryCount();
+        inline std::int32_t GetEntryCount() {
+            return EntryCount;
+        }
         // Mixed-kind indexes use the sorted array only when it covers every entry.
         TBlockParKind GetEntryKindByIndex(std::int32_t Index);
         TBlockParEC* GetEntryBlockByIndex(std::int32_t Index);
@@ -93,7 +99,8 @@ namespace EC_BlockPar {
         // Creates or truncates FileName.
         void SaveTextFile(char16_t* FileName, std::uint8_t AnsiText, std::uint8_t Sorted);
         // Text parsers append entries; they do not clear the existing tree.
-        void ParseTextBuffer(EC_Buf::TBufEC* Buf, const pas::WideString& InitialText, std::uint8_t AnsiText, std::uint8_t PreserveComments);
+        void ParseTextBuffer(EC_Buf::TBufEC* Buf, const pas::WideString& InitialText, std::uint8_t AnsiText,
+            std::uint8_t PreserveComments);
         // Does nothing with at most two bytes remaining; otherwise consumes a UTF-16LE BOM or parses ANSI text.
         void LoadFromTextBufferWithEncodingProbe(EC_Buf::TBufEC* Buf, std::uint8_t PreserveComments);
         void LoadFromTextFileWithEncodingProbe(char16_t* FileName, std::uint8_t PreserveComments);

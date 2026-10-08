@@ -81,38 +81,34 @@ namespace GI_SpaceCircle {
         ClearSegments();
         if (Radius > 0) {
             Spacing = 2.0E+1f;
-            Circumference = Radius * pas::constant(2.0L * aMyFunction::GamePi);
-            Count = System::Round(pas::real_divide(Circumference, Spacing));
+            Circumference = static_cast<float>(Radius * pas::constant(2.0 * aMyFunction::GamePi));
+            Count = pas::real_round(static_cast<float>(static_cast<double>(Circumference) / Spacing));
             if (Count < 10) {
                 Count = 10;
             }
-            Segments = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AllocEC(Count * static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+            Segments = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AllocEC(Count *
+                    static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
             Angle = 0.0f;
-            Step = pas::real_divide(pas::constant(2.0L * aMyFunction::GamePi), Count);
-            {
-                float cpp_arg = System::Sin(Angle) * Radius;
-                float cpp_arg_2 = System::Cos(Angle) * -Radius;
-                Point = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-            }
+            Step = static_cast<float>(pas::constant(2.0 * aMyFunction::GamePi) / Count);
+            Point = EC_Struct::MakePointF(static_cast<float>(System::Sin(Angle) * Radius), static_cast<float>(System::Cos(Angle) * -Radius));
             Segment = Segments;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                pas::store_unaligned<EC_Struct::TPointF>(&Segment->First, EC_Struct::AddPointsF(Point, EC_Struct::PointToPointF(Center)));
-                Angle = static_cast<long double>(Angle) + Step;
-                {
-                    float cpp_arg_3 = System::Sin(Angle) * Radius;
-                    float cpp_arg_4 = System::Cos(Angle) * -Radius;
-                    Point = EC_Struct::MakePointF(cpp_arg_3, cpp_arg_4);
-                }
-                pas::store_unaligned<EC_Struct::TPointF>(&Segment->Last, EC_Struct::AddPointsF(Point, EC_Struct::PointToPointF(Center)));
+                pas::store_unaligned<EC_Struct::TPointF>(&Segment->First,
+                    EC_Struct::AddPointsF(Point, EC_Struct::PointToPointF(Center)));
+                Angle = static_cast<float>(static_cast<double>(Angle) + Step);
+                Point = EC_Struct::MakePointF(static_cast<float>(System::Sin(Angle) * Radius), static_cast<float>(System::Cos(Angle) * -Radius));
+                pas::store_unaligned<EC_Struct::TPointF>(&Segment->Last,
+                    EC_Struct::AddPointsF(Point, EC_Struct::PointToPointF(Center)));
                 Delta = EC_Struct::SubtractPointsF(Segment->Last, Segment->First);
-                Length = System::Sqrt(static_cast<long double>(Delta.X) * Delta.X + static_cast<long double>(Delta.Y) * Delta.Y);
-                Delta.X = pas::real_divide(Delta.X, Length);
-                Delta.Y = pas::real_divide(Delta.Y, Length);
-                Segment->Last.X = static_cast<long double>(Delta.X) * Length * 0.75L + Segment->First.X;
-                Segment->Last.Y = static_cast<long double>(Delta.Y) * Length * 0.75L + Segment->First.Y;
-                Segment->First.X = static_cast<long double>(Delta.X) * Length * 0.25L + Segment->First.X;
-                Segment->First.Y = static_cast<long double>(Delta.Y) * Length * 0.25L + Segment->First.Y;
-                Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+                Length = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Delta.X) * Delta.X) + static_cast<float>(static_cast<double>(Delta.Y) * Delta.Y)));
+                Delta.X = static_cast<float>(static_cast<double>(Delta.X) / Length);
+                Delta.Y = static_cast<float>(static_cast<double>(Delta.Y) / Length);
+                Segment->Last.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Delta.X) * Length) * 0.75) + Segment->First.X);
+                Segment->Last.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Delta.Y) * Length) * 0.75) + Segment->First.Y);
+                Segment->First.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Delta.X) * Length) * 0.25) + Segment->First.X);
+                Segment->First.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Delta.Y) * Length) * 0.25) + Segment->First.Y);
+                Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                        static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
             }
             SegmentCount = Count;
         }
@@ -122,15 +118,21 @@ namespace GI_SpaceCircle {
         PSpaceCircleSegmentGI Segment{};
         std::int32_t I{};
         Types::TRect Clip{};
-        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Clip, 0), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HitTestBounds, 0)));
+        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Clip, 0),
+            pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HitTestBounds, 0)));
         Clip.Right = HitTestBounds.Right - 1;
         Clip.Bottom = HitTestBounds.Bottom - 1;
         Segment = Segments;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCount - 1); cpp_range.next(I); ) {
-            pas::store_unaligned<Types::TPoint>(&Segment->PixelFirst, EC_Struct::AddPoints(EC_Struct::RoundPointF(Segment->First), AbsolutePosition));
-            pas::store_unaligned<Types::TPoint>(&Segment->PixelLast, EC_Struct::AddPoints(EC_Struct::RoundPointF(Segment->Last), AbsolutePosition));
-            Segment->ClipResult = GR_Main::Ex_OKGR_Line_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X), pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::int32_t>(&Segment->PixelLast.X), pas::Var<std::int32_t>(&Segment->PixelLast.Y), Clip);
-            Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+            pas::store_unaligned<Types::TPoint>(&Segment->PixelFirst,
+                EC_Struct::AddPoints(EC_Struct::RoundPointF(Segment->First), AbsolutePosition));
+            pas::store_unaligned<Types::TPoint>(&Segment->PixelLast,
+                EC_Struct::AddPoints(EC_Struct::RoundPointF(Segment->Last), AbsolutePosition));
+            Segment->ClipResult = GR_Main::Ex_OKGR_Line_Clip(pas::Var<std::int32_t>(&Segment->PixelFirst.X),
+                    pas::Var<std::int32_t>(&Segment->PixelFirst.Y), pas::Var<std::int32_t>(&Segment->PixelLast.X),
+                    pas::Var<std::int32_t>(&Segment->PixelLast.Y), Clip);
+            Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                    static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
         }
     }
 
@@ -143,20 +145,21 @@ namespace GI_SpaceCircle {
         float Y{};
         float Angle{};
         if (Radius > 0) {
-            Angle = pas::real_divide(-2.0L, Radius * pas::constant(2.0L * aMyFunction::GamePi)) * aMyFunction::GamePi * 2.0L;
+            Angle = static_cast<float>(static_cast<float>(static_cast<float>(-2.0 / (static_cast<float>(Radius * pas::constant(2.0 * aMyFunction::GamePi)))) * aMyFunction::GamePi) * 2.0);
             Sine = System::Sin(Angle);
             Cosine = System::Cos(Angle);
             Segment = Segments;
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCount - 1); cpp_range.next(I); ) {
-                X = static_cast<long double>(Segment->First.X) - Center.X;
-                Y = static_cast<long double>(Segment->First.Y) - Center.Y;
-                Segment->First.X = static_cast<long double>(Cosine) * X + static_cast<long double>(Sine) * Y + Center.X;
-                Segment->First.Y = static_cast<long double>(-Sine) * X + static_cast<long double>(Cosine) * Y + Center.Y;
-                X = static_cast<long double>(Segment->Last.X) - Center.X;
-                Y = static_cast<long double>(Segment->Last.Y) - Center.Y;
-                Segment->Last.X = static_cast<long double>(Cosine) * X + static_cast<long double>(Sine) * Y + Center.X;
-                Segment->Last.Y = static_cast<long double>(-Sine) * X + static_cast<long double>(Cosine) * Y + Center.Y;
-                Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+                X = static_cast<float>(static_cast<double>(Segment->First.X) - Center.X);
+                Y = static_cast<float>(static_cast<double>(Segment->First.Y) - Center.Y);
+                Segment->First.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Cosine) * X) + static_cast<float>(static_cast<double>(Sine) * Y)) + Center.X);
+                Segment->First.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(-Sine) * X) + static_cast<float>(static_cast<double>(Cosine) * Y)) + Center.Y);
+                X = static_cast<float>(static_cast<double>(Segment->Last.X) - Center.X);
+                Y = static_cast<float>(static_cast<double>(Segment->Last.Y) - Center.Y);
+                Segment->Last.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Cosine) * X) + static_cast<float>(static_cast<double>(Sine) * Y)) + Center.X);
+                Segment->Last.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(-Sine) * X) + static_cast<float>(static_cast<double>(Cosine) * Y)) + Center.Y);
+                Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                        static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
             }
             GeometryDirty = true;
         }
@@ -229,15 +232,18 @@ namespace GI_SpaceCircle {
             ProjectAndClipSegments();
             GeometryDirty = false;
             if (AnimationTimer == nullptr) {
-                AnimationTimer = MessageLoop->ScheduleCallbackTimer(50, 50, pas::bind_method<&TSpaceCircleGI::RotateSegments>(this), 0);
+                AnimationTimer = MessageLoop->ScheduleCallbackTimer(50, 50,
+                        pas::bind_method<&TSpaceCircleGI::RotateSegments>(this), 0);
             }
         }
-        if (static_cast<std::uint8_t>(GlobalsV::HardwareRenderingEnabled ^ 1) && static_cast<std::uint8_t>(GlobalsV::SkipSavedPixelRestore ^ 1)) {
+        if (static_cast<std::uint8_t>(GlobalsV::HardwareRenderingEnabled ^ 1) &&
+            static_cast<std::uint8_t>(GlobalsV::SkipSavedPixelRestore ^ 1)) {
             if (!GlobalsV::BGImage) {
                 Line = PreviousLines;
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, PreviousLineCount - 1); cpp_range.next(I); ) {
                     GR_Main::ScreenRenderBuffer->DrawLine16Clipped(Line->First, Line->Last, 0u, HitTestBounds);
-                    Line = static_cast<PSpaceCircleSavedLineGI>(EC_Mem::AddPointerOffset(Line, static_cast<std::int32_t>(sizeof(TSpaceCircleSavedLineGI))));
+                    Line = static_cast<PSpaceCircleSavedLineGI>(EC_Mem::AddPointerOffset(Line,
+                            static_cast<std::int32_t>(sizeof(TSpaceCircleSavedLineGI))));
                 }
             } else if (SavedPixels != nullptr) {
                 Buffer = SavedPixels;
@@ -253,7 +259,8 @@ namespace GI_SpaceCircle {
                         Count = GR_Main::Ex_OKGR_Line_CopyFromBuf_WORD(Buffer, pixels, pitchBytes, x, y, x_2, y_2);
                     }
                     Buffer = EC_Mem::AddPointerOffset(Buffer, Count * 2);
-                    Line = static_cast<PSpaceCircleSavedLineGI>(EC_Mem::AddPointerOffset(Line, static_cast<std::int32_t>(sizeof(TSpaceCircleSavedLineGI))));
+                    Line = static_cast<PSpaceCircleSavedLineGI>(EC_Mem::AddPointerOffset(Line,
+                            static_cast<std::int32_t>(sizeof(TSpaceCircleSavedLineGI))));
                 }
             }
         }
@@ -281,7 +288,8 @@ namespace GI_SpaceCircle {
                             void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
                             void* addPointerOffset = EC_Mem::AddPointerOffset(SavedPixels, Count * 2);
                             std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                            Copied = GR_Main::Ex_OKGR_Line_CopyToBuf_WORD(addPointerOffset, pixels, pitchBytes, x, y, x_2, y_2);
+                            Copied = GR_Main::Ex_OKGR_Line_CopyToBuf_WORD(addPointerOffset, pixels, pitchBytes, x, y,
+                                    x_2, y_2);
                         }
                         Count += Copied;
                         if (Count + 30 > Capacity) {
@@ -289,7 +297,8 @@ namespace GI_SpaceCircle {
                             SavedPixels = EC_Mem::ReAllocREC(SavedPixels, Capacity * 2);
                         }
                     }
-                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                            static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
                 }
             } else if (SavedPixels != nullptr) {
                 EC_Mem::FreeEC(SavedPixels);
@@ -311,10 +320,12 @@ namespace GI_SpaceCircle {
             if (GlobalsV::HardwareRenderingEnabled) {
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, SegmentCount - 1); cpp_range.next(I); ) {
                     if (Segment->ClipResult > 0) {
-                        GR_DX::DrawAntialiasedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X, Segment->PixelLast.Y, GR_DX::Color565ToArgb(Color), 255, nullptr);
+                        GR_DX::DrawAntialiasedLineDX(Segment->PixelFirst.X, Segment->PixelFirst.Y, Segment->PixelLast.X,
+                            Segment->PixelLast.Y, GR_DX::Color565ToArgb(Color), 255, nullptr);
                         ++DrawnSegmentCount;
                     }
-                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                            static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
                 }
             } else {
                 for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, SegmentCount - 1); cpp_range_2.next(I); ) {
@@ -322,7 +333,8 @@ namespace GI_SpaceCircle {
                         GR_Main::ScreenRenderBuffer->DrawLine16(Segment->PixelFirst, Segment->PixelLast, Color);
                         ++DrawnSegmentCount;
                     }
-                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment, static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
+                    Segment = static_cast<PSpaceCircleSegmentGI>(EC_Mem::AddPointerOffset(Segment,
+                            static_cast<std::int32_t>(sizeof(TSpaceCircleSegmentGI))));
                 }
             }
         }

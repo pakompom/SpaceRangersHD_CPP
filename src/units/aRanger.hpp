@@ -74,32 +74,39 @@ namespace aRanger {
     void TRanger_ApplyExtortionReputationPenalty(TRanger* Self, aShip::TShip* Victim);
 
     // Relation of at least 30.
-    std::uint8_t TRanger_TrustsAttackRequester(TRanger* Self, aShip::TShip* Ship);
+    inline std::uint8_t TRanger_TrustsAttackRequester(TRanger* Self, aShip::TShip* Ship);
 
-    void TRanger_ChangeGlobalRelations(TRanger* Self, pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
+    void TRanger_ChangeGlobalRelations(TRanger* Self, pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount,
+        aConst::THullShipTypeMask HullTypeMask, aGalaxyStruct::TOwnerMask OwnerMask);
 
     // Scope filters by planet, star or sector; nil selects all. Only coalition planets are affected. OwnerMask uses owner IDs as bits.
-    void TRanger_ChangePlanetRelations(TRanger* Self, pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount, aGalaxyStruct::TOwnerMask OwnerMask);
+    void TRanger_ChangePlanetRelations(TRanger* Self, pas::Object* Scope, TRelationChangeMode Mode, std::uint8_t Amount,
+        aGalaxyStruct::TOwnerMask OwnerMask);
 
     // May execute payment and truce, or open the player's response dialogue; not a text-only query.
-    std::uint8_t TRanger_BuildMoneyExtortionResponse(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t DemandedAmount);
+    std::uint8_t TRanger_BuildMoneyExtortionResponse(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t DemandedAmount);
 
     // Successful requests jettison cargo and establish a truce.
     std::uint8_t TRanger_BuildCargoExtortionResponse(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response);
 
     // May change relations/career activity even on refusal; acceptance issues a joint attack.
-    std::uint8_t TRanger_BuildAttackRequestResponse(TRanger* Self, aShip::TShip* Requester, pas::WideString& Response, aShip::TShip* Target);
+    std::uint8_t TRanger_BuildAttackRequestResponse(TRanger* Self, aShip::TShip* Requester, pas::WideString& Response,
+        aShip::TShip* Target);
 
     // Checks eligibility and formats refusal text; OtherShip must be a ranger. Success does not clear preexisting Response.
-    std::uint8_t TRanger_BuildPartnershipOfferResponse(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TRanger_BuildPartnershipOfferResponse(TRanger* Self, aShip::TShip* OtherShip,
+        pas::WideString& Response, std::int32_t PaymentAmount);
 
     // Calls the eligibility method, then sets PartnerShip/duration and transfers payment. Requires a ranger requester.
-    std::uint8_t TRanger_AcceptPartnershipOffer(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response, std::int32_t PaymentAmount);
+    std::uint8_t TRanger_AcceptPartnershipOffer(TRanger* Self, aShip::TShip* OtherShip, pas::WideString& Response,
+        std::int32_t PaymentAmount);
 
     void TRanger_RefreshCurrentStanding(TRanger* Self);
 
     // Requires CurrentPlanet. Grants an award, program, item or module plus experience and relation effects. The hidden WideString result is cleared on entry; NPC result is empty.
-    pas::WideString TRanger_GrantPlanetQuestReward(TRanger* Self, std::int32_t Difficulty, std::int32_t& ExperienceAwarded);
+    pas::WideString TRanger_GrantPlanetQuestReward(TRanger* Self, std::int32_t Difficulty,
+        std::int32_t& ExperienceAwarded);
 
     // Requires CurrentPlanet.
     std::uint8_t TRanger_GenerateQuestOffer(TRanger* Self, TQuest& Quest, pas::WideString& ResponseText);
@@ -107,3 +114,5 @@ namespace aRanger {
     void TRanger_ProcessShipDestructionQuests(TRanger* Self, aShip::TShip* Ship);
 
 } // namespace aRanger
+
+#include "inline/aRanger.hpp"

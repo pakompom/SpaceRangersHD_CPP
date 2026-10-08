@@ -59,36 +59,36 @@ namespace EC_FileStream {
         ReadPosition = 0;
     }
 
-    void TFileStreamEC_Execute(TFileStreamEC* Self) {
+    void TFileStreamEC::Execute() {
         std::int32_t ByteCount{};
-        while (static_cast<std::uint8_t>(Self->IsStopRequested() ^ 1) && static_cast<std::uint8_t>(Self->EndOfFile ^ 1)) {
-            if (Self->FillAvailable >= Self->BufferCapacity) {
-                pas::critical_enter(Self->BufferLock);
-                if (Self->ReadAvailable > 0) {
-                    pas::critical_leave(Self->BufferLock);
+        while (static_cast<std::uint8_t>(IsStopRequested() ^ 1) && static_cast<std::uint8_t>(EndOfFile ^ 1)) {
+            if (FillAvailable >= BufferCapacity) {
+                pas::critical_enter(BufferLock);
+                if (ReadAvailable > 0) {
+                    pas::critical_leave(BufferLock);
                     return;
                 }
-                Self->SwapBuffers();
-                pas::critical_leave(Self->BufferLock);
+                SwapBuffers();
+                pas::critical_leave(BufferLock);
             }
-            ByteCount = Self->BlockSize;
+            ByteCount = BlockSize;
             {
-                std::int32_t cpp_right = Self->SourceFile->GetPointer();
-                if (Self->FileSize - cpp_right < ByteCount) {
-                    std::int32_t cpp_right_2 = Self->SourceFile->GetPointer();
-                    ByteCount = Self->FileSize - cpp_right_2;
+                std::int32_t cpp_right = SourceFile->GetPointer();
+                if (FileSize - cpp_right < ByteCount) {
+                    std::int32_t cpp_right_2 = SourceFile->GetPointer();
+                    ByteCount = FileSize - cpp_right_2;
                 }
             }
             if (ByteCount <= 0) {
-                Self->EndOfFile = true;
+                EndOfFile = true;
                 return;
             }
-            Self->SourceFile->ReadBuffer(EC_Mem::AddPointerOffset(Self->FillBuffer, Self->FillAvailable), ByteCount);
-            Self->FillAvailable += ByteCount;
+            SourceFile->ReadBuffer(EC_Mem::AddPointerOffset(FillBuffer, FillAvailable), ByteCount);
+            FillAvailable += ByteCount;
             {
-                std::int32_t cpp_left = Self->SourceFile->GetPointer();
-                if (cpp_left > Self->FileSize) {
-                    Self->EndOfFile = true;
+                std::int32_t cpp_left = SourceFile->GetPointer();
+                if (cpp_left > FileSize) {
+                    EndOfFile = true;
                 }
             }
             SysUtilsImports::Sleep(0u);
@@ -179,10 +179,6 @@ namespace EC_FileStream {
 
     void TFileStreamEC::p_destroy() {
         EC_FileStream::TFileStreamEC_Destroy(this);
-    }
-
-    void TFileStreamEC::virtual_TThreadEC_Execute() {
-        EC_FileStream::TFileStreamEC_Execute(this);
     }
 
 } // namespace EC_FileStream

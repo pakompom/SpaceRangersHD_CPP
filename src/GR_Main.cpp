@@ -391,7 +391,9 @@ namespace GR_Main {
         WindowsSdk::TPoint Point{};
         WindowsSdk::GetCursorPos(Point);
         WindowsSdk::ScreenToClient(MainWindowHandle, Point);
-        WindowsSdk::PostMessage(MainWindowHandle, MessagesSdk::WM_MOUSEMOVE, 0, static_cast<std::uint16_t>(Point.X) | pas::shl(static_cast<std::int32_t>(static_cast<std::uint16_t>(Point.Y)), 16));
+        WindowsSdk::PostMessage(MainWindowHandle, MessagesSdk::WM_MOUSEMOVE, 0,
+            static_cast<std::uint16_t>(Point.X) | pas::shl(
+                    static_cast<std::int32_t>(static_cast<std::uint16_t>(Point.Y)), 16));
     }
 
     // Native uses an explicit indirect jump into a generated fault sequence if the watchdog stops.
@@ -404,20 +406,23 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t PAS_STDCALL MainWindowProc(std::uint32_t Window, std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {
+    std::int32_t PAS_STDCALL MainWindowProc(std::uint32_t Window, std::uint32_t Message, std::uint32_t WParam,
+        std::int32_t LParam) {
         WindowsSdk::TPoint Origin{};
         WindowsSdk::TRect Bounds{};
         if (Message == MessagesSdk::WM_ACTIVATEAPP) {
             if (WParam != 0) {
                 if (Direct3DDevice != nullptr) {
-                    if (Direct3D9::IDirect3DDevice9_TestCooperativeLevel(Direct3DDevice) == Direct3D9::D3DERR_DEVICENOTRESET) {
+                    if (Direct3D9::IDirect3DDevice9_TestCooperativeLevel(Direct3DDevice) ==
+                        Direct3D9::D3DERR_DEVICENOTRESET) {
                         GR_Main::GR_DXReset();
                     }
                 }
                 if (!Direct3DPresentParameters.Windowed) {
                     Origin = ClassesImports::Point(GameScreenRect.Left, GameScreenRect.Top);
                     WindowsSdk::ClientToScreen(MainWindowHandle, Origin);
-                    Bounds = ClassesImports::Rect(Origin.X + GameScreenRect.Left, Origin.Y + GameScreenRect.Top, Origin.X + GameScreenRect.Right, Origin.Y + GameScreenRect.Bottom);
+                    Bounds = ClassesImports::Rect(Origin.X + GameScreenRect.Left, Origin.Y + GameScreenRect.Top,
+                            Origin.X + GameScreenRect.Right, Origin.Y + GameScreenRect.Bottom);
                     WindowsSdk::ClipCursor(reinterpret_cast<WindowsSdk::PRect>(&Bounds));
                 }
                 Forms::Application->OnActivate(nullptr);
@@ -432,12 +437,23 @@ namespace GR_Main {
             }
             if (WParam != 0) {
                 if (GlobalsV::CurrentScreenId == GlobalsV::screenPlanetNO) {
-                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->UpdateActionCursor(false);
-                } else if (GlobalsV::CurrentScreenId == GlobalsV::screenShip || GlobalsV::CurrentScreenId == GlobalsV::screenStarMap) {
-                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->UpdateActionCursor(true);
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->UpdateActionCursor(false);
+                } else if (GlobalsV::CurrentScreenId == GlobalsV::screenShip || GlobalsV::CurrentScreenId ==
+                        GlobalsV::screenStarMap) {
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])->UpdateActionCursor(true);
                 }
-                if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::screenShip]) != nullptr && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::screenShip])->GetActionParentLoop() != nullptr && reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::screenShip])->GetActionParentLoop() == reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])) {
-                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(GlobalsV::RegisteredScreens[GlobalsV::screenShip])->UpdateActionCursor(true);
+                if (reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                    GlobalsV::RegisteredScreens[GlobalsV::screenShip]) != nullptr &&
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::screenShip])->GetActionParentLoop() != nullptr &&
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::screenShip])->GetActionParentLoop() ==
+                        reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                            GlobalsV::RegisteredScreens[GlobalsV::CurrentScreenId])) {
+                    reinterpret_cast<GI_MessageLoop::TMessageLoopGI*>(
+                        GlobalsV::RegisteredScreens[GlobalsV::screenShip])->UpdateActionCursor(true);
                 }
             }
         } else if (Message == MessagesSdk::WM_DESTROY) {
@@ -455,12 +471,17 @@ namespace GR_Main {
                 if (!(Message == MessagesSdk::WM_LBUTTONUP)) {
                     if (!(Message == MessagesSdk::WM_RBUTTONDOWN)) {
                         if (!(Message == MessagesSdk::WM_RBUTTONUP)) {
-                            if (Message == MessagesSdk::WM_SYSKEYDOWN && pas::in_set<WindowsSdk::VK_MENU, WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
+                            if (Message == MessagesSdk::WM_SYSKEYDOWN && pas::in_set<WindowsSdk::VK_MENU,
+                                    WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
                                 return 1;
-                            } else if (Message == MessagesSdk::WM_SYSKEYUP && pas::in_set<WindowsSdk::VK_MENU, WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
+                            } else if (Message == MessagesSdk::WM_SYSKEYUP && pas::in_set<WindowsSdk::VK_MENU,
+                                    WindowsSdk::VK_MENU, WindowsSdk::VK_LEFT, WindowsSdk::VK_DOWN>(WParam)) {
                                 return 1;
                             } else if (Message == MessagesSdk::WM_KEYDOWN) {
-                                static_cast<void>(WParam == 'R' && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && GlobalsV::CurrentScreenId != GlobalsV::screenNone);
+                                static_cast<void>(WParam == 'R' && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) &&
+                                    GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                                    GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) && GlobalsV::CurrentScreenId !=
+                                        GlobalsV::screenNone);
                             } else if (Message == MessagesSdk::WM_CLOSE) {
                                 ExitScreenLoop = true;
                             } else if (Message == MessagesSdk::WM_CANCELMODE) {
@@ -491,7 +512,8 @@ namespace GR_Main {
             SavePreviewGraph->Convert565ToRgb();
             SavePreviewGraph->RescaleWithAspect(300u, 225u, true, 1, 1, 5);
         }
-        SecondarySavePreviewGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+        SecondarySavePreviewGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create,
+                false);
         SecondarySavePreviewGraph->AllocateNativePitch(300, 225, 900);
     }
 
@@ -523,7 +545,8 @@ namespace GR_Main {
             ActiveXSdk::CoTaskMemFree(ItemIdList);
             DocumentsPath = static_cast<pas::WideString>(pas::concat_ansi({SysUtilsImports::StrPas(PathBuffer), "\\"}));
             SysUtilsImports::StrDispose(PathBuffer);
-            SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({DocumentsPath, u"SpaceRangersHD"})));
+            SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({DocumentsPath,
+                u"SpaceRangersHD"})));
             CachedGameUserDirectory = pas::concat_wide({DocumentsPath, u"SpaceRangersHD\\"});
             return CachedGameUserDirectory;
         }
@@ -552,7 +575,7 @@ namespace GR_Main {
             TickLow = ClockPorts::ReadCycleCounter();
             SysUtilsImports::Sleep(200u);
             TickLow = ClockPorts::ReadCycleCounter() - TickLow;
-            Result = pas::real_divide(TickLow, 2.0E+5L);
+            Result = static_cast<float>(TickLow / 2.0E+5);
         } catch (...) {
             Result = 1.5E+3;
         }
@@ -562,14 +585,16 @@ namespace GR_Main {
     }
 
     // ANSI registry API, fixed 2048-byte buffer, REG_SZ only.
-    pas::WideString ReadRegistryText(std::uint32_t Root, pas::WideString KeyPath, pas::WideString ValueName, pas::WideString DefaultValue) {
+    pas::WideString ReadRegistryText(std::uint32_t Root, pas::WideString KeyPath, pas::WideString ValueName,
+        pas::WideString DefaultValue) {
         pas::AnsiString cpp_text{};
         pas::AnsiString cpp_text_2{};
         pas::WideString Result{};
         WindowsSdk::HKEY Key{};
         std::uint32_t ValueType{};
         std::uint32_t ByteCount{};
-        if (WindowsSdk::RegOpenKeyExA(Root, (cpp_text = static_cast<pas::AnsiString>(KeyPath), cpp_text.pchar()), 0u, WindowsSdk::KEY_READ, Key) != WindowsSdk::ERROR_SUCCESS) {
+        if (WindowsSdk::RegOpenKeyExA(Root, (cpp_text = static_cast<pas::AnsiString>(KeyPath), cpp_text.pchar()), 0u,
+            WindowsSdk::KEY_READ, Key) != WindowsSdk::ERROR_SUCCESS) {
             return DefaultValue;
         }
         ByteCount = 2048u;
@@ -577,7 +602,8 @@ namespace GR_Main {
         if (([&] {
             std::uint8_t* cpp_arg = (cpp_text_2 = static_cast<pas::AnsiString>(ValueName), cpp_text_2.pchar());
             WindowsSdk::HKEY key = Key;
-            return WindowsSdk::RegQueryValueExA(key, cpp_arg, nullptr, &ValueType, static_cast<std::uint8_t*>(Data), &ByteCount);
+            return WindowsSdk::RegQueryValueExA(key, cpp_arg, nullptr, &ValueType, static_cast<std::uint8_t*>(Data),
+                &ByteCount);
         }()) != WindowsSdk::ERROR_SUCCESS) {
             Result = std::move(DefaultValue);
             WindowsSdk::RegCloseKey(Key);
@@ -626,18 +652,35 @@ namespace GR_Main {
         SystemDirectory.set_length(256);
         std::uint32_t DirectoryLength = WindowsSdk::GetSystemDirectoryW(SystemDirectory.pchar(), 256u);
         SystemDirectory.set_length(static_cast<std::int32_t>(DirectoryLength));
-        WindowsSdk::HMODULE Module = WindowsSdk::LoadLibraryW((cpp_text = pas::concat_wide({SystemDirectory, EC_Str::DecodeTextW(u"\\/di34da9..idalal"_w)}), cpp_text.pchar()));
-        Direct3D9::Direct3DCreate9 = pas::callback_from_address<Direct3D9::TDirect3DCreate9>(WindowsImports::GetProcAddress(Module, (cpp_text_2 = static_cast<pas::AnsiString>(EC_Str::DecodeTextW(u"Drinroekcata33DICAroevaltaen9"_w)), cpp_text_2.pchar())));
-        Module = WindowsSdk::LoadLibraryW((cpp_text_3 = pas::concat_wide({SystemDirectory, EC_Str::DecodeTextW(u"\\/dosdosusnuds.idalal"_w)}), cpp_text_3.pchar()));
-        DirectSound::DirectSoundCreate = pas::callback_from_address<DirectSound::TDirectSoundCreate>(WindowsImports::GetProcAddress(Module, (cpp_text_4 = static_cast<pas::AnsiString>(EC_Str::DecodeTextW(u"DrinroekcataSnowusnud.Carvenaltie"_w)), cpp_text_4.pchar())));
-        DirectSound::DirectSoundEnumerate = pas::callback_from_address<DirectSound::TDirectSoundEnumerate>(WindowsImports::GetProcAddress(Module, (cpp_text_5 = static_cast<pas::AnsiString>(EC_Str::DecodeTextW(u"DrinroekcataSnowusnud.ElnourmieArtastaenAi"_w)), cpp_text_5.pchar())));
+        WindowsSdk::HMODULE Module = WindowsSdk::LoadLibraryW((cpp_text = pas::concat_wide({SystemDirectory,
+                EC_Str::DecodeTextW(u"\\/di34da9..idalal"_wref.get())}), cpp_text.pchar()));
+        Direct3D9::Direct3DCreate9 =
+            pas::callback_from_address<Direct3D9::TDirect3DCreate9>(WindowsImports::GetProcAddress(Module,
+                (cpp_text_2 =
+                    static_cast<pas::AnsiString>(EC_Str::DecodeTextW(u"Drinroekcata33DICAroevaltaen9"_wref.get())),
+                    cpp_text_2.pchar())));
+        Module = WindowsSdk::LoadLibraryW((cpp_text_3 = pas::concat_wide({SystemDirectory,
+                    EC_Str::DecodeTextW(u"\\/dosdosusnuds.idalal"_wref.get())}), cpp_text_3.pchar()));
+        DirectSound::DirectSoundCreate =
+            pas::callback_from_address<DirectSound::TDirectSoundCreate>(WindowsImports::GetProcAddress(Module,
+                (cpp_text_4 =
+                    static_cast<pas::AnsiString>(EC_Str::DecodeTextW(u"DrinroekcataSnowusnud.Carvenaltie"_wref.get())),
+                    cpp_text_4.pchar())));
+        DirectSound::DirectSoundEnumerate =
+            pas::callback_from_address<DirectSound::TDirectSoundEnumerate>(WindowsImports::GetProcAddress(Module,
+                (cpp_text_5 =
+                    static_cast<pas::AnsiString>(
+                    EC_Str::DecodeTextW(u"DrinroekcataSnowusnud.ElnourmieArtastaenAi"_wref.get())),
+                    cpp_text_5.pchar())));
         GR_Main::CheckPlatformModules();
         ActiveXSdk::CoInitialize(nullptr);
         DirectXVersion = GR_Main::Ex_OKGF_DXVersion();
         DebugCommandMessage = WindowsSdk::RegisterWindowMessage(pas::literal_pointer("DebugMsgCommand"));
         WindowsSdk::CopyFile(pas::literal_pointer("#ship_c.dbf"), pas::literal_pointer("#ship.dbf"), 0);
         GR_Main::AppendLogLineThreadSafe("Build=2.1.2500 (11 August 2026)"_a);
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"DXVersion=", SysUtils::Int64ToStr(DirectXVersion >> 16), ".", SysUtils::Int64ToStr(DirectXVersion >> 8 & 0x000000ff), ".", SysUtils::Int64ToStr(DirectXVersion & 0x000000ff)}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"DXVersion=", SysUtils::Int64ToStr(DirectXVersion >> 16),
+            ".", SysUtils::Int64ToStr(DirectXVersion >> 8 & 0x000000ff), ".",
+            SysUtils::Int64ToStr(DirectXVersion & 0x000000ff)}));
         PerformanceCounterFrequency = 0;
         WindowsSdk::QueryPerformanceFrequency(PerformanceCounterFrequency);
         WindowClass.style = 0x0000002bu;
@@ -649,38 +692,50 @@ namespace GR_Main {
         WindowClass.hbrBackground = WindowsSdk::GetStockObject(WindowsSdk::BLACK_BRUSH);
         WindowClass.lpszMenuName = nullptr;
         WindowClass.lpszClassName = pas::literal_pointer(u"Rangers MainClassName");
-        WindowClass.lpfnWndProc = reinterpret_cast<WindowsSdk::TFNWndProc>(pas::callback_address(pas::StdcallProc<std::int32_t(std::uint32_t, std::uint32_t, std::uint32_t, std::int32_t)>(MainWindowProc)));
+        WindowClass.lpfnWndProc =
+            reinterpret_cast<WindowsSdk::TFNWndProc>(
+                pas::callback_address(
+                    pas::StdcallProc<std::int32_t(std::uint32_t, std::uint32_t, std::uint32_t, std::int32_t)>(
+                    MainWindowProc)));
         if (WindowsSdk::RegisterClassW(WindowClass) == 0) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"RegisterClass GetLastError()=", SysUtils::Int64ToStr(WindowsImports::GetLastError())})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"RegisterClass GetLastError()=",
+                SysUtils::Int64ToStr(WindowsImports::GetLastError())})));
         }
         if (!aPacket::InitializePackageCollection()) {
             pas::raise(pas::make_exception<pas::Exception>("Error while initializing package files"_a));
         }
-        MainWindowHandle = WindowsImports::CreateWindowExW(0u, pas::literal_pointer(u"Rangers MainClassName"), pas::literal_pointer(u"Rangers"), 0u, 0, 0, 4096, 2048, 0u, 0u, System::HInstance, nullptr);
+        MainWindowHandle = WindowsImports::CreateWindowExW(0u, pas::literal_pointer(u"Rangers MainClassName"),
+                pas::literal_pointer(u"Rangers"), 0u, 0, 0, 4096, 2048, 0u, 0u, System::HInstance, nullptr);
         if (MainWindowHandle == 0) {
-            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"CreateWindowEx GetLastError()=", SysUtils::Int64ToStr(WindowsImports::GetLastError())})));
+            pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"CreateWindowEx GetLastError()=",
+                SysUtils::Int64ToStr(WindowsImports::GetLastError())})));
         }
         WindowsSdk::SetTimer(MainWindowHandle, 1u, 100u, nullptr);
         Forms::Application->Handle = MainWindowHandle;
         InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         InstallConfig->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"install.txt"), false);
-        MessageText::QuestMessages = pas::construct_call<MessageText::TQuestMessages>(MessageText::TQuestMessages_Create);
+        MessageText::QuestMessages =
+            pas::construct_call<MessageText::TQuestMessages>(MessageText::TQuestMessages_Create);
     }
 
     // Falls back to Russian when the selected language is unavailable; raises on package-open failure.
     void LoadLanguageAndPackages() {
         pas::WideString cpp_text{};
         if (RequestedLanguage != u"") {
-            if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", RequestedLanguage, u".txt"})))) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed - ", RequestedLanguage})));
+            if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_",
+                RequestedLanguage, u".txt"})))) {
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed - ",
+                    RequestedLanguage})));
                 RequestedLanguage = pas::WideString();
             } else {
                 SelectedLanguage = RequestedLanguage;
             }
         }
         if (SelectedLanguage != u"") {
-            if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", SelectedLanguage, u".txt"})))) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed - ", SelectedLanguage, u", try to switch to russian"})));
+            if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_",
+                SelectedLanguage, u".txt"})))) {
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed - ",
+                    SelectedLanguage, u", try to switch to russian"})));
                 SelectedLanguage = u"russian"_w;
             }
         }
@@ -688,12 +743,15 @@ namespace GR_Main {
             SelectedLanguage = u"russian"_w;
         }
         // Keep the else: DCC32 emits the native jump after the raise.
-        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", SelectedLanguage, u".txt"})))) {
-            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u"Not installed language: ", SelectedLanguage}))));
+        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"install_", SelectedLanguage,
+            u".txt"})))) {
+            pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Not installed language: ", SelectedLanguage}))));
         } else {
             LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
             {
-                char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"install_", SelectedLanguage, u".txt"}), cpp_text.pchar());
+                char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"install_", SelectedLanguage, u".txt"}),
+                    cpp_text.pchar());
                 EC_BlockPar::TBlockParEC* languageInstallConfig = LanguageInstallConfig;
                 languageInstallConfig->LoadFromTextFileWithEncodingProbe(cpp_arg, false);
             }
@@ -726,7 +784,8 @@ namespace GR_Main {
                 if (SkipModsOnReload) {
                     GR_Main::AppendLogLineThreadSafe("Trying to reload without mods"_a);
                 } else {
-                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"CurrentMod=", ModNames})));
+                    GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"CurrentMod=",
+                        ModNames})));
                 }
             }
             pas::free(Block);
@@ -741,20 +800,24 @@ namespace GR_Main {
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"Install.txt"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath,
+                    u"Install.txt"})))) {
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                     pas::list_add(ModInstallConfigs, reinterpret_cast<void*>(Block));
                     {
-                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"Mods\\", ModPath, u"Install.txt"}), cpp_text.pchar());
+                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({u"Mods\\", ModPath, u"Install.txt"}),
+                            cpp_text.pchar());
                         EC_BlockPar::TBlockParEC* block = Block;
                         block->LoadFromTextFileWithEncodingProbe(cpp_arg, false);
                     }
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"Install_", SelectedLanguage, u".txt"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath,
+                    u"Install_", SelectedLanguage, u".txt"})))) {
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                     pas::list_add(ModLanguageInstallConfigs, reinterpret_cast<void*>(Block));
                     {
-                        char16_t* cpp_arg_2 = (cpp_text_2 = pas::concat_wide({u"Mods\\", ModPath, u"Install_", SelectedLanguage, u".txt"}), cpp_text_2.pchar());
+                        char16_t* cpp_arg_2 = (cpp_text_2 = pas::concat_wide({u"Mods\\", ModPath, u"Install_",
+                                SelectedLanguage, u".txt"}), cpp_text_2.pchar());
                         EC_BlockPar::TBlockParEC* block_2 = Block;
                         block_2->LoadFromTextFileWithEncodingProbe(cpp_arg_2, false);
                     }
@@ -768,12 +831,22 @@ namespace GR_Main {
         std::int32_t I{};
         aPacket::FinalizePackageCollection();
         aPacket::InitializePackageCollection();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ModInstallConfigs) - 1); cpp_range.next(I); ) {
-            pas::free(pas::list_at<pas::Object>(ModInstallConfigs, I));
+        {
+            const std::int32_t cpp_last = pas::list_count(ModInstallConfigs) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    pas::free(pas::list_at<pas::Object>(ModInstallConfigs, I));
+                }
+            }
         }
         pas::list_clear(ModInstallConfigs);
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ModLanguageInstallConfigs) - 1); cpp_range_2.next(I); ) {
-            pas::free(pas::list_at<pas::Object>(ModLanguageInstallConfigs, I));
+        {
+            const std::int32_t cpp_last_2 = pas::list_count(ModLanguageInstallConfigs) - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
+                    pas::free(pas::list_at<pas::Object>(ModLanguageInstallConfigs, I));
+                }
+            }
         }
         pas::list_clear(ModLanguageInstallConfigs);
     }
@@ -802,16 +875,23 @@ namespace GR_Main {
         WindowsSdk::TSystemInfo Info{};
         std::uint8_t Supported = false;
         WindowsSdk::HMODULE Module = WindowsSdk::GetModuleHandle(pas::literal_pointer("kernel32.dll"));
-        NativeSystemInfo = pas::callback_from_address<TGetNativeSystemInfo>(WindowsImports::GetProcAddress(Module, pas::literal_pointer("GetNativeSystemInfo")));
+        NativeSystemInfo = pas::callback_from_address<TGetNativeSystemInfo>(WindowsImports::GetProcAddress(Module,
+                pas::literal_pointer("GetNativeSystemInfo")));
         if (NativeSystemInfo != nullptr) {
             NativeSystemInfo(Info);
-            IsWow64Process = pas::callback_from_address<TIsWow64Process>(WindowsImports::GetProcAddress(Module, pas::literal_pointer("IsWow64Process")));
+            IsWow64Process = pas::callback_from_address<TIsWow64Process>(WindowsImports::GetProcAddress(Module,
+                    pas::literal_pointer("IsWow64Process")));
             if (IsWow64Process != nullptr) {
                 if (IsWow64Process(WindowsSdk::GetCurrentProcess(), Wow64)) {
                     if (Wow64) {
-                        if (WindowsImports::GetProcAddress(WindowsSdk::GetModuleHandle(pas::literal_pointer("kernel32.dll")), pas::literal_pointer("Wow64DisableWow64FsRedirection")) != nullptr) {
-                            if (WindowsImports::GetProcAddress(Module, pas::literal_pointer("GetSystemWow64DirectoryA")) != nullptr) {
-                                if (WindowsImports::GetProcAddress(WindowsSdk::GetModuleHandle(pas::literal_pointer("advapi32.dll")), pas::literal_pointer("RegDeleteKeyExA")) != nullptr) {
+                        if (WindowsImports::GetProcAddress(
+                            WindowsSdk::GetModuleHandle(pas::literal_pointer("kernel32.dll")),
+                            pas::literal_pointer("Wow64DisableWow64FsRedirection")) != nullptr) {
+                            if (WindowsImports::GetProcAddress(Module,
+                                pas::literal_pointer("GetSystemWow64DirectoryA")) != nullptr) {
+                                if (WindowsImports::GetProcAddress(
+                                    WindowsSdk::GetModuleHandle(pas::literal_pointer("advapi32.dll")),
+                                    pas::literal_pointer("RegDeleteKeyExA")) != nullptr) {
                                     Supported = true;
                                 }
                             }
@@ -838,14 +918,26 @@ namespace GR_Main {
             Height = GameScreenHeight;
         }
         if (Direct3DPresentParameters.Windowed) {
-            if (UserSettingsConfig->CountParams(u"ShowCaption"_wref.get()) > 0 && static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowCaption"_wref.get())))) ^ 1)) {
+            if (UserSettingsConfig->CountParams(u"ShowCaption"_wref.get()) > 0 &&
+                !GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"ShowCaption"_wref.get()))))) {
                 Style = 0x10000000u;
             } else {
                 Style = 0x10ca0000u;
             }
             if (UserSettingsConfig->CountParams(u"OverrideWindowPosition"_wref.get()) > 0) {
-                Bounds.Left = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 0, u","sv)));
-                Bounds.Top = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 1, u","sv)));
+                Bounds.Left = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(
+                            EC_Str::TrimWideString(
+                            UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 0,
+                        u","sv)));
+                Bounds.Top = EC_Str::ExtractSignedDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(
+                            EC_Str::TrimWideString(
+                            UserSettingsConfig->GetParamByPathOrMarker(u"OverrideWindowPosition"_wref.get()))), 1,
+                        u","sv)));
             } else {
                 Bounds.Left = (DesktopDisplayMode.Width - static_cast<std::uint32_t>(Width)) / 2;
                 Bounds.Top = (DesktopDisplayMode.Height - static_cast<std::uint32_t>(Height)) / 2;
@@ -861,7 +953,8 @@ namespace GR_Main {
         }
         WindowsSdk::AdjustWindowRect(Bounds, Style, 0);
         WindowsSdk::SetWindowLong(MainWindowHandle, WindowsSdk::GWL_STYLE, Style);
-        WindowsSdk::SetWindowPos(MainWindowHandle, WindowsSdk::HWND_NOTOPMOST, Bounds.Left, Bounds.Top, Bounds.Right - Bounds.Left, Bounds.Bottom - Bounds.Top, WindowsSdk::SWP_SHOWWINDOW);
+        WindowsSdk::SetWindowPos(MainWindowHandle, WindowsSdk::HWND_NOTOPMOST, Bounds.Left, Bounds.Top,
+            Bounds.Right - Bounds.Left, Bounds.Bottom - Bounds.Top, WindowsSdk::SWP_SHOWWINDOW);
     }
 
     void ShowAndFocusMainWindow() {
@@ -887,18 +980,21 @@ namespace GR_Main {
         auto LoadBlockDatConfig = [&](EC_BlockPar::TBlockParEC* Root, pas::WideString FileName) -> void {
             Root->LoadFromEncryptedDatFile(FileName);
             if (Root->GetBlockCount() <= 0 && Root->GetParamCount() <= 0) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName,
+                    u"> is empty!"})));
             }
         };
         auto LoadCacheDatConfig = [&](EC_Data::TDataEC* Root, pas::WideString FileName) -> void {
             Root->LoadFromEncryptedDatFile(FileName);
             if (Root->IsEmpty()) {
-                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName, u"> is empty!"})));
+                GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Warning! <", FileName,
+                    u"> is empty!"})));
             }
         };
         MainDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         ModNames = pas::WideString();
-        if (static_cast<std::uint8_t>(SkipModsOnReload ^ 1) && SysUtilsImports::FileExists(static_cast<pas::AnsiString>(ModSelectionConfigPath))) {
+        if (static_cast<std::uint8_t>(SkipModsOnReload ^ 1) &&
+            SysUtilsImports::FileExists(static_cast<pas::AnsiString>(ModSelectionConfigPath))) {
             Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
             Block->LoadFromTextFileWithEncodingProbe(ModSelectionConfigPath.pchar(), false);
             if (Block->CountParams(u"CurrentMod"_wref.get()) > 0) {
@@ -915,7 +1011,8 @@ namespace GR_Main {
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\Main.dat"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath,
+                    u"CFG\\Main.dat"})))) {
                     HasOverrides = true;
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
                     LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\Main.dat"}));
@@ -930,7 +1027,8 @@ namespace GR_Main {
             MainDataConfig->SaveTextFile(pas::literal_pointer(u"Main.txt"), false, true);
         }
         LanguageDataConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-        LoadBlockDatConfig(LanguageDataConfig, pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"}));
+        LoadBlockDatConfig(LanguageDataConfig,
+            pas::concat_wide({u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"}));
         Index = 0;
         if (!SkipModsOnReload) {
             do {
@@ -938,10 +1036,13 @@ namespace GR_Main {
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath,
+                    u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"})))) {
                     HasOverrides = true;
                     Block = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-                    LoadBlockDatConfig(Block, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv), u"\\Lang.dat"}));
+                    LoadBlockDatConfig(Block,
+                        pas::concat_wide({u"Mods\\", ModPath, u"CFG\\", LanguageInstallConfig->GetParam(u"Lang"sv),
+                            u"\\Lang.dat"}));
                     LanguageDataConfig->MergeFrom(Block);
                     Block->Clear();
                     pas::free(Block);
@@ -961,7 +1062,8 @@ namespace GR_Main {
                 if (ModPath != u"") {
                     ModPath = pas::concat_wide({ModPath, u"\\"});
                 }
-                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath, u"CFG\\CacheData.dat"})))) {
+                if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({u"Mods\\", ModPath,
+                    u"CFG\\CacheData.dat"})))) {
                     HasOverrides = true;
                     Data = pas::construct_call<EC_Data::TDataEC>(EC_Data::TDataEC_Create);
                     LoadCacheDatConfig(Data, pas::concat_wide({u"Mods\\", ModPath, u"CFG\\CacheData.dat"}));
@@ -1014,10 +1116,12 @@ namespace GR_Main {
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
             Block = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Block->CountParamsByPath(u"InfoNameColor"_wref.get()) > 0) {
-                aMyFunction::InfoNameColorTag = pas::concat_wide({u"<color=", Block->GetParamByPath(u"InfoNameColor"_wref.get()), u">"});
+                aMyFunction::InfoNameColorTag = pas::concat_wide({u"<color=",
+                        Block->GetParamByPath(u"InfoNameColor"_wref.get()), u">"});
             }
             if (Block->CountParamsByPath(u"InfoHullSeriesColor"_wref.get()) > 0) {
-                aMyFunction::InfoHullSeriesColorTag = pas::concat_wide({u"<color=", Block->GetParamByPath(u"InfoHullSeriesColor"_wref.get()), u">"});
+                aMyFunction::InfoHullSeriesColorTag = pas::concat_wide({u"<color=",
+                        Block->GetParamByPath(u"InfoHullSeriesColor"_wref.get()), u">"});
             }
         }
     }
@@ -1039,28 +1143,39 @@ namespace GR_Main {
             EC_Data::VerifyResourceFileChecksum(ModuleName);
             std::int32_t MarkerOffset = 8;
             if (CCInterface->GetResourceChecksumFailed()) {
-                pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(1000000000, 2000000000));
-            } else if (pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset)) <= 0) {
-                pas::store_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor) - MarkerOffset), aMyFunction::RandomIntRange(-2000000000, -1000000000));
+                pas::store_unaligned<std::int32_t>(
+                    reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_sub(
+                        reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor), MarkerOffset)),
+                    aMyFunction::RandomIntRange(1000000000, 2000000000));
+            } else if (pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_sub(
+                reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor), MarkerOffset))) <= 0) {
+                pas::store_unaligned<std::int32_t>(
+                    reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_sub(
+                        reinterpret_cast<std::uint8_t*>(&StartupChecksumAnchor), MarkerOffset)),
+                    aMyFunction::RandomIntRange(-2000000000, -1000000000));
             }
             CCInterface->SetResourceChecksumFailed(false);
         };
         StartupState = 0u;
         GR_Main::FinalizeRuntimeAndSettings();
-        Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"ProductName"_w, pas::WideString()));
+        Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE,
+                u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"ProductName"_w, pas::WideString()));
         if (GR_Main::HasWow64Support()) {
             ExtraText = u" [x64] build "_w;
         } else {
             ExtraText = u" [x86] build "_w;
         }
-        ModuleName = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"CurrentBuild"_w, pas::WideString()));
+        ModuleName = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE,
+                u"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"_w, u"CurrentBuild"_w, pas::WideString()));
         if (EC_Str::ExtractDigitsToIntW(pas::view(ModuleName)) >= 22000) {
             Text = EC_Str::ReplaceAllWideString(Text, u"Windows 10"_wref.get(), u"Windows 11"sv);
         }
         if (GlobalsV::RunningUnderWine) {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Wine compatibility mode is set to '", Text, ExtraText, ModuleName, u"'"})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({
+                u"Wine compatibility mode is set to '", Text, ExtraText, ModuleName, u"'"})));
         } else {
-            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Operating System=", Text, ExtraText, ModuleName})));
+            GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Operating System=", Text,
+                ExtraText, ModuleName})));
         }
         Index = 0;
         Count = 0;
@@ -1071,7 +1186,8 @@ namespace GR_Main {
                 std::exception_ptr cpp_error{};
                 try {
                     Reg->SetRootKey(WindowsImports::HKEY_LOCAL_MACHINE);
-                    if (Reg->KeyExists(pas::concat_ansi({"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\", SysUtils::IntToStr(Index)}))) {
+                    if (Reg->KeyExists(pas::concat_ansi({"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\",
+                        SysUtils::IntToStr(Index)}))) {
                         ++Count;
                     } else {
                         cpp_flow = pas::FinallyFlow::Break;
@@ -1092,30 +1208,42 @@ namespace GR_Main {
             }
         }
         Index = 0;
-        Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, static_cast<pas::WideString>(pas::concat_ansi({"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\", SysUtils::IntToStr(Index)})), u"Identifier"_w, pas::WideString()));
-        ExtraText = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, static_cast<pas::WideString>(pas::concat_ansi({"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\", SysUtils::IntToStr(Index)})), u"ProcessorNameString"_w, pas::WideString()));
+        Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE,
+                pas::concat_wide({u"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\", pas::wide_int_to_str(Index)}),
+                u"Identifier"_w, pas::WideString()));
+        ExtraText = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE,
+                pas::concat_wide({u"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\", pas::wide_int_to_str(Index)}),
+                u"ProcessorNameString"_w, pas::WideString()));
         if (Count <= 1) {
             ModuleName = u" (1 core)"_w;
         } else {
-            ModuleName = static_cast<pas::WideString>(pas::concat_ansi({" (", SysUtils::IntToStr(Count), " cores)"}));
+            ModuleName = pas::concat_wide({u" (", pas::wide_int_to_str(Count), u" cores)"});
         }
         ProcessorCoreCount = std::max<std::int32_t>(Count, 1);
-        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Processor=", ExtraText, ModuleName})));
+        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Processor=", ExtraText,
+            ModuleName})));
         {
             double measureCpuClockMHz = GR_Main::MeasureCpuClockMHz();
             double measureCpuClockMHz_2 = GR_Main::MeasureCpuClockMHz();
-            double real_min = pas::real_min<double>(measureCpuClockMHz, measureCpuClockMHz_2);
-            double real_min_2 = pas::real_min<double>(real_min, GR_Main::MeasureCpuClockMHz());
-            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"CPU Clock=", SysUtils::Int64ToStr(System::Round(real_min_2)), " MHz"}));
+            double real_min_scalar = pas::real_min_scalar<double>(measureCpuClockMHz, measureCpuClockMHz_2);
+            double real_min_scalar_2 = pas::real_min_scalar<double>(real_min_scalar, GR_Main::MeasureCpuClockMHz());
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"CPU Clock=",
+                SysUtils::Int64ToStr(pas::real_round(real_min_scalar_2)), " MHz"}));
         }
         MemoryStatus.Length = static_cast<std::int32_t>(sizeof(TMemoryStatusEx));
         GR_Main::GlobalMemoryStatusEx(MemoryStatus);
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical Memory Total=", SysUtils::IntToStr(MemoryStatus.TotalPhys / 0x00100000), " MB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical Memory Available=", SysUtils::IntToStr(MemoryStatus.AvailPhys / 0x00100000), " MB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Page File Total=", SysUtils::IntToStr(MemoryStatus.TotalPageFile / 0x00100000), " MB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Page File Available=", SysUtils::IntToStr(MemoryStatus.AvailPageFile / 0x00100000), " MB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual Memory Total=", SysUtils::IntToStr(MemoryStatus.TotalVirtual / 0x00100000), " MB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual Memory Available=", SysUtils::IntToStr(MemoryStatus.AvailVirtual / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical Memory Total=",
+            SysUtils::IntToStr(MemoryStatus.TotalPhys / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Physical Memory Available=",
+            SysUtils::IntToStr(MemoryStatus.AvailPhys / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Page File Total=",
+            SysUtils::IntToStr(MemoryStatus.TotalPageFile / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Page File Available=",
+            SysUtils::IntToStr(MemoryStatus.AvailPageFile / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual Memory Total=",
+            SysUtils::IntToStr(MemoryStatus.TotalVirtual / 0x00100000), " MB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Virtual Memory Available=",
+            SysUtils::IntToStr(MemoryStatus.AvailVirtual / 0x00100000), " MB"}));
         UserSettingsConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"CFG.TXT"});
         if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(Text))) {
@@ -1144,7 +1272,9 @@ namespace GR_Main {
                 return cpp_string != GameVersionText;
             }())) {
                 GR_Main::AppendLogTextThreadSafe("Updating cfg.txt version ... "_a);
-                if (UserSettingsConfig->GetParam(u"CurrentVersion"sv) == u"2.1.1800" && UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0 && UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()) == u"30") {
+                if (UserSettingsConfig->GetParam(u"CurrentVersion"sv) == u"2.1.1800" &&
+                    UserSettingsConfig->CountParamsByPath(u"CountFilmSave"_wref.get()) > 0 &&
+                    UserSettingsConfig->GetParamByPathOrMarker(u"CountFilmSave"_wref.get()) == u"30") {
                     UserSettingsConfig->SetOrAddParam(u"CountFilmSave"_wref.get(), u"7"_wref.get());
                 }
                 UserSettingsConfig->SetOrAddParam(u"CurrentVersion"_wref.get(), GameVersionText);
@@ -1158,7 +1288,11 @@ namespace GR_Main {
                 GR_Main::AppendLogLineThreadSafe("ok!"_a);
             }
             if (GlobalsV::RunningUnderWine) {
-                if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunOnWineWithoutWarning"_wref.get())))) ^ 1)) {
+                if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0 ||
+                    !GI_Main::ParseEnabledNameGI(
+                        pas::view(
+                            EC_Str::TrimWideString(
+                            UserSettingsConfig->GetParamByPathOrMarker(u"RunOnWineWithoutWarning"_wref.get()))))) {
                     if (UserSettingsConfig->CountParams(u"RunOnWineWithoutWarning"_wref.get()) == 0) {
                         UserSettingsConfig->AddParam(u"RunOnWineWithoutWarning"_wref.get(), u"True"_wref.get());
                     } else {
@@ -1176,16 +1310,25 @@ namespace GR_Main {
             NewGameSettingsConfig->LoadFromTextFileWithEncodingProbe(Text.pchar(), true);
         }
         if (UserSettingsConfig->CountParamsByPath(u"MultiThread"_wref.get()) > 0) {
-            GlobalsV::MultiThreadEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MultiThread"_wref.get())));
+            GlobalsV::MultiThreadEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MultiThread"_wref.get())));
         }
         GR_Main::ApplyProcessAffinity();
         PathGrowEnabled = true;
         if (UserSettingsConfig->CountParams(u"PathGrow"_wref.get()) > 0) {
-            PathGrowEnabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"PathGrow"_wref.get()))));
+            PathGrowEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"PathGrow"_wref.get()))));
         }
         ShowSystemMouse = false;
         if (UserSettingsConfig->CountParams(u"ShowSystemMouse"_wref.get()) > 0) {
-            ShowSystemMouse = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"ShowSystemMouse"_wref.get()))));
+            ShowSystemMouse =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"ShowSystemMouse"_wref.get()))));
         }
         if (SysUtilsImports::FileExists("Mods\\ShipName.txt"_a)) {
             ModShipNameConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
@@ -1197,7 +1340,8 @@ namespace GR_Main {
         }
         if (SysUtilsImports::FileExists("MusicChange.txt"_a)) {
             MainDataConfig->GetBlock(u"Music"sv)->Clear();
-            MainDataConfig->GetBlock(u"Music"sv)->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"MusicChange.txt"), false);
+            MainDataConfig->GetBlock(u"Music"sv)->LoadFromTextFileWithEncodingProbe(
+                pas::literal_pointer(u"MusicChange.txt"), false);
         }
         {
             EC_BlockPar::TBlockParEC* blockByPath = LanguageDataConfig->GetBlockByPath(u"PlanetQuest"_wref.get());
@@ -1208,30 +1352,42 @@ namespace GR_Main {
         GlobalCache->SetDataRoot(CacheDataRoot);
         GlobalCache->ResidentByteLimit = 0;
         if (UserSettingsConfig->CountParams(u"CacheSize"_wref.get()) > 0) {
-            GlobalCache->ResidentByteLimit = pas::shl(pas::shl(EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"CacheSize"_wref.get()))), 10), 10);
+            GlobalCache->ResidentByteLimit = pas::shl(
+                    pas::shl(
+                        EC_Str::ExtractDigitsToIntW(
+                        pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"CacheSize"_wref.get()))), 10), 10);
         }
         if (GlobalCache->ResidentByteLimit <= 0x01000000) {
             if (MemoryStatus.AvailVirtual > 0x48000000) {
                 GlobalCache->ResidentByteLimit = 0x18000000;
             } else {
-                GlobalCache->ResidentByteLimit = std::min<std::int64_t>(static_cast<std::int64_t>(static_cast<std::uint32_t>(MemoryStatus.AvailVirtual) / 3), static_cast<std::int64_t>(0x18000000));
+                GlobalCache->ResidentByteLimit = std::min<std::int64_t>(
+                        static_cast<std::int64_t>(static_cast<std::uint32_t>(MemoryStatus.AvailVirtual) / 3),
+                        static_cast<std::int64_t>(0x18000000));
             }
         }
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Cache Size=", SysUtils::IntToStr(GlobalCache->ResidentByteLimit / 1024), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Cache Size=",
+            SysUtils::IntToStr(GlobalCache->ResidentByteLimit / 1024), " KB"}));
         if (UserSettingsConfig->CountParams(u"Brightness"_wref.get()) > 0) {
-            DisplayBrightness = EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"Brightness"_wref.get()));
+            DisplayBrightness =
+                EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"Brightness"_wref.get()));
         }
         if (UserSettingsConfig->CountParams(u"Contrast"_wref.get()) > 0) {
-            DisplayContrast = EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"Contrast"_wref.get()));
+            DisplayContrast =
+                EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"Contrast"_wref.get()));
         }
         if (UserSettingsConfig->CountParams(u"RobotBrightness"_wref.get()) > 0) {
-            RobotBrightness = EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"RobotBrightness"_wref.get()));
+            RobotBrightness =
+                EC_Str::ParseDecimalToSingleW(
+                    UserSettingsConfig->GetParamByPathOrMarker(u"RobotBrightness"_wref.get()));
         }
         if (UserSettingsConfig->CountParams(u"RobotContrast"_wref.get()) > 0) {
-            RobotContrast = EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"RobotContrast"_wref.get()));
+            RobotContrast =
+                EC_Str::ParseDecimalToSingleW(UserSettingsConfig->GetParamByPathOrMarker(u"RobotContrast"_wref.get()));
         }
         if (UserSettingsConfig->CountParams(u"3D"_wref.get()) > 0) {
-            GlobalsV::ThreeDimensionalModeEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"3D"_wref.get())));
+            GlobalsV::ThreeDimensionalModeEnabled =
+                GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"3D"_wref.get())));
         }
         UiStyleConfig = MainDataConfig->GetBlockByPath(u"ML"_wref.get());
         GameDataConfig = MainDataConfig->GetBlockByPath(u"Data"_wref.get());
@@ -1246,30 +1402,41 @@ namespace GR_Main {
         GlobalsV::GalaxyStarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStar"sv));
         GlobalsV::GalaxyStarNameDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyStarName"sv));
         GlobalsV::GalaxyWarDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"GalaxyWar"sv));
-        GlobalsV::ConstellationLineDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationLine"sv));
-        GlobalsV::ConstellationColorDepth = EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationColor"sv));
+        GlobalsV::ConstellationLineDepth =
+            EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationLine"sv));
+        GlobalsV::ConstellationColorDepth =
+            EC_Str::ExtractDecimalToSingleW(UiDepthConfig->GetParam(u"ConstellationColor"sv));
         if (UserSettingsConfig->CountParamsByPath(u"Sound"_wref.get()) > 0) {
-            GlobalsV::SoundEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Sound"_wref.get())));
+            GlobalsV::SoundEnabled =
+                GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Sound"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"SoundInSpace"_wref.get()) > 0) {
-            GlobalsV::SoundInSpaceEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"SoundInSpace"_wref.get())));
+            GlobalsV::SoundInSpaceEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"SoundInSpace"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"SoundVolume"_wref.get()) > 0) {
-            GlobalsV::SoundVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"SoundVolume"_wref.get()))), 1.0E+2L);
+            GlobalsV::SoundVolume =
+                static_cast<float>(SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"SoundVolume"_wref.get()))) / 1.0E+2);
         }
-        if (GlobalsV::SoundVolume > 1.0L) {
+        if (GlobalsV::SoundVolume > 1.0) {
             GlobalsV::SoundVolume = 1.0f;
         }
-        if (GlobalsV::SoundVolume < 0.0L) {
+        if (GlobalsV::SoundVolume < 0.0) {
             GlobalsV::SoundVolume = 0.0f;
         }
         if (UserSettingsConfig->CountParamsByPath(u"RobotSoundVolume"_wref.get()) > 0) {
-            GlobalsV::RobotSoundVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoundVolume"_wref.get()))), 1.0E+2L);
+            GlobalsV::RobotSoundVolume =
+                static_cast<float>(SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"RobotSoundVolume"_wref.get()))) / 1.0E+2);
         }
-        if (GlobalsV::RobotSoundVolume > 1.0L) {
+        if (GlobalsV::RobotSoundVolume > 1.0) {
             GlobalsV::RobotSoundVolume = 1.0f;
         }
-        if (GlobalsV::RobotSoundVolume < 0.0L) {
+        if (GlobalsV::RobotSoundVolume < 0.0) {
             GlobalsV::RobotSoundVolume = 0.0f;
         }
         if (!GR_Main::IsInstallFeatureEnabled(u"Sound"_wref.get())) {
@@ -1279,33 +1446,46 @@ namespace GR_Main {
             GlobalsV::SoundInSpaceEnabled = false;
         }
         if (UserSettingsConfig->CountParamsByPath(u"Music"_wref.get()) > 0) {
-            GlobalsV::MusicEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Music"_wref.get())));
+            GlobalsV::MusicEnabled =
+                GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"Music"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInSpace"_wref.get()) > 0) {
-            GlobalsV::MusicInSpaceEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInSpace"_wref.get())));
+            GlobalsV::MusicInSpaceEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInSpace"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInHyper"_wref.get()) > 0) {
-            GlobalsV::MusicInHyperEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInHyper"_wref.get())));
+            GlobalsV::MusicInHyperEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInHyper"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicInPlanet"_wref.get()) > 0) {
-            GlobalsV::MusicInPlanetEnabled = GI_Main::ParseEnabledNameGI(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInPlanet"_wref.get())));
+            GlobalsV::MusicInPlanetEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"MusicInPlanet"_wref.get())));
         }
         if (UserSettingsConfig->CountParamsByPath(u"MusicVolume"_wref.get()) > 0) {
-            GlobalsV::MusicVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"MusicVolume"_wref.get()))), 1.0E+2L);
+            GlobalsV::MusicVolume =
+                static_cast<float>(SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"MusicVolume"_wref.get()))) / 1.0E+2);
         }
-        if (GlobalsV::MusicVolume > 1.0L) {
+        if (GlobalsV::MusicVolume > 1.0) {
             GlobalsV::MusicVolume = 1.0f;
         }
-        if (GlobalsV::MusicVolume < 0.0L) {
+        if (GlobalsV::MusicVolume < 0.0) {
             GlobalsV::MusicVolume = 0.0f;
         }
         if (UserSettingsConfig->CountParamsByPath(u"RobotMusicVolume"_wref.get()) > 0) {
-            GlobalsV::RobotMusicVolume = pas::real_divide(SysUtils::StrToInt(static_cast<pas::AnsiString>(UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusicVolume"_wref.get()))), 1.0E+2L);
+            GlobalsV::RobotMusicVolume =
+                static_cast<float>(SysUtils::StrToInt(
+                    static_cast<pas::AnsiString>(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"RobotMusicVolume"_wref.get()))) / 1.0E+2);
         }
-        if (GlobalsV::RobotMusicVolume > 1.0L) {
+        if (GlobalsV::RobotMusicVolume > 1.0) {
             GlobalsV::RobotMusicVolume = 1.0f;
         }
-        if (GlobalsV::RobotMusicVolume < 0.0L) {
+        if (GlobalsV::RobotMusicVolume < 0.0) {
             GlobalsV::RobotMusicVolume = 0.0f;
         }
         if (!GR_Main::IsInstallFeatureEnabled(u"Music"_wref.get())) {
@@ -1331,7 +1511,11 @@ namespace GR_Main {
         SoundManager = pas::construct_call<GR_Sound::TSoundControl>(GR_Sound::TSoundControl_Create);
         MusicManager = pas::construct_call<GR_Music::TMusicControl>(GR_Music::TMusicControl_Create);
         if (GlobalsV::XonarSoundDevice) {
-            if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0 || static_cast<std::uint8_t>(GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RunWithXonarWithoutWarning"_wref.get())))) ^ 1)) {
+            if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0 ||
+                !GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"RunWithXonarWithoutWarning"_wref.get()))))) {
                 if (UserSettingsConfig->CountParams(u"RunWithXonarWithoutWarning"_wref.get()) == 0) {
                     UserSettingsConfig->AddParam(u"RunWithXonarWithoutWarning"_wref.get(), u"True"_wref.get());
                 } else {
@@ -1354,15 +1538,20 @@ namespace GR_Main {
         if (!ShowSystemMouse) {
             WindowsSdk::ShowCursor(0);
         }
-        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Sound=", EC_Str::BoolToWideString(GlobalsV::SoundEnabled)})));
-        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Music=", EC_Str::BoolToWideString(GlobalsV::MusicEnabled)})));
+        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Sound=",
+            EC_Str::BoolToWideString(GlobalsV::SoundEnabled)})));
+        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u"Music=",
+            EC_Str::BoolToWideString(GlobalsV::MusicEnabled)})));
         InterfaceBlendPalette = EC_Mem::AllocEC(512);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, 255); cpp_range_2.next(Index); ) {
-            EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(InterfaceBlendPalette, 2 * Index), CurrentPixelFormat->PackRgbBytes(8, 32, 255));
-            GR_Main::BlendPixel16(EC_Mem::AddPointerOffset(InterfaceBlendPalette, 2 * Index), CurrentPixelFormat->PackRgbBytes(200, 128, 128), Index);
+            EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(InterfaceBlendPalette, 2 * Index),
+                CurrentPixelFormat->PackRgbBytes(8, 32, 255));
+            GR_Main::BlendPixel16(EC_Mem::AddPointerOffset(InterfaceBlendPalette, 2 * Index),
+                CurrentPixelFormat->PackRgbBytes(200, 128, 128), Index);
         }
         if (RecordingFrameBuffers != nullptr) {
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(RecordingFrameBuffers) - 1); cpp_range_3.next(Index); ) {
+            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+                pas::list_count(RecordingFrameBuffers) - 1); cpp_range_3.next(Index); ) {
                 EC_Mem::FreeEC(pas::list_get(RecordingFrameBuffers, Index));
             }
             pas::list_clear(RecordingFrameBuffers);
@@ -1370,7 +1559,9 @@ namespace GR_Main {
             RecordingFrameBuffers = nullptr;
         }
         if (UserSettingsConfig->CountParamsByPath(u"FilmBufSize"_wref.get()) > 0) {
-            BufferSize = EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmBufSize"_wref.get())));
+            BufferSize =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmBufSize"_wref.get())));
             if (BufferSize > 0) {
                 RecordingFrameBuffers = pas::make_object<pas::List>();
                 Count = pas::idiv(pas::shl(pas::shl(BufferSize, 10), 10), GameScreenWidth * GameScreenHeight * 2) + 1;
@@ -1382,7 +1573,9 @@ namespace GR_Main {
             }
         }
         if (UserSettingsConfig->CountParamsByPath(u"FilmFPS"_wref.get()) > 0) {
-            RecordingFrameInterval = pas::idiv(1000, EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmFPS"_wref.get()))));
+            RecordingFrameInterval = pas::idiv(1000,
+                    EC_Str::ExtractDigitsToIntW(
+                        pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"FilmFPS"_wref.get()))));
         }
         Block = MainDataConfig->GetBlockByPath(u"Graph.Cursor"_wref.get());
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Block->GetBlockCount() - 1); cpp_range_5.next(Index); ) {
@@ -1406,7 +1599,8 @@ namespace GR_Main {
             BuildVersionMismatch = true;
         }
         if (([&] {
-            const pas::WideString& cpp_string_ref = CacheDataRoot->FindEntry(u"BV"_wref.get())->ChildData->FindEntry(u"BV"_wref.get())->SharedFileRef->FileRef->FileName;
+            const pas::WideString& cpp_string_ref = CacheDataRoot->FindEntry(
+                u"BV"_wref.get())->ChildData->FindEntry(u"BV"_wref.get())->SharedFileRef->FileRef->FileName;
             return cpp_string_ref != GameVersionText;
         }())) {
             GR_Main::AppendLogLineThreadSafe("Build version mismatch with CacheData.dat!"_a);
@@ -1415,29 +1609,29 @@ namespace GR_Main {
         std::uint8_t SavedChecksumFailed = CCInterface->GetResourceChecksumFailed();
         Text = u"ll"_w;
         Text = pas::concat_wide({u".d", Text});
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aucah"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aucah"_wref.get()), Text});
         if (WindowsSdk::GetModuleHandleW(ModuleName.pchar()) != 0) {
             VerifyStartupModuleChecksum();
         }
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aupki"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"sotoenalm^_^aupki"_wref.get()), Text});
         if (WindowsSdk::GetModuleHandleW(ModuleName.pchar()) != 0) {
             VerifyStartupModuleChecksum();
         }
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"zoloimba"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"zoloimba"_wref.get()), Text});
         VerifyStartupModuleChecksum();
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"MhastorhinxaGrakmae"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"MhastorhinxaGrakmae"_wref.get()), Text});
         VerifyStartupModuleChecksum();
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"ookogifa"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"ookogifa"_wref.get()), Text});
         VerifyStartupModuleChecksum();
-        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"xavriadeccomrie"_w), Text});
+        ModuleName = pas::concat_wide({EC_Str::DecodeTextW(u"xavriadeccomrie"_wref.get()), Text});
         VerifyStartupModuleChecksum();
         ExtraText = u"ib"_w;
         ExtraText = pas::concat_wide({u"l", ExtraText});
-        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"osgaga-10a"_w), Text});
+        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"osgaga-10a"_wref.get()), Text});
         VerifyStartupModuleChecksum();
-        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"vrokrablius-->0"_w), Text});
+        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"vrokrablius-->0"_wref.get()), Text});
         VerifyStartupModuleChecksum();
-        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"veohrablissufainlae"_w), Text});
+        ModuleName = pas::concat_wide({ExtraText, EC_Str::DecodeTextW(u"veohrablissufainlae"_wref.get()), Text});
         VerifyStartupModuleChecksum();
         CCInterface->SetResourceChecksumFailed(SavedChecksumFailed);
     }
@@ -1503,11 +1697,14 @@ namespace GR_Main {
             Resolution = EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMode"_wref.get()));
         }
         if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 1) {
-            GameScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 0, u","sv)));
-            GameScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 1, u","sv)));
+            GameScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution),
+                    0, u","sv)));
+            GameScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Resolution), 1, u","sv)));
             RequestedRefreshRate = 0;
             if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 2) {
-                RequestedRefreshRate = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 2, u","sv)));
+                RequestedRefreshRate = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Resolution), 2, u","sv)));
             }
         } else {
             GameScreenWidth = 0;
@@ -1516,11 +1713,14 @@ namespace GR_Main {
         }
         // Native keeps the VideoMode text when RobotResolution is absent.
         if (UserSettingsConfig->CountParams(u"RobotResolution"_wref.get()) > 0) {
-            Resolution = EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RobotResolution"_wref.get()));
+            Resolution =
+                EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RobotResolution"_wref.get()));
         }
         if (EC_Str::CountDelimitedPartsW(pas::view(Resolution), u","sv) > 1) {
-            Robot::RobotSettings.ScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 0, u","sv)));
-            Robot::RobotSettings.ScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(Resolution), 1, u","sv)));
+            Robot::RobotSettings.ScreenWidth = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Resolution), 0, u","sv)));
+            Robot::RobotSettings.ScreenHeight = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                    pas::view(Resolution), 1, u","sv)));
         } else {
             Robot::RobotSettings.ScreenWidth = 0;
             Robot::RobotSettings.ScreenHeight = 0;
@@ -1535,17 +1735,27 @@ namespace GR_Main {
         if (Robot::RobotSettings.ScreenWidth < 1024 || Robot::RobotSettings.ScreenHeight < 720) {
             UseAutomaticRobotDisplayMode = true;
         }
-        std::int32_t ModeCount = Direct3D9::IDirect3D9_GetAdapterModeCount(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format);
-        if (DesktopDisplayMode.Format != Direct3D9::D3DFMT_X8R8G8B8 && DesktopDisplayMode.Format != Direct3D9::D3DFMT_A8R8G8B8) {
+        std::int32_t ModeCount = Direct3D9::IDirect3D9_GetAdapterModeCount(Direct3D, Direct3D9::D3DADAPTER_DEFAULT,
+            DesktopDisplayMode.Format);
+        if (DesktopDisplayMode.Format != Direct3D9::D3DFMT_X8R8G8B8 && DesktopDisplayMode.Format !=
+                Direct3D9::D3DFMT_A8R8G8B8) {
             DesktopDisplayMode.Format = Direct3D9::D3DFMT_X8R8G8B8;
         }
         Modes = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ModeCount - 1); cpp_range.next(Index); ) {
-            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format, Index, &Mode);
+            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format,
+                Index, &Mode);
             if (Mode.Height >= 720) {
-                ModeKey = static_cast<pas::WideString>(pas::concat_ansi_reverse({pas::int_to_hex(static_cast<std::int64_t>(Mode.Height), 6), pas::int_to_hex(static_cast<std::int64_t>(Mode.Width), 6)}));
-                if (Modes->CountParams(ModeKey) <= 0 || SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(Modes->GetParam(pas::view(ModeKey))), 0, u","sv))) < static_cast<std::int32_t>(Mode.RefreshRate)) {
-                    Modes->SetOrAddParam(ModeKey, static_cast<pas::WideString>(pas::concat_ansi({SysUtils::Int64ToStr(Mode.RefreshRate), ",", SysUtils::IntToStr(Index)})));
+                ModeKey = static_cast<pas::WideString>(pas::concat_ansi({
+                        pas::int_to_hex(static_cast<std::int64_t>(Mode.Width), 6),
+                        pas::int_to_hex(static_cast<std::int64_t>(Mode.Height), 6)}));
+                if (Modes->CountParams(ModeKey) <= 0 ||
+                    SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(
+                        pas::view(Modes->GetParam(pas::view(ModeKey))), 0, u","sv))) <
+                        static_cast<std::int32_t>(Mode.RefreshRate)) {
+                    Modes->SetOrAddParam(ModeKey,
+                        pas::concat_wide({pas::wide_int64_to_str(static_cast<std::int64_t>(Mode.RefreshRate)), u",",
+                            pas::wide_int_to_str(Index)}));
                 }
             }
         }
@@ -1553,32 +1763,39 @@ namespace GR_Main {
         RobotDisplayModeCount = Modes->GetParamCount();
         GameDisplayModes.set_length(GameDisplayModeCount + 2);
         RobotDisplayModes.set_length(RobotDisplayModeCount + 2);
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Desktop Resolution=", SysUtils::Int64ToStr(DesktopDisplayMode.Width), "x", SysUtils::Int64ToStr(DesktopDisplayMode.Height)}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Desktop Resolution=",
+            SysUtils::Int64ToStr(DesktopDisplayMode.Width), "x", SysUtils::Int64ToStr(DesktopDisplayMode.Height)}));
         GR_Main::AppendLogTextThreadSafe("Available Resolutions="_a);
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Modes->GetParamCount() - 1); cpp_range_2.next(Index); ) {
             ModeKey = Modes->GetParamValue(Index);
-            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format, SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ModeKey), 1, u","sv))), &Mode);
+            Direct3D9::IDirect3D9_EnumAdapterModes(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, DesktopDisplayMode.Format,
+                SysUtils::StrToInt(static_cast<pas::AnsiString>(EC_Str::ExtractDelimitedPartW(pas::view(ModeKey), 1,
+                    u","sv))), &Mode);
             GameDisplayModes[Index] = Mode;
             RobotDisplayModes[Index] = Mode;
             if (SmallestArea < 0 || static_cast<std::int32_t>(Mode.Width * Mode.Height) < SmallestArea) {
                 SmallestArea = Mode.Width * Mode.Height;
                 SmallestGameDisplayMode = Index;
             }
-            if (Mode.Width == static_cast<std::uint32_t>(GameScreenWidth) && Mode.Height == static_cast<std::uint32_t>(GameScreenHeight)) {
+            if (Mode.Width == static_cast<std::uint32_t>(GameScreenWidth) && Mode.Height ==
+                    static_cast<std::uint32_t>(GameScreenHeight)) {
                 SelectedGameDisplayMode = Index;
             }
-            if (static_cast<std::uint32_t>(Robot::RobotSettings.ScreenWidth) == Mode.Width && static_cast<std::uint32_t>(Robot::RobotSettings.ScreenHeight) == Mode.Height) {
+            if (static_cast<std::uint32_t>(Robot::RobotSettings.ScreenWidth) == Mode.Width &&
+                static_cast<std::uint32_t>(Robot::RobotSettings.ScreenHeight) == Mode.Height) {
                 SelectedRobotDisplayMode = Index;
             }
             if (Index > 0) {
                 GR_Main::AppendLogTextThreadSafe(", "_a);
             }
-            GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({SysUtils::Int64ToStr(Mode.Width), "x", SysUtils::Int64ToStr(Mode.Height)}));
+            GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({SysUtils::Int64ToStr(Mode.Width), "x",
+                SysUtils::Int64ToStr(Mode.Height)}));
         }
         pas::free(Modes);
         if (GameDisplayModeCount == 0) {
             GR_Main::AppendLogTextThreadSafe("No supported resolutions found!"_a);
-            if (static_cast<std::uint32_t>(GameScreenWidth) < 1024 || static_cast<std::uint32_t>(GameScreenHeight) < 720) {
+            if (static_cast<std::uint32_t>(GameScreenWidth) < 1024 || static_cast<std::uint32_t>(GameScreenHeight) <
+                    720) {
                 AlternateViewportEnabled = true;
                 ViewportOffset = ClassesImports::Point(0, 0);
                 PresentationWidth = GameScreenWidth;
@@ -1588,14 +1805,18 @@ namespace GR_Main {
                 if (GlobalsV::ScaleViewportToWindow) {
                     if (static_cast<std::uint32_t>(GameScreenWidth) > static_cast<std::uint32_t>(GameScreenHeight)) {
                         GameScreenHeight = 720;
-                        GameScreenWidth = pas::idiv(static_cast<std::uint32_t>(GameScreenHeight * PresentationWidth), static_cast<std::uint32_t>(PresentationHeight));
+                        GameScreenWidth = pas::idiv(static_cast<std::uint32_t>(GameScreenHeight * PresentationWidth),
+                                static_cast<std::uint32_t>(PresentationHeight));
                     } else {
                         GameScreenWidth = 1024;
-                        GameScreenHeight = pas::idiv(static_cast<std::uint32_t>(GameScreenWidth * PresentationHeight), static_cast<std::uint32_t>(PresentationWidth));
+                        GameScreenHeight = pas::idiv(static_cast<std::uint32_t>(GameScreenWidth * PresentationHeight),
+                                static_cast<std::uint32_t>(PresentationWidth));
                     }
                 } else {
-                    GameScreenWidth = std::max<std::int64_t>(static_cast<std::int64_t>(1024), static_cast<std::int64_t>(static_cast<std::uint32_t>(GameScreenWidth)));
-                    GameScreenHeight = std::max<std::int64_t>(static_cast<std::int64_t>(720), static_cast<std::int64_t>(static_cast<std::uint32_t>(GameScreenHeight)));
+                    GameScreenWidth = std::max<std::int64_t>(static_cast<std::int64_t>(1024),
+                            static_cast<std::int64_t>(static_cast<std::uint32_t>(GameScreenWidth)));
+                    GameScreenHeight = std::max<std::int64_t>(static_cast<std::int64_t>(720),
+                            static_cast<std::int64_t>(static_cast<std::uint32_t>(GameScreenHeight)));
                 }
                 GlobalsV::HardwareRenderingEnabled = false;
             }
@@ -1634,20 +1855,28 @@ namespace GR_Main {
 
     void ConfigureDefaultRenderState() {
         Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_ALPHABLENDENABLE, 1u);
-        Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_SRCBLEND, Direct3D9::D3DBLEND_SRCALPHA);
-        Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_DESTBLEND, Direct3D9::D3DBLEND_INVSRCALPHA);
-        Direct3D9::IDirect3DDevice9_SetTextureStageState(Direct3DDevice, 0u, Direct3D9::D3DTSS_ALPHAOP, Direct3D9::D3DTOP_MODULATE);
-        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MIPFILTER, Direct3D9::D3DTEXF_LINEAR);
-        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MINFILTER, Direct3D9::D3DTEXF_LINEAR);
-        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MAGFILTER, Direct3D9::D3DTEXF_LINEAR);
+        Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_SRCBLEND,
+            Direct3D9::D3DBLEND_SRCALPHA);
+        Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_DESTBLEND,
+            Direct3D9::D3DBLEND_INVSRCALPHA);
+        Direct3D9::IDirect3DDevice9_SetTextureStageState(Direct3DDevice, 0u, Direct3D9::D3DTSS_ALPHAOP,
+            Direct3D9::D3DTOP_MODULATE);
+        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MIPFILTER,
+            Direct3D9::D3DTEXF_LINEAR);
+        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MINFILTER,
+            Direct3D9::D3DTEXF_LINEAR);
+        Direct3D9::IDirect3DDevice9_SetSamplerState(Direct3DDevice, 0u, Direct3D9::D3DSAMP_MAGFILTER,
+            Direct3D9::D3DTEXF_LINEAR);
         Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_SCISSORTESTENABLE, 1u);
         Direct3D9::IDirect3DDevice9_SetRenderState(Direct3DDevice, Direct3D9::D3DRS_CULLMODE, Direct3D9::D3DCULL_NONE);
     }
 
     void PreparePresentationParameters() {
         PreviousPresentParameters = Direct3DPresentParameters;
-        WindowsImports::ZeroMemory(&Direct3DPresentParameters, static_cast<std::int32_t>(sizeof(Direct3D9::TD3DPresentParameters)));
-        Direct3DPresentParameters.Windowed = -(WindowedModeRequested && static_cast<std::uint32_t>(GameScreenHeight) < DesktopDisplayMode.Height);
+        WindowsImports::ZeroMemory(&Direct3DPresentParameters,
+            static_cast<std::int32_t>(sizeof(Direct3D9::TD3DPresentParameters)));
+        Direct3DPresentParameters.Windowed = -(WindowedModeRequested && static_cast<std::uint32_t>(GameScreenHeight) <
+                    DesktopDisplayMode.Height);
         Direct3DPresentParameters.DeviceWindow = MainWindowHandle;
         if (DisableTripleBuffer) {
             Direct3DPresentParameters.BackBufferCount = 1u;
@@ -1676,7 +1905,8 @@ namespace GR_Main {
                 if (RequestedRefreshRate > 0) {
                     Direct3DPresentParameters.FullScreenRefreshRateInHz = RequestedRefreshRate;
                 } else {
-                    Direct3DPresentParameters.FullScreenRefreshRateInHz = GameDisplayModes[SelectedGameDisplayMode].RefreshRate;
+                    Direct3DPresentParameters.FullScreenRefreshRateInHz =
+                        GameDisplayModes[SelectedGameDisplayMode].RefreshRate;
                 }
             }
         }
@@ -1711,9 +1941,11 @@ namespace GR_Main {
         pas::WideString Text{};
         auto LogPresentationField = [&](pas::WideString Name) -> void {
             if (CurrentValue == PreviousValue) {
-                Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue))});
+                Text = pas::concat_wide({Name, u" = ",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue))});
             } else {
-                Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue)), u", previous value = ", pas::wide_int64_to_str(static_cast<std::int64_t>(PreviousValue))});
+                Text = pas::concat_wide({Name, u" = ", pas::wide_int64_to_str(static_cast<std::int64_t>(CurrentValue)),
+                        u", previous value = ", pas::wide_int64_to_str(static_cast<std::int64_t>(PreviousValue))});
             }
             GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Text));
         };
@@ -1807,47 +2039,84 @@ namespace GR_Main {
         GR_Main::FreeScreenRenderBuffers();
         WindowedModeRequested = false;
         if (UserSettingsConfig->CountParams(u"Window"_wref.get()) > 0) {
-            WindowedModeRequested = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"Window"_wref.get()))));
+            WindowedModeRequested =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"Window"_wref.get()))));
         }
         VSyncEnabled = false;
         if (UserSettingsConfig->CountParams(u"VSync"_wref.get()) > 0) {
-            VSyncEnabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VSync"_wref.get()))));
+            VSyncEnabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"VSync"_wref.get()))));
         }
         GlobalsV::HardwareRenderingRequested = false;
         if (UserSettingsConfig->CountParams(u"HardwareRender"_wref.get()) > 0) {
-            GlobalsV::HardwareRenderingRequested = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"HardwareRender"_wref.get()))));
+            GlobalsV::HardwareRenderingRequested =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"HardwareRender"_wref.get()))));
         }
-        GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested && (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) || UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 && GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get())))));
+        GlobalsV::HardwareRenderingEnabled = GlobalsV::HardwareRenderingRequested &&
+                (static_cast<std::uint8_t>(GlobalsV::RunningUnderWine ^ 1) ||
+                    UserSettingsConfig->CountParams(u"AllowHardwareRenderUnderWine"_wref.get()) != 0 &&
+                    GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                    EC_Str::TrimWideString(
+                    UserSettingsConfig->GetParamByPathOrMarker(u"AllowHardwareRenderUnderWine"_wref.get())))));
         GlobalsV::ScaleViewportToWindow = true;
         if (UserSettingsConfig->CountParams(u"RenderModeScale"_wref.get()) > 0) {
-            GlobalsV::ScaleViewportToWindow = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"RenderModeScale"_wref.get()))));
+            GlobalsV::ScaleViewportToWindow =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"RenderModeScale"_wref.get()))));
         }
         GR_DX::TextureManagerDisabled = false;
         if (UserSettingsConfig->CountParams(u"DisableTextureManager"_wref.get()) > 0) {
-            GR_DX::TextureManagerDisabled = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTextureManager"_wref.get()))));
+            GR_DX::TextureManagerDisabled =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"DisableTextureManager"_wref.get()))));
         }
         PresentWithoutLimit = false;
         if (UserSettingsConfig->CountParams(u"DisableFrameLimit"_wref.get()) > 0) {
-            PresentWithoutLimit = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableFrameLimit"_wref.get()))));
+            PresentWithoutLimit =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"DisableFrameLimit"_wref.get()))));
         }
         DisableHardwareVertexProcessing = false;
         if (UserSettingsConfig->CountParams(u"DisableHWVertexProcessing"_wref.get()) > 0) {
-            DisableHardwareVertexProcessing = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableHWVertexProcessing"_wref.get()))));
+            DisableHardwareVertexProcessing =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"DisableHWVertexProcessing"_wref.get()))));
         }
         DisableMultithreadFlag = false;
         if (UserSettingsConfig->CountParams(u"DisableMultithreadFlag"_wref.get()) > 0) {
-            DisableMultithreadFlag = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableMultithreadFlag"_wref.get()))));
+            DisableMultithreadFlag =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"DisableMultithreadFlag"_wref.get()))));
         }
         DisableTripleBuffer = false;
         if (UserSettingsConfig->CountParams(u"DisableTripleBuffer"_wref.get()) > 0) {
-            DisableTripleBuffer = GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(UserSettingsConfig->GetParamByPathOrMarker(u"DisableTripleBuffer"_wref.get()))));
+            DisableTripleBuffer =
+                GI_Main::ParseEnabledNameGI(
+                    pas::view(
+                        EC_Str::TrimWideString(
+                        UserSettingsConfig->GetParamByPathOrMarker(u"DisableTripleBuffer"_wref.get()))));
         }
         ScreenRenderBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         RenderScratchBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         AuxRenderBuffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, true);
         std::uint16_t ControlWord = 0x0000133f;
-        // The native code directly clears x87 exceptions and loads the local control
-        // word; this small handwritten sequence has no Pascal intrinsic equivalent.
         ControlWord = ControlWord & 0x0000fcff;
         System::Set8087CW(ControlWord);
         try {
@@ -1855,28 +2124,34 @@ namespace GR_Main {
                 Direct3D = (Direct3D9::CreateDirect3D9(0x80000020u, cpp_result), cpp_result);
                 // Native constructs this exception without raising it.
                 if (Direct3D == nullptr) {
-                    pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_Create, "GR_DXInit()::Direct3DCreate9(...)"_a);
+                    pas::construct_call<DirectXRenderException::EDirectXRender>(
+                        DirectXRenderException::EDirectXRender_Create, "GR_DXInit()::Direct3DCreate9(...)"_a);
                 }
                 GR_Main::AppendLogLineThreadSafe("Initializing DX9.... ok!"_a);
                 Direct3D9::IDirect3D9_GetAdapterIdentifier(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, 0u, Identifier);
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Videocard=", pas::array_text<pas::AnsiString>(Identifier.Description.elements, 512)}));
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Driver=", pas::array_text<pas::AnsiString>(Identifier.Driver.elements, 512)}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Videocard=",
+                    pas::array_text<pas::AnsiString>(Identifier.Description.elements, 512)}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Driver=",
+                    pas::array_text<pas::AnsiString>(Identifier.Driver.elements, 512)}));
             }
             Robot::SupportedMultiSamples = nullptr;
             Robot::SupportedMultiSampleCount = 0;
             for (Index = 0; Index <= 16; ++Index) {
-                if (Direct3D9::IDirect3D9_CheckDeviceMultiSampleType(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, Direct3D9::D3DFMT_A8R8G8B8, 0, Index, nullptr) == 0) {
+                if (Direct3D9::IDirect3D9_CheckDeviceMultiSampleType(Direct3D, Direct3D9::D3DADAPTER_DEFAULT,
+                    Direct3D9::D3DDEVTYPE_HAL, Direct3D9::D3DFMT_A8R8G8B8, 0, Index, nullptr) == 0) {
                     Robot::SupportedMultiSamples.set_length(Robot::SupportedMultiSampleCount + 1);
                     Robot::SupportedMultiSamples[Robot::SupportedMultiSampleCount] = Index;
                     ++Robot::SupportedMultiSampleCount;
                 }
             }
-            if (Direct3D9::IDirect3D9_GetDeviceCaps(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, Caps) == 0) {
+            if (Direct3D9::IDirect3D9_GetDeviceCaps(Direct3D, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL,
+                Caps) == 0) {
                 Robot::MaximumAnisotropy = Caps.MaxAnisotropy;
             }
             GR_DX::MaxTextureSize.X = Caps.MaxTextureWidth;
             GR_DX::MaxTextureSize.Y = Caps.MaxTextureHeight;
-            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Max Texture Size=", SysUtils::Int64ToStr(Caps.MaxTextureWidth), "x", SysUtils::Int64ToStr(Caps.MaxTextureHeight)}));
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Max Texture Size=",
+                SysUtils::Int64ToStr(Caps.MaxTextureWidth), "x", SysUtils::Int64ToStr(Caps.MaxTextureHeight)}));
             GR_Main::EnumerateAndSelectDisplayModes();
             GR_Main::PreparePresentationParameters();
             GR_Main::ApplyMainWindowGeometry();
@@ -1886,25 +2161,28 @@ namespace GR_Main {
                     DeviceFlags = Direct3D9::D3DCREATE_MULTITHREADED;
                 }
                 if (!DisableHardwareVertexProcessing) {
-                    Code = ([&] {
-                        Direct3D9::IDirect3DDevice9& direct3DDevice = pas::out_interface(Direct3DDevice);
-                        std::uint32_t mainWindowHandle = MainWindowHandle;
-                        pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D = Direct3D;
-                        return Direct3D9::IDirect3D9_CreateDevice(direct3D, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle, DeviceFlags | Direct3D9::D3DCREATE_HARDWARE_VERTEXPROCESSING, Direct3DPresentParameters, direct3DDevice);
-                    }());
+                    Direct3D9::IDirect3DDevice9& direct3DDevice = pas::out_interface(Direct3DDevice);
+                    std::uint32_t mainWindowHandle = MainWindowHandle;
+                    pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D = Direct3D;
+                    Code = Direct3D9::IDirect3D9_CreateDevice(direct3D, Direct3D9::D3DADAPTER_DEFAULT,
+                            Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle,
+                            DeviceFlags | Direct3D9::D3DCREATE_HARDWARE_VERTEXPROCESSING, Direct3DPresentParameters,
+                            direct3DDevice);
                 } else {
                     Code = -1;
                 }
                 if (Code != 0) {
-                    Code = ([&] {
-                        Direct3D9::IDirect3DDevice9& direct3DDevice_2 = pas::out_interface(Direct3DDevice);
-                        std::uint32_t mainWindowHandle_2 = MainWindowHandle;
-                        pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D_2 = Direct3D;
-                        return Direct3D9::IDirect3D9_CreateDevice(direct3D_2, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_2, DeviceFlags | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING, Direct3DPresentParameters, direct3DDevice_2);
-                    }());
+                    Direct3D9::IDirect3DDevice9& direct3DDevice_2 = pas::out_interface(Direct3DDevice);
+                    std::uint32_t mainWindowHandle_2 = MainWindowHandle;
+                    pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D_2 = Direct3D;
+                    Code = Direct3D9::IDirect3D9_CreateDevice(direct3D_2, Direct3D9::D3DADAPTER_DEFAULT,
+                            Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_2,
+                            DeviceFlags | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING, Direct3DPresentParameters,
+                            direct3DDevice_2);
                 }
                 if (Code != 0 || Direct3DDevice == nullptr) {
-                    GR_Main::AppendLogLineThreadSafe("Error: GR_DXInit()::GR_Direct3D.CreateDevice, failed to create device, trying to switch to minimal resolution..."_a);
+                    GR_Main::AppendLogLineThreadSafe(
+                        "Error: GR_DXInit()::GR_Direct3D.CreateDevice, failed to create device, trying to switch to minimal resolution..."_a);
                     SelectedGameDisplayMode = SmallestGameDisplayMode;
                     GameScreenWidth = GameDisplayModes[SelectedGameDisplayMode].Width;
                     GameScreenHeight = GameDisplayModes[SelectedGameDisplayMode].Height;
@@ -1918,15 +2196,20 @@ namespace GR_Main {
                     AlternateViewportEnabled = false;
                     GR_Main::PreparePresentationParameters();
                     GR_Main::ApplyMainWindowGeometry();
-                    Code = ([&] {
+                    {
                         Direct3D9::IDirect3DDevice9& direct3DDevice_3 = pas::out_interface(Direct3DDevice);
                         std::uint32_t mainWindowHandle_3 = MainWindowHandle;
                         pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D_3 = Direct3D;
-                        return Direct3D9::IDirect3D9_CreateDevice(direct3D_3, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_3, DeviceFlags | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING, Direct3DPresentParameters, direct3DDevice_3);
-                    }());
+                        Code = Direct3D9::IDirect3D9_CreateDevice(direct3D_3, Direct3D9::D3DADAPTER_DEFAULT,
+                                Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_3,
+                                DeviceFlags | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING, Direct3DPresentParameters,
+                                direct3DDevice_3);
+                    }
                     if (Code != 0 || Direct3DDevice == nullptr) {
                         GR_Main::LogPresentationParameters();
-                        pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_CreateCode, "GR_DXInit()::GR_Direct3D.CreateDevice"_a, Code));
+                        pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(
+                            DirectXRenderException::EDirectXRender_CreateCode,
+                            "GR_DXInit()::GR_Direct3D.CreateDevice"_a, Code));
                     }
                 }
                 {
@@ -1938,13 +2221,15 @@ namespace GR_Main {
                 {
                     Direct3D9::IDirect3DSurface9& surface_2 = pas::out_interface(Surface);
                     pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_5 = Direct3DDevice;
-                    Direct3D9::IDirect3DDevice9_GetBackBuffer(direct3DDevice_5, 0u, 0u, Direct3D9::D3DBACKBUFFER_TYPE_MONO, surface_2);
+                    Direct3D9::IDirect3DDevice9_GetBackBuffer(direct3DDevice_5, 0u, 0u,
+                        Direct3D9::D3DBACKBUFFER_TYPE_MONO, surface_2);
                 }
                 Direct3D9::IDirect3DDevice9_ColorFill(Direct3DDevice, Surface, nullptr, 0u);
                 {
                     Direct3D9::IDirect3DSurface9& surface_3 = pas::out_interface(Surface);
                     pas::ComView<Direct3D9::IDirect3DDevice9_Tag> direct3DDevice_6 = Direct3DDevice;
-                    Direct3D9::IDirect3DDevice9_GetBackBuffer(direct3DDevice_6, 0u, 1u, Direct3D9::D3DBACKBUFFER_TYPE_MONO, surface_3);
+                    Direct3D9::IDirect3DDevice9_GetBackBuffer(direct3DDevice_6, 0u, 1u,
+                        Direct3D9::D3DBACKBUFFER_TYPE_MONO, surface_3);
                 }
                 Direct3D9::IDirect3DDevice9_ColorFill(Direct3DDevice, Surface, nullptr, 0u);
                 GR_Main::AppendLogLineThreadSafe("Initializing Direct3D device... ok!"_a);
@@ -1952,15 +2237,20 @@ namespace GR_Main {
                 Code = Direct3D9::IDirect3DDevice9_Reset(Direct3DDevice, &Direct3DPresentParameters);
                 if (Code != 0) {
                     GR_Main::LogPresentationParameters();
-                    pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_CreateCode, "GR_DXInit()::GR_D3DDevice.Reset"_a, Code));
+                    pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(
+                        DirectXRenderException::EDirectXRender_CreateCode, "GR_DXInit()::GR_D3DDevice.Reset"_a, Code));
                 }
                 GR_Main::AppendLogLineThreadSafe("Re-initializing Direct3D device... ok!"_a);
             }
             GR_DX::AvailableTextureBytes = Direct3D9::IDirect3DDevice9_GetAvailableTextureMem(Direct3DDevice);
-            GR_DX::ReservedTextureBytes = EC_Str::ExtractDigitsToIntW(pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMemSizeLimit"_wref.get())));
-            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory=", SysUtils::Int64ToStr(GR_DX::AvailableTextureBytes >> 10), " KB"}));
+            GR_DX::ReservedTextureBytes =
+                EC_Str::ExtractDigitsToIntW(
+                    pas::view(UserSettingsConfig->GetParamByPathOrMarker(u"VideoMemSizeLimit"_wref.get())));
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory=",
+                SysUtils::Int64ToStr(GR_DX::AvailableTextureBytes >> 10), " KB"}));
             if (static_cast<std::int32_t>(GR_DX::ReservedTextureBytes) > 0) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory Override=", SysUtils::IntToStr(GR_DX::ReservedTextureBytes << 10), " KB"}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available Video Memory Override=",
+                    SysUtils::IntToStr(GR_DX::ReservedTextureBytes << 10), " KB"}));
                 GR_DX::ReservedTextureBytes = GR_DX::AvailableTextureBytes - (GR_DX::ReservedTextureBytes << 10 << 10);
             }
             UserSettingsConfig->GetParam(u"VideoMemSizeLimit"sv);
@@ -1969,19 +2259,29 @@ namespace GR_Main {
                 GR_DX::DrawVertices[Index].RHW = 1.0f;
             }
             Direct3D9::IDirect3DDevice9_SetVertexShader(Direct3DDevice, nullptr);
-            Direct3D9::IDirect3DDevice9_SetFVF(Direct3DDevice, Direct3D9::D3DFVF_XYZRHW | Direct3D9::D3DFVF_DIFFUSE | Direct3D9::D3DFVF_TEX1);
+            Direct3D9::IDirect3DDevice9_SetFVF(Direct3DDevice,
+                Direct3D9::D3DFVF_XYZRHW | Direct3D9::D3DFVF_DIFFUSE | Direct3D9::D3DFVF_TEX1);
             GR_Main::ConfigureDefaultRenderState();
             GR_Main::AppendLogTextThreadSafe("Display Mode="_a);
             if (!Direct3DPresentParameters.Windowed) {
-                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({SysUtils::Int64ToStr(Direct3DPresentParameters.BackBufferWidth), "x", SysUtils::Int64ToStr(Direct3DPresentParameters.BackBufferHeight), " ", SysUtils::Int64ToStr(Direct3DPresentParameters.FullScreenRefreshRateInHz), "Hz"}));
+                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({
+                    SysUtils::Int64ToStr(Direct3DPresentParameters.BackBufferWidth), "x",
+                    SysUtils::Int64ToStr(Direct3DPresentParameters.BackBufferHeight), " ",
+                    SysUtils::Int64ToStr(Direct3DPresentParameters.FullScreenRefreshRateInHz), "Hz"}));
                 if (AlternateViewportEnabled) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({" [", SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenWidth)), "x", SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenHeight)), "]"}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({" [",
+                        SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenWidth)), "x",
+                        SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenHeight)), "]"}));
                 }
             } else {
                 if (AlternateViewportEnabled) {
-                    GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(PresentationWidth)), "x", SysUtils::Int64ToStr(static_cast<std::uint32_t>(PresentationHeight)), " ["}));
+                    GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({
+                        SysUtils::Int64ToStr(static_cast<std::uint32_t>(PresentationWidth)), "x",
+                        SysUtils::Int64ToStr(static_cast<std::uint32_t>(PresentationHeight)), " ["}));
                 }
-                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenWidth)), "x", SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenHeight))}));
+                GR_Main::AppendLogTextThreadSafe(pas::concat_ansi({
+                    SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenWidth)), "x",
+                    SysUtils::Int64ToStr(static_cast<std::uint32_t>(GameScreenHeight))}));
                 if (AlternateViewportEnabled) {
                     GR_Main::AppendLogTextThreadSafe("]"_a);
                 }
@@ -1989,7 +2289,8 @@ namespace GR_Main {
             GR_Main::AppendLogLineThreadSafe(pas::AnsiString());
         } catch (...) {
             auto cpp_exception = pas::caught_object();
-            if (DirectXRenderException::EDirectXRender* E = pas::class_cast_if<DirectXRenderException::EDirectXRender*>(cpp_exception)) {
+            if (DirectXRenderException::EDirectXRender* E = pas::class_cast_if<DirectXRenderException::EDirectXRender*>(
+                cpp_exception)) {
                 GlobalsV::ThreeDimensionalModeEnabled = false;
                 Direct3DDevice = nullptr;
                 Direct3D = nullptr;
@@ -2017,12 +2318,12 @@ namespace GR_Main {
         GR_Main::ApplyGammaRamp(DisplayBrightness, DisplayContrast);
         // Native uses two different approximations of pi for these tables.
         for (Index = 0; Index <= 360; ++Index) {
-            Angle = Index * pas::constant(aMyFunction::GamePi / 1.8E+2L);
+            Angle = static_cast<float>(Index * pas::constant(aMyFunction::GamePi / 1.8E+2));
             GR_DX::CircleCos[Index] = System::Cos(Angle);
             GR_DX::CircleSin[Index] = System::Sin(Angle);
         }
         for (Index = 0; Index <= 359; ++Index) {
-            GR_DX::LineAlphaTable[Index] = System::Trunc(System::Cos(pas::real_divide(Index, 1.8E+2L) * 3.14159265354L) * 127.0L + 128.0L);
+            GR_DX::LineAlphaTable[Index] = pas::real_trunc(static_cast<float>(static_cast<float>(System::Cos(static_cast<float>(static_cast<float>(Index / 1.8E+2) * 3.14159265354)) * 127.0) + 128.0));
         }
         GR_DX::PendingPointCapacity = 1024;
         GR_DX::PendingPoints.set_length(GR_DX::PendingPointCapacity);
@@ -2039,53 +2340,62 @@ namespace GR_Main {
         if (Direct3DDevice == nullptr) {
             return;
         }
-        if (Brightness >= 0.0L) {
+        if (Brightness >= 0.0) {
             LowInput = 0.0f;
-            LowOutput = Brightness * 0.5L;
-            HighInput = 1.0L - Brightness * 0.5L;
+            LowOutput = static_cast<float>(Brightness * 0.5);
+            HighInput = static_cast<float>(1.0 - static_cast<float>(Brightness * 0.5));
             HighOutput = 1.0f;
         } else {
-            LowInput = -Brightness * 0.5L;
+            LowInput = static_cast<float>(-Brightness * 0.5);
             LowOutput = 0.0f;
             HighInput = 1.0f;
-            HighOutput = 1.0L - -Brightness * 0.5L;
+            HighOutput = static_cast<float>(1.0 - static_cast<float>(-Brightness * 0.5));
         }
-        float Step = pas::real_divide(static_cast<long double>(HighOutput) - LowOutput, static_cast<long double>(HighInput) - LowInput);
-        float Level = (0.5L - LowInput) * Step + LowOutput;
-        LowInput = LowInput + 0.4L * Contrast * Level;
-        HighInput = HighInput - (1.0L - Level) * (0.4L * Contrast);
-        std::int32_t LowIndex = System::Round(LowInput * 255.0L);
-        std::int32_t HighIndex = System::Round(HighInput * 255.0L);
-        std::int32_t Value = System::Round(pas::real_max<float>(0.0f, LowOutput) * 65535.0L);
+        float Step = static_cast<float>((static_cast<float>(static_cast<double>(HighOutput) - LowOutput)) / (static_cast<float>(static_cast<double>(HighInput) - LowInput)));
+        float Level = static_cast<float>(static_cast<float>((static_cast<float>(0.5 - LowInput)) * Step) + LowOutput);
+        LowInput = static_cast<float>(LowInput + static_cast<float>(static_cast<float>(0x1.999999999999bp-2 * Contrast) * Level));
+        HighInput = static_cast<float>(HighInput - static_cast<float>((static_cast<float>(1.0 - Level)) * (static_cast<float>(0x1.999999999999bp-2 * Contrast))));
+        std::int32_t LowIndex = pas::real_round(static_cast<float>(LowInput * 255.0));
+        std::int32_t HighIndex = pas::real_round(static_cast<float>(HighInput * 255.0));
+        std::int32_t Value = pas::real_round(static_cast<float>(pas::real_max_scalar<float>(0.0f, LowOutput) * 65535.0));
         for (auto cpp_range = pas::for_to<std::int32_t>(0, LowIndex - 1); cpp_range.next(Index); ) {
-            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)),
+                static_cast<std::uint16_t>(Value));
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)),
+                static_cast<std::uint16_t>(Value));
+            pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)),
+                static_cast<std::uint16_t>(Value));
         }
         Level = LowOutput;
-        Step = pas::real_divide(static_cast<long double>(HighOutput) - LowOutput, HighIndex - LowIndex);
+        Step = static_cast<float>((static_cast<float>(static_cast<double>(HighOutput) - LowOutput)) / (HighIndex - LowIndex));
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(LowIndex, HighIndex - 1); cpp_range_2.next(Index); ) {
             if (Index >= 0 && Index <= 255) {
-                Value = System::Round(pas::real_max<float>(0.0f, Level) * 65535.0L);
+                Value = pas::real_round(static_cast<float>(pas::real_max_scalar<float>(0.0f, Level) * 65535.0));
                 if (Value < 0) {
                     Value = 0;
                 } else if (Value > 65535) {
                     Value = 65535;
                 }
-                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)),
+                    static_cast<std::uint16_t>(Value));
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)),
+                    static_cast<std::uint16_t>(Value));
+                pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)),
+                    static_cast<std::uint16_t>(Value));
             }
-            Level = static_cast<long double>(Level) + Step;
+            Level = static_cast<float>(static_cast<double>(Level) + Step);
         }
-        Value = System::Round(pas::real_min<float>(1.0f, HighOutput) * 65535.0L);
+        Value = pas::real_round(static_cast<float>(pas::real_min_scalar<float>(1.0f, HighOutput) * 65535.0));
         {
             const std::int32_t cpp_first = HighIndex;
             if (cpp_first <= 255) {
                 for (Index = cpp_first; Index <= 255; ++Index) {
-                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
-                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)), static_cast<std::uint16_t>(Value));
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Red, Index * sizeof(std::uint16_t)),
+                        static_cast<std::uint16_t>(Value));
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Green, Index * sizeof(std::uint16_t)),
+                        static_cast<std::uint16_t>(Value));
+                    pas::store_unaligned<std::uint16_t>(pas::byte_offset(&Ramp.Blue, Index * sizeof(std::uint16_t)),
+                        static_cast<std::uint16_t>(Value));
                 }
             }
         }
@@ -2099,33 +2409,42 @@ namespace GR_Main {
             GR_Main::ApplyMainWindowGeometry();
         }
         if (Direct3DDevice == nullptr) {
-            ErrorCode = ([&] {
+            {
                 Direct3D9::IDirect3DDevice9& direct3DDevice = pas::out_interface(Direct3DDevice);
                 std::uint32_t mainWindowHandle = MainWindowHandle;
                 pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D = Direct3D;
-                return Direct3D9::IDirect3D9_CreateDevice(direct3D, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle, Direct3D9::D3DCREATE_MULTITHREADED | Direct3D9::D3DCREATE_HARDWARE_VERTEXPROCESSING, Direct3DPresentParameters, direct3DDevice);
-            }());
+                ErrorCode = Direct3D9::IDirect3D9_CreateDevice(direct3D, Direct3D9::D3DADAPTER_DEFAULT,
+                        Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle,
+                        Direct3D9::D3DCREATE_MULTITHREADED | Direct3D9::D3DCREATE_HARDWARE_VERTEXPROCESSING,
+                        Direct3DPresentParameters, direct3DDevice);
+            }
             if (ErrorCode != 0) {
-                ErrorCode = ([&] {
-                    Direct3D9::IDirect3DDevice9& direct3DDevice_2 = pas::out_interface(Direct3DDevice);
-                    std::uint32_t mainWindowHandle_2 = MainWindowHandle;
-                    pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D_2 = Direct3D;
-                    return Direct3D9::IDirect3D9_CreateDevice(direct3D_2, Direct3D9::D3DADAPTER_DEFAULT, Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_2, Direct3D9::D3DCREATE_MULTITHREADED | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING, Direct3DPresentParameters, direct3DDevice_2);
-                }());
+                Direct3D9::IDirect3DDevice9& direct3DDevice_2 = pas::out_interface(Direct3DDevice);
+                std::uint32_t mainWindowHandle_2 = MainWindowHandle;
+                pas::ComView<Direct3D9::IDirect3D9_Tag> direct3D_2 = Direct3D;
+                ErrorCode = Direct3D9::IDirect3D9_CreateDevice(direct3D_2, Direct3D9::D3DADAPTER_DEFAULT,
+                        Direct3D9::D3DDEVTYPE_HAL, mainWindowHandle_2,
+                        Direct3D9::D3DCREATE_MULTITHREADED | Direct3D9::D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                        Direct3DPresentParameters, direct3DDevice_2);
             }
             if (ErrorCode != 0 || Direct3DDevice == nullptr) {
                 GR_Main::LogPresentationParameters();
-                pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_CreateCode, "GR_DXReset()::GR_Direct3D.CreateDevice(...)"_a, ErrorCode));
+                pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(
+                    DirectXRenderException::EDirectXRender_CreateCode, "GR_DXReset()::GR_Direct3D.CreateDevice(...)"_a,
+                    ErrorCode));
             }
         } else {
             ErrorCode = Direct3D9::IDirect3DDevice9_Reset(Direct3DDevice, &Direct3DPresentParameters);
             if (ErrorCode != 0) {
                 GR_Main::LogPresentationParameters();
-                pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(DirectXRenderException::EDirectXRender_CreateCode, "GR_DXReset()::GR_D3DDevice.Reset(...)"_a, ErrorCode));
+                pas::raise(pas::construct_call<DirectXRenderException::EDirectXRender>(
+                    DirectXRenderException::EDirectXRender_CreateCode, "GR_DXReset()::GR_D3DDevice.Reset(...)"_a,
+                    ErrorCode));
             }
         }
         Direct3D9::IDirect3DDevice9_SetVertexShader(Direct3DDevice, nullptr);
-        Direct3D9::IDirect3DDevice9_SetFVF(Direct3DDevice, Direct3D9::D3DFVF_XYZRHW | Direct3D9::D3DFVF_DIFFUSE | Direct3D9::D3DFVF_TEX1);
+        Direct3D9::IDirect3DDevice9_SetFVF(Direct3DDevice,
+            Direct3D9::D3DFVF_XYZRHW | Direct3D9::D3DFVF_DIFFUSE | Direct3D9::D3DFVF_TEX1);
         GR_Main::ConfigureDefaultRenderState();
         if (Direct3DPresentParameters.Windowed) {
             GR_Main::ApplyMainWindowGeometry();
@@ -2170,14 +2489,18 @@ namespace GR_Main {
         } else if (OffscreenTexture == nullptr) {
             Direct3D9::IDirect3DDevice9_BeginScene(Direct3DDevice);
             if (!AlternateViewportEnabled) {
-                GR_DX::DrawTexture((ScreenRenderBuffer->GetTexture(cpp_result), cpp_result), 0, 0, 255, GR_DX::RgbWhite, nullptr, false, false);
+                GR_DX::DrawTexture((ScreenRenderBuffer->GetTexture(cpp_result), cpp_result), 0, 0, 255, GR_DX::RgbWhite,
+                    nullptr, false, false);
             } else if (GlobalsV::ScaleViewportToWindow) {
                 std::int32_t presentationWidth = PresentationWidth;
                 std::int32_t presentationHeight = PresentationHeight;
-                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (ScreenRenderBuffer->GetTexture(cpp_result_2), cpp_result_2);
-                GR_DX::DrawTextureSized(texture, 0, 0, presentationWidth, presentationHeight, 255, GR_DX::RgbWhite, nullptr, false, false);
+                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture = (ScreenRenderBuffer->GetTexture(cpp_result_2),
+                    cpp_result_2);
+                GR_DX::DrawTextureSized(texture, 0, 0, presentationWidth, presentationHeight, 255, GR_DX::RgbWhite,
+                    nullptr, false, false);
             } else {
-                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (ScreenRenderBuffer->GetTexture(cpp_result_3), cpp_result_3);
+                pas::ComView<Direct3D9::IDirect3DTexture9_Tag> texture_2 = (ScreenRenderBuffer->GetTexture(
+                    cpp_result_3), cpp_result_3);
                 std::int32_t y = ViewportOffset.Y;
                 std::int32_t x = ViewportOffset.X;
                 GR_DX::DrawTexture(texture_2, x, y, 255, GR_DX::RgbWhite, nullptr, false, false);
@@ -2205,21 +2528,19 @@ namespace GR_Main {
                     return 0;
                 }
                 Stage = 2;
-                if (([&] {
+                {
                     std::uint32_t cpp_left = MMSystem::timeGetTime();
-                    return cpp_left - LastWindowMessageTick;
-                }()) > 5000 && static_cast<std::uint8_t>(MessageIdle ^ 1)) {
-                    MessageIdle = true;
-                    if (OnMessageIdle != nullptr) {
-                        GR_Main::OnMessageIdle();
+                    if (cpp_left - LastWindowMessageTick > 5000 && static_cast<std::uint8_t>(MessageIdle ^ 1)) {
+                        MessageIdle = true;
+                        if (OnMessageIdle != nullptr) {
+                            GR_Main::OnMessageIdle();
+                        }
                     }
                 }
                 Stage = 3;
                 if (LastMouseMessageTick != 0) {
-                    if (([&] {
-                        std::uint32_t cpp_left_2 = MMSystem::timeGetTime();
-                        return cpp_left_2 - LastMouseMessageTick;
-                    }()) > 100 && RuntimeActive) {
+                    std::uint32_t cpp_left_2 = MMSystem::timeGetTime();
+                    if (cpp_left_2 - LastMouseMessageTick > 100 && RuntimeActive) {
                         LastMouseMessageTick = MMSystem::timeGetTime();
                         GR_Main::PostMouseMoveMessage();
                     }
@@ -2242,7 +2563,8 @@ namespace GR_Main {
                     }
                     Stage = 8;
                     if (Msg.message == MessagesSdk::WM_MOUSEMOVE) {
-                        pas::fill_memory(&EventTrack, static_cast<std::int32_t>(sizeof(Windows::TTrackMouseEvent)), static_cast<std::uint8_t>(0));
+                        pas::fill_memory(&EventTrack, static_cast<std::int32_t>(sizeof(Windows::TTrackMouseEvent)),
+                            static_cast<std::uint8_t>(0));
                         EventTrack.cbSize = static_cast<std::int32_t>(sizeof(Windows::TTrackMouseEvent));
                         EventTrack.dwFlags = WindowsSdk::TME_LEAVE;
                         EventTrack.hwndTrack = MainWindowHandle;
@@ -2266,8 +2588,10 @@ namespace GR_Main {
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error in procedure GR_WinMessage, label = ", SysUtils::IntToStr(Stage)})));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "Error in procedure GR_WinMessage, label = ", SysUtils::IntToStr(Stage)})));
             } else {
                 throw;
             }
@@ -2301,19 +2625,22 @@ namespace GR_Main {
                 ViewHeight = GameScreenHeight;
             }
             Width = ViewWidth;
-            Height = System::Round(pas::real_divide(Desc.Height, Desc.Width) * ViewWidth);
-            if (Height > ViewHeight && static_cast<std::uint8_t>(OffscreenFillViewport ^ 1) || Height < ViewHeight && OffscreenFillViewport != false) {
-                Width = System::Round(pas::real_divide(Desc.Width, Desc.Height) * ViewHeight);
+            Height = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Desc.Height) / Desc.Width) * ViewWidth));
+            if (Height > ViewHeight && static_cast<std::uint8_t>(OffscreenFillViewport ^ 1) || Height < ViewHeight &&
+                    OffscreenFillViewport != false) {
+                Width = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Desc.Width) / Desc.Height) * ViewHeight));
                 Height = ViewHeight;
             }
             X = static_cast<std::int32_t>(ViewWidth - Width) / 2;
             Y = static_cast<std::int32_t>(ViewHeight - Height) / 2;
             Direct3D9::IDirect3DDevice9_Clear(Direct3DDevice, 0u, nullptr, Direct3D9::D3DCLEAR_TARGET, 0u, 1.0f, 0u);
             if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
+                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite,
+                    reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
             } else {
                 Direct3D9::IDirect3DDevice9_BeginScene(Direct3DDevice);
-                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite, reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
+                GR_DX::DrawTextureSized(OffscreenTexture, X, Y, Width, Height, 255, GR_DX::RgbWhite,
+                    reinterpret_cast<WindowsSdk::PRect>(&GameScreenRect), false, false);
                 Direct3D9::IDirect3DDevice9_EndScene(Direct3DDevice);
                 Direct3D9::IDirect3DDevice9_Present(Direct3DDevice, nullptr, nullptr, 0u, nullptr);
             }
@@ -2332,15 +2659,41 @@ namespace GR_Main {
         }
     }
 
-    void CopyBgraToRgb24(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height) {
+    void CopyBgraToRgb24(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width,
+        std::int32_t Height) {
         std::int32_t X{};
         std::int32_t Y = 0;
         while (Y < Height) {
             X = 0;
             while (X < Width) {
-                static_cast<GR_GraphBuf::PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->R))));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->G))));
-                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->B)))) = static_cast<GR_GraphBuf::PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->B;
+                static_cast<GR_GraphBuf::PColorRGB>(EC_Mem::AddPointerOffset(Dest,
+                    X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB))))->R =
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source,
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<GR_GraphBuf::PColorBGRA>(
+                            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->R))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest,
+                    static_cast<std::int32_t>(
+                        reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<GR_GraphBuf::PColorRGB>(
+                            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->G)))) =
+                    *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source,
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<GR_GraphBuf::PColorBGRA>(
+                            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->G))));
+                *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest,
+                    static_cast<std::int32_t>(
+                        reinterpret_cast<std::uintptr_t>(
+                            &reinterpret_cast<GR_GraphBuf::PColorRGB>(
+                            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X *
+                            static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->B)))) =
+                    static_cast<GR_GraphBuf::PColorBGRA>(EC_Mem::AddPointerOffset(Source,
+                        X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->B;
                 ++X;
             }
             Dest = EC_Mem::AddPointerOffset(Dest, DestPitch);
@@ -2361,7 +2714,8 @@ namespace GR_Main {
                 std::int32_t gameScreenHeight = GameScreenHeight;
                 void* cpp_arg = pas::list_get(RecordingFrameBuffers, RecordingFrameCount);
                 std::int32_t cpp_arg_2 = GameScreenWidth * 2;
-                GR_Main::Ex_OKGR_Copy_XY_XY_WORD(cpp_arg, cpp_arg_2, 0, 0, pixels, pitchBytes, 0, 0, gameScreenWidth, gameScreenHeight);
+                GR_Main::Ex_OKGR_Copy_XY_XY_WORD(cpp_arg, cpp_arg_2, 0, 0, pixels, pitchBytes, 0, 0, gameScreenWidth,
+                    gameScreenHeight);
             }
             ++RecordingFrameCount;
             if (RecordingFrameCount >= pas::list_count(RecordingFrameBuffers)) {
@@ -2387,15 +2741,20 @@ namespace GR_Main {
             SearchHandle = WindowsSdk::FindFirstFile(pas::literal_pointer("*.*"), FindData);
             // Native code scans without testing for INVALID_HANDLE_VALUE.
             do {
-                if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) != WindowsImports::FILE_ATTRIBUTE_DIRECTORY) {
-                    FirstFrameNumber = std::max<std::int32_t>(FirstFrameNumber, EC_Str::ExtractDigitsToIntW(pas::view(static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(FindData.cFileName.elements, 260)))));
+                if ((FindData.dwFileAttributes & WindowsImports::FILE_ATTRIBUTE_DIRECTORY) !=
+                    WindowsImports::FILE_ATTRIBUTE_DIRECTORY) {
+                    FirstFrameNumber = std::max<std::int32_t>(FirstFrameNumber,
+                            EC_Str::ExtractDigitsToIntW(
+                                pas::view(static_cast<pas::WideString>(pas::array_text<pas::AnsiString>(
+                                FindData.cFileName.elements, 260)))));
                 }
             } while (WindowsSdk::FindNextFile(SearchHandle, FindData) != 0);
             WindowsImports::FindClose(SearchHandle);
             SysUtilsImports::SetCurrentDir(Directory);
             ++FirstFrameNumber;
             Frame = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
-            Frame->AllocateNativePitch(ScreenRenderBuffer->Width, ScreenRenderBuffer->Height, ScreenRenderBuffer->Width * 3);
+            Frame->AllocateNativePitch(ScreenRenderBuffer->Width, ScreenRenderBuffer->Height,
+                ScreenRenderBuffer->Width * 3);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, RecordingFrameCount - 1); cpp_range.next(Index); ) {
                 {
                     std::int32_t pitchBytes = Frame->PitchBytes;
@@ -2406,24 +2765,21 @@ namespace GR_Main {
                     std::int32_t cpp_arg_2 = GameScreenWidth * 2;
                     GR_Main::Ex_OKGF_Convert565toBGR(cpp_arg, cpp_arg_2, pixels, pitchBytes, width, height);
                 }
-                FileName = static_cast<pas::AnsiString>(pas::concat_wide({u"Film\\", EC_Str::IntToFixedWidthWideString(FirstFrameNumber + Index, 6), u".bmp"}));
+                FileName = static_cast<pas::AnsiString>(pas::concat_wide({u"Film\\",
+                        EC_Str::IntToFixedWidthWideString(FirstFrameNumber + Index, 6), u".bmp"}));
                 {
                     std::int32_t width_2 = Frame->Width;
                     std::int32_t height_2 = Frame->Height;
                     void* pixels_2 = Frame->GetPixels();
                     std::int32_t pitchBytes_2 = Frame->PitchBytes;
                     std::uint8_t* cpp_arg_3 = FileName.pchar();
-                    GR_Main::WriteBmpFile(cpp_arg_3, pixels_2, pitchBytes_2, 24, 0x000000ffu, 0x0000ff00u, 0x00ff0000u, 0u, width_2, height_2);
+                    GR_Main::WriteBmpFile(cpp_arg_3, pixels_2, pitchBytes_2, 24, 0x000000ffu, 0x0000ff00u, 0x00ff0000u,
+                        0u, width_2, height_2);
                 }
             }
             pas::free(Frame);
             RecordingFrameCount = 0;
         }
-    }
-
-    // Tests bit 15 of GetAsyncKeyState.
-    std::uint8_t IsVirtualKeyDown(std::int32_t Key) {
-        return (WindowsSdk::GetAsyncKeyState(Key) & 0x00008000) == 0x00008000;
     }
 
     // Returns one raw value, or a marker containing Path on lookup failure.
@@ -2447,11 +2803,6 @@ namespace GR_Main {
     // Always returns 2 in this binary.
     pas::WideString GiResourceSuffix() {
         return u"2"_w;
-    }
-
-    // Always returns 2; variant 1 retains the legacy quest-picture downscaling branch.
-    std::int32_t GiResourceVariant() {
-        return 2;
     }
 
     // Appends a line to the session log and closes the file. The lock is not released if a write raises.
@@ -2518,22 +2869,31 @@ namespace GR_Main {
         GR_Main::GlobalMemoryStatusEx(Status);
         GR_Main::AppendLogLineThreadSafe("Memory Info"_a);
         GR_Main::AppendLogLineThreadSafe("Physical Memory:"_a);
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Used=", SysUtils::Int64ToStr(Status.TotalPhys - Status.AvailPhys >> 10), " KB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available=", SysUtils::Int64ToStr(Status.AvailPhys >> 10), " KB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Total=", SysUtils::Int64ToStr(Status.TotalPhys >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Used=",
+            SysUtils::Int64ToStr(Status.TotalPhys - Status.AvailPhys >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available=", SysUtils::Int64ToStr(Status.AvailPhys >> 10),
+            " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Total=", SysUtils::Int64ToStr(Status.TotalPhys >> 10),
+            " KB"}));
         GR_Main::AppendLogLineThreadSafe("Virtual Memory:"_a);
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Used=", SysUtils::Int64ToStr(Status.TotalVirtual - Status.AvailVirtual >> 10), " KB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available=", SysUtils::Int64ToStr(Status.AvailVirtual >> 10), " KB"}));
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Total=", SysUtils::Int64ToStr(Status.TotalVirtual >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Used=",
+            SysUtils::Int64ToStr(Status.TotalVirtual - Status.AvailVirtual >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Available=",
+            SysUtils::Int64ToStr(Status.AvailVirtual >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Total=", SysUtils::Int64ToStr(Status.TotalVirtual >> 10),
+            " KB"}));
         if (GlobalCache != nullptr) {
-            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Cache Size=", SysUtils::IntToStr(pas::shr(GlobalCache->ResidentBytes, 10)), " KB"}));
+            GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Cache Size=",
+                SysUtils::IntToStr(pas::shr(GlobalCache->ResidentBytes, 10)), " KB"}));
         }
-        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Textures Cache Size=", SysUtils::Int64ToStr(GR_DX::ResidentTextureBytes >> 10), " KB"}));
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Textures Cache Size=",
+            SysUtils::Int64ToStr(GR_DX::ResidentTextureBytes >> 10), " KB"}));
     }
 
     // Delphi wrappers translate DLL exceptions into Exception objects.
     // Borrows Source until ReadImagePixels consumes the context. Returns nil for unsupported input. Detection requires at least 34 bytes and accepts BMP, JFIF JPEG, PNG and supported PSD modes.
-    EC_OKGF::POkgfReadContext BeginImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
+    EC_OKGF::POkgfReadContext BeginImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width,
+        std::int32_t& Height) {
         EC_OKGF::POkgfReadContext Result{};
         try {
             Result = GR_Main::OKGF_ReadStart_Buf(Source, SourceSize, Width, Height);
@@ -2544,10 +2904,13 @@ namespace GR_Main {
     }
 
     // Consumes Context on success; returns nonzero on success.
-    std::int32_t ReadImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t BytesPerPixel) {
+    std::int32_t ReadImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes,
+        std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask,
+        std::int32_t BytesPerPixel) {
         std::int32_t Result{};
         try {
-            Result = GR_Main::OKGF_Read(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask, BytesPerPixel);
+            Result = GR_Main::OKGF_Read(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask,
+                    BytesPerPixel);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Read"_a));
         }
@@ -2555,7 +2918,8 @@ namespace GR_Main {
     }
 
     // Borrows Source; accepts indexed PNG and indexed or grayscale PSD. Returns nil on failure. BytesPerPixel is one or two.
-    EC_OKGF::POkgfReadContext BeginIndexedImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
+    EC_OKGF::POkgfReadContext BeginIndexedImageRead(void* Source, std::int32_t SourceSize, std::int32_t& Width,
+        std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
         EC_OKGF::POkgfReadContext Result{};
         try {
             Result = GR_Main::OKGF_ReadStartPal_Buf(Source, SourceSize, Width, Height, PaletteCount, BytesPerPixel);
@@ -2566,7 +2930,8 @@ namespace GR_Main {
     }
 
     // Consumes Context on success. Palette requires the count returned by BeginIndexedImageRead.
-    std::int32_t ReadIndexedImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, GR_GraphBuf::PColorRGBA Palette) {
+    std::int32_t ReadIndexedImagePixels(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes,
+        GR_GraphBuf::PColorRGBA Palette) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGF_ReadPal(Context, Pixels, PitchBytes, Palette);
@@ -2576,7 +2941,8 @@ namespace GR_Main {
         return Result;
     }
 
-    std::int32_t WritePngFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t Width, std::int32_t Height, std::int32_t HasAlpha, std::int32_t SwapRedBlue) {
+    std::int32_t WritePngFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t Width,
+        std::int32_t Height, std::int32_t HasAlpha, std::int32_t SwapRedBlue) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGF_Write_PNG_File(FileName, Pixels, PitchBytes, Width, Height, HasAlpha, SwapRedBlue);
@@ -2586,10 +2952,13 @@ namespace GR_Main {
         return Result;
     }
 
-    std::int32_t WriteBmpFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t BitsPerPixel, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t Width, std::int32_t Height) {
+    std::int32_t WriteBmpFile(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t BitsPerPixel,
+        std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask,
+        std::int32_t Width, std::int32_t Height) {
         std::int32_t Result{};
         try {
-            Result = GR_Main::OKGF_Write_BMP_File(FileName, Pixels, PitchBytes, BitsPerPixel, RedMask, GreenMask, BlueMask, AlphaMask, Width, Height);
+            Result = GR_Main::OKGF_Write_BMP_File(FileName, Pixels, PitchBytes, BitsPerPixel, RedMask, GreenMask,
+                    BlueMask, AlphaMask, Width, Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Write_BMP_File"_a));
         }
@@ -2658,7 +3027,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_TransBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_TransBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_TransBuf_DrawClip_WORD(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2666,7 +3036,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_TransBuf_HADrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_TransBuf_HADrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_TransBuf_HADrawClip_16(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2674,7 +3045,8 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t Ex_OKGR_TransBuf_Build_WORD(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest, std::uint16_t TransparentColor) {
+    std::int32_t Ex_OKGR_TransBuf_Build_WORD(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        void* Dest, std::uint16_t TransparentColor) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_TransBuf_Build_WORD(Source, Pitch, Width, Height, Dest, TransparentColor);
@@ -2684,7 +3056,8 @@ namespace GR_Main {
         return Result;
     }
 
-    std::int32_t Ex_OKGR_TransBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t Ex_OKGR_TransBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, void* Dest) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_TransBuf_BuildFromRGBA_16(Source, Pitch, Width, Height, Dest);
@@ -2694,7 +3067,8 @@ namespace GR_Main {
         return Result;
     }
 
-    void Ex_OKGR_TransAlphaBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_TransAlphaBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_TransAlphaBuf_DrawClip_WORD(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2702,7 +3076,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AlphaBuf_DrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_AlphaBuf_DrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_AlphaBuf_DrawClip_16(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2710,7 +3085,8 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t Ex_OKGR_TransAlphaBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t Ex_OKGR_TransAlphaBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, void* Dest) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_TransAlphaBuf_BuildFromRGBA_16(Source, Pitch, Width, Height, Dest);
@@ -2720,7 +3096,8 @@ namespace GR_Main {
         return Result;
     }
 
-    std::int32_t Ex_OKGR_AlphaBuf_BuildFromRGBA(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t Ex_OKGR_AlphaBuf_BuildFromRGBA(void* Source, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, void* Dest) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_AlphaBuf_BuildFromRGBA(Source, Pitch, Width, Height, Dest);
@@ -2730,23 +3107,30 @@ namespace GR_Main {
         return Result;
     }
 
-    void Ex_OKGR_AlphaSimpleBuf_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_AlphaSimpleBuf_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         try {
-            GR_Main::OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
+            GR_Main::OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY,
+                Width, Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_AlphaSimpleBuf_Draw_16"_a));
         }
     }
 
-    void Ex_OKGR_AlphaSimpleBufPalAlpha_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, GR_GraphBuf::PColorRGBA Palette) {
+    void Ex_OKGR_AlphaSimpleBufPalAlpha_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX,
+        std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY,
+        std::int32_t Width, std::int32_t Height, GR_GraphBuf::PColorRGBA Palette) {
         try {
-            GR_Main::OKGR_AlphaSimpleBufPalAlpha_Draw_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height, Palette);
+            GR_Main::OKGR_AlphaSimpleBufPalAlpha_Draw_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX,
+                SourceY, Width, Height, Palette);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_AlphaSimpleBufPalAlpha_Draw_16"_a));
         }
     }
 
-    void Ex_OKGR_MaskBuf_DrawClip_DWORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, std::uint32_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_MaskBuf_DrawClip_DWORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::uint32_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_MaskBuf_DrawClip_DWORD(Dest, Pitch, X, Y, Source, Color, Clip);
         } catch (...) {
@@ -2754,7 +3138,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_MaskBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_MaskBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_MaskBuf_DrawClip_WORD(Dest, Pitch, X, Y, Source, Color, Clip);
         } catch (...) {
@@ -2762,7 +3147,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_TransBuf_FillAlphaClip_RGBA(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint32_t Color) {
+    void Ex_OKGR_TransBuf_FillAlphaClip_RGBA(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip, std::uint32_t Color) {
         try {
             GR_Main::OKGR_TransBuf_FillAlphaClip_RGBA(Dest, Pitch, X, Y, Source, Clip, Color);
         } catch (...) {
@@ -2770,7 +3156,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_TransBuf_FillAlphaClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint16_t Color) {
+    void Ex_OKGR_TransBuf_FillAlphaClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip, std::uint16_t Color) {
         try {
             GR_Main::OKGR_TransBuf_FillAlphaClip_16(Dest, Pitch, X, Y, Source, Clip, Color);
         } catch (...) {
@@ -2778,7 +3165,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AlphaIndexed_CopyDrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_AlphaIndexed_CopyDrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_AlphaIndexed_CopyDrawClip_WORD(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2786,7 +3174,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AlphaIndexed_CopyDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
+    void Ex_OKGR_AlphaIndexed_CopyDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
         try {
             GR_Main::OKGR_AlphaIndexed_CopyDrawClip_Alpha_16(Dest, Pitch, X, Y, Source, Clip, Alpha);
         } catch (...) {
@@ -2794,7 +3183,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AlphaIndexed_AlphaDrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_AlphaIndexed_AlphaDrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_AlphaIndexed_AlphaDrawClip_16(Dest, Pitch, X, Y, Source, Clip);
         } catch (...) {
@@ -2802,7 +3192,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
+    void Ex_OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
         try {
             GR_Main::OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16(Dest, Pitch, X, Y, Source, Clip, Alpha);
         } catch (...) {
@@ -2810,7 +3201,8 @@ namespace GR_Main {
         }
     }
 
-    void* Ex_OKGR_RotateBuf_Build(std::int32_t Width, std::int32_t Height, std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t CenterX, std::int32_t CenterY) {
+    void* Ex_OKGR_RotateBuf_Build(std::int32_t Width, std::int32_t Height, std::int32_t SourceWidth,
+        std::int32_t SourceHeight, std::int32_t CenterX, std::int32_t CenterY) {
         void* Result{};
         try {
             Result = GR_Main::OKGR_RotateBuf_Build(Width, Height, SourceWidth, SourceHeight, CenterX, CenterY);
@@ -2828,7 +3220,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_RotateBuf_Size(std::int32_t X, std::int32_t Y, std::uint8_t Angle, void* RotationMap, WindowsSdk::TRect& Bounds) {
+    void Ex_OKGR_RotateBuf_Size(std::int32_t X, std::int32_t Y, std::uint8_t Angle, void* RotationMap,
+        WindowsSdk::TRect& Bounds) {
         try {
             GR_Main::OKGR_RotateBuf_Size(X, Y, Angle, RotationMap, Bounds);
         } catch (...) {
@@ -2836,15 +3229,18 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_RotateBuf_Draw_DWORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap) {
+    void Ex_OKGR_RotateBuf_Draw_DWORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap) {
         try {
-            GR_Main::OKGR_RotateBuf_Draw_DWORD(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle, RotationMap);
+            GR_Main::OKGR_RotateBuf_Draw_DWORD(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle,
+                RotationMap);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_RotateBuf_Draw_DWORD"_a));
         }
     }
 
-    void Ex_OKGR_RotateBuf_Draw_BYTE(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, std::uint8_t Angle, void* RotationMap) {
+    void Ex_OKGR_RotateBuf_Draw_BYTE(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t Width, std::int32_t Height, std::uint8_t Angle, void* RotationMap) {
         try {
             GR_Main::OKGR_RotateBuf_Draw_BYTE(Dest, DestPitch, Source, SourcePitch, Width, Height, Angle, RotationMap);
         } catch (...) {
@@ -2852,9 +3248,12 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_RotateBuf_DrawTransClip_WORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_RotateBuf_DrawTransClip_WORD(void* Dest, std::int32_t DestPitch, void* Source,
+        std::int32_t SourcePitch, std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap,
+        const WindowsSdk::TRect& Clip) {
         try {
-            GR_Main::OKGR_RotateBuf_DrawTransClip_WORD(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle, RotationMap, Clip);
+            GR_Main::OKGR_RotateBuf_DrawTransClip_WORD(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle,
+                RotationMap, Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_RotateBuf_DrawTransClip_WORD"_a));
         }
@@ -2894,7 +3293,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_LightBuf_LoadFromPalBuf(void* Buffer, void* Source, std::int32_t Width, std::int32_t Height, std::int32_t Pitch, GR_GraphBuf::PColorRGBA Palette) {
+    void Ex_OKGR_LightBuf_LoadFromPalBuf(void* Buffer, void* Source, std::int32_t Width, std::int32_t Height,
+        std::int32_t Pitch, GR_GraphBuf::PColorRGBA Palette) {
         try {
             GR_Main::OKGR_LightBuf_LoadFromPalBuf(Buffer, Source, Width, Height, Pitch, Palette);
         } catch (...) {
@@ -2910,7 +3310,8 @@ namespace GR_Main {
         }
     }
 
-    void* Ex_OKGR_Planet2_TemplBuild(void* Source, std::int32_t Pitch, std::int32_t Height, std::int32_t TextureWidth, std::int32_t TextureHeight, std::int32_t& ByteCount) {
+    void* Ex_OKGR_Planet2_TemplBuild(void* Source, std::int32_t Pitch, std::int32_t Height, std::int32_t TextureWidth,
+        std::int32_t TextureHeight, std::int32_t& ByteCount) {
         void* Result{};
         try {
             Result = GR_Main::OKGR_Planet2_TemplBuild(Source, Pitch, Height, TextureWidth, TextureHeight, ByteCount);
@@ -2930,79 +3331,107 @@ namespace GR_Main {
         return Result;
     }
 
-    void Ex_OKGR_Planet2_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void Ex_OKGR_Planet2_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         try {
-            GR_Main::OKGR_Planet2_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+            GR_Main::OKGR_Planet2_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet2_DrawAndLight_32"_a));
         }
     }
 
-    void Ex_OKGR_Planet2_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Planet2_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         try {
-            GR_Main::OKGR_Planet2_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, Clip);
+            GR_Main::OKGR_Planet2_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y, Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet2_DrawAndLightClip_16"_a));
         }
     }
 
-    void Ex_OKGR_Planet3_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void Ex_OKGR_Planet3_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         try {
-            GR_Main::OKGR_Planet3_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+            GR_Main::OKGR_Planet3_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet3_DrawAndLight_32"_a));
         }
     }
 
-    void Ex_OKGR_Planet3_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Planet3_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         try {
-            GR_Main::OKGR_Planet3_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, Clip);
+            GR_Main::OKGR_Planet3_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y, Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet3_DrawAndLightClip_16"_a));
         }
     }
 
-    void Ex_OKGR_Planet4_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void Ex_OKGR_Planet4_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         try {
-            GR_Main::OKGR_Planet4_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+            GR_Main::OKGR_Planet4_DrawAndLight_32(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet4_DrawAndLight_32"_a));
         }
     }
 
-    void Ex_OKGR_Planet4_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Planet4_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         try {
-            GR_Main::OKGR_Planet4_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, Clip);
+            GR_Main::OKGR_Planet4_DrawAndLightClip_16(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask,
+                MapOffset, LightBuffer, Palette, X, Y, Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Planet4_DrawAndLightClip_16"_a));
         }
     }
 
-    void Ex_OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         try {
-            GR_Main::OKGR_Copy_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
+            GR_Main::OKGR_Copy_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width,
+                Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Copy_XY_XY_WORD"_a));
         }
     }
 
-    void Ex_OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette,
+        std::int32_t Width, std::int32_t Height) {
         try {
-            GR_Main::OKGR_PalCopy_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Palette, Width, Height);
+            GR_Main::OKGR_PalCopy_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY,
+                Palette, Width, Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_PalCopy_XY_XY_WORD"_a));
         }
     }
 
-    void Ex_OKGR_CopyTrans_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, std::uint16_t TransparentColor) {
+    void Ex_OKGR_CopyTrans_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height, std::uint16_t TransparentColor) {
         try {
-            GR_Main::OKGR_CopyTrans_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height, TransparentColor);
+            GR_Main::OKGR_CopyTrans_XY_XY_WORD(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY,
+                Width, Height, TransparentColor);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_CopyTrans_XY_XY_WORD"_a));
         }
     }
 
-    void Ex_OKGR_CopySingleBuf_XY_XY_WORD(void* Pixels, std::int32_t Pitch, std::int32_t DestX, std::int32_t DestY, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_CopySingleBuf_XY_XY_WORD(void* Pixels, std::int32_t Pitch, std::int32_t DestX, std::int32_t DestY,
+        std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
         try {
             GR_Main::OKGR_CopySingleBuf_XY_XY_WORD(Pixels, Pitch, DestX, DestY, SourceX, SourceY, Width, Height);
         } catch (...) {
@@ -3010,15 +3439,19 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_HACopy_XY_XY_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_HACopy_XY_XY_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         try {
-            GR_Main::OKGR_HACopy_XY_XY_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
+            GR_Main::OKGR_HACopy_XY_XY_16(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width,
+                Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_HACopy_XY_XY_16"_a));
         }
     }
 
-    void Ex_OKGR_StretchGdi_WORD(void* Dest, std::uint32_t Width, std::uint32_t Height, void* Source, std::uint32_t SourceWidth, std::uint32_t SourceHeight) {
+    void Ex_OKGR_StretchGdi_WORD(void* Dest, std::uint32_t Width, std::uint32_t Height, void* Source,
+        std::uint32_t SourceWidth, std::uint32_t SourceHeight) {
         try {
             GR_Main::OKGR_StretchGdi_WORD(Dest, Width, Height, Source, SourceWidth, SourceHeight);
         } catch (...) {
@@ -3026,7 +3459,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint16_t Color) {
+    void Ex_OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        std::uint16_t Color) {
         try {
             GR_Main::OKGR_Fill_WORD(Pixels, Pitch, Width, Height, Color);
         } catch (...) {
@@ -3034,7 +3468,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_ConvertRGBto565(void* Source, void* Dest, std::int32_t Pitch, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGF_ConvertRGBto565(void* Source, void* Dest, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height) {
         try {
             GR_Main::OKGF_ConvertRGBto565(Source, Dest, Pitch, Width, Height);
         } catch (...) {
@@ -3042,7 +3477,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_Convert565toRGB(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGF_Convert565toRGB(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         try {
             GR_Main::OKGF_Convert565toRGB(Source, SourcePitch, Dest, DestPitch, Width, Height);
         } catch (...) {
@@ -3050,7 +3486,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_Convert565toBGR(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGF_Convert565toBGR(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         try {
             GR_Main::OKGF_Convert565toBGR(Source, SourcePitch, Dest, DestPitch, Width, Height);
         } catch (...) {
@@ -3058,7 +3495,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         try {
             GR_Main::OKGF_Convert565toBGRA(Source, SourcePitch, Dest, DestPitch, Width, Height);
         } catch (...) {
@@ -3066,15 +3504,19 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         try {
-            GR_Main::OKGF_Convert_8888to565(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
+            GR_Main::OKGF_Convert_8888to565(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width,
+                Height);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Convert_8888to565"_a));
         }
     }
 
-    void Ex_OKGR_ShrLight_16(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::int32_t Shift) {
+    void Ex_OKGR_ShrLight_16(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        std::int32_t Shift) {
         try {
             GR_Main::OKGR_ShrLight_16(Pixels, Pitch, Width, Height, Shift);
         } catch (...) {
@@ -3082,7 +3524,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_ShrLightMask_16(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height) {
+    void Ex_OKGR_ShrLightMask_16(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t Width, std::int32_t Height) {
         try {
             GR_Main::OKGR_ShrLightMask_16(Dest, DestPitch, Source, SourcePitch, Width, Height);
         } catch (...) {
@@ -3090,7 +3533,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Light_BYTE(void* Pixels, std::int32_t PixelStride, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint8_t Alpha) {
+    void Ex_OKGR_Light_BYTE(void* Pixels, std::int32_t PixelStride, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, std::uint8_t Alpha) {
         try {
             GR_Main::OKGR_Light_BYTE(Pixels, PixelStride, Pitch, Width, Height, Alpha);
         } catch (...) {
@@ -3098,7 +3542,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Circle_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Circle_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Circle_DrawClip_WORD(Pixels, Pitch, X, Y, Radius, Color, Clip);
         } catch (...) {
@@ -3106,7 +3551,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Circle_DrawClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Circle_DrawClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Circle_DrawClip_BYTE(Pixels, Pitch, X, Y, Radius, Color, Clip);
         } catch (...) {
@@ -3114,7 +3560,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Circle_DrawFillClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Circle_DrawFillClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Circle_DrawFillClip_WORD(Pixels, Pitch, X, Y, Radius, Color, Clip);
         } catch (...) {
@@ -3122,7 +3569,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Circle_DrawFillClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Circle_DrawFillClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Circle_DrawFillClip_BYTE(Pixels, Pitch, X, Y, Radius, Color, Clip);
         } catch (...) {
@@ -3130,10 +3578,12 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t Ex_OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
+    std::int32_t Ex_OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2,
+        pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
         std::int32_t Result{};
         try {
-            Result = GR_Main::OKGR_Line_Clip(pas::Var<std::int32_t>(X1.address), pas::Var<std::int32_t>(Y1.address), pas::Var<std::int32_t>(X2.address), pas::Var<std::int32_t>(Y2.address), Clip);
+            Result = GR_Main::OKGR_Line_Clip(pas::Var<std::int32_t>(X1.address), pas::Var<std::int32_t>(Y1.address),
+                    pas::Var<std::int32_t>(X2.address), pas::Var<std::int32_t>(Y2.address), Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_Line_Clip"_a));
         }
@@ -3141,9 +3591,12 @@ namespace GR_Main {
     }
 
     // Native implementation ignores Pixels/Pitch and draws into ScreenRenderBuffer.
-    void DrawGradientLine16Clipped(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, WindowsSdk::TRect Clip) {
+    void DrawGradientLine16Clipped(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, WindowsSdk::TRect Clip) {
         TLineRasterizer16 Rasterizer{};
-        if (GR_Main::Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t>(&X1), pas::Var<std::int32_t>(&Y1), pas::Var<std::uint32_t>(&Color1), pas::Var<std::int32_t>(&X2), pas::Var<std::int32_t>(&Y2), pas::Var<std::uint32_t>(&Color2), Clip) != 0) {
+        if (GR_Main::Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t>(&X1), pas::Var<std::int32_t>(&Y1),
+            pas::Var<std::uint32_t>(&Color1), pas::Var<std::int32_t>(&X2), pas::Var<std::int32_t>(&Y2),
+            pas::Var<std::uint32_t>(&Color2), Clip) != 0) {
             Rasterizer = LineRasterizer16;
             {
                 std::uint32_t color2 = Color2;
@@ -3159,17 +3612,23 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::uint32_t> Color1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, pas::Var<std::uint32_t> Color2, const WindowsSdk::TRect& Clip) {
+    std::int32_t Ex_OKGR_LineColor_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1,
+        pas::Var<std::uint32_t> Color1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2,
+        pas::Var<std::uint32_t> Color2, const WindowsSdk::TRect& Clip) {
         std::int32_t Result{};
         try {
-            Result = GR_Main::OKGR_LineColor_Clip(pas::Var<std::int32_t>(X1.address), pas::Var<std::int32_t>(Y1.address), pas::Var<std::uint32_t>(Color1.address), pas::Var<std::int32_t>(X2.address), pas::Var<std::int32_t>(Y2.address), pas::Var<std::uint32_t>(Color2.address), Clip);
+            Result = GR_Main::OKGR_LineColor_Clip(pas::Var<std::int32_t>(X1.address),
+                    pas::Var<std::int32_t>(Y1.address), pas::Var<std::uint32_t>(Color1.address),
+                    pas::Var<std::int32_t>(X2.address), pas::Var<std::int32_t>(Y2.address),
+                    pas::Var<std::uint32_t>(Color2.address), Clip);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in Ex_OKGR_LineColor_Clip"_a));
         }
         return Result;
     }
 
-    void Ex_OKGR_Line_Draw_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color) {
+    void Ex_OKGR_Line_Draw_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color) {
         try {
             GR_Main::OKGR_Line_Draw_WORD(Pixels, Pitch, X1, Y1, X2, Y2, Color);
         } catch (...) {
@@ -3177,7 +3636,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Line_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Line_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Line_DrawClip_WORD(Pixels, Pitch, X1, Y1, X2, Y2, Color, Clip);
         } catch (...) {
@@ -3185,7 +3645,8 @@ namespace GR_Main {
         }
     }
 
-    std::int32_t Ex_OKGR_Line_CopyToBuf_WORD(void* Dest, void* Source, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
+    std::int32_t Ex_OKGR_Line_CopyToBuf_WORD(void* Dest, void* Source, std::int32_t Pitch, std::int32_t X1,
+        std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_Line_CopyToBuf_WORD(Dest, Source, Pitch, X1, Y1, X2, Y2);
@@ -3196,7 +3657,8 @@ namespace GR_Main {
     }
 
     // Restores one saved 16-bit pixel per rasterized line point; returns the pixel count.
-    std::int32_t Ex_OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
+    std::int32_t Ex_OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1,
+        std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
         std::int32_t Result{};
         try {
             Result = GR_Main::OKGR_Line_CopyFromBuf_WORD(Source, Dest, Pitch, X1, Y1, X2, Y2);
@@ -3206,7 +3668,8 @@ namespace GR_Main {
         return Result;
     }
 
-    void Ex_OKGR_Line_DrawClip_Alpha_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Line_DrawClip_Alpha_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Line_DrawClip_Alpha_16(Pixels, Pitch, X1, Y1, X2, Y2, Color, Alpha, Clip);
         } catch (...) {
@@ -3214,7 +3677,8 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AnimLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_AnimLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_AnimLine_Draw_16(Pixels, Pitch, X1, Y1, X2, Y2, Color, Phase, Clip);
         } catch (...) {
@@ -3222,15 +3686,20 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_AnimShadowLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip, void* ShadowPixels, std::int32_t ShadowPitch) {
+    void Ex_OKGR_AnimShadowLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip,
+        void* ShadowPixels, std::int32_t ShadowPitch) {
         try {
-            GR_Main::OKGR_AnimShadowLine_Draw_16(Pixels, Pitch, X1, Y1, X2, Y2, Color, Phase, Clip, ShadowPixels, ShadowPitch);
+            GR_Main::OKGR_AnimShadowLine_Draw_16(Pixels, Pitch, X1, Y1, X2, Y2, Color, Phase, Clip, ShadowPixels,
+                ShadowPitch);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGR_AnimShadowLine_Draw_16"_a));
         }
     }
 
-    void Ex_OKGR_Alpha64Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Alpha64Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Alpha64Trapezium_16(Pixels, Pitch, X1, Y1, X2, Y2, X3, X4, Color, Clip);
         } catch (...) {
@@ -3238,7 +3707,9 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_Alpha128Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_Alpha128Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_Alpha128Trapezium_16(Pixels, Pitch, X1, Y1, X2, Y2, X3, X4, Color, Clip);
         } catch (...) {
@@ -3246,7 +3717,9 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGR_FillTrapezium_DWORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t X2, std::int32_t Y1, std::int32_t X3, std::int32_t X4, std::int32_t Y2, std::uint32_t Color, const WindowsSdk::TRect& Clip) {
+    void Ex_OKGR_FillTrapezium_DWORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t X2,
+        std::int32_t Y1, std::int32_t X3, std::int32_t X4, std::int32_t Y2, std::uint32_t Color,
+        const WindowsSdk::TRect& Clip) {
         try {
             GR_Main::OKGR_FillTrapezium_DWORD(Pixels, Pitch, X1, X2, Y1, X3, X4, Y2, Color, Clip);
         } catch (...) {
@@ -3254,9 +3727,12 @@ namespace GR_Main {
         }
     }
 
-    void Ex_OKGF_Rescale(void* Dest, std::int32_t Width, std::int32_t Height, std::int32_t DestPitch, void* Source, std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t SourcePitch, std::int32_t BytesPerPixel, std::int32_t Filter) {
+    void Ex_OKGF_Rescale(void* Dest, std::int32_t Width, std::int32_t Height, std::int32_t DestPitch, void* Source,
+        std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t SourcePitch, std::int32_t BytesPerPixel,
+        std::int32_t Filter) {
         try {
-            GR_Main::OKGF_Rescale(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel, Filter);
+            GR_Main::OKGF_Rescale(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch,
+                BytesPerPixel, Filter);
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Rescale"_a));
         }
@@ -3278,25 +3754,13 @@ namespace GR_Main {
         }
     }
 
-    // 'libogg-0', 'libvorbis-0', 'libvorbisfile', 'matrixgame',
-    // 'okgf', 'steam_ach', 'steam_api', 'xvidcore', 'zlib'.
-    // Differences from the 1024x768 UI baseline; may be negative.
-    // Identity function in this binary.
-    std::int32_t GiScalePixels(std::int32_t Value) {
-        return Value;
-    }
-
-    // Returns Value; AlternateValue is unused in this binary.
-    std::int32_t GiScalePixelsEx(std::int32_t Value, std::int32_t AlternateValue) {
-        return Value;
-    }
-
     // Converts the borrowed UTF-16 message to AnsiString and raises Exception.
     void RaiseWideMessage(const pas::WideString& Message) {
         pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(Message)));
     }
 
-    void DrawTransparentBuffer16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, WindowsSdk::TRect Clip, std::uint8_t HalfAlpha) {
+    void DrawTransparentBuffer16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        WindowsSdk::TRect Clip, std::uint8_t HalfAlpha) {
         WindowsSdk::TRect InclusiveClip{};
         InclusiveClip.Left = Clip.Left;
         InclusiveClip.Top = Clip.Top;
@@ -3309,7 +3773,8 @@ namespace GR_Main {
         }
     }
 
-    void CopyPalettedBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source, void* Palette, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip) {
+    void CopyPalettedBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source,
+        void* Palette, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip) {
         if (X >= Clip.Right || Y >= Clip.Bottom || X + Width - 1 < Clip.Left || Y + Height - 1 < Clip.Top) {
             return;
         }
@@ -3331,10 +3796,13 @@ namespace GR_Main {
             Height -= SourceY;
             Y = Clip.Top;
         }
-        GR_Main::Ex_OKGR_PalCopy_XY_XY_WORD(Dest, DestPitch, X, Y, Source, SourcePitch, SourceX, SourceY, Palette, Width, Height);
+        GR_Main::Ex_OKGR_PalCopy_XY_XY_WORD(Dest, DestPitch, X, Y, Source, SourcePitch, SourceX, SourceY, Palette,
+            Width, Height);
     }
 
-    void CopyBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip, std::uint8_t UnusedOption) {
+    void CopyBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip,
+        std::uint8_t UnusedOption) {
         if (X >= Clip.Right || Y >= Clip.Bottom || X + Width - 1 < Clip.Left || Y + Height - 1 < Clip.Top) {
             return;
         }
@@ -3359,7 +3827,8 @@ namespace GR_Main {
         GR_Main::Ex_OKGR_Copy_XY_XY_WORD(Dest, DestPitch, X, Y, Source, SourcePitch, SourceX, SourceY, Width, Height);
     }
 
-    void DrawAlphaBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip) {
+    void DrawAlphaBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, WindowsSdk::TRect Clip) {
         if (X >= Clip.Right || Y >= Clip.Bottom || X + Width - 1 < Clip.Left || Y + Height - 1 < Clip.Top) {
             return;
         }
@@ -3381,20 +3850,36 @@ namespace GR_Main {
             Height -= SourceY;
             Y = Clip.Top;
         }
-        GR_Main::Ex_OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, X, Y, Source, SourcePitch, SourceX, SourceY, Width, Height);
+        GR_Main::Ex_OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, X, Y, Source, SourcePitch, SourceX, SourceY, Width,
+            Height);
     }
 
-    void ExpandPaletteToBgra(void* Dest, std::int32_t DestPitch, std::uint32_t Width, std::uint32_t Height, void* Source, std::int32_t SourcePitch, void* Palette) {
+    void ExpandPaletteToBgra(void* Dest, std::int32_t DestPitch, std::uint32_t Width, std::uint32_t Height,
+        void* Source, std::int32_t SourcePitch, void* Palette) {
         std::uint32_t X{};
         std::uint32_t Y{};
         std::uint32_t Offset{};
         for (auto cpp_range = pas::for_to<std::uint32_t>(0u, Height - 1); cpp_range.next(Y); ) {
             for (auto cpp_range_2 = pas::for_to<std::uint32_t>(0u, Width - 1); cpp_range_2.next(X); ) {
-                Offset = pas::shl(static_cast<std::int32_t>(*reinterpret_cast<std::uint8_t*>(static_cast<std::uint8_t*>(Source) + X)), 2);
-                reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uint8_t*>(Dest) + X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))->B = *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(Palette) + Offset)->B);
-                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uint8_t*>(Dest) + X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))->G) = *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(Palette) + Offset)->G);
-                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uint8_t*>(Dest) + X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))->R) = reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(Palette) + Offset)->R;
-                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uint8_t*>(Dest) + X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))->A) = *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(static_cast<std::uint8_t*>(Palette) + Offset)->A);
+                Offset = pas::shl(
+                        static_cast<std::int32_t>(*reinterpret_cast<std::uint8_t*>(pas::pointer_add(
+                            static_cast<std::uint8_t*>(Source), X))), 2);
+                reinterpret_cast<GR_GraphBuf::PColorBGRA>(pas::pointer_add(static_cast<std::uint8_t*>(Dest),
+                    X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->B =
+                    *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(static_cast<std::uint8_t*>(Palette),
+                        Offset))->B);
+                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(pas::pointer_add(static_cast<std::uint8_t*>(Dest),
+                    X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->G) =
+                    *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(static_cast<std::uint8_t*>(Palette),
+                        Offset))->G);
+                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(pas::pointer_add(static_cast<std::uint8_t*>(Dest),
+                    X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->R) =
+                    reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(static_cast<std::uint8_t*>(Palette),
+                        Offset))->R;
+                *(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(pas::pointer_add(static_cast<std::uint8_t*>(Dest),
+                    X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->A) =
+                    *(&reinterpret_cast<GR_GraphBuf::PColorRGBA>(pas::pointer_add(static_cast<std::uint8_t*>(Palette),
+                        Offset))->A);
             }
             Source = EC_Mem::AddPointerOffset(Source, SourcePitch);
             Dest = EC_Mem::AddPointerOffset(Dest, DestPitch);
@@ -3402,16 +3887,20 @@ namespace GR_Main {
     }
 
     // Uses Data.StyleColor from Main.dat and the current pixel format. Missing entries use the defaults; malformed configured RGB text may raise.
-    std::uint32_t GetStyleColorGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue) {
+    std::uint32_t GetStyleColorGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen,
+        std::int32_t DefaultBlue) {
         EC_BlockPar::TBlockParEC* Style{};
         pas::WideString ColorText{};
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
             Style = GameDataConfig->GetBlock(u"StyleColor"sv);
             if (Style->CountParamsByPath(StyleName) > 0) {
                 ColorText = Style->GetParamByPath(StyleName);
-                std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 2, u","sv)));
-                std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
-                std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
+                std::int32_t extractDigitsToIntW = EC_Str::ExtractDigitsToIntW(pas::view(EC_Str::ExtractDelimitedPartW(
+                    pas::view(ColorText), 2, u","sv)));
+                std::int32_t extractDigitsToIntW_2 = EC_Str::ExtractDigitsToIntW(
+                    pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 1, u","sv)));
+                std::int32_t extractDigitsToIntW_3 = EC_Str::ExtractDigitsToIntW(
+                    pas::view(EC_Str::ExtractDelimitedPartW(pas::view(ColorText), 0, u","sv)));
                 return CurrentPixelFormat->PackRgb(extractDigitsToIntW_3, extractDigitsToIntW_2, extractDigitsToIntW);
             }
         }
@@ -3419,7 +3908,8 @@ namespace GR_Main {
     }
 
     // Returns a complete opening <color=...> tag. Configured Data.StyleColor text is inserted verbatim; missing entries use the default RGB values.
-    pas::WideString GetStyleColorTagGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen, std::int32_t DefaultBlue) {
+    pas::WideString GetStyleColorTagGI(pas::WideString StyleName, std::int32_t DefaultRed, std::int32_t DefaultGreen,
+        std::int32_t DefaultBlue) {
         pas::WideString Result{};
         EC_BlockPar::TBlockParEC* Style{};
         if (GameDataConfig->CountBlocks(u"StyleColor"_wref.get()) > 0) {
@@ -3429,11 +3919,14 @@ namespace GR_Main {
                 return pas::concat_wide({u"<color=", Style->GetParamByPath(StyleName), u">"});
             }
         }
-        return pas::concat_wide({u"<color=", EC_Str::IntToWideString(DefaultRed), u",", EC_Str::IntToWideString(DefaultGreen), u",", EC_Str::IntToWideString(DefaultBlue), u">"});
+        return pas::concat_wide({u"<color=", EC_Str::IntToWideString(DefaultRed), u",",
+            EC_Str::IntToWideString(DefaultGreen), u",", EC_Str::IntToWideString(DefaultBlue), u">"});
     }
 
-    void CopyGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip, std::uint8_t HalfAlpha, std::uint8_t UnusedOption) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 < Clip.Top) {
+    void CopyGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y,
+        GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip, std::uint8_t HalfAlpha, std::uint8_t UnusedOption) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 <
+                Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;
@@ -3459,16 +3952,20 @@ namespace GR_Main {
         if (HalfAlpha) {
             void* pixels = Source->GetPixels();
             std::int32_t pitchBytes = Source->PitchBytes;
-            GR_Main::Ex_OKGR_HACopy_XY_XY_16(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width, Height);
+            GR_Main::Ex_OKGR_HACopy_XY_XY_16(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width,
+                Height);
         } else {
             void* pixels_2 = Source->GetPixels();
             std::int32_t pitchBytes_2 = Source->PitchBytes;
-            GR_Main::Ex_OKGR_Copy_XY_XY_WORD(Dest, DestPitch, X, Y, pixels_2, pitchBytes_2, SourceX, SourceY, Width, Height);
+            GR_Main::Ex_OKGR_Copy_XY_XY_WORD(Dest, DestPitch, X, Y, pixels_2, pitchBytes_2, SourceX, SourceY, Width,
+                Height);
         }
     }
 
-    void DrawAlphaGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 < Clip.Top) {
+    void DrawAlphaGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y,
+        GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 <
+                Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;
@@ -3494,12 +3991,15 @@ namespace GR_Main {
         {
             void* pixels = Source->GetPixels();
             std::int32_t pitchBytes = Source->PitchBytes;
-            GR_Main::Ex_OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width, Height);
+            GR_Main::Ex_OKGR_AlphaSimpleBuf_Draw_16(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width,
+                Height);
         }
     }
 
-    void CopyTransparentGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip, std::uint16_t TransparentColor) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 < Clip.Top) {
+    void CopyTransparentGraphBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y,
+        GR_GraphBuf::TGraphBufGR* Source, WindowsSdk::TRect Clip, std::uint16_t TransparentColor) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || Source->Width + X - 1 < Clip.Left || Source->Height + Y - 1 <
+                Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;
@@ -3525,12 +4025,15 @@ namespace GR_Main {
         {
             void* pixels = Source->GetPixels();
             std::int32_t pitchBytes = Source->PitchBytes;
-            GR_Main::Ex_OKGR_CopyTrans_XY_XY_WORD(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width, Height, TransparentColor);
+            GR_Main::Ex_OKGR_CopyTrans_XY_XY_WORD(Dest, DestPitch, X, Y, pixels, pitchBytes, SourceX, SourceY, Width,
+                Height, TransparentColor);
         }
     }
 
-    void DrawPaletteAlphaBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBufPal::TGraphBufPalGR* Source, WindowsSdk::TRect Clip) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || X + Source->Width - 1 < Clip.Left || Y + Source->Height - 1 < Clip.Top) {
+    void DrawPaletteAlphaBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y,
+        GR_GraphBufPal::TGraphBufPalGR* Source, WindowsSdk::TRect Clip) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || X + Source->Width - 1 < Clip.Left || Y + Source->Height - 1 <
+                Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;
@@ -3553,11 +4056,14 @@ namespace GR_Main {
             Height -= SourceY;
             Y = Clip.Top;
         }
-        GR_Main::Ex_OKGR_AlphaSimpleBufPalAlpha_Draw_16(Dest, DestPitch, X, Y, Source->Pixels, Source->PitchBytes, SourceX, SourceY, Width, Height, Source->Palette);
+        GR_Main::Ex_OKGR_AlphaSimpleBufPalAlpha_Draw_16(Dest, DestPitch, X, Y, Source->Pixels, Source->PitchBytes,
+            SourceX, SourceY, Width, Height, Source->Palette);
     }
 
-    void BlendPaletteBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y, GR_GraphBufPal::TGraphBufPalGR* Source, WindowsSdk::TRect Clip) {
-        if (X >= Clip.Right || Y >= Clip.Bottom || X + Source->Width - 1 < Clip.Left || Y + Source->Height - 1 < Clip.Top) {
+    void BlendPaletteBuffer16Clipped(void* Dest, std::int32_t DestPitch, std::int32_t X, std::int32_t Y,
+        GR_GraphBufPal::TGraphBufPalGR* Source, WindowsSdk::TRect Clip) {
+        if (X >= Clip.Right || Y >= Clip.Bottom || X + Source->Width - 1 < Clip.Left || Y + Source->Height - 1 <
+                Clip.Top) {
             return;
         }
         std::int32_t SourceX = 0;
@@ -3580,8 +4086,9 @@ namespace GR_Main {
             Height -= SourceY;
             Y = Clip.Top;
         }
-        void* SourcePixels = SourceY * Source->PitchBytes + static_cast<std::uint8_t*>(Source->Pixels) + SourceX;
-        Dest = Y * DestPitch + static_cast<std::uint8_t*>(Dest) + X * 2;
+        void* SourcePixels = pas::pointer_add(
+            pas::pointer_add(static_cast<std::uint8_t*>(Source->Pixels), SourceY * Source->PitchBytes), SourceX);
+        Dest = pas::pointer_add(pas::pointer_add(static_cast<std::uint8_t*>(Dest), Y * DestPitch), X * 2);
         std::int32_t SourceSkip = Source->PitchBytes - Width;
         std::int32_t DestSkip = DestPitch - Width * 2;
         void* MulTable = GR_Main::Ex_OKGF_MulTable256x256();
@@ -3589,9 +4096,11 @@ namespace GR_Main {
         std::int32_t ColumnCount = Width;
         // Native handwritten loops blend palette alpha into RGB565 or RGB555.
         if (CurrentPixelFormat->TotalChannelBits == 16) {
-            BitmapPorts::BlendPalette16(SourcePixels, Dest, Width, Height, SourceSkip, DestSkip, Palette, MulTable, true);
+            BitmapPorts::BlendPalette16(SourcePixels, Dest, Width, Height, SourceSkip, DestSkip, Palette, MulTable,
+                true);
         } else {
-            BitmapPorts::BlendPalette16(SourcePixels, Dest, Width, Height, SourceSkip, DestSkip, Palette, MulTable, false);
+            BitmapPorts::BlendPalette16(SourcePixels, Dest, Width, Height, SourceSkip, DestSkip, Palette, MulTable,
+                false);
         }
     }
 
@@ -3657,8 +4166,10 @@ namespace GR_Main {
         pas::AnsiString ProcessorName{};
         std::uint32_t Serial{};
         std::uint32_t Flags{};
-        WindowsSdk::GetVolumeInformationA(pas::literal_pointer("c:\\"), nullptr, 0u, &Serial, Flags, Flags, nullptr, 0u);
-        ProcessorName = static_cast<pas::AnsiString>(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE, u"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"_w, u"ProcessorNameString"_w, pas::WideString()));
+        WindowsSdk::GetVolumeInformationA(pas::literal_pointer("c:\\"), nullptr, 0u, &Serial, Flags, Flags, nullptr,
+            0u);
+        ProcessorName = static_cast<pas::AnsiString>(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE,
+                u"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"_w, u"ProcessorNameString"_w, pas::WideString()));
         EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         Buffer->AddInt32(Serial);
         if (ProcessorName.length() > 0) {
@@ -3676,7 +4187,8 @@ namespace GR_Main {
         return cpp_import(Dest, Source, SourceSize, Mode);
     }
 
-    std::int32_t PAS_STDCALL OKGF_ZLib_UnCompress(void* Dest, std::int32_t DestCapacity, void* Source, std::int32_t SourceSize) {
+    std::int32_t PAS_STDCALL OKGF_ZLib_UnCompress(void* Dest, std::int32_t DestCapacity, void* Source,
+        std::int32_t SourceSize) {
         using CppImport = std::int32_t (PAS_STDCALL *)(void*, std::int32_t, void*, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("ZLib.dll", "OKGF_ZLib_UnCompress");
         return cpp_import(Dest, DestCapacity, Source, SourceSize);
@@ -3700,40 +4212,49 @@ namespace GR_Main {
         return cpp_import();
     }
 
-    EC_OKGF::POkgfReadContext OKGF_ReadStart_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
+    EC_OKGF::POkgfReadContext OKGF_ReadStart_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width,
+        std::int32_t& Height) {
         using CppImport = EC_OKGF::POkgfReadContext (PAS_CDECL *)(void*, std::int32_t, std::int32_t*, std::int32_t*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_ReadStart_Buf");
         return cpp_import(Source, SourceSize, &Width, &Height);
     }
 
-    std::int32_t OKGF_Read(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t BytesPerPixel) {
+    std::int32_t OKGF_Read(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes,
+        std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask,
+        std::int32_t BytesPerPixel) {
         using CppImport = std::int32_t (PAS_CDECL *)(EC_OKGF::POkgfReadContext, void*, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Read");
         return cpp_import(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask, BytesPerPixel);
     }
 
-    EC_OKGF::POkgfReadContext OKGF_ReadStartPal_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
+    EC_OKGF::POkgfReadContext OKGF_ReadStartPal_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width,
+        std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
         using CppImport = EC_OKGF::POkgfReadContext (PAS_CDECL *)(void*, std::int32_t, std::int32_t*, std::int32_t*, std::int32_t*, std::int32_t*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_ReadStartPal_Buf");
         return cpp_import(Source, SourceSize, &Width, &Height, &PaletteCount, &BytesPerPixel);
     }
 
-    std::int32_t OKGF_ReadPal(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, GR_GraphBuf::PColorRGBA Palette) {
+    std::int32_t OKGF_ReadPal(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes,
+        GR_GraphBuf::PColorRGBA Palette) {
         using CppImport = std::int32_t (PAS_CDECL *)(EC_OKGF::POkgfReadContext, void*, std::int32_t, GR_GraphBuf::PColorRGBA);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_ReadPal");
         return cpp_import(Context, Pixels, PitchBytes, Palette);
     }
 
-    std::int32_t OKGF_Write_PNG_File(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t Width, std::int32_t Height, std::int32_t HasAlpha, std::int32_t SwapRedBlue) {
+    std::int32_t OKGF_Write_PNG_File(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t Width,
+        std::int32_t Height, std::int32_t HasAlpha, std::int32_t SwapRedBlue) {
         using CppImport = std::int32_t (PAS_CDECL *)(std::uint8_t*, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Write_PNG_File");
         return cpp_import(FileName, Pixels, PitchBytes, Width, Height, HasAlpha, SwapRedBlue);
     }
 
-    std::int32_t OKGF_Write_BMP_File(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes, std::int32_t BitsPerPixel, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t Width, std::int32_t Height) {
+    std::int32_t OKGF_Write_BMP_File(std::uint8_t* FileName, void* Pixels, std::int32_t PitchBytes,
+        std::int32_t BitsPerPixel, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask,
+        std::uint32_t AlphaMask, std::int32_t Width, std::int32_t Height) {
         using CppImport = std::int32_t (PAS_CDECL *)(std::uint8_t*, void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Write_BMP_File");
-        return cpp_import(FileName, Pixels, PitchBytes, BitsPerPixel, RedMask, GreenMask, BlueMask, AlphaMask, Width, Height);
+        return cpp_import(FileName, Pixels, PitchBytes, BitsPerPixel, RedMask, GreenMask, BlueMask, AlphaMask, Width,
+            Height);
     }
 
     void OKGR_AlphaBuf_Draw_RGBA(void* Dest, std::int32_t Pitch, void* Source) {
@@ -3766,115 +4287,142 @@ namespace GR_Main {
         return cpp_import(Dest, Pitch, Source);
     }
 
-    void OKGR_TransBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_TransBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_DrawClip_WORD");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    void OKGR_TransBuf_HADrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_TransBuf_HADrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_HADrawClip_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    std::int32_t OKGR_TransBuf_Build_WORD(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest, std::uint16_t TransparentColor) {
+    std::int32_t OKGR_TransBuf_Build_WORD(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        void* Dest, std::uint16_t TransparentColor) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::uint16_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_Build_WORD");
         return cpp_import(Source, Pitch, Width, Height, Dest, TransparentColor);
     }
 
-    std::int32_t OKGR_TransBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t OKGR_TransBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, void* Dest) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_BuildFromRGBA_16");
         return cpp_import(Source, Pitch, Width, Height, Dest);
     }
 
-    void OKGR_TransAlphaBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_TransAlphaBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransAlphaBuf_DrawClip_WORD");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    void OKGR_AlphaBuf_DrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_AlphaBuf_DrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaBuf_DrawClip_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    std::int32_t OKGR_TransAlphaBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t OKGR_TransAlphaBuf_BuildFromRGBA_16(void* Source, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, void* Dest) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransAlphaBuf_BuildFromRGBA_16");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_TransAlphaBuf_BuildFromRGBA_16");
         return cpp_import(Source, Pitch, Width, Height, Dest);
     }
 
-    std::int32_t OKGR_AlphaBuf_BuildFromRGBA(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, void* Dest) {
+    std::int32_t OKGR_AlphaBuf_BuildFromRGBA(void* Source, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        void* Dest) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaBuf_BuildFromRGBA");
         return cpp_import(Source, Pitch, Width, Height, Dest);
     }
 
-    void OKGR_AlphaSimpleBuf_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void OKGR_AlphaSimpleBuf_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaSimpleBuf_Draw_16");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
     }
 
-    void OKGR_AlphaSimpleBufPalAlpha_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, GR_GraphBuf::PColorRGBA Palette) {
+    void OKGR_AlphaSimpleBufPalAlpha_Draw_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height, GR_GraphBuf::PColorRGBA Palette) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, GR_GraphBuf::PColorRGBA);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaSimpleBufPalAlpha_Draw_16");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_AlphaSimpleBufPalAlpha_Draw_16");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height, Palette);
     }
 
-    void OKGR_MaskBuf_DrawClip_DWORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, std::uint32_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_MaskBuf_DrawClip_DWORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::uint32_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::uint32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_MaskBuf_DrawClip_DWORD");
         return cpp_import(Dest, Pitch, X, Y, Source, Color, &Clip);
     }
 
-    void OKGR_MaskBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_MaskBuf_DrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_MaskBuf_DrawClip_WORD");
         return cpp_import(Dest, Pitch, X, Y, Source, Color, &Clip);
     }
 
-    void OKGR_TransBuf_FillAlphaClip_RGBA(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint32_t Color) {
+    void OKGR_TransBuf_FillAlphaClip_RGBA(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip, std::uint32_t Color) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_FillAlphaClip_RGBA");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip, Color);
     }
 
-    void OKGR_TransBuf_FillAlphaClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint16_t Color) {
+    void OKGR_TransBuf_FillAlphaClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source,
+        const WindowsSdk::TRect& Clip, std::uint16_t Color) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*, std::uint16_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_TransBuf_FillAlphaClip_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip, Color);
     }
 
-    void OKGR_AlphaIndexed_CopyDrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_AlphaIndexed_CopyDrawClip_WORD(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaIndexed_CopyDrawClip_WORD");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_AlphaIndexed_CopyDrawClip_WORD");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    void OKGR_AlphaIndexed_CopyDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
+    void OKGR_AlphaIndexed_CopyDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*, std::uint8_t);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaIndexed_CopyDrawClip_Alpha_16");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_AlphaIndexed_CopyDrawClip_Alpha_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip, Alpha);
     }
 
-    void OKGR_AlphaIndexed_AlphaDrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip) {
+    void OKGR_AlphaIndexed_AlphaDrawClip_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaIndexed_AlphaDrawClip_16");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_AlphaIndexed_AlphaDrawClip_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip);
     }
 
-    void OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y, void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
+    void OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16(void* Dest, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        void* Source, const WindowsSdk::TRect& Clip, std::uint8_t Alpha) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, const WindowsSdk::TRect*, std::uint8_t);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16");
         return cpp_import(Dest, Pitch, X, Y, Source, &Clip, Alpha);
     }
 
-    void* OKGR_RotateBuf_Build(std::int32_t Width, std::int32_t Height, std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t CenterX, std::int32_t CenterY) {
+    void* OKGR_RotateBuf_Build(std::int32_t Width, std::int32_t Height, std::int32_t SourceWidth,
+        std::int32_t SourceHeight, std::int32_t CenterX, std::int32_t CenterY) {
         using CppImport = void* (PAS_CDECL *)(std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_RotateBuf_Build");
         return cpp_import(Width, Height, SourceWidth, SourceHeight, CenterX, CenterY);
@@ -3886,27 +4434,33 @@ namespace GR_Main {
         return cpp_import(Buffer);
     }
 
-    void OKGR_RotateBuf_Size(std::int32_t X, std::int32_t Y, std::uint8_t Angle, void* RotationMap, WindowsSdk::TRect& Bounds) {
+    void OKGR_RotateBuf_Size(std::int32_t X, std::int32_t Y, std::uint8_t Angle, void* RotationMap,
+        WindowsSdk::TRect& Bounds) {
         using CppImport = void (PAS_CDECL *)(std::int32_t, std::int32_t, std::uint8_t, void*, WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_RotateBuf_Size");
         return cpp_import(X, Y, Angle, RotationMap, &Bounds);
     }
 
-    void OKGR_RotateBuf_Draw_DWORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap) {
+    void OKGR_RotateBuf_Draw_DWORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::uint8_t, void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_RotateBuf_Draw_DWORD");
         return cpp_import(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle, RotationMap);
     }
 
-    void OKGR_RotateBuf_Draw_BYTE(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height, std::uint8_t Angle, void* RotationMap) {
+    void OKGR_RotateBuf_Draw_BYTE(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t Width, std::int32_t Height, std::uint8_t Angle, void* RotationMap) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::uint8_t, void*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_RotateBuf_Draw_BYTE");
         return cpp_import(Dest, DestPitch, Source, SourcePitch, Width, Height, Angle, RotationMap);
     }
 
-    void OKGR_RotateBuf_DrawTransClip_WORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap, const WindowsSdk::TRect& Clip) {
+    void OKGR_RotateBuf_DrawTransClip_WORD(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t CenterX, std::int32_t CenterY, std::uint8_t Angle, void* RotationMap,
+        const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::uint8_t, void*, const WindowsSdk::TRect*);
-        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_RotateBuf_DrawTransClip_WORD");
+        static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll",
+            "OKGR_RotateBuf_DrawTransClip_WORD");
         return cpp_import(Dest, DestPitch, Source, SourcePitch, CenterX, CenterY, Angle, RotationMap, &Clip);
     }
 
@@ -3934,7 +4488,8 @@ namespace GR_Main {
         return cpp_import(Buffer, Value);
     }
 
-    void OKGR_LightBuf_LoadFromPalBuf(void* Buffer, void* Source, std::int32_t Width, std::int32_t Height, std::int32_t Pitch, GR_GraphBuf::PColorRGBA Palette) {
+    void OKGR_LightBuf_LoadFromPalBuf(void* Buffer, void* Source, std::int32_t Width, std::int32_t Height,
+        std::int32_t Pitch, GR_GraphBuf::PColorRGBA Palette) {
         using CppImport = void (PAS_CDECL *)(void*, void*, std::int32_t, std::int32_t, std::int32_t, GR_GraphBuf::PColorRGBA);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_LightBuf_LoadFromPalBuf");
         return cpp_import(Buffer, Source, Width, Height, Pitch, Palette);
@@ -3946,7 +4501,8 @@ namespace GR_Main {
         return cpp_import(Dest, Source, RotationMap, Angle);
     }
 
-    void* OKGR_Planet2_TemplBuild(void* Source, std::int32_t Pitch, std::int32_t Height, std::int32_t TextureWidth, std::int32_t TextureHeight, std::int32_t& ByteCount) {
+    void* OKGR_Planet2_TemplBuild(void* Source, std::int32_t Pitch, std::int32_t Height, std::int32_t TextureWidth,
+        std::int32_t TextureHeight, std::int32_t& ByteCount) {
         using CppImport = void* (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet2_TemplBuild");
         return cpp_import(Source, Pitch, Height, TextureWidth, TextureHeight, &ByteCount);
@@ -3959,79 +4515,107 @@ namespace GR_Main {
         return cpp_import(TemplateData);
     }
 
-    void OKGR_Planet2_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void OKGR_Planet2_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet2_DrawAndLight_32");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y);
     }
 
-    void OKGR_Planet2_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void OKGR_Planet2_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet2_DrawAndLightClip_16");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, &Clip);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y, &Clip);
     }
 
-    void OKGR_Planet3_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void OKGR_Planet3_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet3_DrawAndLight_32");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y);
     }
 
-    void OKGR_Planet3_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void OKGR_Planet3_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet3_DrawAndLightClip_16");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, &Clip);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y, &Clip);
     }
 
-    void OKGR_Planet4_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y) {
+    void OKGR_Planet4_DrawAndLight_32(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet4_DrawAndLight_32");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y);
     }
 
-    void OKGR_Planet4_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source, std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette, std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
+    void OKGR_Planet4_DrawAndLightClip_16(void* Dest, std::int32_t DestPitch, void* TemplateData, void* Source,
+        std::int32_t SourcePitch, std::int32_t WidthMask, std::int32_t MapOffset, void* LightBuffer, void* Palette,
+        std::int32_t X, std::int32_t Y, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, void*, std::int32_t, std::int32_t, std::int32_t, void*, void*, std::int32_t, std::int32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Planet4_DrawAndLightClip_16");
-        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer, Palette, X, Y, &Clip);
+        return cpp_import(Dest, DestPitch, TemplateData, Source, SourcePitch, WidthMask, MapOffset, LightBuffer,
+            Palette, X, Y, &Clip);
     }
 
-    void OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source,
+        std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Copy_XY_XY_WORD");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
     }
 
-    void OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette, std::int32_t Width, std::int32_t Height) {
+    void OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette,
+        std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_PalCopy_XY_XY_WORD");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Palette, Width, Height);
     }
 
-    void OKGR_CopyTrans_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height, std::uint16_t TransparentColor) {
+    void OKGR_CopyTrans_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height, std::uint16_t TransparentColor) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_CopyTrans_XY_XY_WORD");
-        return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height, TransparentColor);
+        return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height,
+            TransparentColor);
     }
 
-    void OKGR_CopySingleBuf_XY_XY_WORD(void* Pixels, std::int32_t Pitch, std::int32_t DestX, std::int32_t DestY, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void OKGR_CopySingleBuf_XY_XY_WORD(void* Pixels, std::int32_t Pitch, std::int32_t DestX, std::int32_t DestY,
+        std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_CopySingleBuf_XY_XY_WORD");
         return cpp_import(Pixels, Pitch, DestX, DestY, SourceX, SourceY, Width, Height);
     }
 
-    void OKGR_HACopy_XY_XY_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void OKGR_HACopy_XY_XY_16(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source,
+        std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_HACopy_XY_XY_16");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
     }
 
-    void OKGR_StretchGdi_WORD(void* Dest, std::uint32_t Width, std::uint32_t Height, void* Source, std::uint32_t SourceWidth, std::uint32_t SourceHeight) {
+    void OKGR_StretchGdi_WORD(void* Dest, std::uint32_t Width, std::uint32_t Height, void* Source,
+        std::uint32_t SourceWidth, std::uint32_t SourceHeight) {
         using CppImport = void (PAS_CDECL *)(void*, std::uint32_t, std::uint32_t, void*, std::uint32_t, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_StretchGdi_WORD");
         return cpp_import(Dest, Width, Height, Source, SourceWidth, SourceHeight);
     }
 
-    void OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint16_t Color) {
+    void OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        std::uint16_t Color) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint16_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Fill_WORD");
         return cpp_import(Pixels, Pitch, Width, Height, Color);
@@ -4043,67 +4627,79 @@ namespace GR_Main {
         return cpp_import(Source, Dest, Pitch, Width, Height);
     }
 
-    void OKGF_Convert565toRGB(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void OKGF_Convert565toRGB(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Convert565toRGB");
         return cpp_import(Source, SourcePitch, Dest, DestPitch, Width, Height);
     }
 
-    void OKGF_Convert565toBGR(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void OKGF_Convert565toBGR(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Convert565toBGR");
         return cpp_import(Source, SourcePitch, Dest, DestPitch, Width, Height);
     }
 
-    void OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
+    void OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch,
+        std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Convert565toBGRA");
         return cpp_import(Source, SourcePitch, Dest, DestPitch, Width, Height);
     }
 
-    void OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+    void OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY,
+        void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width,
+        std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Convert_8888to565");
         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
     }
 
-    void OKGR_ShrLight_16(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::int32_t Shift) {
+    void OKGR_ShrLight_16(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height,
+        std::int32_t Shift) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_ShrLight_16");
         return cpp_import(Pixels, Pitch, Width, Height, Shift);
     }
 
-    void OKGR_ShrLightMask_16(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch, std::int32_t Width, std::int32_t Height) {
+    void OKGR_ShrLightMask_16(void* Dest, std::int32_t DestPitch, void* Source, std::int32_t SourcePitch,
+        std::int32_t Width, std::int32_t Height) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_ShrLightMask_16");
         return cpp_import(Dest, DestPitch, Source, SourcePitch, Width, Height);
     }
 
-    void OKGR_Light_BYTE(void* Pixels, std::int32_t PixelStride, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint8_t Alpha) {
+    void OKGR_Light_BYTE(void* Pixels, std::int32_t PixelStride, std::int32_t Pitch, std::int32_t Width,
+        std::int32_t Height, std::uint8_t Alpha) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint8_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Light_BYTE");
         return cpp_import(Pixels, PixelStride, Pitch, Width, Height, Alpha);
     }
 
-    void OKGR_Circle_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Circle_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Circle_DrawClip_WORD");
         return cpp_import(Pixels, Pitch, X, Y, Radius, Color, &Clip);
     }
 
-    void OKGR_Circle_DrawClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Circle_DrawClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint8_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Circle_DrawClip_BYTE");
         return cpp_import(Pixels, Pitch, X, Y, Radius, Color, &Clip);
     }
 
-    void OKGR_Circle_DrawFillClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Circle_DrawFillClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Circle_DrawFillClip_WORD");
         return cpp_import(Pixels, Pitch, X, Y, Radius, Color, &Clip);
     }
 
-    void OKGR_Circle_DrawFillClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y, std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Circle_DrawFillClip_BYTE(void* Pixels, std::int32_t Pitch, std::int32_t X, std::int32_t Y,
+        std::int32_t Radius, std::uint8_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint8_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Circle_DrawFillClip_BYTE");
         return cpp_import(Pixels, Pitch, X, Y, Radius, Color, &Clip);
@@ -4115,82 +4711,102 @@ namespace GR_Main {
         return cpp_import(Pixel, Color, Alpha);
     }
 
-    std::int32_t OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
+    std::int32_t OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2,
+        pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
         using CppImport = std::int32_t (PAS_CDECL *)(std::int32_t*, std::int32_t*, std::int32_t*, std::int32_t*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_Clip");
-        return cpp_import(static_cast<std::int32_t*>(X1.address), static_cast<std::int32_t*>(Y1.address), static_cast<std::int32_t*>(X2.address), static_cast<std::int32_t*>(Y2.address), &Clip);
+        return cpp_import(static_cast<std::int32_t*>(X1.address), static_cast<std::int32_t*>(Y1.address),
+            static_cast<std::int32_t*>(X2.address), static_cast<std::int32_t*>(Y2.address), &Clip);
     }
 
-    std::int32_t OKGR_LineColor_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::uint32_t> Color1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, pas::Var<std::uint32_t> Color2, const WindowsSdk::TRect& Clip) {
+    std::int32_t OKGR_LineColor_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1,
+        pas::Var<std::uint32_t> Color1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2,
+        pas::Var<std::uint32_t> Color2, const WindowsSdk::TRect& Clip) {
         using CppImport = std::int32_t (PAS_CDECL *)(std::int32_t*, std::int32_t*, std::uint32_t*, std::int32_t*, std::int32_t*, std::uint32_t*, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_LineColor_Clip");
-        return cpp_import(static_cast<std::int32_t*>(X1.address), static_cast<std::int32_t*>(Y1.address), static_cast<std::uint32_t*>(Color1.address), static_cast<std::int32_t*>(X2.address), static_cast<std::int32_t*>(Y2.address), static_cast<std::uint32_t*>(Color2.address), &Clip);
+        return cpp_import(static_cast<std::int32_t*>(X1.address), static_cast<std::int32_t*>(Y1.address),
+            static_cast<std::uint32_t*>(Color1.address), static_cast<std::int32_t*>(X2.address),
+            static_cast<std::int32_t*>(Y2.address), static_cast<std::uint32_t*>(Color2.address), &Clip);
     }
 
-    void OKGR_Line_Draw_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color) {
+    void OKGR_Line_Draw_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_Draw_WORD");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, Color);
     }
 
-    void OKGR_Line_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Line_DrawClip_WORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_DrawClip_WORD");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, Color, &Clip);
     }
 
-    std::int32_t OKGR_Line_CopyToBuf_WORD(void* Dest, void* Source, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
+    std::int32_t OKGR_Line_CopyToBuf_WORD(void* Dest, void* Source, std::int32_t Pitch, std::int32_t X1,
+        std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_CopyToBuf_WORD");
         return cpp_import(Dest, Source, Pitch, X1, Y1, X2, Y2);
     }
 
-    std::int32_t OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
+    std::int32_t OKGR_Line_CopyFromBuf_WORD(void* Source, void* Dest, std::int32_t Pitch, std::int32_t X1,
+        std::int32_t Y1, std::int32_t X2, std::int32_t Y2) {
         using CppImport = std::int32_t (PAS_CDECL *)(void*, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_CopyFromBuf_WORD");
         return cpp_import(Source, Dest, Pitch, X1, Y1, X2, Y2);
     }
 
-    void OKGR_Line_DrawClip_Alpha_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, const WindowsSdk::TRect& Clip) {
+    void OKGR_Line_DrawClip_Alpha_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::uint8_t Alpha, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, std::uint8_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Line_DrawClip_Alpha_16");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, Color, Alpha, &Clip);
     }
 
-    void OKGR_AnimLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip) {
+    void OKGR_AnimLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, std::int32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AnimLine_Draw_16");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, Color, Phase, &Clip);
     }
 
-    void OKGR_AnimShadowLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip, void* ShadowPixels, std::int32_t ShadowPitch) {
+    void OKGR_AnimShadowLine_Draw_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1,
+        std::int32_t X2, std::int32_t Y2, std::uint16_t Color, std::int32_t Phase, const WindowsSdk::TRect& Clip,
+        void* ShadowPixels, std::int32_t ShadowPitch) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, std::int32_t, const WindowsSdk::TRect*, void*, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_AnimShadowLine_Draw_16");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, Color, Phase, &Clip, ShadowPixels, ShadowPitch);
     }
 
-    void OKGR_Alpha64Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Alpha64Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Alpha64Trapezium_16");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, X3, X4, Color, &Clip);
     }
 
-    void OKGR_Alpha128Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2, std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_Alpha128Trapezium_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::int32_t X2,
+        std::int32_t Y2, std::int32_t X3, std::int32_t X4, std::uint16_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint16_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Alpha128Trapezium_16");
         return cpp_import(Pixels, Pitch, X1, Y1, X2, Y2, X3, X4, Color, &Clip);
     }
 
-    void OKGR_FillTrapezium_DWORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t X2, std::int32_t Y1, std::int32_t X3, std::int32_t X4, std::int32_t Y2, std::uint32_t Color, const WindowsSdk::TRect& Clip) {
+    void OKGR_FillTrapezium_DWORD(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t X2, std::int32_t Y1,
+        std::int32_t X3, std::int32_t X4, std::int32_t Y2, std::uint32_t Color, const WindowsSdk::TRect& Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, const WindowsSdk::TRect*);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_FillTrapezium_DWORD");
         return cpp_import(Pixels, Pitch, X1, X2, Y1, X3, X4, Y2, Color, &Clip);
     }
 
-    void OKGF_Rescale(void* Dest, std::int32_t Width, std::int32_t Height, std::int32_t DestPitch, void* Source, std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t SourcePitch, std::int32_t BytesPerPixel, std::int32_t Filter) {
+    void OKGF_Rescale(void* Dest, std::int32_t Width, std::int32_t Height, std::int32_t DestPitch, void* Source,
+        std::int32_t SourceWidth, std::int32_t SourceHeight, std::int32_t SourcePitch, std::int32_t BytesPerPixel,
+        std::int32_t Filter) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Rescale");
-        return cpp_import(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel, Filter);
+        return cpp_import(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel,
+            Filter);
     }
 
     void OKGR_F5_DrawRGBA(void* Dest, std::int32_t Pitch, void* Source) {
@@ -4206,14 +4822,17 @@ namespace GR_Main {
     }
 
     // Cdecl triangle ABI verified at native caller.
-    void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3, WindowsSdk::PRect Clip) {
+    void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1,
+        std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3,
+        WindowsSdk::PRect Clip) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, WindowsSdk::PRect);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Triangle_16");
         return cpp_import(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2, X3, Y3, Color3, Clip);
     }
 
     // Cdecl gradient-line ABI verified at native caller.
-    void OKGF_LineIp_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2) {
+    void OKGF_LineIp_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1,
+        std::int32_t X2, std::int32_t Y2, std::uint32_t Color2) {
         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t);
         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_LineIp_16");
         return cpp_import(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2);

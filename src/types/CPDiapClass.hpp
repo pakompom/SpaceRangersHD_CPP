@@ -30,7 +30,7 @@ namespace CPDiapClass {
         // Zero when empty. Sampling weights overlaps repeatedly; lengths and results are 32-bit.
         std::int32_t GetRandomValue();
         // Rounds with System.Round first.
-        std::uint8_t Contains(pas::Extended Value);
+        std::uint8_t Contains(double Value);
         // Uses [ahb;c] and signed low 32-bit endpoints; empty output is '['.
         pas::WideString ToText();
         // Ignores Source.AcceptListed.
@@ -41,7 +41,7 @@ namespace CPDiapClass {
         // Swaps reversed bounds; does not merge ranges.
         void AddRange(std::int64_t MinValue, std::int64_t MaxValue);
         // Truncates to Int64; caught conversion errors preserve existing ranges.
-        void AddValue(pas::Extended Value);
+        void AddValue(double Value);
         // Accepts [a..b;c] or [ahb;c]. Endpoints beyond +/-200000000 can expand intervals unexpectedly; '..' normalization can overread.
         void LoadFromText(pas::WideString Text);
         // Owned Delphi dynamic arrays, indexed 0..RangeCount-1; inclusive bounds.

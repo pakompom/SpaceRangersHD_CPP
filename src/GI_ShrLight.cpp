@@ -106,22 +106,26 @@ namespace GI_ShrLight {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"FShrLight=", SysUtils::IntToStr(LightShift)}));
             }
             if (Kind == slkBuffer) {
-                GR_DX::DrawColoredRect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, 0u, Alpha, true, &ClipRect);
+                GR_DX::DrawColoredRect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, 0u, Alpha, true,
+                    &ClipRect);
             } else if (Kind == slkAll) {
-                GR_DX::DrawColoredRect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, 0u, Alpha, true, &ClipRect);
+                GR_DX::DrawColoredRect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight, 0u, Alpha, true,
+                    &ClipRect);
             }
         } else if (Kind == slkBuffer) {
             std::int32_t pitchBytes = LightBuffer->PitchBytes;
             std::int32_t cpp_arg_3 = ClipRect.Right - ClipRect.Left;
             std::int32_t cpp_arg_4 = ClipRect.Bottom - ClipRect.Top;
-            std::int32_t cpp_arg_2 = (ClipRect.Top - HitTestBounds.Top) * LightBuffer->PitchBytes + (ClipRect.Left - HitTestBounds.Left);
+            std::int32_t cpp_arg_2 = (ClipRect.Top - HitTestBounds.Top) * LightBuffer->PitchBytes + (ClipRect.Left -
+                    HitTestBounds.Left);
             void* pixels_2 = LightBuffer->GetPixels();
             void* addPointerOffset = EC_Mem::AddPointerOffset(pixels_2, cpp_arg_2);
             std::int32_t cpp_arg = GR_Main::ScreenRenderBuffer->PitchBytes * ClipRect.Top + ClipRect.Left * 2;
             void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
             void* addPointerOffset_2 = EC_Mem::AddPointerOffset(pixels, cpp_arg);
             std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-            GR_Main::Ex_OKGR_ShrLightMask_16(addPointerOffset_2, pitchBytes_2, addPointerOffset, pitchBytes, cpp_arg_3, cpp_arg_4);
+            GR_Main::Ex_OKGR_ShrLightMask_16(addPointerOffset_2, pitchBytes_2, addPointerOffset, pitchBytes, cpp_arg_3,
+                cpp_arg_4);
         } else if (Kind == slkAll) {
             GR_Main::ScreenRenderBuffer->ShiftLight16(LightShift, ClipRect);
         }

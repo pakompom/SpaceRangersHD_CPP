@@ -19,7 +19,8 @@ namespace fChameleon {
     struct TfChameleon : GI_MessageLoop::TMessageLoopGI {
         PAS_CLASS_META(TfChameleon, GI_MessageLoop::TMessageLoopGI, "TfChameleon", 244)
         void OnOpen() override;
-        void AddChoice(std::int32_t Index, std::int32_t X, std::int32_t Y, pas::WideString Text, std::uint8_t Selected, std::uint8_t Disabled);
+        void AddChoice(std::int32_t Index, std::int32_t X, std::int32_t Y, pas::WideString Text, std::uint8_t Selected,
+            std::uint8_t Disabled);
         void ChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point);
         static void ChoiceMouseEnter(GI_MessageLoop::TObjectGI* Sender);
         static void ChoiceMouseLeave(GI_MessageLoop::TObjectGI* Sender);

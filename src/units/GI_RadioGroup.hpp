@@ -8,7 +8,7 @@ namespace GI_MessageLoop {
 } // namespace GI_MessageLoop
 
 namespace GI_RadioGroup {
-    void TRadioGroupGI_Create(TRadioGroupGI* Self, GI_MessageLoop::TObjectGI* Owner);
+    inline void TRadioGroupGI_Create(TRadioGroupGI* Self, GI_MessageLoop::TObjectGI* Owner);
 
     void TRadioGroupGI_Destroy(TRadioGroupGI* Self);
 
@@ -17,3 +17,5 @@ namespace GI_RadioGroup {
     void TRadioGroupGI_LoadFromConfigPath(TRadioGroupGI* Self, const pas::WideString& Path);
 
 } // namespace GI_RadioGroup
+
+#include "inline/GI_RadioGroup.hpp"

@@ -25,8 +25,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
-#include "units/System.hpp"
 #include "units/aCalc.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -70,14 +68,18 @@ namespace fPlanet {
         ViewportRect = ClassesImports::Rect(0, 0, GR_Main::GameScreenWidth, GR_Main::GameScreenHeight);
         GI_MessageLoop::TObjectGI* Panel = GetByName(u"MainPanel"sv);
         Panel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-        Panel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+        Panel->FindByNameRecursive(u"BGCity"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+            GR_Main::GameScreenHeight));
         GI_MessageLoop::TObjectGI* Info = Panel->FindByNameRecursive(u"PanelInfo"sv);
-        Info->SetPosition(ClassesImports::Point(Info->LocalPosition.X + GR_Main::ExtraScreenWidth, Info->LocalPosition.Y));
+        Info->SetPosition(ClassesImports::Point(Info->LocalPosition.X + GR_Main::ExtraScreenWidth,
+            Info->LocalPosition.Y));
         GI_MessageLoop::TObjectGI* Quest = Panel->FindByNameRecursive(u"QuestInfo"sv);
         // Native layout adds the extra width to both coordinates here.
-        Quest->SetPosition(ClassesImports::Point(Quest->LocalPosition.X + GR_Main::ExtraScreenWidth, Quest->LocalPosition.Y + GR_Main::ExtraScreenWidth));
+        Quest->SetPosition(ClassesImports::Point(Quest->LocalPosition.X + GR_Main::ExtraScreenWidth,
+            Quest->LocalPosition.Y + GR_Main::ExtraScreenWidth));
         GR_Main::AppendLogLineThreadSafe("ok"_a);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<&TfPlanet::EndTurnClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"PM_EndTurn"sv))->UpCallback = pas::bind_method<
+                &TfPlanet::EndTurnClicked>(this);
     }
 
     void TfPlanet::OnOpen() {
@@ -111,7 +113,8 @@ namespace fPlanet {
         }
         RefreshPlanetInfo();
         RefreshTextQuestPrompt();
-        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr && aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
+        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->CurrentPlanet != nullptr &&
+                aPlayer::GetPlayer()->CurrentStar->Status.ControlFaction == aGalaxyStruct::sfDominators) {
             Event = aGalaxyEvent::AddGalaxyEvent(u"PlayerDeath"_w, nullptr);
             Event->AddTextData(u"PlanetCaptured"_w);
             GlobalsV::GameEndReason = GlobalsV::gerPlayerDeath;
@@ -124,7 +127,8 @@ namespace fPlanet {
             RequestClose(1);
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) == aGalaxyStruct::rlHostile) {
+        if (aPlayer::GetPlayer()->CurrentPlanet->GetRelationLevelToShip(aPlayer::GetPlayer()) ==
+            aGalaxyStruct::rlHostile) {
             GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
             RequestClose(1);
             return;
@@ -133,12 +137,14 @@ namespace fPlanet {
             aGalaxy::Galaxy->PrimeIntegrityChecksum(94);
             return;
         }
-        if (aPlayer::GetPlayer()->CurrentPlanet != nullptr && (aPlayer::GetPlayer()->PendingDockDialogue > 0 || aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet)) {
+        if (aPlayer::GetPlayer()->CurrentPlanet != nullptr && (aPlayer::GetPlayer()->PendingDockDialogue > 0 ||
+                aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet)) {
             GlobalsV::RequestedScreenId = GlobalsV::screenGovernment;
             RequestClose(1);
             return;
         }
-        if (GR_Main::CCInterface->GetResourceChecksumFailed() && static_cast<std::uint8_t>(GR_Main::CCInterface->GetTamperDetected() ^ 1)) {
+        if (GR_Main::CCInterface->GetResourceChecksumFailed() &&
+            static_cast<std::uint8_t>(GR_Main::CCInterface->GetTamperDetected() ^ 1)) {
             GR_Main::CCInterface->SetTamperDetected(true);
         }
         MainPanel->RebuildMessageButtons(false);
@@ -167,29 +173,43 @@ namespace fPlanet {
             } else {
                 PanelInfo_Name->SetText(([&] {
                     auto infoNameColorTag = pas::borrow(aMyFunction::InfoNameColorTag);
-                    pas::WideString localizedText = aConst::LocalizedText(u"Planet.Civil.Info.TextNamePlanet"_wref.get());
+                    pas::WideString localizedText = aConst::LocalizedText(
+                        u"Planet.Civil.Info.TextNamePlanet"_wref.get());
                     pas::WideString name = aPlayer::GetPlayer()->CurrentPlanet->Name;
-                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Planet>"_w, std::move(name), infoNameColorTag.get());
+                    return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<Planet>"_w, std::move(name),
+                        infoNameColorTag.get());
                 }()));
             }
         }
         {
             GI_Label::TLabelGI* PanelInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"sv));
             PanelInfo_Text->SetText(aPlayer::GetPlayer()->CurrentPlanet->GetCivilInfoText());
-            Window->SetSize(ClassesImports::Point(PanelInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right, PanelInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
+            Window->SetSize(ClassesImports::Point(
+                PanelInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right,
+                PanelInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
             Window->UpdateAutoGeometry();
             Window->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 10 - Window->ClientSize.X, 10));
             Window->SetActive(true);
-            PanelInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect, 0)));
+            PanelInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect,
+                0)));
         }
         {
-            GI_GraphBuf::TGraphBufGI* PanelInfo_Image = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"PanelInfo_Image"sv));
+            GI_GraphBuf::TGraphBufGI* PanelInfo_Image = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                GetByName(u"PanelInfo_Image"sv));
             PanelInfo_Image->SourceHasPerPixelAlpha = true;
             aPlayer::GetPlayer()->CurrentPlanet->Graphic->RenderToBuffer(this, PanelInfo_Image->GraphBuf, false);
-            if (static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width) >= static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)) {
-                PanelInfo_Image->GraphBuf->RescaleRgba(PanelInfo_Image->ClientSize.X, System::Round(pas::real_divide(PanelInfo_Image->ClientSize.X, static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width)) * static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)), 5);
+            if (static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width) >=
+                static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)) {
+                PanelInfo_Image->GraphBuf->RescaleRgba(PanelInfo_Image->ClientSize.X,
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PanelInfo_Image->ClientSize.X) /
+                        static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width)) *
+                        static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height))), 5);
             } else {
-                PanelInfo_Image->GraphBuf->RescaleRgba(System::Round(pas::real_divide(PanelInfo_Image->ClientSize.Y, static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)) * static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width)), PanelInfo_Image->ClientSize.Y, 5);
+                PanelInfo_Image->GraphBuf->RescaleRgba(
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PanelInfo_Image->ClientSize.Y) /
+                        static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Height)) *
+                        static_cast<std::uint32_t>(PanelInfo_Image->GraphBuf->Width))), PanelInfo_Image->ClientSize.Y,
+                    5);
             }
             PanelInfo_Image->SetImageKindX(GI_Main::ikxCenter);
             PanelInfo_Image->SetImageKindY(GI_Main::ikyCenter);
@@ -201,19 +221,26 @@ namespace fPlanet {
         }
         {
             GI_Image::TImageGI* PanelInfo_Race = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"PanelInfo_Race"sv));
-            PanelInfo_Race->SetImagePath(aConst::GetFactionEmblemPath(aPlayer::GetPlayer()->CurrentPlanet->GetFactionResourceName()));
+            PanelInfo_Race->SetImagePath(
+                aConst::GetFactionEmblemPath(aPlayer::GetPlayer()->CurrentPlanet->GetFactionResourceName()));
             PanelInfo_Race->SetImageKindX(GI_Main::ikxCenter);
             PanelInfo_Race->SetImageKindY(GI_Main::ikyCenter);
-            PanelInfo_Race->SetPosition(ClassesImports::Point(Window->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, Window->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+            PanelInfo_Race->SetPosition(ClassesImports::Point(
+                Window->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X,
+                Window->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
         }
         {
-            GI_Label::TLabelGI* PanelInfo_Text_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"PanelInfo_Text"sv));
+            GI_Label::TLabelGI* PanelInfo_Text_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                GetByName(u"PanelInfo_Text"sv));
             PanelInfo_Text_2->SetTextAlignX(GI_Main::taxLeft);
         }
     }
 
     void TfPlanet::StartTextQuest(GI_MessageLoop::TObjectGI* Sender) {
-        if (Sender->UserValue != 0 && GI_MessageBox::ShowMessageBoxGI(this, aConst::LocalizedText(u"FormGov.QuestCertificate.NotCertificateAttention"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
+        if (Sender->UserValue != 0 && GI_MessageBox::ShowMessageBoxGI(this,
+                aConst::LocalizedText(u"FormGov.QuestCertificate.NotCertificateAttention"_wref.get()),
+                GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) !=
+                GI_MessageBox::mbgResultOK) {
             return;
         }
         aGalaxy::Galaxy->CheckIntegrityChecksum(162);
@@ -236,30 +263,44 @@ namespace fPlanet {
         GI_Window::TWindowGI* Window = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"QuestInfo"sv));
         Quest = nullptr;
         Window->SetActive(false);
-        if (aPlayer::GetPlayer()->CurrentPlanet->TextQuestId > -1 && pas::list_count(aPlayer::GetPlayer()->Quests) > 0) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->Quests) - 1); cpp_range.next(I); ) {
-                Quest = pas::list_at<aRanger::TQuest>(aPlayer::GetPlayer()->Quests, I);
-                if (Quest->QuestType == aGalaxyStruct::qtPlanetQuest && pas::class_cast_if<aPlanet::TPlanet*>(Quest->ObjectiveTarget) != nullptr && aPlayer::GetPlayer()->CurrentPlanet == pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget) && ([&] {
-                    const pas::WideString& intToStr = pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber));
-                    EC_BlockPar::TBlockParEC* blockByPath = GR_Main::LanguageDataConfig->GetBlockByPath(u"PlanetQuest.PlanetQuest"_wref.get());
-                    return blockByPath->CountParams(intToStr);
-                }()) > 0) {
-                    QuestNumber = Quest->QuestNumber;
-                    if (Quest->QuestNumber < aGalaxyStruct::FirstLicensedQuestId || GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
-                        pas::WideString cpp_string = ([&] {
-                            const pas::WideString& intToStr_2 = pas::wide_int_to_str(static_cast<std::int32_t>(Quest->QuestNumber));
-                            EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
-                            return block->GetParamOrMarker(pas::view(intToStr_2));
-                        }());
-                        pas::WideString cpp_string_2 = fPlanetQuest::TfPlanetQuest::GetQuestContentHash(Quest->QuestNumber);
-                        return cpp_string == cpp_string_2;
-                    }())) {
-                        Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 0;
-                    } else {
-                        Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 1;
+        if (aPlayer::GetPlayer()->CurrentPlanet->TextQuestId > -1 && pas::list_count(aPlayer::GetPlayer()->Quests) >
+                0) {
+            const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->Quests) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Quest = pas::list_at<aRanger::TQuest>(aPlayer::GetPlayer()->Quests, I);
+                    if (Quest->QuestType == aGalaxyStruct::qtPlanetQuest &&
+                        pas::class_cast_if<aPlanet::TPlanet*>(Quest->ObjectiveTarget) != nullptr &&
+                        aPlayer::GetPlayer()->CurrentPlanet ==
+                            pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget) && ([&] {
+                            const pas::WideString& intToStr = pas::wide_int_to_str(
+                                static_cast<std::int32_t>(Quest->QuestNumber));
+                            EC_BlockPar::TBlockParEC* blockByPath = GR_Main::LanguageDataConfig->GetBlockByPath(
+                                u"PlanetQuest.PlanetQuest"_wref.get());
+                            return blockByPath->CountParams(intToStr);
+                        }()) > 0) {
+                        QuestNumber = Quest->QuestNumber;
+                        if (Quest->QuestNumber < aGalaxyStruct::FirstLicensedQuestId ||
+                            GR_Main::LanguageDataConfig->GetBlock(
+                                u"PlanetQuest"sv)->CountBlocks(u"PlanetQuestLic"_wref.get()) > 0 && ([&] {
+                                    pas::WideString cpp_string = ([&] {
+                                        const pas::WideString& intToStr_2 = pas::wide_int_to_str(
+                                            static_cast<std::int32_t>(Quest->QuestNumber));
+                                        EC_BlockPar::TBlockParEC* block = GR_Main::LanguageDataConfig->GetBlock(
+                                            u"PlanetQuest"sv)->GetBlock(u"PlanetQuestLic"sv);
+                                        return block->GetParamOrMarker(pas::view(intToStr_2));
+                                    }());
+                                    pas::WideString cpp_string_2 = fPlanetQuest::TfPlanetQuest::GetQuestContentHash(
+                                        Quest->QuestNumber);
+                                    return cpp_string == cpp_string_2;
+                                }())) {
+                            Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 0;
+                        } else {
+                            Window->FindByNameRecursive(u"QuestInfo_Run"sv)->UserValue = 1;
+                        }
+                        Window->SetActive(true);
+                        break;
                     }
-                    Window->SetActive(true);
-                    break;
                 }
             }
         }
@@ -272,21 +313,31 @@ namespace fPlanet {
         }
         {
             GI_Label::TLabelGI* QuestInfo_Text = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"sv));
-            Text = aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"PlanetQuest.StartText.", SysUtils::IntToStr(QuestNumber)})));
+            Text = aConst::LocalizedColorText(pas::concat_wide({u"PlanetQuest.StartText.",
+                    pas::wide_int_to_str(QuestNumber)}));
             if (Text == u"") {
                 Text = aConst::LocalizedColorText(u"PlanetQuest.StartText.QuestExtern"_wref.get());
             }
             if (Quest != nullptr) {
-                aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w, pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name, aMyFunction::TextHighlightColorTag);
-                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name, aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<CurPlanet>"_w,
+                    pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<CurStar>"_w,
+                    pas::checked_cast<aPlanet::TPlanet*>(Quest->ObjectiveTarget)->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromPlanet>"_w, Quest->Planet->Name,
+                    aMyFunction::TextHighlightColorTag);
+                aMyFunction::ReplaceTextToken(Text, u"<FromStar>"_w, Quest->Planet->CurrentStar->Name,
+                    aMyFunction::TextHighlightColorTag);
             }
             QuestInfo_Text->SetText(Text);
-            Window->SetSize(ClassesImports::Point(QuestInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right, QuestInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
+            Window->SetSize(ClassesImports::Point(
+                QuestInfo_Text->ClientSize.X + Window->WorkSubRect.Left + Window->WorkSubRect.Right,
+                QuestInfo_Text->ClientSize.Y + Window->WorkSubRect.Top + Window->WorkSubRect.Bottom));
             Window->UpdateAutoGeometry();
             Window->SetActive(true);
-            QuestInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect, 0)));
+            QuestInfo_Text->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&Window->WorkSubRect,
+                0)));
         }
         {
             GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Text"sv));
@@ -294,17 +345,24 @@ namespace fPlanet {
             fShip2::TfShip2::LayoutItemInfo(Window, cpp_arg_2, cpp_arg, true, true, 0);
         }
         {
-            GI_GraphButton::TGraphButtonGI* QuestInfo_Run = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"QuestInfo_Run"sv));
+            GI_GraphButton::TGraphButtonGI* QuestInfo_Run = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"QuestInfo_Run"sv));
             QuestInfo_Run->UpCallback = pas::bind_method<&TfPlanet::StartTextQuest>(this);
-            Window->SetSize(ClassesImports::Point(Window->ClientSize.X, QuestInfo_Run->ClientSize.Y + Window->ClientSize.Y + GR_Main::GiScalePixels(5)));
+            Window->SetSize(ClassesImports::Point(Window->ClientSize.X,
+                QuestInfo_Run->ClientSize.Y + Window->ClientSize.Y + GR_Main::GiScalePixels(5)));
             Window->UpdateAutoGeometry();
-            QuestInfo_Run->SetPosition(ClassesImports::Point(Window->ClientSize.X / 2 - QuestInfo_Run->ClientSize.X / 2, Window->ClientSize.Y - GR_Main::GiScalePixels(10) - QuestInfo_Run->ClientSize.Y));
+            QuestInfo_Run->SetPosition(ClassesImports::Point(Window->ClientSize.X / 2 - QuestInfo_Run->ClientSize.X / 2,
+                Window->ClientSize.Y - GR_Main::GiScalePixels(10) - QuestInfo_Run->ClientSize.Y));
         }
         {
-            GI_Label::TLabelGI* QuestInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"QuestInfo_Name"sv));
-            QuestInfo_Name_2->SetSize(ClassesImports::Point(Window->ClientSize.X - QuestInfo_Name_2->LocalPosition.X - Window->WorkSubRect.Right, QuestInfo_Name_2->ClientSize.Y));
+            GI_Label::TLabelGI* QuestInfo_Name_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                GetByName(u"QuestInfo_Name"sv));
+            QuestInfo_Name_2->SetSize(ClassesImports::Point(
+                Window->ClientSize.X - QuestInfo_Name_2->LocalPosition.X - Window->WorkSubRect.Right,
+                QuestInfo_Name_2->ClientSize.Y));
         }
-        Window->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 10 - Window->ClientSize.X, GR_Main::GameScreenHeight - GR_Main::GiScalePixels(90) - Window->ClientSize.Y));
+        Window->SetPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 10 - Window->ClientSize.X,
+            GR_Main::GameScreenHeight - GR_Main::GiScalePixels(90) - Window->ClientSize.Y));
     }
 
     void TfPlanet::EndTurnClicked(GI_MessageLoop::TObjectGI* Sender) {
@@ -322,7 +380,8 @@ namespace fPlanet {
 
     void TfPlanet::MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key) {
         GI_MessageLoop::TObjectGI* Button{};
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) || GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ||
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             return;
         }
         if (Key == WindowsSdk::VK_SPACE) {
@@ -347,7 +406,8 @@ namespace fPlanet {
         if (GR_Main::ExitScreenLoop) {
             return;
         }
-        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+            ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10002);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20002);
@@ -364,12 +424,15 @@ namespace fPlanet {
         }
         if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
             if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                    aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                    u"Pirate"}));
             } else {
                 GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
             }
         } else {
-            GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+            GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
         }
     }
 

@@ -60,7 +60,8 @@ namespace GI_Planet {
         // Preserves image caches, atmosphere storage and texture cache.
         void Clear() override;
         // Image width must be a power of two from 16 through 2048; height must not exceed half the width. The light map must cover that height on both axes.
-        void SetImage(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath);
+        void SetImage(const pas::WideString& MaskPath, const pas::WideString& ImagePath,
+            const pas::WideString& LightMapPath);
         // Requires the same dimensions as the surface map.
         void SetCloud1Image(const pas::WideString& Path);
         // Requires the same dimensions as the surface map.
@@ -68,13 +69,16 @@ namespace GI_Planet {
         // Requires the same dimensions as the surface map.
         void SetCloud3Image(const pas::WideString& Path);
         // Uses a diameter of 2*Radius+1. Applies the surface-map dimension checks but omits the light-map size check.
-        void SetImageWithRadius(const pas::WideString& MaskPath, const pas::WideString& ImagePath, const pas::WideString& LightMapPath, std::int32_t Radius);
+        void SetImageWithRadius(const pas::WideString& MaskPath, const pas::WideString& ImagePath,
+            const pas::WideString& LightMapPath, std::int32_t Radius);
         // Uses a diameter of 2*Radius. Reuses an existing surface image and light buffers; ImagePath is used only when the surface cache key is empty.
-        void SetImageFromTemplate(const pas::WideString& TemplateKey, const pas::WideString& ImagePath, std::int32_t Radius);
+        void SetImageFromTemplate(const pas::WideString& TemplateKey, const pas::WideString& ImagePath,
+            std::int32_t Radius);
         // Appends ?Gray to both paths; Color is 0x00BBGGRR. Zero suppresses atmosphere drawing.
         void SetAtmosphere(pas::WideString ImagePath, pas::WideString MaskPath, std::uint32_t Color);
         // Requires space for 256 colors. RGB channels and the alpha ramp are truncated to multiples of eight.
         void BuildAtmospherePalette();
+        void RebuildAtmosphereImage();
         void SetSurfaceMapOffset(std::int32_t Value);
         void SetCloud1MapOffset(std::int32_t Value);
         void SetCloud2MapOffset(std::int32_t Value);

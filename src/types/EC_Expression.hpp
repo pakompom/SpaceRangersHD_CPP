@@ -66,8 +66,25 @@ namespace EC_Expression {
         // Returns -1 when absent.
         std::int32_t FindNameOrderIndex(const pas::WideString& Name);
         std::int32_t FindNameInsertionIndex(const pas::WideString& Name);
+        // Does not validate either index.
+        void SetNameOrderIndex(std::int32_t Index, std::int32_t DataIndex);
+        std::int32_t GetNameOrderIndex(std::int32_t Index);
+        TVarEC* GetItemByNameOrder(std::int32_t Index);
+        std::int32_t FindNameOrderForDataIndex(std::int32_t DataIndex);
+        inline TVarEC* GetItem(std::int32_t Index) {
+            PVarEC Slot = Data;
+            pas::inc(Slot, Index);
+            return pas::load_unaligned<TVarEC*>(Slot);
+        }
+        // Does not validate Index, free the old cell, or update NameOrder.
+        inline void SetItem(std::int32_t Index, TVarEC* Value) {
+            PVarEC Slot = Data;
+            pas::inc(Slot, Index);
+            pas::store_unaligned<TVarEC*>(Slot, Value);
+        }
         // Returns nil for an out-of-range index.
         TVarEC* GetItemNE(std::int32_t Index);
+        std::int32_t IndexOf(TVarEC* Value);
         TVarEC* GetVar(const pas::WideString& Name);
         // Returns nil when absent.
         TVarEC* GetVarNE(const pas::WideString& Name);
@@ -180,8 +197,12 @@ namespace EC_Expression {
         // Inserts before BeforeUnit; nil appends.
         TCodeUnitEC* InsertCodeUnitBefore(TCodeUnitEC* BeforeUnit);
         // NextToken may be nil.
-        void Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
-        void CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver, TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken, PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget, pas::WideString& ErrorText);
+        void Compile(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver,
+            TCodeAnalyzerUnitEC* FirstToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
+        void CompileBlock(TCodeAnalyzerEC* Analyzer, void* SourceContext, TScriptIncludeResolver IncludeResolver,
+            TCodeAnalyzerUnitEC* Token, TCodeUnitEC* BeforeUnit, PCodeAnalyzerUnitEC NextToken,
+            PCodeAnalyzerUnitEC StatementEnd, TCodeUnitEC* BreakTarget, TCodeUnitEC* ContinueTarget,
+            pas::WideString& ErrorText);
         void LinkAll(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked);
         void LinkLocalScopes();
         TCodeEC* Parent;
@@ -251,8 +272,10 @@ namespace EC_Expression {
         std::int32_t AddInstruction();
         void DeleteInstruction(std::int32_t Index);
         // EndToken is exclusive; nil FirstToken starts at Analyzer.First. NextToken may be nil. Clears the previous expression before compiling.
-        void Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken, TCodeAnalyzerUnitEC* EndToken, PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
+        void Compile(TCodeAnalyzerEC* Analyzer, TCodeAnalyzerUnitEC* FirstToken, TCodeAnalyzerUnitEC* EndToken,
+            PCodeAnalyzerUnitEC NextToken, pas::WideString& ErrorText);
         void Link(TVarArrayEC* Scope, std::uint8_t OnlyUnlinked);
+        void Evaluate(TCodeProcessEC* Process, TCodeEC* Code, TScriptDebugState* DebugContext);
         TVarEC* GetResult();
         std::int32_t VariableCount;
         TExpressionVarEC** Variables;

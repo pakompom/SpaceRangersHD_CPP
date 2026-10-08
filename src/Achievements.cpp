@@ -1,4 +1,5 @@
 #include "layout/Achievements.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/System.hpp"
 #include "types/aGalaxyStruct.hpp"
 #include "types/aItem.hpp"
@@ -8,7 +9,6 @@
 #include "types/aTranclucator.hpp"
 #include "units/Achievements.hpp"
 #include "units/EC_BlockPar.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/NoSteamAchievemens.hpp"
@@ -22,40 +22,97 @@
 
 namespace Achievements {
     const Achievements::TAchievementDefinitionTable AchievementDefinitionTable = Achievements::TAchievementDefinitionTable{{
-        {.Key = "NONE"_a}, {.Key = "AGENT"_a, .MaxValue = 50}, {.Key = "ARCHEOLOGY"_a, .MaxValue = 30000},
-        {.Key = "BLACKHEAD"_a, .MaxValue = 200}, {.Key = "BREZHNEV"_a}, {.Key = "BUMMER"_a}, {.Key = "CHAMPION"_a},
-        {.Key = "DOLGOZHID"_a}, {.Key = "HOLEMAN"_a, .MaxValue = 500}, {.Key = "ILL"_a}, {.Key = "KIBERMAN"_a},
-        {.Key = "MANYFACES"_a, .MaxValue = 30}, {.Key = "MONEY"_a}, {.Key = "NARKOMAN"_a},
-        {.Key = "OLDFAG"_a, .MaxValue = 5000000}, {.Key = "PEACELOVER"_a}, {.Key = "PIECECREATOR"_a},
-        {.Key = "PRISON"_a, .MaxValue = 10}, {.Key = "SHIELD"_a, .MaxValue = 500}, {.Key = "SPEED"_a},
-        {.Key = "SPRINTER"_a}, {.Key = "TERMINATOR"_a}, {.Key = "MASTER"_a}, {.Key = "POSTMAN"_a, .MaxValue = 10},
-        {.Key = "HULL"_a}, {.Key = "PIRATE"_a, .MaxValue = 10}, {.Key = "FRY"_a, .MaxValue = 10},
-        {.Key = "COALLITION"_a}, {.Key = "DEALER"_a, .MaxValue = 5000000}, {.Key = "JUMPER"_a, .MaxValue = 500},
-        {.Key = "DEFENDER"_a, .MaxValue = 20}, {.Key = "NEGOCIANT"_a, .MaxValue = 15}, {.Key = "HATER"_a},
-        {.Key = "CREDITOR"_a, .MaxValue = 3}, {.Key = "HOLEPEACE"_a}, {.Key = "SKILL"_a},
-        {.Key = "GUARD"_a, .MaxValue = 30}, {.Key = "SCIENCE"_a}, {.Key = "IRONMAN"_a, .MaxValue = 40},
-        {.Key = "BOMBER"_a}, {.Key = "ROCKET"_a, .MaxValue = 150}, {.Key = "CONTRABAND"_a, .MaxValue = 200},
-        {.Key = "ASTEROID"_a, .MaxValue = 100}, {.Key = "QUEST"_a, .MaxValue = 30}, {.Key = "KELLERRESEARCH"_a},
-        {.Key = "KELLERDESTROY"_a}, {.Key = "BLAZERPROGRAM"_a}, {.Key = "BLAZERPIECE"_a}, {.Key = "TERRONSTAR"_a},
-        {.Key = "TERRONBATTLE"_a}, {.Key = "PIRATESYSTEMS"_a}, {.Key = "NODES"_a}, {.Key = "RATING"_a},
-        {.Key = "RUINS"_a, .MaxValue = 20}, {.Key = "PIRATEWIN"_a}, {.Key = "BEST"_a}, {.Key = "COMMANDOR"_a},
-        {.Key = "BARON"_a}, {.Key = "GIRLSQUEST"_a}, {.Key = "GIRLSHIRE"_a}, {.Key = "SHU"_a},
-        {.Key = "SIDECHANGER"_a, .MaxValue = 15}, {.Key = "ENERGY"_a, .MaxValue = 250}, {.Key = "SCRATCHDAMAGE"_a},
-        {.Key = "SPLINTER"_a, .MaxValue = 200}, {.Key = "EXPLORER"_a, .MaxValue = 100}, {.Key = "TRANCLUCATORS"_a},
-        {.Key = "SUNFUEL"_a}, {.Key = "TERRORIST"_a, .MaxValue = 30}, {.Key = "COUNTERTERRORIST"_a, .MaxValue = 30},
-        {.Key = "BLUEKILLS"_a, .MaxValue = 500}, {.Key = "GREENKILLS"_a, .MaxValue = 500},
-        {.Key = "REDKILLS"_a, .MaxValue = 500}, {.Key = "BERTORSLAYER"_a, .MaxValue = 50}, {.Key = "MAPBUILDER"_a},
-        {.Key = "HACKER"_a, .MaxValue = 100}, {.Key = "DELIVERY"_a, .MaxValue = 50}, {.Key = "INVESTOR"_a},
-        {.Key = "INSURANCE"_a}, {.Key = "PRISONBAIL"_a, .MaxValue = 30}, {.Key = "ROBBER"_a, .MaxValue = 100},
-        {.Key = "WARRIORKILLS"_a, .MaxValue = 100}, {.Key = "DRAIN"_a, .MaxValue = 10000},
-    }};
+        {.Key = "NONE"_a},
+        {.Key = "AGENT"_a, .MaxValue = 50},
+        {.Key = "ARCHEOLOGY"_a, .MaxValue = 30000},
+        {.Key = "BLACKHEAD"_a, .MaxValue = 200},
+        {.Key = "BREZHNEV"_a},
+        {.Key = "BUMMER"_a},
+        {.Key = "CHAMPION"_a},
+        {.Key = "DOLGOZHID"_a},
+        {.Key = "HOLEMAN"_a, .MaxValue = 500},
+        {.Key = "ILL"_a},
+        {.Key = "KIBERMAN"_a},
+        {.Key = "MANYFACES"_a, .MaxValue = 30},
+        {.Key = "MONEY"_a},
+        {.Key = "NARKOMAN"_a},
+        {.Key = "OLDFAG"_a, .MaxValue = 5000000},
+        {.Key = "PEACELOVER"_a},
+        {.Key = "PIECECREATOR"_a},
+        {.Key = "PRISON"_a, .MaxValue = 10},
+        {.Key = "SHIELD"_a, .MaxValue = 500},
+        {.Key = "SPEED"_a},
+        {.Key = "SPRINTER"_a},
+        {.Key = "TERMINATOR"_a},
+        {.Key = "MASTER"_a},
+        {.Key = "POSTMAN"_a, .MaxValue = 10},
+        {.Key = "HULL"_a},
+        {.Key = "PIRATE"_a, .MaxValue = 10},
+        {.Key = "FRY"_a, .MaxValue = 10},
+        {.Key = "COALLITION"_a},
+        {.Key = "DEALER"_a, .MaxValue = 5000000},
+        {.Key = "JUMPER"_a, .MaxValue = 500},
+        {.Key = "DEFENDER"_a, .MaxValue = 20},
+        {.Key = "NEGOCIANT"_a, .MaxValue = 15},
+        {.Key = "HATER"_a},
+        {.Key = "CREDITOR"_a, .MaxValue = 3},
+        {.Key = "HOLEPEACE"_a},
+        {.Key = "SKILL"_a},
+        {.Key = "GUARD"_a, .MaxValue = 30},
+        {.Key = "SCIENCE"_a},
+        {.Key = "IRONMAN"_a, .MaxValue = 40},
+        {.Key = "BOMBER"_a},
+        {.Key = "ROCKET"_a, .MaxValue = 150},
+        {.Key = "CONTRABAND"_a, .MaxValue = 200},
+        {.Key = "ASTEROID"_a, .MaxValue = 100},
+        {.Key = "QUEST"_a, .MaxValue = 30},
+        {.Key = "KELLERRESEARCH"_a},
+        {.Key = "KELLERDESTROY"_a},
+        {.Key = "BLAZERPROGRAM"_a},
+        {.Key = "BLAZERPIECE"_a},
+        {.Key = "TERRONSTAR"_a},
+        {.Key = "TERRONBATTLE"_a},
+        {.Key = "PIRATESYSTEMS"_a},
+        {.Key = "NODES"_a},
+        {.Key = "RATING"_a},
+        {.Key = "RUINS"_a, .MaxValue = 20},
+        {.Key = "PIRATEWIN"_a},
+        {.Key = "BEST"_a},
+        {.Key = "COMMANDOR"_a},
+        {.Key = "BARON"_a},
+        {.Key = "GIRLSQUEST"_a},
+        {.Key = "GIRLSHIRE"_a},
+        {.Key = "SHU"_a},
+        {.Key = "SIDECHANGER"_a, .MaxValue = 15},
+        {.Key = "ENERGY"_a, .MaxValue = 250},
+        {.Key = "SCRATCHDAMAGE"_a},
+        {.Key = "SPLINTER"_a, .MaxValue = 200},
+        {.Key = "EXPLORER"_a, .MaxValue = 100},
+        {.Key = "TRANCLUCATORS"_a},
+        {.Key = "SUNFUEL"_a},
+        {.Key = "TERRORIST"_a, .MaxValue = 30},
+        {.Key = "COUNTERTERRORIST"_a, .MaxValue = 30},
+        {.Key = "BLUEKILLS"_a, .MaxValue = 500},
+        {.Key = "GREENKILLS"_a, .MaxValue = 500},
+        {.Key = "REDKILLS"_a, .MaxValue = 500},
+        {.Key = "BERTORSLAYER"_a, .MaxValue = 50},
+        {.Key = "MAPBUILDER"_a},
+        {.Key = "HACKER"_a, .MaxValue = 100},
+        {.Key = "DELIVERY"_a, .MaxValue = 50},
+        {.Key = "INVESTOR"_a},
+        {.Key = "INSURANCE"_a},
+        {.Key = "PRISONBAIL"_a, .MaxValue = 30},
+        {.Key = "ROBBER"_a, .MaxValue = 100},
+        {.Key = "WARRIORKILLS"_a, .MaxValue = 100},
+        {.Key = "DRAIN"_a, .MaxValue = 10000}}};
 
     EC_BlockPar::TBlockParEC* AchievementDefinitions = nullptr;
 
     std::int32_t GetCurrentAchievementProgress(const std::u16string_view& Key, std::int32_t StoredValue) {
         TAchievementStats* Stats{};
         std::int32_t Result = 0;
-        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
+        if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) &&
+            aPlayer::GetPlayer() != nullptr) {
             Stats = aPlayer::GetPlayer()->AchievementStats;
             if (Key == u"ASTEROID"sv) {
                 Result = Stats->AsteroidsDestroyed;
@@ -140,7 +197,8 @@ namespace Achievements {
             Result = Achievements::CreateAchievementData();
             switch (Achievements::GetAchievementBackend()) {
                 case achSteam: {
-                    SimpleSteamApi::SteamAchievementData(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Result);
+                    SimpleSteamApi::SteamAchievementData(
+                        SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Result);
                     break;
                 }
                 case achLocal: NoSteamAchievemens::GetLocalAchievementData(Key, Result); break;
@@ -173,7 +231,9 @@ namespace Achievements {
         }
         switch (Achievements::GetAchievementBackend()) {
             case achSteam: {
-                Result = SimpleSteamApi::SteamUnlockAchievement(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))));
+                Result =
+                    SimpleSteamApi::SteamUnlockAchievement(
+                        SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))));
                 break;
             }
             case achLocal: Result = NoSteamAchievemens::UnlockLocalAchievement(Block); break;
@@ -217,7 +277,8 @@ namespace Achievements {
         }
         switch (Achievements::GetAchievementBackend()) {
             case achSteam: {
-                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
+                Result = SimpleSteamApi::SteamIncreaseStat(
+                        SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
             case achLocal: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
@@ -261,7 +322,8 @@ namespace Achievements {
         }
         switch (Achievements::GetAchievementBackend()) {
             case achSteam: {
-                Result = SimpleSteamApi::SteamIncreaseStat(SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
+                Result = SimpleSteamApi::SteamIncreaseStat(
+                        SysUtils::StrToInt(static_cast<pas::AnsiString>(Block->GetParam(u"Num"sv))), Increment);
                 break;
             }
             case achLocal: Result = NoSteamAchievemens::IncreaseLocalAchievementProgress(Block, Increment); break;
@@ -283,7 +345,9 @@ namespace Achievements {
         AchievementDefinitions = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
         // Entry zero is the native NONE sentinel and is not registered.
         for (auto cpp_range = pas::for_to<std::int32_t>(1, 82); cpp_range.next(Index); ) {
-            Block = AchievementDefinitions->AddChildBlock(static_cast<pas::WideString>(AchievementDefinitionTable[Index].Key));
+            Block =
+                AchievementDefinitions->AddChildBlock(
+                    static_cast<pas::WideString>(AchievementDefinitionTable[Index].Key));
             Block->AddParam(u"Id"_wref.get(), static_cast<pas::WideString>(AchievementDefinitionTable[Index].Key));
             Block->AddParam(u"Num"_wref.get(), pas::wide_int_to_str(Index - 1));
             Block->AddParam(u"MaxValue"_wref.get(), pas::wide_int_to_str(AchievementDefinitionTable[Index].MaxValue));
@@ -315,31 +379,31 @@ namespace Achievements {
     // Includes the pre-version-99 counter layout.
     void TAchievementStats::LoadFromBuffer(EC_Buf::TBufEC* Buffer) {
         if (GlobalsV::LoadedSaveVersion >= 99) {
-            AsteroidsDestroyed = EC_Buf::TBufEC_GetUInt32(Buffer);
-            EnemiesDestroyedByStarHeat = EC_Buf::TBufEC_GetUInt32(Buffer);
-            SystemsDefended = EC_Buf::TBufEC_GetUInt32(Buffer);
-            SystemsCapturedForPirates = EC_Buf::TBufEC_GetUInt32(Buffer);
-            CompletedResearchPrograms = EC_Buf::TBufEC_GetByte(Buffer);
-            SuccessfulDominatorHacks = EC_Buf::TBufEC_GetUInt32(Buffer);
-            PrisonersBailedOut = EC_Buf::TBufEC_GetUInt32(Buffer);
-            DrainedHullPoints = EC_Buf::TBufEC_GetUInt32(Buffer);
-            StarFuelCollected = EC_Buf::TBufEC_GetUInt32(Buffer);
-            StarFuelTankId = EC_Buf::TBufEC_GetUInt32(Buffer);
-            UninhabitedPlanetsVisited = EC_Buf::TBufEC_GetUInt32(Buffer);
+            AsteroidsDestroyed = Buffer->GetUInt32();
+            EnemiesDestroyedByStarHeat = Buffer->GetUInt32();
+            SystemsDefended = Buffer->GetUInt32();
+            SystemsCapturedForPirates = Buffer->GetUInt32();
+            CompletedResearchPrograms = Buffer->GetByte();
+            SuccessfulDominatorHacks = Buffer->GetUInt32();
+            PrisonersBailedOut = Buffer->GetUInt32();
+            DrainedHullPoints = Buffer->GetUInt32();
+            StarFuelCollected = Buffer->GetUInt32();
+            StarFuelTankId = Buffer->GetUInt32();
+            UninhabitedPlanetsVisited = Buffer->GetUInt32();
         } else {
-            AsteroidsDestroyed = EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EnemiesDestroyedByStarHeat = EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            SystemsDefended = EC_Buf::TBufEC_GetUInt32(Buffer);
-            SystemsCapturedForPirates = EC_Buf::TBufEC_GetUInt32(Buffer);
-            CompletedResearchPrograms = EC_Buf::TBufEC_GetByte(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
-            EC_Buf::TBufEC_GetUInt32(Buffer);
+            AsteroidsDestroyed = Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            EnemiesDestroyedByStarHeat = Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            SystemsDefended = Buffer->GetUInt32();
+            SystemsCapturedForPirates = Buffer->GetUInt32();
+            CompletedResearchPrograms = Buffer->GetByte();
+            Buffer->GetUInt32();
+            Buffer->GetUInt32();
+            Buffer->GetUInt32();
             SuccessfulDominatorHacks = 0;
             PrisonersBailedOut = 0;
             DrainedHullPoints = 0;
@@ -382,15 +446,23 @@ namespace Achievements {
         std::uint8_t AwardId{};
         pas::Array<std::uint8_t, 0, 255> Present{};
         // Native argument order is reversed: count zero leaves this buffer uninitialized.
-        pas::fill_memory(&Present, 0, static_cast<std::uint8_t>(static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>))));
-        std::int32_t LastAward = SysUtils::StrToInt(static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
+        pas::fill_memory(&Present, 0,
+            static_cast<std::uint8_t>(static_cast<std::int32_t>(sizeof(pas::Array<std::uint8_t, 0, 255>))));
+        std::int32_t LastAward = SysUtils::StrToInt(
+            static_cast<pas::AnsiString>(GR_Main::LookupLocalizedTextByKey(u"Reward.Count"_wref.get()))) - 1;
         std::uint8_t AllPresent = true;
         if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->AwardIds != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aPlayer::GetPlayer()->AwardIds) - 1); cpp_range.next(I); ) {
-                AwardId = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlayer::GetPlayer()->AwardIds, I)));
-                Present[AwardId] = true;
+            {
+                const std::int32_t cpp_last = pas::list_count(aPlayer::GetPlayer()->AwardIds) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        AwardId = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                                aPlayer::GetPlayer()->AwardIds, I)));
+                        Present[AwardId] = true;
+                    }
+                }
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, LastAward); cpp_range_2.next(I); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0, LastAward); cpp_range.next(I); ) {
                 AllPresent = AllPresent && Present[I];
             }
             if (AllPresent) {
@@ -404,10 +476,13 @@ namespace Achievements {
         aRanger::PPlayerOldQuest Quest{};
         if (aPlayer::GetPlayer() != nullptr) {
             if (aRanger::PlayerOldQuests != nullptr) {
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aRanger::PlayerOldQuests) - 1); cpp_range.next(I); ) {
-                    Quest = pas::list_at<aRanger::TPlayerOldQuest>(aRanger::PlayerOldQuests, I);
-                    if (Quest->Successful) {
-                        return;
+                const std::int32_t cpp_last = pas::list_count(aRanger::PlayerOldQuests) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Quest = pas::list_at<aRanger::TPlayerOldQuest>(aRanger::PlayerOldQuests, I);
+                        if (Quest->Successful) {
+                            return;
+                        }
                     }
                 }
             }
@@ -444,7 +519,8 @@ namespace Achievements {
 
     // MASTER: at least six player wingmen.
     void TAchievementStats::CheckMasterAchievement() {
-        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CountWingmen() >= 6) {
+        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CountWingmen() >=
+                6) {
             Achievements::TryUnlockAchievement(u"MASTER"_w);
         }
     }
@@ -463,7 +539,8 @@ namespace Achievements {
     }
 
     void TAchievementStats::CheckPacifistVictoryAchievement() {
-        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->TotalShipKillCount == 0) {
+        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->TotalShipKillCount ==
+                0) {
             Achievements::TryUnlockAchievement(u"PEACELOVER"_w);
         }
     }
@@ -473,11 +550,16 @@ namespace Achievements {
         std::int32_t Index{};
         aGalaxy::TStar* Star{};
         std::uint8_t AllPirateSystems = true;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(Index); ) {
-            Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, Index);
-            if (Star->Status.ControlFaction != aGalaxyStruct::sfPirates) {
-                AllPirateSystems = false;
-                break;
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, Index);
+                    if (Star->Status.ControlFaction != aGalaxyStruct::sfPirates) {
+                        AllPirateSystems = false;
+                        break;
+                    }
+                }
             }
         }
         if (AllPirateSystems) {
@@ -487,7 +569,8 @@ namespace Achievements {
 
     // Requires PlaceInRating=1 and CurrentTurn>=300.
     void TAchievementStats::CheckFirstPlaceRatingAchievement() {
-        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CurrentTurn >= aGalaxyStruct::GalaxyWarmupTurns && aPlayer::GetPlayer()->PlaceInRating == 1) {
+        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aGalaxy::Galaxy->CurrentTurn >=
+                aGalaxyStruct::GalaxyWarmupTurns && aPlayer::GetPlayer()->PlaceInRating == 1) {
             Achievements::TryUnlockAchievement(u"RATING"_w);
         }
     }
@@ -499,7 +582,8 @@ namespace Achievements {
         aGalaxyStruct::TPilotSkill Skill{};
         std::uint8_t Complete = true;
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy,
+                aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
                 if (aPlayer::GetPlayer()->GetBaseSkillLevel(Skill) < 6) {
                     Complete = false;
                 }
@@ -512,7 +596,8 @@ namespace Achievements {
 
     // Native SPEED threshold: calculated speed 2300.
     void TAchievementStats::CheckSpeedAchievement() {
-        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CalculateSpeed() >= 2300) {
+        if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer()->CalculateSpeed() >=
+                2300) {
             Achievements::TryUnlockAchievement(u"SPEED"_w);
         }
     }
@@ -522,7 +607,7 @@ namespace Achievements {
         std::int32_t Elapsed{};
         if (aGalaxy::Galaxy != nullptr) {
             Elapsed = aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns;
-            if (pas::real_divide(Elapsed, 365.0L) < 7.0L) {
+            if (static_cast<float>(Elapsed / 365.0) < 7.0) {
                 Achievements::TryUnlockAchievement(u"SPRINTER"_w);
             }
         }
@@ -557,15 +642,24 @@ namespace Achievements {
         if (aPlayer::GetPlayer() == nullptr || aGalaxy::Galaxy == nullptr) {
             return;
         }
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Stars) - 1); cpp_range.next(I); ) {
-            Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
-            if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range_2.next(J); ) {
-                    Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
-                    if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
-                        ++Count;
-                        if (Planet->GetRelationLevelToShip(aPlayer::GetPlayer()) > aGalaxyStruct::rlHostile) {
-                            return;
+        {
+            const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Stars) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, I);
+                    if (Star->Status.ControlFaction == aGalaxyStruct::sfCoalition) {
+                        const std::int32_t cpp_last_2 = pas::list_count(Star->Planets) - 1;
+                        if (0 <= cpp_last_2) {
+                            for (J = 0; J <= cpp_last_2; ++J) {
+                                Planet = pas::list_at<aPlanet::TPlanet>(Star->Planets, J);
+                                if (Planet->OwnerId != aGalaxyStruct::oiUninhabited) {
+                                    ++Count;
+                                    if (Planet->GetRelationLevelToShip(aPlayer::GetPlayer()) >
+                                        aGalaxyStruct::rlHostile) {
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -585,7 +679,8 @@ namespace Achievements {
         if (aPlayer::GetPlayer()->GetHull()->HasStandardStats()) {
             return;
         }
-        if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr || aPlayer::GetPlayer()->GetFuelTanks()->HasStandardStats()) {
+        if (aPlayer::GetPlayer()->GetFuelTanks() == nullptr ||
+            aPlayer::GetPlayer()->GetFuelTanks()->HasStandardStats()) {
             return;
         }
         if (aPlayer::GetPlayer()->GetEngine() == nullptr || aPlayer::GetPlayer()->GetEngine()->HasStandardStats()) {
@@ -597,13 +692,16 @@ namespace Achievements {
         if (aPlayer::GetPlayer()->GetScanner() == nullptr || aPlayer::GetPlayer()->GetScanner()->HasStandardStats()) {
             return;
         }
-        if (aPlayer::GetPlayer()->GetRepairRobot() == nullptr || aPlayer::GetPlayer()->GetRepairRobot()->HasStandardStats()) {
+        if (aPlayer::GetPlayer()->GetRepairRobot() == nullptr ||
+            aPlayer::GetPlayer()->GetRepairRobot()->HasStandardStats()) {
             return;
         }
-        if (aPlayer::GetPlayer()->GetCargoHook() == nullptr || aPlayer::GetPlayer()->GetCargoHook()->HasStandardStats()) {
+        if (aPlayer::GetPlayer()->GetCargoHook() == nullptr ||
+            aPlayer::GetPlayer()->GetCargoHook()->HasStandardStats()) {
             return;
         }
-        if (aPlayer::GetPlayer()->GetDefGenerator() == nullptr || aPlayer::GetPlayer()->GetDefGenerator()->HasStandardStats()) {
+        if (aPlayer::GetPlayer()->GetDefGenerator() == nullptr ||
+            aPlayer::GetPlayer()->GetDefGenerator()->HasStandardStats()) {
             return;
         }
         if (aPlayer::GetPlayer()->CountEquippedWeapons() < 5) {
@@ -621,7 +719,9 @@ namespace Achievements {
     void TAchievementStats::CheckAllDiseasesAchievement() {
         aGalaxyStruct::TCaptainHealthEffect I{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(1), static_cast<aGalaxyStruct::TCaptainHealthEffect>(12)); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(1),
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(12)); cpp_range.next(I); ) {
                 if (aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount == 0) {
                     return;
                 }
@@ -633,7 +733,9 @@ namespace Achievements {
     void TAchievementStats::CheckAllDrugsAchievement() {
         aGalaxyStruct::TCaptainHealthEffect I{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(static_cast<aGalaxyStruct::TCaptainHealthEffect>(13), static_cast<aGalaxyStruct::TCaptainHealthEffect>(24)); cpp_range.next(I); ) {
+            for (auto cpp_range = pas::for_to<aGalaxyStruct::TCaptainHealthEffect>(
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(13),
+                static_cast<aGalaxyStruct::TCaptainHealthEffect>(24)); cpp_range.next(I); ) {
                 if (aPlayer::GetPlayer()->CaptainHealth[I].ApplicationCount == 0) {
                     return;
                 }
@@ -663,17 +765,24 @@ namespace Achievements {
         std::uint16_t Month{};
         std::uint16_t Day{};
         if (aPlayer::GetPlayer() != nullptr && aGalaxy::Galaxy != nullptr) {
-            SysUtilsImports::DecodeDate(aGalaxy::GameTurnToDateTime(aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns), Year, Month, Day);
+            SysUtilsImports::DecodeDate(
+                aGalaxy::GameTurnToDateTime(aGalaxy::Galaxy->CurrentTurn - aGalaxyStruct::GalaxyWarmupTurns), Year,
+                Month, Day);
             if (Year > 3304) {
                 return;
             }
             if (Year == 3304 && (Month > 1 || Day > 1)) {
                 return;
             }
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(aGalaxy::Galaxy->Constellations) - 1); cpp_range.next(I); ) {
-                Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
-                if (static_cast<std::uint8_t>(Constellation->Visible ^ 1) && Constellation->Id != 20) {
-                    return;
+            {
+                const std::int32_t cpp_last = pas::list_count(aGalaxy::Galaxy->Constellations) - 1;
+                if (0 <= cpp_last) {
+                    for (I = 0; I <= cpp_last; ++I) {
+                        Constellation = pas::list_at<aGalaxy::TConstellation>(aGalaxy::Galaxy->Constellations, I);
+                        if (static_cast<std::uint8_t>(Constellation->Visible ^ 1) && Constellation->Id != 20) {
+                            return;
+                        }
+                    }
                 }
             }
             Achievements::TryUnlockAchievement(u"MAPBUILDER"_w);
@@ -698,10 +807,17 @@ namespace Achievements {
         }
         std::int32_t Count = 0;
         aGalaxy::TStar* Star = aPlayer::GetPlayer()->CurrentStar;
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range.next(I); ) {
-            Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
-            if (Ship->InNormalSpace() && static_cast<std::uint8_t>(Ship->IsHullDestroyed() ^ 1) && pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr && static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer()) {
-                ++Count;
+        {
+            const std::int32_t cpp_last = pas::list_count(Star->Ships) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Ship = pas::list_at<aShip::TShip>(Star->Ships, I);
+                    if (Ship->InNormalSpace() && !Ship->IsHullDestroyed() &&
+                        pas::class_cast_if<aTranclucator::TTranclucator*>(Ship) != nullptr &&
+                        static_cast<aTranclucator::TTranclucator*>(Ship)->OwnerShip == aPlayer::GetPlayer()) {
+                        ++Count;
+                    }
+                }
             }
         }
         if (Count >= 10) {

@@ -25,8 +25,14 @@ namespace ab_W12 {
             Self->Image = nullptr;
         }
         if (Self->TrailImages != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->TrailImages) - 1); cpp_range.next(Index); ) {
-                ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(Self->TrailImages, Index));
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->TrailImages) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(
+                            Self->TrailImages, Index));
+                    }
+                }
             }
             pas::free(Self->TrailImages);
             Self->TrailImages = nullptr;
@@ -42,17 +48,20 @@ namespace ab_W12 {
         State = Owner->State;
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 100;
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w12_f"_wref.get(), u"GAI,Bm.AB.w12_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w12_f"_wref.get(), u"GAI,Bm.AB.w12_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
     void TabW12::Advance() {
         ab_Object::TabObject::Advance();
         if (!Exploding) {
-            OrbitAngle = aMyFunction::WrapHeadingDegrees(OrbitAngle + 5.0L);
-            OrbitRadius = OrbitRadius + 3.0L;
+            OrbitAngle = aMyFunction::WrapHeadingDegrees(static_cast<float>(OrbitAngle + 5.0));
+            OrbitRadius = static_cast<float>(OrbitRadius + 3.0);
             if (SourceObject != nullptr) {
-                State = ab_Global::AdvanceSphericalStateOnCurrentSphere(ab_Global::MakeSphericalBearingState(SourceObject->State.LongitudeDegrees, SourceObject->State.PolarAngleDegrees, OrbitAngle), OrbitRadius);
+                State = ab_Global::AdvanceSphericalStateOnCurrentSphere(
+                        ab_Global::MakeSphericalBearingState(SourceObject->State.LongitudeDegrees,
+                            SourceObject->State.PolarAngleDegrees, OrbitAngle), OrbitRadius);
             }
             Velocity = EC_Struct::MakePointF(0.0f, 0.0f);
             ab_WorldImage::ab_WorldImage_SetPosition(Image, GetWorldPosition());
@@ -64,12 +73,14 @@ namespace ab_W12 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr || SourceObject == nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr || SourceObject == nullptr) &&
+            static_cast<std::uint8_t>(Exploding ^ 1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w12b_f"_wref.get(), u"GAI,Bm.AB.w12b_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w12b_f"_wref.get(),
+                u"GAI,Bm.AB.w12b_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (Exploding) {
@@ -83,20 +94,27 @@ namespace ab_W12 {
         ab_Object::TabObject::UpdateVisuals();
         if (!Exploding) {
             Entry = nullptr;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(TrailImages) - 1); cpp_range.next(Index); ) {
-                Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
-                if (Entry->Finished) {
-                    break;
+            {
+                const std::int32_t cpp_last = pas::list_count(TrailImages) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
+                        if (Entry->Finished) {
+                            break;
+                        }
+                        Entry = nullptr;
+                    }
                 }
-                Entry = nullptr;
             }
             if (Entry == nullptr) {
-                Entry = ab_WorldImage::ab_WorldImage_Create(GetWorldPosition(), u"GAI,Bm.AB.w12a_f"_wref.get(), u"GAI,Bm.AB.w12a_s"_wref.get(), false);
+                Entry = ab_WorldImage::ab_WorldImage_Create(GetWorldPosition(), u"GAI,Bm.AB.w12a_f"_wref.get(),
+                        u"GAI,Bm.AB.w12a_s"_wref.get(), false);
                 ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
                 pas::list_add(TrailImages, static_cast<void*>(Entry));
             } else {
-                ab_WorldImage::ab_WorldImage_Set(Entry, GetWorldPosition(), u"GAI,Bm.AB.w12a_f"_wref.get(), u"GAI,Bm.AB.w12a_s"_wref.get());
+                ab_WorldImage::ab_WorldImage_Set(Entry, GetWorldPosition(), u"GAI,Bm.AB.w12a_f"_wref.get(),
+                    u"GAI,Bm.AB.w12a_s"_wref.get());
                 ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                 ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
             }

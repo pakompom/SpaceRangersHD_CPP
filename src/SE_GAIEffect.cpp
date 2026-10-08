@@ -12,7 +12,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/SE_GAIEffect.hpp"
 #include "units/SE_Space.hpp"
-#include "units/System.hpp"
 
 namespace SE_GAIEffect {
     void TGAIEffectSE_Create(TGAIEffectSE* Self, const pas::WideString& GraphKey, Types::TPoint UnusedPosition) {
@@ -41,7 +40,8 @@ namespace SE_GAIEffect {
         Animation->SequenceIndex = 0;
         Animation->UpdateAutoGeometry();
         Animation->StopAutoPlayback();
-        StepsPerFrame = std::max<std::int64_t>(static_cast<std::int64_t>(1), System::Round(pas::real_divide(DurationScale * 2.0E+2L, Animation->SequenceFrameCount)));
+        StepsPerFrame = std::max<std::int64_t>(static_cast<std::int64_t>(1),
+                pas::real_round(static_cast<float>(static_cast<float>(DurationScale * 2.0E+2) / Animation->SequenceFrameCount)));
         if (GlobalsV::FilmSpeed == 0) {
             StepDuration = 18;
         } else if (GlobalsV::FilmSpeed == 1) {
@@ -67,14 +67,6 @@ namespace SE_GAIEffect {
             Animation = nullptr;
         }
         SE_Space::TObjectSE::DetachFromSpace();
-    }
-
-    void TGAIEffectSE::SetImagePosition(Types::TPoint Value) {
-        ImagePosition = Value;
-    }
-
-    void TGAIEffectSE::SetDurationScale(float Value) {
-        DurationScale = Value;
     }
 
     void TGAIEffectSE::Advance() {

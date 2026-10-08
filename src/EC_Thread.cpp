@@ -9,7 +9,8 @@
 #include "units/WindowsSdk.hpp"
 
 namespace EC_Thread {
-    const pas::Array<std::int32_t, 0, 6> ThreadPriorityValues = pas::Array<std::int32_t, 0, 6>{{-15, -2, -1, 0, 1, 2, 15}};
+    const pas::Array<std::int32_t, 0, 6> ThreadPriorityValues = pas::Array<std::int32_t, 0, 6>{{-15, -2, -1, 0, 1, 2,
+        15}};
 
     std::int32_t ThreadEntryEC(void* Thread) {
         try {
@@ -52,7 +53,8 @@ namespace EC_Thread {
         if (Self->IdleEvent == 0) {
             pas::raise(pas::make_exception<pas::Exception>("TThreadEC.Create CreateEvent"_a));
         }
-        Self->ThreadHandle = SystemImports::BeginThread(nullptr, 0u, System::TThreadFunc(ThreadEntryEC), Self, WindowsSdk::CREATE_SUSPENDED, Self->ThreadId);
+        Self->ThreadHandle = SystemImports::BeginThread(nullptr, 0u, System::TThreadFunc(ThreadEntryEC), Self,
+                WindowsSdk::CREATE_SUSPENDED, Self->ThreadId);
         WindowsSdk::SetThreadPriority(Self->ThreadHandle, WindowsSdk::THREAD_PRIORITY_NORMAL);
         WindowsSdk::ResumeThread(Self->ThreadHandle);
     }
@@ -92,7 +94,8 @@ namespace EC_Thread {
         Events[0] = ShutdownEvent;
         Events[1] = StartEvent;
         while (true) {
-            WaitResult = WindowsSdk::WaitForMultipleObjects(2u, reinterpret_cast<WindowsSdk::PWOHandleArray>(&Events), 0, WindowsSdk::INFINITE);
+            WaitResult = WindowsSdk::WaitForMultipleObjects(2u, reinterpret_cast<WindowsSdk::PWOHandleArray>(&Events),
+                    0, WindowsSdk::INFINITE);
             if (WaitResult != WindowsSdk::WAIT_OBJECT_0 + 1) {
                 break;
             }
@@ -109,7 +112,7 @@ namespace EC_Thread {
                 }
             }
             try {
-                this->virtual_TThreadEC_Execute();
+                Execute();
             } catch (...) {
                 auto cpp_exception = pas::caught_object();
                 if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
@@ -131,8 +134,8 @@ namespace EC_Thread {
         }
     }
 
-    void TThreadEC_Execute(TThreadEC* Self) {
-        while (!Self->IsStopRequested()) {
+    void TThreadEC::Execute() {
+        while (!IsStopRequested()) {
             SysUtilsImports::Sleep(100u);
         }
     }
@@ -142,14 +145,6 @@ namespace EC_Thread {
         if (ThreadHandle != 0) {
             WindowsSdk::SetThreadPriority(ThreadHandle, ThreadPriorityValues[Value]);
         }
-    }
-
-    void TThreadEC::SetFlag18() {
-        Flag18 = true;
-    }
-
-    void TThreadEC::ClearFlag18() {
-        Flag18 = false;
     }
 
     void TThreadEC::RequestStop() {
@@ -209,10 +204,6 @@ namespace EC_Thread {
 
     void TThreadEC::p_destroy() {
         EC_Thread::TThreadEC_Destroy(this);
-    }
-
-    void TThreadEC::virtual_TThreadEC_Execute() {
-        EC_Thread::TThreadEC_Execute(this);
     }
 
 } // namespace EC_Thread

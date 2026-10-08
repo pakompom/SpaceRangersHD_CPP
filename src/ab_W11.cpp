@@ -27,8 +27,14 @@ namespace ab_W11 {
             Self->Image = nullptr;
         }
         if (Self->TrailImages != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Self->TrailImages) - 1); cpp_range.next(Index); ) {
-                ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(Self->TrailImages, Index));
+            {
+                const std::int32_t cpp_last = pas::list_count(Self->TrailImages) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        ab_WorldImage::ab_WorldImage_Delete(pas::list_at<ab_WorldImage::TabWorldImage>(
+                            Self->TrailImages, Index));
+                    }
+                }
             }
             pas::free(Self->TrailImages);
             Self->TrailImages = nullptr;
@@ -45,13 +51,16 @@ namespace ab_W11 {
         LastTrailPosition = GetWorldPosition();
         Velocity = Owner->Velocity;
         ExpireTick = ab_Global::ArcadeTickCount + 70;
-        if (Offset != 0.0L) {
-            Heading = aMyFunction::WrapHeadingDegrees(State.BearingDegrees + 9.0E+1L);
+        if (Offset != 0.0) {
+            Heading = aMyFunction::WrapHeadingDegrees(static_cast<float>(State.BearingDegrees + 9.0E+1));
             HeadingDelta = aMyFunction::HeadingDifferenceDegrees(Heading, State.BearingDegrees);
-            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees), pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius, Offset);
-            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(Heading) + HeadingDelta);
+            ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&State.LongitudeDegrees),
+                pas::Var<double>(&State.PolarAngleDegrees), pas::Var<double>(&Heading), ab_Global::SphereRadius,
+                Offset);
+            State.BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(Heading) + HeadingDelta));
         }
-        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0), u"GAI,Bm.AB.w11_f"_wref.get(), u"GAI,Bm.AB.w11_s"_wref.get(), false);
+        Image = ab_WorldImage::ab_WorldImage_Create(EC_Struct::MakeVector3D(0.0, 0.0, 0.0),
+                u"GAI,Bm.AB.w11_f"_wref.get(), u"GAI,Bm.AB.w11_s"_wref.get(), false);
         ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
     }
 
@@ -69,12 +78,14 @@ namespace ab_W11 {
                 Collision = nullptr;
             }
         }
-        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^ 1)) {
+        if ((ab_Global::ArcadeTickCount > ExpireTick || Collision != nullptr) && static_cast<std::uint8_t>(Exploding ^
+                1)) {
             if (Collision != nullptr) {
                 Collision->ApplyDamage(Damage, SourceObject, false);
             }
             Exploding = true;
-            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w11b_f"_wref.get(), u"GAI,Bm.AB.w11b_s"_wref.get());
+            ab_WorldImage::ab_WorldImage_Set(Image, GetWorldPosition(), u"GAI,Bm.AB.w11b_f"_wref.get(),
+                u"GAI,Bm.AB.w11b_s"_wref.get());
             ab_WorldImage::ab_WorldImage_SetDepth(Image, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
             ab_WorldImage::ab_WorldImage_SetLooping(Image, false);
         } else if (static_cast<std::uint8_t>(Exploding ^ 1) && Collision == nullptr) {
@@ -88,7 +99,7 @@ namespace ab_W11 {
                     } else if (cpp_with.BearingDeltaDegrees > TurnSpeed) {
                         cpp_with.BearingDeltaDegrees = TurnSpeed;
                     }
-                    State.BearingDegrees = static_cast<long double>(State.BearingDegrees) + cpp_with.BearingDeltaDegrees;
+                    State.BearingDegrees = static_cast<float>(static_cast<double>(State.BearingDegrees) + cpp_with.BearingDeltaDegrees);
                 }
             }
         } else if (Exploding) {
@@ -106,26 +117,35 @@ namespace ab_W11 {
         ab_Object::TabObject::UpdateVisuals();
         if (!Exploding) {
             Position = GetWorldPosition();
-            Delta.X = pas::real_divide(-(static_cast<long double>(LastTrailPosition.X) - Position.X), 4.0L);
-            Delta.Y = pas::real_divide(-(static_cast<long double>(LastTrailPosition.Y) - Position.Y), 4.0L);
-            Delta.Z = pas::real_divide(-(static_cast<long double>(LastTrailPosition.Z) - Position.Z), 4.0L);
+            Delta.X = static_cast<float>(-(static_cast<float>(static_cast<double>(LastTrailPosition.X) - Position.X)) / 4.0);
+            Delta.Y = static_cast<float>(-(static_cast<float>(static_cast<double>(LastTrailPosition.Y) - Position.Y)) / 4.0);
+            Delta.Z = static_cast<float>(-(static_cast<float>(static_cast<double>(LastTrailPosition.Z) - Position.Z)) / 4.0);
             for (Sample = 0; Sample <= 3; ++Sample) {
                 Entry = nullptr;
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(TrailImages) - 1); cpp_range.next(Index); ) {
-                    Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
-                    if (Entry->Finished) {
-                        break;
+                {
+                    const std::int32_t cpp_last = pas::list_count(TrailImages) - 1;
+                    if (0 <= cpp_last) {
+                        for (Index = 0; Index <= cpp_last; ++Index) {
+                            Entry = pas::list_at<ab_WorldImage::TabWorldImage>(TrailImages, Index);
+                            if (Entry->Finished) {
+                                break;
+                            }
+                            Entry = nullptr;
+                        }
                     }
-                    Entry = nullptr;
                 }
-                TrailPosition = EC_Struct::MakeVector3D(static_cast<long double>(Sample) * Delta.X + Position.X, static_cast<long double>(Sample) * Delta.Y + Position.Y, static_cast<long double>(Sample) * Delta.Z + Position.Z);
+                TrailPosition = EC_Struct::MakeVector3D(static_cast<float>(static_cast<float>(static_cast<double>(Sample) * Delta.X) + Position.X),
+                        static_cast<float>(static_cast<float>(static_cast<double>(Sample) * Delta.Y) + Position.Y),
+                        static_cast<float>(static_cast<float>(static_cast<double>(Sample) * Delta.Z) + Position.Z));
                 if (Entry == nullptr) {
-                    Entry = ab_WorldImage::ab_WorldImage_Create(TrailPosition, u"GAI,Bm.AB.w11a_f"_wref.get(), u"GAI,Bm.AB.w11a_s"_wref.get(), false);
+                    Entry = ab_WorldImage::ab_WorldImage_Create(TrailPosition, u"GAI,Bm.AB.w11a_f"_wref.get(),
+                            u"GAI,Bm.AB.w11a_s"_wref.get(), false);
                     ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
                     ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                     pas::list_add(TrailImages, static_cast<void*>(Entry));
                 } else {
-                    ab_WorldImage::ab_WorldImage_Set(Entry, TrailPosition, u"GAI,Bm.AB.w11a_f"_wref.get(), u"GAI,Bm.AB.w11a_s"_wref.get());
+                    ab_WorldImage::ab_WorldImage_Set(Entry, TrailPosition, u"GAI,Bm.AB.w11a_f"_wref.get(),
+                        u"GAI,Bm.AB.w11a_s"_wref.get());
                     ab_WorldImage::ab_WorldImage_SetDepth(Entry, ab_Global::HitFrontDepth, ab_Global::HitBackDepth);
                     ab_WorldImage::ab_WorldImage_SetLooping(Entry, false);
                 }

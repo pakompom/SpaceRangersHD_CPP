@@ -47,19 +47,23 @@ namespace SE_Laser {
 
     void TLaserSE::RebuildSegments() {
         ClearSegments();
-        double Angle = Math::ArcTan2(static_cast<long double>(TargetPosition.X) - Position.X, -(static_cast<long double>(TargetPosition.Y) - Position.Y));
+        double Angle = Math::ArcTan2(static_cast<float>(static_cast<double>(TargetPosition.X) - Position.X),
+            -(static_cast<float>(static_cast<double>(TargetPosition.Y) - Position.Y)));
         double AngleSin = System::Sin(Angle);
         double AngleCos = System::Cos(Angle);
-        std::int32_t ImageAngle = System::Round(pas::real_divide(Angle, aMyFunction::GamePi) * 127.0L) & 0x000000ff;
-        double Distance = pas::real_divide(SegmentSize, 2.0L);
-        double BeamLength = System::Sqrt(pas::sqr(static_cast<long double>(TargetPosition.X) - Position.X) + pas::sqr(static_cast<long double>(TargetPosition.Y) - Position.Y));
+        std::int32_t ImageAngle = pas::real_round(static_cast<float>(static_cast<float>(Angle / aMyFunction::GamePi) * 127.0)) & 0x000000ff;
+        double Distance = static_cast<float>(SegmentSize / 2.0);
+        double BeamLength = System::Sqrt(static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(TargetPosition.X) - Position.X)) +
+            pas::sqr(static_cast<float>(static_cast<double>(TargetPosition.Y) - Position.Y))));
         Segments = pas::make_object<pas::List>();
         GI_RotateImage2::TRotateImage2GI* Segment = nullptr;
         while (Distance < BeamLength) {
-            Segment = pas::construct_call<GI_RotateImage2::TRotateImage2GI>(GI_RotateImage2::TRotateImage2GI_Create, Space->MapPanel);
+            Segment = pas::construct_call<GI_RotateImage2::TRotateImage2GI>(GI_RotateImage2::TRotateImage2GI_Create,
+                    Space->MapPanel);
             Segment->SetPositionModeW(true);
             Segment->SetDepthByName(DepthExpression);
-            EndPosition = EC_Struct::MakePointF(static_cast<long double>(AngleSin) * Distance + Position.X, Position.Y - static_cast<long double>(AngleCos) * Distance);
+            EndPosition = EC_Struct::MakePointF(static_cast<float>(static_cast<float>(static_cast<double>(AngleSin) * Distance) + Position.X),
+                    static_cast<float>(Position.Y - static_cast<float>(static_cast<double>(AngleCos) * Distance)));
             Segment->SetPosition(EC_Struct::TruncatePointF(EndPosition));
             Segment->SetAngle(ImageAngle);
             Segment->SetAlpha(192);
@@ -70,15 +74,12 @@ namespace SE_Laser {
                 Segment->SetImage(std::move(textAt), point_2, point);
             }
             pas::list_add(Segments, reinterpret_cast<void*>(Segment));
-            Distance = static_cast<long double>(Distance) + SegmentSize - 4.0L;
+            Distance = static_cast<float>(static_cast<float>(static_cast<double>(Distance) + SegmentSize) - 4.0);
         }
         // Native code retains this empty check of the final segment.
         static_cast<void>(Segment != nullptr);
-        {
-            float cpp_arg = pas::real_divide(SegmentSize, 2.0L) * AngleSin + EndPosition.X;
-            float cpp_arg_2 = EndPosition.Y - pas::real_divide(SegmentSize, 2.0L) * AngleCos;
-            EndPosition = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-        }
+        EndPosition = EC_Struct::MakePointF(static_cast<float>(static_cast<float>(static_cast<float>(SegmentSize / 2.0) * AngleSin) + EndPosition.X),
+                static_cast<float>(EndPosition.Y - static_cast<float>(static_cast<float>(SegmentSize / 2.0) * AngleCos)));
         FrameIndex = 0;
         UpdateSegmentImages();
         StartAnimationTimer();
@@ -89,10 +90,15 @@ namespace SE_Laser {
         GI_MessageLoop::TObjectGI* Segment{};
         StopAnimationTimer();
         if (Segments != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Segments) - 1); cpp_range.next(Index); ) {
-                Segment = pas::list_at<GI_MessageLoop::TObjectGI>(Segments, Index);
-                Segment->SetActive(false);
-                Space->MapPanel->FreeOwnedChild(Segment);
+            {
+                const std::int32_t cpp_last = pas::list_count(Segments) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Segment = pas::list_at<GI_MessageLoop::TObjectGI>(Segments, Index);
+                        Segment->SetActive(false);
+                        Space->MapPanel->FreeOwnedChild(Segment);
+                    }
+                }
             }
             pas::free(Segments);
         }
@@ -102,13 +108,13 @@ namespace SE_Laser {
         std::int32_t Index{};
         GI_RotateImage2::TRotateImage2GI* Segment{};
         if (Segments != nullptr && FrameIndex >= 0 && FrameImages != nullptr && FrameIndex < FrameImages->GetCount()) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Segments) - 1); cpp_range.next(Index); ) {
-                Segment = pas::list_at<GI_RotateImage2::TRotateImage2GI>(Segments, Index);
-                {
-                    Types::TPoint point = ClassesImports::Point(SegmentSize / 2, SegmentSize / 2);
-                    pas::WideString textAt = FrameImages->GetTextAt(FrameIndex);
-                    Types::TPoint point_2 = ClassesImports::Point(SegmentSize, SegmentSize);
-                    Segment->SetImage(std::move(textAt), point_2, point);
+            const std::int32_t cpp_last = pas::list_count(Segments) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Segment = pas::list_at<GI_RotateImage2::TRotateImage2GI>(Segments, Index);
+                    Segment->SetImage(FrameImages->GetTextAt(FrameIndex),
+                        ClassesImports::Point(SegmentSize, SegmentSize),
+                        ClassesImports::Point(SegmentSize / 2, SegmentSize / 2));
                 }
             }
         }
@@ -117,7 +123,8 @@ namespace SE_Laser {
     void TLaserSE::StartAnimationTimer() {
         StopAnimationTimer();
         if (!ManualAnimation) {
-            AnimationTimer = Space->Screen->ScheduleCallbackTimer(FrameInterval, FrameInterval, pas::bind_method<&TLaserSE::AdvanceAnimationTimer>(this), 0);
+            AnimationTimer = Space->Screen->ScheduleCallbackTimer(FrameInterval, FrameInterval,
+                    pas::bind_method<&TLaserSE::AdvanceAnimationTimer>(this), 0);
         }
     }
 
@@ -150,7 +157,8 @@ namespace SE_Laser {
         Index = 0;
         while (Block->CountParams(EC_Str::IntToWideString(Index)) > 0) {
             {
-                const pas::WideString& trimWideString = EC_Str::TrimWideString(Block->GetParam(pas::view(EC_Str::IntToWideString(Index))));
+                const pas::WideString& trimWideString = EC_Str::TrimWideString(
+                    Block->GetParam(pas::view(EC_Str::IntToWideString(Index))));
                 EC_Str::TStringsEC* frameImages = FrameImages;
                 frameImages->Add(trimWideString);
             }
@@ -171,15 +179,12 @@ namespace SE_Laser {
 
     void TLaserSE::QueueImageLoad(pas::List* PendingLoads, GI_MessageLoop::TObjectGI* Owner) {
         std::int32_t Index{};
-        GI_RotateImage2::TRotateImage2GI* Segment = pas::construct_call<GI_RotateImage2::TRotateImage2GI>(GI_RotateImage2::TRotateImage2GI_Create, Owner);
+        GI_RotateImage2::TRotateImage2GI* Segment = pas::construct_call<GI_RotateImage2::TRotateImage2GI>(
+            GI_RotateImage2::TRotateImage2GI_Create, Owner);
         std::int32_t Count = FrameImages->GetCount();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
-            {
-                Types::TPoint point = ClassesImports::Point(SegmentSize / 2, SegmentSize / 2);
-                pas::WideString textAt = FrameImages->GetTextAt(Index);
-                Types::TPoint point_2 = ClassesImports::Point(SegmentSize, SegmentSize);
-                Segment->SetImage(std::move(textAt), point_2, point);
-            }
+            Segment->SetImage(FrameImages->GetTextAt(Index), ClassesImports::Point(SegmentSize, SegmentSize),
+                ClassesImports::Point(SegmentSize / 2, SegmentSize / 2));
             Segment->QueueImageLoad(PendingLoads);
         }
         pas::free(Segment);

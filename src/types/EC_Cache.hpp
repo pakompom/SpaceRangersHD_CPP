@@ -104,7 +104,8 @@ namespace EC_Cache {
         // Retained entries can prevent reaching the budget.
         void TrimToBudget(std::int32_t BudgetBytes);
         // PendingLoads owns added controls; duplicate pending entries are possible.
-        void QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind, const pas::WideString& Key);
+        void QueueNamedLoadIfMissing(pas::List* PendingLoads, const std::u16string_view& CacheKind,
+            const pas::WideString& Key);
         pas::CriticalSection* CacheLock;
         TCacheDataEC* MostRecentData;
         TCacheDataEC* LeastRecentData;

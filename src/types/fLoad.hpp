@@ -25,7 +25,7 @@ namespace fLoad {
     #endif
     struct TCacheLoader : EC_Thread::TThreadEC {
         PAS_CLASS_META(TCacheLoader, EC_Thread::TThreadEC, "TCacheLoader", 56)
-        void virtual_TThreadEC_Execute() override;
+        void Execute() override;
         // Takes ownership; waits for the previous run before replacing the list.
         void SetPendingLoads(pas::List* Loads, std::uint8_t StartImmediately);
         // Owns the list and its load-request entries.

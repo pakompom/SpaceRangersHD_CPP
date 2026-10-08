@@ -1,8 +1,8 @@
 #include "layout/ParameterClass.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/TextFieldClass.hpp"
 #include "types/TextQuestInterface.hpp"
 #include "units/CPDiapClass.hpp"
-#include "units/EC_Buf.hpp"
 #include "units/EC_Str.hpp"
 #include "units/EC_Struct.hpp"
 #include "units/EventClass.hpp"
@@ -58,12 +58,16 @@ namespace ParameterClass {
         ViewStrings[1]->MaxValue = MaxValue;
         Value = 0;
         CriticalOutcome = TextQuestInterface::qoNone;
-        NameText->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ", EC_Str::IntToWideString(Index)});
-        ValueText->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ", EC_Str::IntToWideString(Index), u": <>"});
+        NameText->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ",
+                EC_Str::IntToWideString(Index)});
+        ValueText->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ",
+                EC_Str::IntToWideString(Index), u": <>"});
         ViewStrings[1]->Text->Text = ValueText->Text;
         CriticalEvent->ClearTextFields();
         CriticalEventOverride = nullptr;
-        CriticalEvent->Text->Text = pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultCriticalMessage"_w), u" ", EC_Str::IntToWideString(Index)});
+        CriticalEvent->Text->Text = pas::concat_wide({
+                MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultCriticalMessage"_w), u" ",
+                EC_Str::IntToWideString(Index)});
     }
 
     // ParameterIndex labels new entries; ViewStringCount is unchanged.
@@ -71,7 +75,10 @@ namespace ParameterClass {
         while (RequiredCapacity > ViewStringCapacity) {
             ++ViewStringCapacity;
             ViewStrings.set_length(ViewStringCapacity + 1);
-            ViewStrings[ViewStringCapacity] = pas::construct_call<ParViewStringClass::TParViewString>(ParViewStringClass::TParViewString_Create, pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ", EC_Str::IntToWideString(ParameterIndex), u": <>"}));
+            ViewStrings[ViewStringCapacity] = pas::construct_call<ParViewStringClass::TParViewString>(
+                    ParViewStringClass::TParViewString_Create,
+                    pas::concat_wide({MessageText::QuestMessages->GetTextOrKey(u"ParameterDefaultName"_w), u" ",
+                        EC_Str::IntToWideString(ParameterIndex), u": <>"}));
         }
     }
 
@@ -90,7 +97,8 @@ namespace ParameterClass {
 
     std::int32_t TParameter::GetNonCriticalMinimum() {
         std::int32_t Result = MinValue;
-        if (CriticalOutcome != TextQuestInterface::qoNone && CriticalOutcome != TextQuestInterface::qoSuccess && CriticalAtMinimum) {
+        if (CriticalOutcome != TextQuestInterface::qoNone && CriticalOutcome != TextQuestInterface::qoSuccess &&
+            CriticalAtMinimum) {
             ++Result;
         }
         return Result;
@@ -98,7 +106,8 @@ namespace ParameterClass {
 
     std::int32_t TParameter::GetNonCriticalMaximum() {
         std::int32_t Result = MaxValue;
-        if (CriticalOutcome != TextQuestInterface::qoNone && CriticalOutcome != TextQuestInterface::qoSuccess && static_cast<std::uint8_t>(CriticalAtMinimum ^ 1)) {
+        if (CriticalOutcome != TextQuestInterface::qoNone && CriticalOutcome != TextQuestInterface::qoSuccess &&
+            static_cast<std::uint8_t>(CriticalAtMinimum ^ 1)) {
             --Result;
         }
         return Result;
@@ -124,15 +133,15 @@ namespace ParameterClass {
     // Parameter format used by quest versions 1111111125 and later.
     void TParameter::LoadFromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
         Hidden = false;
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
-        ViewStringCount = EC_Buf::TBufEC_GetInt32(Reader);
-        IsMoney = EC_Buf::TBufEC_GetBoolean(Reader);
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
+        ViewStringCount = Reader->GetInt32();
+        IsMoney = Reader->GetBoolean();
         NameText->LoadTextLinesFromReader(Reader);
         EnsureViewStringCapacity(ViewStringCount, 0);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, ViewStringCount); cpp_range.next(i); ) {
@@ -154,16 +163,16 @@ namespace ParameterClass {
     // Quest versions 1111111121..1111111124.
     void TParameter::LoadLegacyV4FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        Value = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
-        Hidden = EC_Buf::TBufEC_GetBoolean(Reader);
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
-        ViewStringCount = EC_Buf::TBufEC_GetInt32(Reader);
-        IsMoney = EC_Buf::TBufEC_GetBoolean(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        Value = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
+        Hidden = Reader->GetBoolean();
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
+        ViewStringCount = Reader->GetInt32();
+        IsMoney = Reader->GetBoolean();
         NameText->LoadTextLinesFromReader(Reader);
         EnsureViewStringCapacity(ViewStringCount, 0);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, ViewStringCount); cpp_range.next(i); ) {
@@ -184,16 +193,16 @@ namespace ParameterClass {
     void TParameter::LoadLegacyV3FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
         ValueListClass::TValuesList* Values{};
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        Value = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
-        Hidden = EC_Buf::TBufEC_GetBoolean(Reader);
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
-        ViewStringCount = EC_Buf::TBufEC_GetInt32(Reader);
-        IsMoney = EC_Buf::TBufEC_GetBoolean(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        Value = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
+        Hidden = Reader->GetBoolean();
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
+        ViewStringCount = Reader->GetInt32();
+        IsMoney = Reader->GetBoolean();
         NameText->LoadTextLinesFromReader(Reader);
         EnsureViewStringCapacity(ViewStringCount, 0);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, ViewStringCount); cpp_range.next(i); ) {
@@ -217,16 +226,16 @@ namespace ParameterClass {
     // Quest version 1111111118.
     void TParameter::LoadLegacyV2FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        Value = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
-        Hidden = EC_Buf::TBufEC_GetBoolean(Reader);
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
-        ViewStringCount = EC_Buf::TBufEC_GetInt32(Reader);
-        IsMoney = EC_Buf::TBufEC_GetBoolean(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        Value = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
+        Hidden = Reader->GetBoolean();
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
+        ViewStringCount = Reader->GetInt32();
+        IsMoney = Reader->GetBoolean();
         NameText->LoadTextLinesFromReader(Reader);
         EnsureViewStringCapacity(ViewStringCount, 0);
         for (auto cpp_range = pas::for_to<std::int32_t>(1, ViewStringCount); cpp_range.next(i); ) {
@@ -247,15 +256,15 @@ namespace ParameterClass {
     // Quest versions 1111111113..1111111117.
     void TParameter::LoadLegacyV1FromReader(EC_Buf::TBufEC* Reader) {
         std::int32_t i{};
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        Value = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
-        Hidden = EC_Buf::TBufEC_GetBoolean(Reader);
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
-        ViewStringCount = EC_Buf::TBufEC_GetInt32(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        Value = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
+        Hidden = Reader->GetBoolean();
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
+        ViewStringCount = Reader->GetInt32();
         IsMoney = false;
         NameText->LoadTextLinesFromReader(Reader);
         EnsureViewStringCapacity(ViewStringCount, 0);
@@ -276,14 +285,14 @@ namespace ParameterClass {
 
     // Quest versions 1111111111..1111111112.
     void TParameter::LoadLegacyV0FromReader(EC_Buf::TBufEC* Reader) {
-        MinValue = EC_Buf::TBufEC_GetInt32(Reader);
-        MaxValue = EC_Buf::TBufEC_GetInt32(Reader);
-        Value = EC_Buf::TBufEC_GetInt32(Reader);
-        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(EC_Buf::TBufEC_GetInt32(Reader));
-        Hidden = EC_Buf::TBufEC_GetBoolean(Reader);
-        ShowWhenZero = EC_Buf::TBufEC_GetBoolean(Reader);
-        CriticalAtMinimum = EC_Buf::TBufEC_GetBoolean(Reader);
-        Enabled = EC_Buf::TBufEC_GetBoolean(Reader);
+        MinValue = Reader->GetInt32();
+        MaxValue = Reader->GetInt32();
+        Value = Reader->GetInt32();
+        CriticalOutcome = static_cast<TextQuestInterface::TQuestOutcome>(Reader->GetInt32());
+        Hidden = Reader->GetBoolean();
+        ShowWhenZero = Reader->GetBoolean();
+        CriticalAtMinimum = Reader->GetBoolean();
+        Enabled = Reader->GetBoolean();
         ViewStringCount = 1;
         IsMoney = false;
         NameText->LoadTextLinesFromReader(Reader);

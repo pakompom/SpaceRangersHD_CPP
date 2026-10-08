@@ -28,7 +28,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
 #include "units/SysUtilsImports.hpp"
 #include "units/aCalc.hpp"
 #include "units/aConst.hpp"
@@ -40,19 +39,14 @@
 #include "units/fPanelMain.hpp"
 
 namespace fJournal {
-    pas::Array<pas::WideString, 0, 19> TelevisionClipNames = pas::Array<pas::WideString, 0, 19>{{
-        u"a"_w, u"b"_w, u"c"_w, u"d"_w, u"e"_w, u"f"_w, u"g"_w, u"h"_w,
-        u"k"_w, u"l"_w, u"m"_w, u"n"_w, u"o"_w, u"p"_w, u"q"_w, u"r"_w,
-        u"s"_w, u"t"_w, u"u"_w, u"v"_w,
-    }};
+    pas::Array<pas::WideString, 0, 19> TelevisionClipNames = pas::Array<pas::WideString, 0, 19>{{u"a"_w, u"b"_w, u"c"_w,
+        u"d"_w, u"e"_w, u"f"_w, u"g"_w, u"h"_w, u"k"_w, u"l"_w, u"m"_w, u"n"_w, u"o"_w, u"p"_w, u"q"_w, u"r"_w, u"s"_w,
+        u"t"_w, u"u"_w, u"v"_w}};
 
     // The native sum loop tests index < 20; the selection loop stops before index 19.
     // Selection uses each weight plus one.
-    pas::Array<std::int32_t, 0, 19> TelevisionClipWeights = pas::Array<std::int32_t, 0, 19>{{
-        9, 5, 9, 9, 7, 5, 7, 1,
-        3, 1, 0, 3, 3, 2, 3, 2,
-        3, 4, 5, 3,
-    }};
+    pas::Array<std::int32_t, 0, 19> TelevisionClipWeights = pas::Array<std::int32_t, 0, 19>{{9, 5, 9, 9, 7, 5, 7, 1, 3,
+        1, 0, 3, 3, 2, 3, 2, 3, 4, 5, 3}};
 
     std::uint8_t RunJournal(GI_MessageLoop::TMessageLoopGI* ParentLoop) {
         std::uint8_t Result{};
@@ -96,10 +90,14 @@ namespace fJournal {
         {
             GI_MessageLoop::TObjectGI* MainPanel = GetByName(u"MainPanel"sv);
             MainPanel->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
+            MainPanel->FindByNameRecursive(u"BGBuf"sv)->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                GR_Main::GameScreenHeight));
             {
-                GI_MessageLoop::TObjectGI* ButFormClose_Parent = MainPanel->FindByNameRecursive(u"ButFormClose"sv)->Parent;
-                ButFormClose_Parent->SetPosition(ClassesImports::Point(ButFormClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, ButFormClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                GI_MessageLoop::TObjectGI* ButFormClose_Parent = MainPanel->FindByNameRecursive(
+                    u"ButFormClose"sv)->Parent;
+                ButFormClose_Parent->SetPosition(ClassesImports::Point(
+                    ButFormClose_Parent->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    ButFormClose_Parent->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
@@ -108,7 +106,8 @@ namespace fJournal {
 
     void TfJournal::OnOpen() {
         GR_Main::CaptureScreenBackground(true, 0);
-        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
+        pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+            GetByName(u"BGBuf"sv))->BindExternalGraphBuf(GR_Main::AuxRenderBuffer);
         if (!GlobalsV::MusicInPlanetEnabled) {
             GR_Main::MusicManager->RequestFadeOut();
         }
@@ -127,25 +126,33 @@ namespace fJournal {
             MainPanel->KeyUpCallback = pas::bind_static_method<&TfJournal::MainPanelKeyUp>(this);
             MainPanel->LeftButtonDownCallback = pas::bind_method<&TfJournal::MainPanelMouseDown>(this);
         }
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"AddRecord"sv))->UpCallback = pas::bind_method<&TfJournal::AddRecordClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv))->UpCallback = pas::bind_method<&TfJournal::CloseClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<&TfJournal::ClearInputClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"sv))->UpCallback = pas::bind_method<&TfJournal::CopyInputClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"sv))->UpCallback = pas::bind_method<&TfJournal::PasteInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"AddRecord"sv))->UpCallback = pas::bind_method<
+                &TfJournal::AddRecordClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButFormClose"sv))->UpCallback = pas::bind_method<
+                &TfJournal::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<
+                &TfJournal::ClearInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButCopy"sv))->UpCallback = pas::bind_method<
+                &TfJournal::CopyInputClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPaste"sv))->UpCallback = pas::bind_method<
+                &TfJournal::PasteInputClicked>(this);
         this->MainPanel->RebuildMessageButtons(false);
         {
-            GI_GraphButton::TGraphButtonGI* ButJournal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"sv));
+            GI_GraphButton::TGraphButtonGI* ButJournal = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButJournal"sv));
             ButJournal->UpCallback = pas::bind_method<&TfJournal::ToggleJournalNews>(this);
             ButJournal->SetDisabled(JournalSelected);
         }
         {
-            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv));
+            GI_GraphButton::TGraphButtonGI* ButNews = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButNews"sv));
             ButNews->UpCallback = pas::bind_method<&TfJournal::ToggleJournalNews>(this);
             ButNews->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
         }
         GetByName(u"PanelJournal"sv)->SetActive(JournalSelected);
         std::uint8_t Reception = TfJournal::HasTelevisionReception();
-        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TVNone"sv))->SetActive(static_cast<std::uint8_t>(Reception ^ 1));
+        pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"TVNone"sv))->SetActive(static_cast<std::uint8_t>(Reception ^
+            1));
         pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"TV"sv))->SetActive(Reception);
         RefreshTelevisionAnimation(nullptr);
         {
@@ -191,15 +198,19 @@ namespace fJournal {
                 TV->SetFirstFrameImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindI"}));
                 TV->SetImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), u"FindA"}));
                 {
-                    const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"[75,0-", SysUtils::IntToStr(TV->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg = pas::concat_wide({u"[75,0-",
+                        pas::wide_int_to_str(TV->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* cpp_arg_2 = TV;
                     cpp_arg_2->LoadFrameSequenceFromText(cpp_arg);
                 }
             } else {
-                TV->SetFirstFrameImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), TelevisionClipNames[I], u"i"}));
-                TV->SetImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), TelevisionClipNames[I], u"a"}));
+                TV->SetFirstFrameImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(),
+                    TelevisionClipNames[I], u"i"}));
+                TV->SetImagePath(pas::concat_wide({u"Bm.News.", GR_Main::GiResourceSuffix(), TelevisionClipNames[I],
+                    u"a"}));
                 {
-                    const pas::WideString& cpp_arg_3 = static_cast<pas::WideString>(pas::concat_ansi({"[75,0-", SysUtils::IntToStr(TV->GetMainImageFrameCount() - 1), "]"}));
+                    const pas::WideString& cpp_arg_3 = pas::concat_wide({u"[75,0-",
+                        pas::wide_int_to_str(TV->GetMainImageFrameCount() - 1), u"]"});
                     GI_GAI::TgaiGI* cpp_arg_4 = TV;
                     cpp_arg_4->LoadFrameSequenceFromText(cpp_arg_3);
                 }
@@ -226,7 +237,8 @@ namespace fJournal {
         InfoPanel->VerticalScrollBar->SetRange(0, InfoPanel->VerticalScrollBar->Maximum);
         InfoPanel->VerticalScrollBar->SetActive(InfoPanel->ClientSize.Y < ContentHeight);
         {
-            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(Globals::GovernmentScreen->GetByName(u"TalkText"sv))->GetLineHeight();
+            std::int32_t lineHeight = pas::checked_cast<GI_Label::TLabelGI*>(
+                Globals::GovernmentScreen->GetByName(u"TalkText"sv))->GetLineHeight();
             GI_ScrollBar::TScrollBarGI* verticalScrollBar = InfoPanel->VerticalScrollBar;
             verticalScrollBar->SetSmallChange(lineHeight);
         }
@@ -240,10 +252,12 @@ namespace fJournal {
         ContentHeight += GR_Main::GiScalePixels(Height);
     }
 
-    void TfJournal::AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact, std::int32_t RecordIndex) {
+    void TfJournal::AddEntryHeading(pas::WideString Text, pas::WideString MessageText, std::int32_t Compact,
+        std::int32_t RecordIndex) {
         pas::WideString ButtonPrefix{};
         std::int32_t PinWidth{};
-        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::BlackColorTag));
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag,
+                pas::view(aMyFunction::BlackColorTag));
         Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::GreenColorTag, pas::view(aMyFunction::YellowColorTag));
         GI_Image::TImageGI* Image = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, InfoPanel);
         if (Compact == 0) {
@@ -253,7 +267,8 @@ namespace fJournal {
         }
         Image->SetSize(Image->GetContentSize());
         if (Compact == 0) {
-            Image->SetPosition(ClassesImports::Point(InfoPanel->ClientSize.X / 2 - Image->ClientSize.X / 2, ContentHeight));
+            Image->SetPosition(ClassesImports::Point(InfoPanel->ClientSize.X / 2 - Image->ClientSize.X / 2,
+                ContentHeight));
         } else {
             Image->SetPosition(ClassesImports::Point(InfoPanel->ClientSize.X - Image->ClientSize.X, ContentHeight));
         }
@@ -263,7 +278,8 @@ namespace fJournal {
         ContentHeight += Image->ClientSize.Y;
         Image->SetPositionModeW(true);
         {
-            GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, InfoPanel);
+            GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                InfoPanel);
             if (GlobalsV::FontDialog == 0) {
                 cpp_with->SetFontName(GlobalsV::NormalFontName);
             } else if (GlobalsV::FontDialog == 1) {
@@ -276,9 +292,11 @@ namespace fJournal {
             cpp_with->SetDepth(-1.0);
             cpp_with->SetSize(Image->ClientSize);
             if (Compact != 0) {
-                cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X - GR_Main::GiScalePixels(20), cpp_with->ClientSize.Y));
+                cpp_with->SetSize(ClassesImports::Point(cpp_with->ClientSize.X - GR_Main::GiScalePixels(20),
+                    cpp_with->ClientSize.Y));
             }
-            cpp_with->SetPosition(ClassesImports::Point(Image->LocalPosition.X + Image->ClientSize.X - cpp_with->ClientSize.X, Image->LocalPosition.Y));
+            cpp_with->SetPosition(ClassesImports::Point(
+                Image->LocalPosition.X + Image->ClientSize.X - cpp_with->ClientSize.X, Image->LocalPosition.Y));
             cpp_with->SetWordWrapEnabled(false);
             cpp_with->SetPositionModeW(true);
             cpp_with->SetTextAlignX(GI_Main::taxCenter);
@@ -287,17 +305,25 @@ namespace fJournal {
             cpp_with->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(0, 0, 0));
         }
         if (MessageText != u"") {
-            GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, InfoPanel);
-            cpp_with_2->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"MemN"}));
-            cpp_with_2->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"MemA"}));
+            GI_GraphButton::TGraphButtonGI* cpp_with_2 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+                GI_GraphButton::TGraphButtonGI_Create, InfoPanel);
+            cpp_with_2->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(),
+                u"MemN"}));
+            cpp_with_2->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(),
+                u"MemA"}));
             cpp_with_2->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"MemD"}));
-            cpp_with_2->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(), u"MemH"}));
+            cpp_with_2->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormInfo2.", GR_Main::GiResourceSuffix(),
+                u"MemH"}));
             cpp_with_2->SetSize(cpp_with_2->GetMaxStateImageSize());
             PinWidth = cpp_with_2->ClientSize.X;
             if (Compact == 0) {
-                cpp_with_2->SetPosition(ClassesImports::Point(Image->LocalPosition.X + Image->ClientSize.X - cpp_with_2->ClientSize.X - GR_Main::GiScalePixels(10), Image->LocalPosition.Y));
+                cpp_with_2->SetPosition(ClassesImports::Point(
+                    Image->LocalPosition.X + Image->ClientSize.X - cpp_with_2->ClientSize.X -
+                        GR_Main::GiScalePixels(10), Image->LocalPosition.Y));
             } else {
-                cpp_with_2->SetPosition(ClassesImports::Point(Image->LocalPosition.X + Image->ClientSize.X - cpp_with_2->ClientSize.X - GR_Main::GiScalePixels(10), Image->LocalPosition.Y - GR_Main::GiScalePixels(5)));
+                cpp_with_2->SetPosition(ClassesImports::Point(
+                    Image->LocalPosition.X + Image->ClientSize.X - cpp_with_2->ClientSize.X -
+                        GR_Main::GiScalePixels(10), Image->LocalPosition.Y - GR_Main::GiScalePixels(5)));
             }
             cpp_with_2->SetKind(GI_GraphButton::gbkDisable);
             cpp_with_2->SetPositionModeW(true);
@@ -315,17 +341,24 @@ namespace fJournal {
             cpp_with_2->Invalidate();
             cpp_with_2->SetHovered(false);
             if (JournalSelected) {
-                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, InfoPanel);
-                cpp_with_3->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(), u"SubN"}));
-                cpp_with_3->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(), u"SubA"}));
-                cpp_with_3->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(), u"SubD"}));
-                cpp_with_3->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(), u"SubH"}));
+                GI_GraphButton::TGraphButtonGI* cpp_with_3 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+                    GI_GraphButton::TGraphButtonGI_Create, InfoPanel);
+                cpp_with_3->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(),
+                    u"SubN"}));
+                cpp_with_3->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormCount2.",
+                    GR_Main::GiResourceSuffix(), u"SubA"}));
+                cpp_with_3->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(),
+                    u"SubD"}));
+                cpp_with_3->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormCount2.", GR_Main::GiResourceSuffix(),
+                    u"SubH"}));
                 cpp_with_3->SetSize(cpp_with_3->GetMaxStateImageSize());
-                cpp_with_3->SetPosition(ClassesImports::Point(Image->LocalPosition.X + Image->ClientSize.X - cpp_with_3->ClientSize.X - GR_Main::GiScalePixels(15) - PinWidth, Image->LocalPosition.Y - GR_Main::GiScalePixels(3)));
+                cpp_with_3->SetPosition(ClassesImports::Point(
+                    Image->LocalPosition.X + Image->ClientSize.X - cpp_with_3->ClientSize.X -
+                        GR_Main::GiScalePixels(15) - PinWidth, Image->LocalPosition.Y - GR_Main::GiScalePixels(3)));
                 cpp_with_3->SetKind(GI_GraphButton::gbkDisable);
                 cpp_with_3->SetPositionModeW(true);
                 cpp_with_3->UpCallback = pas::bind_method<&TfJournal::DeleteEntryClicked>(this);
-                cpp_with_3->SetName(static_cast<pas::WideString>(pas::concat_ansi({"JrnDel", SysUtils::IntToStr(RecordIndex)})));
+                cpp_with_3->SetName(pas::concat_wide({u"JrnDel", pas::wide_int_to_str(RecordIndex)}));
                 cpp_with_3->UserValue = RecordIndex;
                 cpp_with_3->SetDown(false);
                 cpp_with_3->SetHovered(true);
@@ -336,9 +369,11 @@ namespace fJournal {
     }
 
     void TfJournal::AddEntryText(pas::WideString Text, GI_Main::TTextAlignXGI Align, pas::WideString FontName) {
-        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag, pas::view(aMyFunction::DialogHighlightColorTag));
+        Text = EC_Str::ReplaceAllWideString(Text, aMyFunction::TextHighlightColorTag,
+                pas::view(aMyFunction::DialogHighlightColorTag));
         {
-            GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, InfoPanel);
+            GI_Label::TLabelGI* cpp_with = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                InfoPanel);
             if (FontName == u"") {
                 if (GlobalsV::FontDialog == 0) {
                     cpp_with->SetFontName(GlobalsV::NormalFontName);
@@ -371,7 +406,8 @@ namespace fJournal {
         JournalSelected = static_cast<std::uint8_t>(JournalSelected ^ 1);
         RefreshTelevisionAnimation(nullptr);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButJournal"sv))->SetDisabled(JournalSelected);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButNews"sv))->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+            GetByName(u"ButNews"sv))->SetDisabled(static_cast<std::uint8_t>(JournalSelected ^ 1));
         GetByName(u"PanelJournal"sv)->SetActive(JournalSelected);
         if (JournalSelected) {
             SetFocusedControl(GetByName(u"TextRecord"sv));
@@ -385,7 +421,8 @@ namespace fJournal {
         }
     }
 
-    void TfJournal::MainPanelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+    void TfJournal::MainPanelMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
         SetFocusedControl(GetByName(u"TextRecord"sv));
     }
 
@@ -400,7 +437,7 @@ namespace fJournal {
                 ClearInputClicked(nullptr);
             }
         }
-        if (static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU) ^ 1)) {
+        if (!GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && Key == WindowsSdk::VK_DELETE) {
                 ClearEntriesConfirmed();
             } else if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && Key == WindowsSdk::VK_INSERT) {
@@ -444,19 +481,24 @@ namespace fJournal {
 
     void TfJournal::ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) {
         if (Delta == WindowsSdk::WHEEL_DELTA) {
-            InfoPanel->VerticalScrollBar->SetPosition_2(InfoPanel->VerticalScrollBar->Position - InfoPanel->VerticalScrollBar->SmallChange);
+            InfoPanel->VerticalScrollBar->SetPosition_2(InfoPanel->VerticalScrollBar->Position -
+                InfoPanel->VerticalScrollBar->SmallChange);
         } else if (Delta == -WindowsSdk::WHEEL_DELTA) {
-            InfoPanel->VerticalScrollBar->SetPosition_2(InfoPanel->VerticalScrollBar->Position + InfoPanel->VerticalScrollBar->SmallChange);
+            InfoPanel->VerticalScrollBar->SetPosition_2(InfoPanel->VerticalScrollBar->Position +
+                InfoPanel->VerticalScrollBar->SmallChange);
         }
     }
 
     std::uint8_t TfJournal::HasTelevisionReception() {
-        return aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsDockedToShip() || aPlayer::GetPlayer()->IsOnPlanet() && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal, aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId));
+        return aPlayer::GetPlayer() != nullptr && (aPlayer::GetPlayer()->IsDockedToShip() ||
+                aPlayer::GetPlayer()->IsOnPlanet() && pas::in_set<aGalaxyStruct::oiMaloc, aGalaxyStruct::oiGaal,
+                    aGalaxyStruct::oiPirate, aGalaxyStruct::oiPirate>(aPlayer::GetPlayer()->CurrentPlanet->OwnerId));
     }
 
     void TfJournal::PinEntryClicked(GI_MessageLoop::TObjectGI* Sender) {
         GR_Main::SoundManager->PlaySound(u"Sound.UserMsgAdd"_wref.get());
-        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Sender->HelpText, u""_wref.get());
+        Globals::AddOrUpdatePlayerBubble(Globals::pmUserNote, aGalaxy::Galaxy->CurrentTurn, Sender->HelpText,
+            u""_wref.get());
         MainPanel->RebuildMessageButtons(false);
         pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->SetDisabled(true);
         GI_Main::BreakUiMessage();
@@ -464,7 +506,9 @@ namespace fJournal {
 
     void TfJournal::DeleteEntryClicked(GI_MessageLoop::TObjectGI* Sender) {
         std::int32_t Position{};
-        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.DelRecord"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.DelRecord"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+            GI_MessageBox::mbgResultOK) {
             if (aPlayer::GetPlayer() != nullptr) {
                 aPlayer::GetPlayer()->DeleteJournalRecord(Sender->UserValue);
             }
@@ -484,12 +528,18 @@ namespace fJournal {
     void TfJournal::ClearEntriesConfirmed() {
         if (aPlayer::GetPlayer() != nullptr) {
             if (JournalSelected) {
-                if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ClearRecord"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+                if (GI_MessageBox::ShowMessageBoxGI(this,
+                    GR_Main::LookupLocalizedTextByKey(u"FormInfo.ClearRecord"_wref.get()),
+                    GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+                    GI_MessageBox::mbgResultOK) {
                     aPlayer::GetPlayer()->ClearJournal();
                     RebuildJournalEntries();
                     GI_Main::BreakUiMessage();
                 }
-            } else if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ClearNews"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+            } else if (GI_MessageBox::ShowMessageBoxGI(this,
+                GR_Main::LookupLocalizedTextByKey(u"FormInfo.ClearNews"_wref.get()),
+                GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+                GI_MessageBox::mbgResultOK) {
                 aPlayer::GetPlayer()->TrimNewsEntries(0);
                 RebuildNewsEntries();
                 GI_Main::BreakUiMessage();
@@ -502,27 +552,39 @@ namespace fJournal {
         if (aPlayer::GetPlayer() != nullptr) {
             if (JournalSelected) {
                 if (pas::list_count(aPlayer::GetPlayer()->JournalRecords) > 0) {
-                    if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractRecord"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+                    if (GI_MessageBox::ShowMessageBoxGI(this,
+                        GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractRecord"_wref.get()),
+                        GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+                        GI_MessageBox::mbgResultOK) {
                         FileName = aPlayer::GetPlayer()->ExportJournal();
-                        GI_MessageBox::ShowMessageBoxGI(this, ([&] {
-                            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-                            pas::WideString localizedText = aConst::LocalizedText(u"FormInfo.ExtractRecordDone"_wref.get());
-                            pas::WideString fileName = FileName;
-                            return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<FileName>"_w, std::move(fileName), textHighlightColorTag.get());
-                        }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+                        GI_MessageBox::ShowMessageBoxGI(this,
+                            ([&] {
+                                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                                pas::WideString localizedText = aConst::LocalizedText(
+                                    u"FormInfo.ExtractRecordDone"_wref.get());
+                                pas::WideString fileName = FileName;
+                                return aMyFunction::ReplaceColoredToken(std::move(localizedText), u"<FileName>"_w,
+                                    std::move(fileName), textHighlightColorTag.get());
+                            }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
                         RebuildJournalEntries();
                         GI_Main::BreakUiMessage();
                     }
                 }
             } else if (pas::list_count(aPlayer::GetPlayer()->NewsEntries) > 0) {
-                if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractNews"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+                if (GI_MessageBox::ShowMessageBoxGI(this,
+                    GR_Main::LookupLocalizedTextByKey(u"FormInfo.ExtractNews"_wref.get()),
+                    GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+                    GI_MessageBox::mbgResultOK) {
                     FileName = aPlayer::GetPlayer()->ExportNews();
-                    GI_MessageBox::ShowMessageBoxGI(this, ([&] {
-                        auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
-                        pas::WideString localizedText_2 = aConst::LocalizedText(u"FormInfo.ExtractNewsDone"_wref.get());
-                        pas::WideString fileName_2 = FileName;
-                        return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<FileName>"_w, std::move(fileName_2), textHighlightColorTag_2.get());
-                    }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
+                    GI_MessageBox::ShowMessageBoxGI(this,
+                        ([&] {
+                            auto textHighlightColorTag_2 = pas::borrow(aMyFunction::TextHighlightColorTag);
+                            pas::WideString localizedText_2 = aConst::LocalizedText(
+                                u"FormInfo.ExtractNewsDone"_wref.get());
+                            pas::WideString fileName_2 = FileName;
+                            return aMyFunction::ReplaceColoredToken(std::move(localizedText_2), u"<FileName>"_w,
+                                std::move(fileName_2), textHighlightColorTag_2.get());
+                        }()), GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04, 0, 0, 0);
                     RebuildNewsEntries();
                     GI_Main::BreakUiMessage();
                 }
@@ -546,24 +608,34 @@ namespace fJournal {
             } else if (aPlayer::GetPlayer()->IsOnPlanet()) {
                 if (aPlayer::GetPlayer()->CurrentPlanet->OwnerId == aGalaxyStruct::oiPirate) {
                     if (!aPlayer::GetPlayer()->CurrentPlanet->IsMainPiratePlanet) {
-                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName, u"Pirate"}));
+                        GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                            aConst::OwnerInfo[
+                                aConst::RaceToOwner(aPlayer::GetPlayer()->CurrentPlanet->RaceId)].InternalName,
+                            u"Pirate"}));
                     } else {
                         GR_Main::MusicManager->PlayCategory(u"Nation.PiratePlanetMain"_wref.get());
                     }
                 } else {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[aPlayer::GetPlayer()->CurrentPlanet->OwnerId].InternalName}));
                 }
             } else if (aPlayer::GetPlayer()->IsDockedToShip()) {
                 if (!GlobalsV::MusicInPlanetEnabled) {
                     GR_Main::MusicManager->RequestFadeOut();
-                } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase, aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName, u"Pirate"}));
+                } else if (pas::is_one_of<aGalaxyStruct::rstPirateBase,
+                    aGalaxyStruct::rstDominion>(aPlayer::GetPlayer()->DockedTo->TypeId)) {
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName,
+                        u"Pirate"}));
                 } else {
-                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.", aConst::OwnerInfo[aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
+                    GR_Main::MusicManager->PlayCategory(pas::concat_wide({u"Nation.",
+                        aConst::OwnerInfo[
+                            aConst::RaceToOwner(aPlayer::GetPlayer()->DockedTo->PilotRace)].InternalName}));
                 }
             }
         } else if (GlobalsV::MusicInSpaceEnabled) {
-            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull()->CapitalShip == 1 && aMyFunction::RandomIntRange(0, 100) < 20) {
+            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull()->CapitalShip == 1 &&
+                aMyFunction::RandomIntRange(0, 100) < 20) {
                 Globals::StarMapScreen->BattleMusicSelected = true;
                 GR_Main::MusicManager->PlayCategory(u"Destroyer"_wref.get());
             } else {
@@ -593,15 +665,19 @@ namespace fJournal {
                     }
                     Entry = pas::list_at<aGalaxyStruct::TPlanetNews>(aPlayer::GetPlayer()->NewsEntries, I);
                     {
-                        pas::WideString cpp_arg_2 = pas::concat_wide({([&] {
-                            pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Entry->Turn);
-                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)), pas::view(std::move(textHighlightColorTag_2)));
-                        }()), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString cpp_arg_2 = pas::concat_wide({
+                            ([&] {
+                                pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Entry->Turn);
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)),
+                                    pas::view(std::move(textHighlightColorTag_2)));
+                            }()), u"\r\n", u" ", u"\r\n", Entry->Text});
                         pas::WideString wrapTextInColor = ([&] {
-                            pas::WideString cpp_arg = pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn), HeadingSuffix});
+                            pas::WideString cpp_arg = pas::concat_wide({aGalaxy::Galaxy->FormatTurnDate(Entry->Turn),
+                                HeadingSuffix});
                             pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg)), pas::view(std::move(textHighlightColorTag)));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(cpp_arg)),
+                                pas::view(std::move(textHighlightColorTag)));
                         }());
                         AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg_2), 1, 0);
                     }
@@ -634,15 +710,18 @@ namespace fJournal {
                 for (I = cpp_first; I >= 0; --I) {
                     Entry = pas::list_at<aPlayer::TJournalRecord>(aPlayer::GetPlayer()->JournalRecords, I);
                     {
-                        pas::WideString cpp_arg = pas::concat_wide({([&] {
-                            pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn);
-                            pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate_2)), pas::view(std::move(textHighlightColorTag_2)));
-                        }()), u"\r\n", u" ", u"\r\n", Entry->Text});
+                        pas::WideString cpp_arg = pas::concat_wide({
+                            ([&] {
+                                pas::WideString formatTurnDate_2 = aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn);
+                                pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate_2)),
+                                    pas::view(std::move(textHighlightColorTag_2)));
+                            }()), u"\r\n", u" ", u"\r\n", Entry->Text});
                         pas::WideString wrapTextInColor = ([&] {
                             pas::WideString formatTurnDate = aGalaxy::Galaxy->FormatTurnDate(Entry->DateTurn);
                             pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)), pas::view(std::move(textHighlightColorTag)));
+                            return aMyFunction::WrapTextInColor(pas::view(std::move(formatTurnDate)),
+                                pas::view(std::move(textHighlightColorTag)));
                         }());
                         AddEntryHeading(std::move(wrapTextInColor), std::move(cpp_arg), 1, I);
                     }
@@ -660,7 +739,8 @@ namespace fJournal {
                 pas::WideString intToStr = pas::wide_int_to_str(Displayed);
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormInfo.RecordCount"_wref.get());
                 pas::WideString dialogHighlightColorTag = aMyFunction::DialogHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(dialogHighlightColorTag), u"<Count>"_w, std::move(intToStr));
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(dialogHighlightColorTag),
+                    u"<Count>"_w, std::move(intToStr));
             }());
             AddEntryText(std::move(formatText1), GI_Main::taxCenter, smallFontName.get());
         }
@@ -702,7 +782,9 @@ namespace fJournal {
     }
 
     void TfJournal::ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) {
-        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle, ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished, ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
+        if (static_cast<std::uint8_t>(GR_Main::ExitScreenLoop ^ 1) && pas::is_one_of<ThreadCalc::tcpIdle,
+                ThreadCalc::tcpGalaxyFinished, ThreadCalc::tcpPlayerStarFinished,
+                ThreadCalc::tcpPlayerStarPrepared>(aCalc::TurnCalculationPhase)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum(10001);
             aScript::ExecuteGameplayUiCode(Block, Key);
             aGalaxy::Galaxy->PrimeIntegrityChecksum(20001);

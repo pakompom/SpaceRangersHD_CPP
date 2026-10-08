@@ -1,6 +1,7 @@
 #include "layout/EC_CacheFont.hpp"
 #include "types/EC_Buf.hpp"
 #include "types/GR_GraphBuf.hpp"
+#include "types/System.hpp"
 #include "types/Types.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/Direct3D9.hpp"
@@ -10,7 +11,6 @@
 #include "units/EC_Str.hpp"
 #include "units/GR_DX.hpp"
 #include "units/GR_Main.hpp"
-#include "units/System.hpp"
 #include "units/Windows.hpp"
 #include "units/WindowsSdk.hpp"
 
@@ -130,7 +130,8 @@ namespace EC_CacheFont {
     }
 
     // Restores ObjectCount; FixedWidthDepth remains affected by the processed tags.
-    WindowsSdk::TRect TCFontEC::MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y, WindowsSdk::PInteger TopAdjustment) {
+    WindowsSdk::TRect TCFontEC::MeasureTaggedTextBounds(const pas::WideString& Text, std::int32_t X, std::int32_t Y,
+        WindowsSdk::PInteger TopAdjustment) {
         WindowsSdk::TRect Result{};
         std::int32_t GlyphIndex{};
         std::int32_t TokenLength{};
@@ -151,26 +152,37 @@ namespace EC_CacheFont {
         while (Index < CharCount) {
             Ch = Text.read(Index + 1);
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                if (ParseObjectTagCached(Text.pchar() + Index - 1, CharCount - Index + 1, ObjectIndex) > 0) {
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, ObjectIndex) > 0) {
                     PosX += Objects[ObjectIndex].Width;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                } else if (TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
+                } else if (TCFontEC::ParseFormatTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, FieldWidth, Alignment) > 0) {
                     Index = Index + TokenLength - 1;
                     while (Index < CharCount) {
                         Ch = Text.read(Index + 1);
                         ++Index;
-                        TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+                        TokenLength = TCFontEC::GetTaggedTextTokenLength(
+                                pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
                         if (TokenLength > 0) {
-                            if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                            if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                                CharCount - Index + 1) > 0) {
                                 ++FixedWidthDepth;
-                            } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                            } else if (TCFontEC::MatchFixEndTag(
+                                pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1) >
+                                0) {
                                 FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                            } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                            } else if (TCFontEC::MatchFormatEndTag(
+                                pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1) >
+                                0) {
                                 Index = Index + TokenLength - 1;
                                 break;
                             }
@@ -179,7 +191,8 @@ namespace EC_CacheFont {
                         }
                         GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
                         if (GlyphIndex != 0) {
-                            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+                            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                                    (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
                             EC_CacheFont::IncludeGlyphBounds(Result, PosX, Y, Glyph);
                             if (FixedWidthDepth > 0) {
                                 PosX += MaxGlyphAdvance;
@@ -192,7 +205,8 @@ namespace EC_CacheFont {
                     if (FieldWidth > 0) {
                         GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, ' ' * 2));
                         if (GlyphIndex != 0) {
-                            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+                            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                                    (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
                             if (FixedWidthDepth > 0) {
                                 PosX += MaxGlyphAdvance * FieldWidth;
                             } else {
@@ -209,7 +223,8 @@ namespace EC_CacheFont {
             if (GlyphIndex == 0) {
                 continue;
             }
-            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                    (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
             EC_CacheFont::IncludeGlyphBounds(Result, PosX, Y, Glyph);
             if (FixedWidthDepth > 0) {
                 PosX += MaxGlyphAdvance;
@@ -223,17 +238,33 @@ namespace EC_CacheFont {
         }
         if (ObjectCount - SavedObjectCount > 0) {
             MiddleY = (Result.Top + Result.Bottom) / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount, ObjectCount - 1); cpp_range.next(Index); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount,
+                ObjectCount - 1); cpp_range.next(Index); ) {
                 if (Objects[Index].VerticalMode == 0) {
                     if (TopAdjustment != nullptr && MiddleY - Objects[Index].Height / 2 < Result.Top) {
-                        pas::store_unaligned<std::int32_t>(TopAdjustment, pas::load_unaligned<std::int32_t>(TopAdjustment) + Result.Top - (MiddleY - Objects[Index].Height / 2));
+                        pas::store_unaligned<std::int32_t>(TopAdjustment,
+                            pas::load_unaligned<std::int32_t>(TopAdjustment) + Result.Top - (MiddleY -
+                                    Objects[Index].Height / 2));
                     }
                     Result.Top = std::min<std::int32_t>(Result.Top, MiddleY - Objects[Index].Height / 2);
-                    Result.Bottom = std::max<std::int32_t>(Result.Bottom, MiddleY - Objects[Index].Height / 2 + Objects[Index].Height);
+                    Result.Bottom = std::max<std::int32_t>(Result.Bottom,
+                            MiddleY - Objects[Index].Height / 2 + Objects[Index].Height);
                 }
             }
         }
         ObjectCount = SavedObjectCount;
+        return Result;
+    }
+
+    // The native implementation is handwritten assembly.
+    // Returns zero for an absent character.
+    std::int32_t TCFontEC_GetGlyphAdvance(TCFontEC* Self, char16_t CharCode) {
+        std::int32_t Result = pas::load_unaligned<std::uint16_t>(pas::byte_offset(Self->GlyphLookup,
+            CharCode * sizeof(std::uint16_t)));
+        if (Result != 0) {
+            return pas::pointer_add(Self->Glyphs, Result - 1)->AdvanceA + pas::pointer_add(Self->Glyphs,
+                    Result - 1)->AdvanceB + pas::pointer_add(Self->Glyphs, Result - 1)->AdvanceC;
+        }
         return Result;
     }
 
@@ -242,7 +273,8 @@ namespace EC_CacheFont {
     }
 
     // Replaces Lines, preserves tags in its output, and restores ObjectCount.
-    void TCFontEC::WrapTaggedTextIntoLines(EC_Str::TStringsEC* Lines, const pas::WideString& Text, std::int32_t MaxWidth) {
+    void TCFontEC::WrapTaggedTextIntoLines(EC_Str::TStringsEC* Lines, const pas::WideString& Text,
+        std::int32_t MaxWidth) {
         std::int32_t TokenLength{};
         std::int32_t Index{};
         std::int32_t WordLength{};
@@ -264,7 +296,9 @@ namespace EC_CacheFont {
         while (WordStart < CharCount) {
             SeenCharacter = false;
             for (auto cpp_range = pas::for_to<std::int32_t>(WordStart, CharCount - 1); cpp_range.next(Index); ) {
-                if (pas::load_unaligned<char16_t>(pas::byte_offset(static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())), Index * sizeof(char16_t))) == u' ') {
+                if (pas::load_unaligned<char16_t>(pas::byte_offset(
+                    static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())), Index * sizeof(char16_t))) ==
+                    u' ') {
                     if (SeenCharacter) {
                         break;
                     }
@@ -276,37 +310,53 @@ namespace EC_CacheFont {
             Index = WordStart;
             FitEnd = 0;
             while (Index <= WordStart + WordLength - 1) {
-                Ch = pas::load_unaligned<char16_t>(pas::byte_offset(static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())), Index * sizeof(char16_t)));
+                Ch = pas::load_unaligned<char16_t>(pas::byte_offset(
+                        static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())), Index * sizeof(char16_t)));
                 ++Index;
-                TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart));
+                TokenLength = TCFontEC::GetTaggedTextTokenLength(
+                        pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                        WordLength - (Index - 1 - WordStart));
                 if (TokenLength > 0) {
-                    if (ParseObjectTagCached(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart), ObjectIndex) > 0) {
+                    if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                        WordLength - (Index - 1 - WordStart), ObjectIndex) > 0) {
                         WordWidth += Objects[ObjectIndex].Width;
                         if (WordWidth <= MaxWidth) {
                             FitEnd = Index - 1 + TokenLength - 1;
                         }
-                    } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart)) > 0) {
+                    } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                        WordLength - (Index - 1 - WordStart)) > 0) {
                         ++FixedWidthDepth;
-                    } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart)) > 0) {
+                    } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                        WordLength - (Index - 1 - WordStart)) > 0) {
                         FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                    } else if (TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, WordLength - (Index - 1 - WordStart), FieldWidth, Alignment) > 0) {
+                    } else if (TCFontEC::ParseFormatTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                        WordLength - (Index - 1 - WordStart), FieldWidth, Alignment) > 0) {
                         Index = Index + TokenLength - 1;
                         while (Index < CharCount) {
-                            Ch = pas::load_unaligned<char16_t>(pas::byte_offset(static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())), Index * sizeof(char16_t)));
+                            Ch = pas::load_unaligned<char16_t>(pas::byte_offset(
+                                    static_cast<PFontTextCharsEC>(static_cast<void*>(Text.data())),
+                                    Index * sizeof(char16_t)));
                             ++Index;
-                            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+                            TokenLength = TCFontEC::GetTaggedTextTokenLength(
+                                    pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
                             if (TokenLength > 0) {
-                                if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                                if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                                    CharCount - Index + 1) > 0) {
                                     ++FixedWidthDepth;
-                                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                                } else if (TCFontEC::MatchFixEndTag(
+                                    pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1) >
+                                    0) {
                                     FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                                } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                                } else if (TCFontEC::MatchFormatEndTag(
+                                    pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1) >
+                                    0) {
                                     Index = Index + TokenLength - 1;
                                     if (FieldWidth > 0) {
                                         if (FixedWidthDepth > 0) {
                                             WordWidth += MaxGlyphAdvance * FieldWidth;
                                         } else {
-                                            WordWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') * FieldWidth;
+                                            WordWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                                    FieldWidth;
                                         }
                                     }
                                     break;
@@ -348,9 +398,11 @@ namespace EC_CacheFont {
                         }
                     }
                     if (LineLength - TokenLength > 0) {
-                        Lines->AddSlice(Text.pchar() + LineStart + TokenLength, LineLength - TokenLength);
+                        Lines->AddSlice(pas::pointer_add(pas::pointer_add(Text.pchar(), LineStart), TokenLength),
+                            LineLength - TokenLength);
                     } else {
-                        Lines->AddSlice(Text.pchar() + LineStart + TokenLength, FitEnd + 1 - WordStart);
+                        Lines->AddSlice(pas::pointer_add(pas::pointer_add(Text.pchar(), LineStart), TokenLength),
+                            FitEnd + 1 - WordStart);
                         WordStart = FitEnd + 1;
                         WordLength = 0;
                         WordWidth = 0;
@@ -372,7 +424,8 @@ namespace EC_CacheFont {
                         ++TokenLength;
                     }
                 }
-                Lines->AddSlice(Text.pchar() + LineStart + TokenLength, LineLength - TokenLength);
+                Lines->AddSlice(pas::pointer_add(pas::pointer_add(Text.pchar(), LineStart), TokenLength),
+                    LineLength - TokenLength);
                 FirstLine = false;
                 LineStart = WordStart;
                 WordStart += WordLength;
@@ -388,12 +441,14 @@ namespace EC_CacheFont {
             }
         }
         if (LineLength - TokenLength > 0) {
-            Lines->AddSlice(Text.pchar() + LineStart + TokenLength, LineLength - TokenLength);
+            Lines->AddSlice(pas::pointer_add(pas::pointer_add(Text.pchar(), LineStart), TokenLength),
+                LineLength - TokenLength);
         }
         ObjectCount = SavedObjectCount;
     }
 
-    void TCFontEC::DrawTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, WindowsSdk::TRect ClipRect) {
+    void TCFontEC::DrawTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+        const pas::WideString& Text, WindowsSdk::TRect ClipRect) {
         std::int32_t GlyphIndex{};
         std::int32_t TokenLength{};
         std::int32_t PosX{};
@@ -421,21 +476,30 @@ namespace EC_CacheFont {
         while (Index < CharCount) {
             Ch = Text.read(Index + 1);
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                ApplyColorTag(Text.pchar() + Index - 1, CharCount - Index + 1);
-                TCFontEC::ParseTabTagAndAdjustX(Text.pchar() + Index - 1, CharCount - Index + 1, PosX);
-                ParseAlignTagAndAdjustX(Text.pchar() + Index - 1, CharCount - Index + 1, PosX);
-                if (ParseObjectTagCached(Text.pchar() + Index - 1, CharCount - Index + 1, ObjectIndex) > 0) {
+                ApplyColorTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
+                TCFontEC::ParseTabTagAndAdjustX(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, PosX);
+                ParseAlignTagAndAdjustX(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, PosX);
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, ObjectIndex) > 0) {
                     Objects[ObjectIndex].X = X + PosX;
                     PosX += Objects[ObjectIndex].Width;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
+                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(
+                        pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1, FieldWidth,
+                        Alignment) > 0) {
                     Index = Index + TokenLength - 1;
-                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
+                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(pas::pointer_add(Text.pchar(), Index),
+                            CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
                             if (FixedWidthDepth > 0) {
@@ -456,7 +520,8 @@ namespace EC_CacheFont {
                         FieldWidth = -1;
                     }
                     continue;
-                } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFormatEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     if (FieldWidth > 0) {
                         if (FixedWidthDepth > 0) {
                             PosX += MaxGlyphAdvance * FieldWidth;
@@ -473,7 +538,8 @@ namespace EC_CacheFont {
             if (GlyphIndex == 0) {
                 continue;
             }
-            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                    (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
             if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
                 if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
                     Top = Y + Glyph->OpaqueMaskPlane.Top;
@@ -481,7 +547,9 @@ namespace EC_CacheFont {
                 if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
                     Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
                 }
-                GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
+                GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left,
+                    Y + Glyph->OpaqueMaskPlane.Top,
+                    EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
             }
             if (Glyph->AlphaMaskPlane.DataOffset != 0) {
                 if (Y + Glyph->AlphaMaskPlane.Top < Top) {
@@ -490,7 +558,9 @@ namespace EC_CacheFont {
                 if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
                     Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
                 }
-                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
+                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes,
+                    X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top,
+                    EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
             }
             if (FixedWidthDepth > 0) {
                 PosX += MaxGlyphAdvance;
@@ -500,7 +570,8 @@ namespace EC_CacheFont {
         }
         if (ObjectCount - SavedObjectCount > 0) {
             MiddleY = (Top + Bottom) / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount, ObjectCount - 1); cpp_range.next(Index); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount,
+                ObjectCount - 1); cpp_range.next(Index); ) {
                 if (Objects[Index].VerticalMode == 0) {
                     Objects[Index].Y = MiddleY - Objects[Index].Height / 2;
                 }
@@ -508,7 +579,8 @@ namespace EC_CacheFont {
         }
     }
 
-    void TCFontEC::DrawTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, WindowsSdk::TRect ClipRect) {
+    void TCFontEC::DrawTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+        const pas::WideString& Text, WindowsSdk::TRect ClipRect) {
         std::int32_t GlyphIndex{};
         std::int32_t TokenLength{};
         std::int32_t PosX{};
@@ -536,21 +608,30 @@ namespace EC_CacheFont {
         while (Index < CharCount) {
             Ch = Text.read(Index + 1);
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                ApplyColorTag(Text.pchar() + Index - 1, CharCount - Index + 1);
-                TCFontEC::ParseTabTagAndAdjustX(Text.pchar() + Index - 1, CharCount - Index + 1, PosX);
-                ParseAlignTagAndAdjustX(Text.pchar() + Index - 1, CharCount - Index + 1, PosX);
-                if (ParseObjectTagCached(Text.pchar() + Index - 1, CharCount - Index + 1, ObjectIndex) > 0) {
+                ApplyColorTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
+                TCFontEC::ParseTabTagAndAdjustX(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, PosX);
+                ParseAlignTagAndAdjustX(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, PosX);
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, ObjectIndex) > 0) {
                     Objects[ObjectIndex].X = X + PosX;
                     PosX += Objects[ObjectIndex].Width;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     ++FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
-                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, FieldWidth, Alignment) > 0) {
+                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(
+                        pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1, FieldWidth,
+                        Alignment) > 0) {
                     Index = Index + TokenLength - 1;
-                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
+                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(pas::pointer_add(Text.pchar(), Index),
+                            CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
                             if (FixedWidthDepth > 0) {
@@ -571,7 +652,8 @@ namespace EC_CacheFont {
                         FieldWidth = -1;
                     }
                     continue;
-                } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFormatEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     if (FieldWidth > 0) {
                         if (FixedWidthDepth > 0) {
                             PosX += MaxGlyphAdvance * FieldWidth;
@@ -588,7 +670,8 @@ namespace EC_CacheFont {
             if (GlyphIndex == 0) {
                 continue;
             }
-            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                    (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
             if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
                 if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
                     Top = Y + Glyph->OpaqueMaskPlane.Top;
@@ -596,7 +679,9 @@ namespace EC_CacheFont {
                 if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
                     Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
                 }
-                GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
+                GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes, X + PosX + Glyph->OpaqueMaskPlane.Left,
+                    Y + Glyph->OpaqueMaskPlane.Top,
+                    EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(), Clip);
             }
             if (Glyph->AlphaMaskPlane.DataOffset != 0) {
                 if (Y + Glyph->AlphaMaskPlane.Top < Top) {
@@ -605,7 +690,9 @@ namespace EC_CacheFont {
                 if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
                     Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
                 }
-                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes, X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
+                GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes,
+                    X + PosX + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top,
+                    EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, GetCurrentColor());
             }
             if (FixedWidthDepth > 0) {
                 PosX += MaxGlyphAdvance;
@@ -615,7 +702,8 @@ namespace EC_CacheFont {
         }
         if (ObjectCount - SavedObjectCount > 0) {
             MiddleY = (Top + Bottom) / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount, ObjectCount - 1); cpp_range.next(Index); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount,
+                ObjectCount - 1); cpp_range.next(Index); ) {
                 if (Objects[Index].VerticalMode == 0) {
                     Objects[Index].Y = MiddleY - Objects[Index].Height / 2;
                 }
@@ -623,7 +711,8 @@ namespace EC_CacheFont {
         }
     }
 
-    void TCFontEC_DrawJustifiedTaggedText16(TCFontEC* Self, void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect) {
+    void TCFontEC::DrawJustifiedTaggedText16(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+        const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect) {
         char16_t Character{};
         std::int32_t GlyphIndex{};
         PAftGlyphEC GlyphBase{};
@@ -637,7 +726,7 @@ namespace EC_CacheFont {
         WindowsSdk::TRect Clip{};
         std::int32_t Top = 999999999;
         std::int32_t Bottom = -999999999;
-        std::int32_t SavedObjectCount = Self->ObjectCount;
+        std::int32_t SavedObjectCount = ObjectCount;
         Clip.Left = ClipRect.Left;
         Clip.Top = ClipRect.Top;
         Clip.Right = ClipRect.Right - 1;
@@ -653,31 +742,32 @@ namespace EC_CacheFont {
         std::int32_t FieldWidth = -1;
         ParsedWidth = -1;
         while (Index < CharCount) {
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index, CharCount - Index);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_add(Text.pchar(), Index), CharCount - Index);
             if (TokenLength > 0) {
-                if (Self->ParseObjectTagCached(Text.pchar() + Index, CharCount - Index, ObjectIndex) > 0) {
-                    ContentWidth += Self->Objects[ObjectIndex].Width;
+                if (ParseObjectTagCached(pas::pointer_add(Text.pchar(), Index), CharCount - Index, ObjectIndex) > 0) {
+                    ContentWidth += Objects[ObjectIndex].Width;
                     Leading = false;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index, CharCount - Index) > 0) {
-                    ++Self->FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index, CharCount - Index) > 0) {
-                    Self->FixedWidthDepth = std::max<std::int32_t>(Self->FixedWidthDepth - 1, 0);
-                } else if (!(FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index, CharCount - Index, ParsedWidth, ParsedAlignment) > 0)) {
-                    if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index, CharCount - Index) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
+                    ++FixedWidthDepth;
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                } else if (!(FieldWidth < 0 && TCFontEC::ParseFormatTag(pas::pointer_add(Text.pchar(), Index),
+                        CharCount - Index, ParsedWidth, ParsedAlignment) > 0)) {
+                    if (TCFontEC::MatchFormatEndTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
                         ParsedWidth = -1;
                     }
                 }
                 Index += TokenLength;
             } else {
-                if (Text.read(Index + 1) != u' ' || FieldWidth > 0 || Self->FixedWidthDepth > 0) {
-                    if (Self->FixedWidthDepth > 0) {
-                        ContentWidth += Self->MaxGlyphAdvance;
+                if (Text.read(Index + 1) != u' ' || FieldWidth > 0 || FixedWidthDepth > 0) {
+                    if (FixedWidthDepth > 0) {
+                        ContentWidth += MaxGlyphAdvance;
                     } else {
-                        ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, Text.read(Index + 1));
+                        ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Text.read(Index + 1));
                     }
                     Leading = false;
                 } else if (Leading == true) {
-                    ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, Text.read(Index + 1));
+                    ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Text.read(Index + 1));
                 } else {
                     ++SpaceCount;
                 }
@@ -685,71 +775,83 @@ namespace EC_CacheFont {
             }
         }
         if (SpaceCount < 1) {
-            Self->DrawTaggedText16(Destination, PitchBytes, X, Y, Text, ClipRect);
+            DrawTaggedText16(Destination, PitchBytes, X, Y, Text, ClipRect);
             return;
         }
-        double SpaceWidth = pas::real_divide(Width - ContentWidth, SpaceCount);
-        if (SpaceWidth < 2.0L) {
-            Self->DrawTaggedText16(Destination, PitchBytes, X, Y, Text, ClipRect);
+        double SpaceWidth = static_cast<float>(static_cast<double>(Width - ContentWidth) / SpaceCount);
+        if (SpaceWidth < 2.0) {
+            DrawTaggedText16(Destination, PitchBytes, X, Y, Text, ClipRect);
             return;
         }
-        Self->ObjectCount = SavedObjectCount;
-        PFontGlyphLookupEC Lookup = Self->GlyphLookup;
-        GlyphBase = Self->Glyphs;
+        ObjectCount = SavedObjectCount;
+        PFontGlyphLookupEC Lookup = GlyphLookup;
+        GlyphBase = Glyphs;
         double PosX = X;
         Leading = true;
         Index = 0;
         while (Index < CharCount) {
             Character = Text.read(Index + 1);
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                Self->ApplyColorTag(Text.pchar() + Index - 1, CharCount - Index + 1);
-                if (Self->ParseObjectTagCached(Text.pchar() + Index - 1, CharCount - Index + 1, ObjectIndex) > 0) {
-                    Self->Objects[ObjectIndex].X = System::Trunc(PosX);
-                    PosX = static_cast<long double>(PosX) + Self->Objects[ObjectIndex].Width;
+                ApplyColorTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, ObjectIndex) > 0) {
+                    Objects[ObjectIndex].X = pas::real_trunc(PosX);
+                    PosX = static_cast<float>(static_cast<double>(PosX) + Objects[ObjectIndex].Width);
                     Leading = false;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    ++Self->FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    Self->FixedWidthDepth = std::max<std::int32_t>(Self->FixedWidthDepth - 1, 0);
-                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, ParsedWidth, ParsedAlignment) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
+                    ++FixedWidthDepth;
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(
+                        pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1, ParsedWidth,
+                        ParsedAlignment) > 0) {
                     FieldWidth = ParsedWidth;
                     Alignment = ParsedAlignment;
                     Index = Index + TokenLength - 1;
-                    FieldWidth -= Self->CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
+                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(pas::pointer_add(Text.pchar(), Index),
+                            CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
-                            if (Self->FixedWidthDepth > 0) {
-                                PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance * pas::shr(FieldWidth, 1);
+                            if (FixedWidthDepth > 0) {
+                                PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance * pas::shr(FieldWidth, 1));
                             } else {
-                                PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * pas::shr(FieldWidth, 1);
+                                PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                            pas::shr(FieldWidth, 1));
                             }
                             FieldWidth -= pas::shr(FieldWidth, 1);
                         } else if (Alignment > 0) {
-                            PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * FieldWidth;
+                            PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                        FieldWidth);
                             FieldWidth = -1;
                         }
                     } else {
                         FieldWidth = -1;
                     }
                     continue;
-                } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFormatEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     ParsedWidth = -1;
                     if (FieldWidth > 0) {
-                        if (Self->FixedWidthDepth > 0) {
-                            PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance * FieldWidth;
+                        if (FixedWidthDepth > 0) {
+                            PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance * FieldWidth);
                         } else {
-                            PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * FieldWidth;
+                            PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                        FieldWidth);
                         }
                         FieldWidth = -1;
                     }
                 }
                 Index = Index + TokenLength - 1;
             } else {
-                GlyphIndex = pas::load_unaligned<std::uint16_t>(pas::byte_offset(Lookup, Character * sizeof(std::uint16_t)));
+                GlyphIndex = pas::load_unaligned<std::uint16_t>(pas::byte_offset(Lookup,
+                        Character * sizeof(std::uint16_t)));
                 if (GlyphIndex != 0) {
-                    Glyph = GlyphBase + (GlyphIndex - 1);
+                    Glyph = pas::pointer_add(GlyphBase, GlyphIndex - 1);
                     if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
                         if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
                             Top = Y + Glyph->OpaqueMaskPlane.Top;
@@ -757,7 +859,11 @@ namespace EC_CacheFont {
                         if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
                             Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
                         }
-                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes, static_cast<std::int32_t>(System::Trunc(PosX)) + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(Self->FontData, Glyph->OpaqueMaskPlane.DataOffset), Self->GetCurrentColor(), Clip);
+                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_WORD(Destination, PitchBytes,
+                            static_cast<std::int32_t>(pas::real_trunc(PosX)) + Glyph->OpaqueMaskPlane.Left,
+                            Y + Glyph->OpaqueMaskPlane.Top,
+                            EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(),
+                            Clip);
                     }
                     if (Glyph->AlphaMaskPlane.DataOffset != 0) {
                         if (Y + Glyph->AlphaMaskPlane.Top < Top) {
@@ -766,34 +872,40 @@ namespace EC_CacheFont {
                         if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
                             Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
                         }
-                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes, static_cast<std::int32_t>(System::Trunc(PosX)) + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(Self->FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, Self->GetCurrentColor());
+                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_16(Destination, PitchBytes,
+                            static_cast<std::int32_t>(pas::real_trunc(PosX)) + Glyph->AlphaMaskPlane.Left,
+                            Y + Glyph->AlphaMaskPlane.Top,
+                            EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip,
+                            GetCurrentColor());
                     }
-                    if (Character != u' ' || FieldWidth > 0 || Self->FixedWidthDepth > 0) {
-                        if (Self->FixedWidthDepth > 0) {
-                            PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance;
+                    if (Character != u' ' || FieldWidth > 0 || FixedWidthDepth > 0) {
+                        if (FixedWidthDepth > 0) {
+                            PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance);
                         } else {
-                            PosX = static_cast<long double>(PosX) + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
+                            PosX = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PosX) + Glyph->AdvanceA) + Glyph->AdvanceB) + Glyph->AdvanceC);
                         }
                         Leading = false;
                     } else if (Leading == true) {
-                        PosX = static_cast<long double>(PosX) + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
+                        PosX = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PosX) + Glyph->AdvanceA) + Glyph->AdvanceB) + Glyph->AdvanceC);
                     } else {
-                        PosX = static_cast<long double>(PosX) + SpaceWidth;
+                        PosX = static_cast<float>(static_cast<double>(PosX) + SpaceWidth);
                     }
                 }
             }
         }
-        if (Self->ObjectCount - SavedObjectCount > 0) {
+        if (ObjectCount - SavedObjectCount > 0) {
             MiddleY = (Top + Bottom) / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount, Self->ObjectCount - 1); cpp_range.next(Index); ) {
-                if (Self->Objects[Index].VerticalMode == 0) {
-                    Self->Objects[Index].Y = MiddleY - Self->Objects[Index].Height / 2;
+            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount,
+                ObjectCount - 1); cpp_range.next(Index); ) {
+                if (Objects[Index].VerticalMode == 0) {
+                    Objects[Index].Y = MiddleY - Objects[Index].Height / 2;
                 }
             }
         }
     }
 
-    void TCFontEC_DrawJustifiedTaggedText32(TCFontEC* Self, void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y, const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect) {
+    void TCFontEC::DrawJustifiedTaggedText32(void* Destination, std::int32_t PitchBytes, std::int32_t X, std::int32_t Y,
+        const pas::WideString& Text, std::int32_t Width, WindowsSdk::TRect ClipRect) {
         char16_t Character{};
         std::int32_t GlyphIndex{};
         PAftGlyphEC GlyphBase{};
@@ -807,7 +919,7 @@ namespace EC_CacheFont {
         WindowsSdk::TRect Clip{};
         std::int32_t Top = 999999999;
         std::int32_t Bottom = -999999999;
-        std::int32_t SavedObjectCount = Self->ObjectCount;
+        std::int32_t SavedObjectCount = ObjectCount;
         Clip.Left = ClipRect.Left;
         Clip.Top = ClipRect.Top;
         Clip.Right = ClipRect.Right - 1;
@@ -823,31 +935,32 @@ namespace EC_CacheFont {
         std::int32_t FieldWidth = -1;
         ParsedWidth = -1;
         while (Index < CharCount) {
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index, CharCount - Index);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_add(Text.pchar(), Index), CharCount - Index);
             if (TokenLength > 0) {
-                if (Self->ParseObjectTagCached(Text.pchar() + Index, CharCount - Index, ObjectIndex) > 0) {
-                    ContentWidth += Self->Objects[ObjectIndex].Width;
+                if (ParseObjectTagCached(pas::pointer_add(Text.pchar(), Index), CharCount - Index, ObjectIndex) > 0) {
+                    ContentWidth += Objects[ObjectIndex].Width;
                     Leading = false;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index, CharCount - Index) > 0) {
-                    ++Self->FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index, CharCount - Index) > 0) {
-                    Self->FixedWidthDepth = std::max<std::int32_t>(Self->FixedWidthDepth - 1, 0);
-                } else if (!(FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index, CharCount - Index, ParsedWidth, ParsedAlignment) > 0)) {
-                    if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index, CharCount - Index) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
+                    ++FixedWidthDepth;
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                } else if (!(FieldWidth < 0 && TCFontEC::ParseFormatTag(pas::pointer_add(Text.pchar(), Index),
+                        CharCount - Index, ParsedWidth, ParsedAlignment) > 0)) {
+                    if (TCFontEC::MatchFormatEndTag(pas::pointer_add(Text.pchar(), Index), CharCount - Index) > 0) {
                         ParsedWidth = -1;
                     }
                 }
                 Index += TokenLength;
             } else {
-                if (Text.read(Index + 1) != u' ' || FieldWidth > 0 || Self->FixedWidthDepth > 0) {
-                    if (Self->FixedWidthDepth > 0) {
-                        ContentWidth += Self->MaxGlyphAdvance;
+                if (Text.read(Index + 1) != u' ' || FieldWidth > 0 || FixedWidthDepth > 0) {
+                    if (FixedWidthDepth > 0) {
+                        ContentWidth += MaxGlyphAdvance;
                     } else {
-                        ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, Text.read(Index + 1));
+                        ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Text.read(Index + 1));
                     }
                     Leading = false;
                 } else if (Leading == true) {
-                    ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, Text.read(Index + 1));
+                    ContentWidth += EC_CacheFont::TCFontEC_GetGlyphAdvance(this, Text.read(Index + 1));
                 } else {
                     ++SpaceCount;
                 }
@@ -855,52 +968,61 @@ namespace EC_CacheFont {
             }
         }
         if (SpaceCount < 1) {
-            Self->DrawTaggedText32(Destination, PitchBytes, X, Y, Text, ClipRect);
+            DrawTaggedText32(Destination, PitchBytes, X, Y, Text, ClipRect);
             return;
         }
-        double SpaceWidth = pas::real_divide(Width - ContentWidth, SpaceCount);
-        if (SpaceWidth < 2.0L) {
-            Self->DrawTaggedText32(Destination, PitchBytes, X, Y, Text, ClipRect);
+        double SpaceWidth = static_cast<float>(static_cast<double>(Width - ContentWidth) / SpaceCount);
+        if (SpaceWidth < 2.0) {
+            DrawTaggedText32(Destination, PitchBytes, X, Y, Text, ClipRect);
             return;
         }
-        Self->ObjectCount = SavedObjectCount;
-        PFontGlyphLookupEC Lookup = Self->GlyphLookup;
-        GlyphBase = Self->Glyphs;
+        ObjectCount = SavedObjectCount;
+        PFontGlyphLookupEC Lookup = GlyphLookup;
+        GlyphBase = Glyphs;
         double PosX = X;
         Leading = true;
         Index = 0;
         while (Index < CharCount) {
             Character = Text.read(Index + 1);
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text.pchar() + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                Self->ApplyColorTag(Text.pchar() + Index - 1, CharCount - Index + 1);
-                if (Self->ParseObjectTagCached(Text.pchar() + Index - 1, CharCount - Index + 1, ObjectIndex) > 0) {
-                    Self->Objects[ObjectIndex].X = System::Trunc(PosX);
-                    PosX = static_cast<long double>(PosX) + Self->Objects[ObjectIndex].Width;
+                ApplyColorTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1);
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1, ObjectIndex) > 0) {
+                    Objects[ObjectIndex].X = pas::real_trunc(PosX);
+                    PosX = static_cast<float>(static_cast<double>(PosX) + Objects[ObjectIndex].Width);
                     Leading = false;
-                } else if (TCFontEC::MatchFixTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    ++Self->FixedWidthDepth;
-                } else if (TCFontEC::MatchFixEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
-                    Self->FixedWidthDepth = std::max<std::int32_t>(Self->FixedWidthDepth - 1, 0);
-                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(Text.pchar() + Index - 1, CharCount - Index + 1, ParsedWidth, ParsedAlignment) > 0) {
+                } else if (TCFontEC::MatchFixTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
+                    ++FixedWidthDepth;
+                } else if (TCFontEC::MatchFixEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
+                    FixedWidthDepth = std::max<std::int32_t>(FixedWidthDepth - 1, 0);
+                } else if (FieldWidth < 0 && TCFontEC::ParseFormatTag(
+                        pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1), CharCount - Index + 1, ParsedWidth,
+                        ParsedAlignment) > 0) {
                     FieldWidth = ParsedWidth;
                     Alignment = ParsedAlignment;
                     Index = Index + TokenLength - 1;
-                    FieldWidth -= Self->CountVisibleTaggedCharsUntilFormatEnd(Text.pchar() + Index, CharCount - Index);
+                    FieldWidth -= CountVisibleTaggedCharsUntilFormatEnd(pas::pointer_add(Text.pchar(), Index),
+                            CharCount - Index);
                     if (FieldWidth > 0) {
                         if (Alignment == 0) {
-                            if (Self->FixedWidthDepth > 0) {
-                                PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance * pas::shr(FieldWidth, 1);
+                            if (FixedWidthDepth > 0) {
+                                PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance * pas::shr(FieldWidth, 1));
                             } else {
-                                PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * pas::shr(FieldWidth, 1);
+                                PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                            pas::shr(FieldWidth, 1));
                             }
                             FieldWidth -= pas::shr(FieldWidth, 1);
                         } else if (Alignment > 0) {
-                            if (Self->FixedWidthDepth > 0) {
-                                PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance * FieldWidth;
+                            if (FixedWidthDepth > 0) {
+                                PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance * FieldWidth);
                             } else {
-                                PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * FieldWidth;
+                                PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                            FieldWidth);
                             }
                             FieldWidth = -1;
                         }
@@ -908,22 +1030,25 @@ namespace EC_CacheFont {
                         FieldWidth = -1;
                     }
                     continue;
-                } else if (TCFontEC::MatchFormatEndTag(Text.pchar() + Index - 1, CharCount - Index + 1) > 0) {
+                } else if (TCFontEC::MatchFormatEndTag(pas::pointer_sub(pas::pointer_add(Text.pchar(), Index), 1),
+                    CharCount - Index + 1) > 0) {
                     ParsedWidth = -1;
                     if (FieldWidth > 0) {
-                        if (Self->FixedWidthDepth > 0) {
-                            PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance * FieldWidth;
+                        if (FixedWidthDepth > 0) {
+                            PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance * FieldWidth);
                         } else {
-                            PosX = static_cast<long double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(Self, u' ') * FieldWidth;
+                            PosX = static_cast<float>(static_cast<double>(PosX) + EC_CacheFont::TCFontEC_GetGlyphAdvance(this, u' ') *
+                                        FieldWidth);
                         }
                         FieldWidth = -1;
                     }
                 }
                 Index = Index + TokenLength - 1;
             } else {
-                GlyphIndex = pas::load_unaligned<std::uint16_t>(pas::byte_offset(Lookup, Character * sizeof(std::uint16_t)));
+                GlyphIndex = pas::load_unaligned<std::uint16_t>(pas::byte_offset(Lookup,
+                        Character * sizeof(std::uint16_t)));
                 if (GlyphIndex != 0) {
-                    Glyph = GlyphBase + (GlyphIndex - 1);
+                    Glyph = pas::pointer_add(GlyphBase, GlyphIndex - 1);
                     if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
                         if (Y + Glyph->OpaqueMaskPlane.Top < Top) {
                             Top = Y + Glyph->OpaqueMaskPlane.Top;
@@ -931,7 +1056,11 @@ namespace EC_CacheFont {
                         if (Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > Bottom) {
                             Bottom = Y + Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height;
                         }
-                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes, static_cast<std::int32_t>(System::Trunc(PosX)) + Glyph->OpaqueMaskPlane.Left, Y + Glyph->OpaqueMaskPlane.Top, EC_Mem::AddPointerOffset(Self->FontData, Glyph->OpaqueMaskPlane.DataOffset), Self->GetCurrentColor(), Clip);
+                        GR_Main::Ex_OKGR_MaskBuf_DrawClip_DWORD(Destination, PitchBytes,
+                            static_cast<std::int32_t>(pas::real_trunc(PosX)) + Glyph->OpaqueMaskPlane.Left,
+                            Y + Glyph->OpaqueMaskPlane.Top,
+                            EC_Mem::AddPointerOffset(FontData, Glyph->OpaqueMaskPlane.DataOffset), GetCurrentColor(),
+                            Clip);
                     }
                     if (Glyph->AlphaMaskPlane.DataOffset != 0) {
                         if (Y + Glyph->AlphaMaskPlane.Top < Top) {
@@ -940,28 +1069,33 @@ namespace EC_CacheFont {
                         if (Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > Bottom) {
                             Bottom = Y + Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height;
                         }
-                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes, static_cast<std::int32_t>(System::Trunc(PosX)) + Glyph->AlphaMaskPlane.Left, Y + Glyph->AlphaMaskPlane.Top, EC_Mem::AddPointerOffset(Self->FontData, Glyph->AlphaMaskPlane.DataOffset), Clip, Self->GetCurrentColor());
+                        GR_Main::Ex_OKGR_TransBuf_FillAlphaClip_RGBA(Destination, PitchBytes,
+                            static_cast<std::int32_t>(pas::real_trunc(PosX)) + Glyph->AlphaMaskPlane.Left,
+                            Y + Glyph->AlphaMaskPlane.Top,
+                            EC_Mem::AddPointerOffset(FontData, Glyph->AlphaMaskPlane.DataOffset), Clip,
+                            GetCurrentColor());
                     }
-                    if (Character != u' ' || FieldWidth > 0 || Self->FixedWidthDepth > 0) {
-                        if (Self->FixedWidthDepth > 0) {
-                            PosX = static_cast<long double>(PosX) + Self->MaxGlyphAdvance;
+                    if (Character != u' ' || FieldWidth > 0 || FixedWidthDepth > 0) {
+                        if (FixedWidthDepth > 0) {
+                            PosX = static_cast<float>(static_cast<double>(PosX) + MaxGlyphAdvance);
                         } else {
-                            PosX = static_cast<long double>(PosX) + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
+                            PosX = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PosX) + Glyph->AdvanceA) + Glyph->AdvanceB) + Glyph->AdvanceC);
                         }
                         Leading = false;
                     } else if (Leading == true) {
-                        PosX = static_cast<long double>(PosX) + Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC;
+                        PosX = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PosX) + Glyph->AdvanceA) + Glyph->AdvanceB) + Glyph->AdvanceC);
                     } else {
-                        PosX = static_cast<long double>(PosX) + SpaceWidth;
+                        PosX = static_cast<float>(static_cast<double>(PosX) + SpaceWidth);
                     }
                 }
             }
         }
-        if (Self->ObjectCount - SavedObjectCount > 0) {
+        if (ObjectCount - SavedObjectCount > 0) {
             MiddleY = (Top + Bottom) / 2;
-            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount, Self->ObjectCount - 1); cpp_range.next(Index); ) {
-                if (Self->Objects[Index].VerticalMode == 0) {
-                    Self->Objects[Index].Y = MiddleY - Self->Objects[Index].Height / 2;
+            for (auto cpp_range = pas::for_to<std::int32_t>(SavedObjectCount,
+                ObjectCount - 1); cpp_range.next(Index); ) {
+                if (Objects[Index].VerticalMode == 0) {
+                    Objects[Index].Y = MiddleY - Objects[Index].Height / 2;
                 }
             }
         }
@@ -973,15 +1107,15 @@ namespace EC_CacheFont {
         if (CharCount < 2) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) == u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) == u'<') {
             return 0;
         }
         std::int32_t Index = 1;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) == u'>') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'>') {
                 break;
             }
             ++Index;
@@ -998,28 +1132,32 @@ namespace EC_CacheFont {
         if (CharCount < 4) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u't' && pas::load_unaligned<char16_t>(Text + 1) != u'T') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u't' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'T') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'd' && pas::load_unaligned<char16_t>(Text + 2) != u'D') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'd' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'D') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'=' && pas::load_unaligned<char16_t>(Text + 3) != u'=') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'=' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'=') {
             return Result;
         }
         std::int32_t Value = 0;
         std::int32_t Index = 4;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Value = Value * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Value = Value * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
-        if (Index < CharCount && pas::load_unaligned<char16_t>(Text + Index) == u'>') {
+        if (Index < CharCount && pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'>') {
             Result = Index + 1;
             if (X < Value) {
                 X = Value;
@@ -1041,56 +1179,78 @@ namespace EC_CacheFont {
         if (CharCount < 7) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'a' && pas::load_unaligned<char16_t>(Text + 1) != u'A') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'a' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'A') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'l' && pas::load_unaligned<char16_t>(Text + 2) != u'L') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'l' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'L') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'i' && pas::load_unaligned<char16_t>(Text + 3) != u'I') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'i' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'I') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'g' && pas::load_unaligned<char16_t>(Text + 4) != u'G') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'g' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'G') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'n' && pas::load_unaligned<char16_t>(Text + 5) != u'N') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'n' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'N') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u'=' && pas::load_unaligned<char16_t>(Text + 6) != u'=') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'=' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'=') {
             return Result;
         }
         std::int32_t Index = 0;
         std::uint8_t AlignRight = false;
         if (CharCount >= 13) {
-            AlignRight = (pas::load_unaligned<char16_t>(Text + 7) == u'r' || pas::load_unaligned<char16_t>(Text + 1) == u'R') && (pas::load_unaligned<char16_t>(Text + 8) == u'i' || pas::load_unaligned<char16_t>(Text + 2) == u'I') && (pas::load_unaligned<char16_t>(Text + 9) == u'g' || pas::load_unaligned<char16_t>(Text + 3) == u'G') && (pas::load_unaligned<char16_t>(Text + 10) == u'h' || pas::load_unaligned<char16_t>(Text + 4) == u'H') && (pas::load_unaligned<char16_t>(Text + 11) == u't' || pas::load_unaligned<char16_t>(Text + 5) == u'T') && pas::load_unaligned<char16_t>(Text + 12) == u'>';
+            AlignRight = (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) == u'r' ||
+                    pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) == u'R') &&
+                    (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 8)) == u'i' ||
+                        pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) == u'I') &&
+                    (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 9)) == u'g' ||
+                        pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) == u'G') &&
+                    (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 10)) == u'h' ||
+                        pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) == u'H') &&
+                    (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 11)) == u't' ||
+                        pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) == u'T') &&
+                    pas::load_unaligned<char16_t>(pas::pointer_add(Text, 12)) == u'>';
             Index = 13;
         }
         if (!AlignRight) {
             if (CharCount < 14) {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 7) != u'c' && pas::load_unaligned<char16_t>(Text + 1) != u'C') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'c' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'C') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 8) != u'e' && pas::load_unaligned<char16_t>(Text + 2) != u'E') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 8)) != u'e' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'E') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 9) != u'n' && pas::load_unaligned<char16_t>(Text + 3) != u'N') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 9)) != u'n' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'N') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 10) != u't' && pas::load_unaligned<char16_t>(Text + 4) != u'T') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 10)) != u't' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'T') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 11) != u'e' && pas::load_unaligned<char16_t>(Text + 5) != u'E') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 11)) != u'e' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'E') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 12) != u'r' && pas::load_unaligned<char16_t>(Text + 5) != u'R') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 12)) != u'r' &&
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'R') {
                 return Result;
             }
-            if (pas::load_unaligned<char16_t>(Text + 13) != u'>') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 13)) != u'>') {
                 return Result;
             }
             Index = 14;
@@ -1100,21 +1260,25 @@ namespace EC_CacheFont {
         std::int32_t TextLength = TextCopy.length();
         std::int32_t Width = 0;
         while (Index < TextLength) {
-            Ch = pas::load_unaligned<char16_t>(Text + Index);
+            Ch = pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index));
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text + Index - 1, TextLength - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text, Index), 1),
+                    TextLength - Index + 1);
             if (TokenLength > 0) {
-                if (TCFontEC::MatchAlignEndTag(Text + Index - 1, TextLength - Index + 1) > 0) {
+                if (TCFontEC::MatchAlignEndTag(pas::pointer_sub(pas::pointer_add(Text, Index), 1),
+                    TextLength - Index + 1) > 0) {
                     break;
                 }
-                if (ParseObjectTagCached(Text + Index - 1, TextLength - Index + 1, ObjectIndex) > 0) {
+                if (ParseObjectTagCached(pas::pointer_sub(pas::pointer_add(Text, Index), 1), TextLength - Index + 1,
+                    ObjectIndex) > 0) {
                     Width += Objects[ObjectIndex].Width;
                 }
                 Index = Index + TokenLength - 1;
             } else {
                 GlyphIndex = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Ch * 2));
                 if (GlyphIndex != 0) {
-                    Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs, (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+                    Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyphs,
+                            (GlyphIndex - 1) * static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
                     Width = Glyph->AdvanceA + Width + Glyph->AdvanceB + Glyph->AdvanceC;
                 }
             }
@@ -1133,28 +1297,33 @@ namespace EC_CacheFont {
         if (CharCount < 8) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'/') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'/') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'a' && pas::load_unaligned<char16_t>(Text + 2) != u'A') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'a' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'A') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'l' && pas::load_unaligned<char16_t>(Text + 3) != u'L') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'l' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'L') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'i' && pas::load_unaligned<char16_t>(Text + 4) != u'I') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'i' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'I') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'g' && pas::load_unaligned<char16_t>(Text + 5) != u'G') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'g' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'G') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u'n' && pas::load_unaligned<char16_t>(Text + 6) != u'N') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'n' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'N') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 7) == u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) == u'>') {
             return 8;
         }
         return Result;
@@ -1165,19 +1334,22 @@ namespace EC_CacheFont {
         if (CharCount < 5) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'f' && pas::load_unaligned<char16_t>(Text + 1) != u'F') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'f' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'F') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'i' && pas::load_unaligned<char16_t>(Text + 2) != u'I') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'i' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'I') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'x' && pas::load_unaligned<char16_t>(Text + 3) != u'X') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'x' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'X') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) == u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) == u'>') {
             return 5;
         }
         return Result;
@@ -1188,67 +1360,105 @@ namespace EC_CacheFont {
         if (CharCount < 6) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'/') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'/') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'f' && pas::load_unaligned<char16_t>(Text + 2) != u'F') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'f' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'F') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'i' && pas::load_unaligned<char16_t>(Text + 3) != u'I') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'i' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'I') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'x' && pas::load_unaligned<char16_t>(Text + 4) != u'X') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'x' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'X') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) == u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) == u'>') {
             return 6;
         }
         return Result;
     }
 
     // Returns the token length; Alignment is -1 for left, 0 for center, 1 for right. FieldWidth counts characters.
-    std::int32_t TCFontEC::ParseFormatTag(char16_t* Text, std::int32_t CharCount, std::int32_t& FieldWidth, std::int32_t& Alignment) {
+    std::int32_t TCFontEC::ParseFormatTag(char16_t* Text, std::int32_t CharCount, std::int32_t& FieldWidth,
+        std::int32_t& Alignment) {
         std::int32_t Result = 0;
         if (CharCount < 13) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'f' && pas::load_unaligned<char16_t>(Text + 1) != u'F') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'f' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'F') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'o' && pas::load_unaligned<char16_t>(Text + 2) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'r' && pas::load_unaligned<char16_t>(Text + 3) != u'R') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'r' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'R') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'm' && pas::load_unaligned<char16_t>(Text + 4) != u'M') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'm' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'M') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'a' && pas::load_unaligned<char16_t>(Text + 5) != u'A') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'a' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'A') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u't' && pas::load_unaligned<char16_t>(Text + 6) != u'T') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u't' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'T') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 7) != u'=' && pas::load_unaligned<char16_t>(Text + 7) != u'=') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'=' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'=') {
             return Result;
         }
         FieldWidth = 0;
         Alignment = 0;
         std::int32_t Index = 8;
-        if (Index + 5 <= CharCount && (pas::load_unaligned<char16_t>(Text + Index) == u'r' || pas::load_unaligned<char16_t>(Text + Index) == u'R') && (pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'i' || pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'I') && (pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'g' || pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'G') && (pas::load_unaligned<char16_t>(Text + (Index + 3)) == u'h' || pas::load_unaligned<char16_t>(Text + (Index + 3)) == u'H') && (pas::load_unaligned<char16_t>(Text + (Index + 4)) == u't' || pas::load_unaligned<char16_t>(Text + (Index + 4)) == u'T')) {
+        if (Index + 5 <= CharCount && (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'r' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'R') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'i' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'I') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'g' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'G') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u'h' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u'H') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 4)) == u't' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 4)) == u'T')) {
             Alignment = 1;
             Index += 5;
-        } else if (Index + 4 <= CharCount && (pas::load_unaligned<char16_t>(Text + Index) == u'l' || pas::load_unaligned<char16_t>(Text + Index) == u'L') && (pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'e' || pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'E') && (pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'f' || pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'F') && (pas::load_unaligned<char16_t>(Text + (Index + 3)) == u't' || pas::load_unaligned<char16_t>(Text + (Index + 3)) == u'T')) {
+        } else if (Index + 4 <= CharCount && (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'l' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'L') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'e' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'E') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'f' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'F') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u't' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u'T')) {
             Alignment = -1;
             Index += 4;
-        } else if (Index + 6 <= CharCount && (pas::load_unaligned<char16_t>(Text + Index) == u'c' || pas::load_unaligned<char16_t>(Text + Index) == u'C') && (pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'e' || pas::load_unaligned<char16_t>(Text + (Index + 1)) == u'E') && (pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'n' || pas::load_unaligned<char16_t>(Text + (Index + 2)) == u'N') && (pas::load_unaligned<char16_t>(Text + (Index + 3)) == u't' || pas::load_unaligned<char16_t>(Text + (Index + 3)) == u'T') && (pas::load_unaligned<char16_t>(Text + (Index + 4)) == u'e' || pas::load_unaligned<char16_t>(Text + (Index + 4)) == u'E') && (pas::load_unaligned<char16_t>(Text + (Index + 5)) == u'r' || pas::load_unaligned<char16_t>(Text + (Index + 5)) == u'R')) {
+        } else if (Index + 6 <= CharCount && (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'c' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'C') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'e' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 1)) == u'E') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'n' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 2)) == u'N') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u't' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 3)) == u'T') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 4)) == u'e' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 4)) == u'E') &&
+            (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 5)) == u'r' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index + 5)) == u'R')) {
             Alignment = 0;
             Index += 6;
         } else {
@@ -1257,18 +1467,19 @@ namespace EC_CacheFont {
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            FieldWidth = FieldWidth * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            FieldWidth = FieldWidth * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
-        if (Index < CharCount && pas::load_unaligned<char16_t>(Text + Index) == u'>') {
+        if (Index < CharCount && pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'>') {
             return Index + 1;
         }
         return Result;
@@ -1279,31 +1490,37 @@ namespace EC_CacheFont {
         if (CharCount < 9) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'/') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'/') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'f' && pas::load_unaligned<char16_t>(Text + 2) != u'F') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'f' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'F') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'o' && pas::load_unaligned<char16_t>(Text + 3) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'r' && pas::load_unaligned<char16_t>(Text + 4) != u'R') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'r' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'R') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'm' && pas::load_unaligned<char16_t>(Text + 5) != u'M') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'm' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'M') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u'a' && pas::load_unaligned<char16_t>(Text + 6) != u'A') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'a' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'A') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 7) != u't' && pas::load_unaligned<char16_t>(Text + 7) != u'T') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u't' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'T') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 8) == u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 8)) == u'>') {
             return 9;
         }
         return Result;
@@ -1317,11 +1534,14 @@ namespace EC_CacheFont {
         std::int32_t Result = 0;
         std::int32_t Index = 0;
         while (Index < CharCount) {
-            Ch = pas::load_unaligned<char16_t>(pas::byte_offset(reinterpret_cast<PFontTextCharsEC>(Text), Index * sizeof(char16_t)));
+            Ch = pas::load_unaligned<char16_t>(pas::byte_offset(reinterpret_cast<PFontTextCharsEC>(Text),
+                    Index * sizeof(char16_t)));
             ++Index;
-            TokenLength = TCFontEC::GetTaggedTextTokenLength(Text + Index - 1, CharCount - Index + 1);
+            TokenLength = TCFontEC::GetTaggedTextTokenLength(pas::pointer_sub(pas::pointer_add(Text, Index), 1),
+                    CharCount - Index + 1);
             if (TokenLength > 0) {
-                if (TCFontEC::MatchFormatEndTag(Text + Index - 1, CharCount - Index + 1) > 0) {
+                if (TCFontEC::MatchFormatEndTag(pas::pointer_sub(pas::pointer_add(Text, Index), 1),
+                    CharCount - Index + 1) > 0) {
                     break;
                 }
                 Index = Index + TokenLength - 1;
@@ -1356,28 +1576,35 @@ namespace EC_CacheFont {
         if (CharCount < 13) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'o' && pas::load_unaligned<char16_t>(Text + 1) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'b' && pas::load_unaligned<char16_t>(Text + 2) != u'B') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'b' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'B') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'j' && pas::load_unaligned<char16_t>(Text + 3) != u'J') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'j' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'J') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'e' && pas::load_unaligned<char16_t>(Text + 4) != u'E') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'e' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'E') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'c' && pas::load_unaligned<char16_t>(Text + 5) != u'C') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'c' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'C') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u't' && pas::load_unaligned<char16_t>(Text + 6) != u'T') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u't' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'T') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 7) != u'=' && pas::load_unaligned<char16_t>(Text + 7) != u'=') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'=' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) != u'=') {
             return Result;
         }
         Item.ObjectId = 0;
@@ -1386,55 +1613,60 @@ namespace EC_CacheFont {
         Item.VerticalMode = 0;
         std::int32_t Index = 8;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Item.ObjectId = Item.ObjectId * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Item.ObjectId = Item.ObjectId * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Item.Width = Item.Width * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Item.Width = Item.Width * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Item.Height = Item.Height * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Item.Height = Item.Height * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Item.VerticalMode = Item.VerticalMode * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Item.VerticalMode = Item.VerticalMode * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) -
+                    '0';
             ++Index;
         }
-        if (Index < CharCount && pas::load_unaligned<char16_t>(Text + Index) == u'>') {
+        if (Index < CharCount && pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) == u'>') {
             return Index + 1;
         }
         return Result;
@@ -1446,25 +1678,31 @@ namespace EC_CacheFont {
         if (CharCount < 13) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'c' && pas::load_unaligned<char16_t>(Text + 1) != u'C') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'c' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'C') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'o' && pas::load_unaligned<char16_t>(Text + 2) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'l' && pas::load_unaligned<char16_t>(Text + 3) != u'L') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'l' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'L') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'o' && pas::load_unaligned<char16_t>(Text + 4) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'r' && pas::load_unaligned<char16_t>(Text + 5) != u'R') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'r' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'R') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u'=' && pas::load_unaligned<char16_t>(Text + 6) != u'=') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'=' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'=') {
             return Result;
         }
         std::int32_t Red = 0;
@@ -1472,44 +1710,47 @@ namespace EC_CacheFont {
         std::int32_t Blue = 0;
         std::int32_t Index = 7;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Red = Red * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Red = Red * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Green = Green * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Green = Green * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u',') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u',') {
             return Result;
         }
         ++Index;
         while (Index < CharCount) {
-            if (pas::load_unaligned<char16_t>(Text + Index) < u'0' || pas::load_unaligned<char16_t>(Text + Index) > u'9') {
+            if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) < u'0' ||
+                pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) > u'9') {
                 break;
             }
-            Blue = Blue * 10 + pas::load_unaligned<char16_t>(Text + Index) - '0';
+            Blue = Blue * 10 + pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) - '0';
             ++Index;
         }
         if (Index >= CharCount) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + Index) != u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, Index)) != u'>') {
             return Result;
         }
         Result = Index + 1;
@@ -1526,28 +1767,33 @@ namespace EC_CacheFont {
         if (CharCount < 8) {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 0) != u'<') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 0)) != u'<') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 1) != u'/') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 1)) != u'/') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 2) != u'c' && pas::load_unaligned<char16_t>(Text + 2) != u'C') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'c' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 2)) != u'C') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 3) != u'o' && pas::load_unaligned<char16_t>(Text + 3) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 3)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 4) != u'l' && pas::load_unaligned<char16_t>(Text + 4) != u'L') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'l' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 4)) != u'L') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 5) != u'o' && pas::load_unaligned<char16_t>(Text + 5) != u'O') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'o' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 5)) != u'O') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 6) != u'r' && pas::load_unaligned<char16_t>(Text + 6) != u'R') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'r' &&
+            pas::load_unaligned<char16_t>(pas::pointer_add(Text, 6)) != u'R') {
             return Result;
         }
-        if (pas::load_unaligned<char16_t>(Text + 7) == u'>') {
+        if (pas::load_unaligned<char16_t>(pas::pointer_add(Text, 7)) == u'>') {
             return 8;
         }
         return Result;
@@ -1577,8 +1823,11 @@ namespace EC_CacheFont {
 
     void TCFontEC::PushColor(std::uint32_t Color) {
         ++ColorStackCount;
-        ColorStack = static_cast<System::PCardinal>(EC_Mem::ReAllocREC(ColorStack, ColorStackCount * static_cast<std::int32_t>(sizeof(std::uint32_t))));
-        EC_Mem::WriteIntegerEC(EC_Mem::AddPointerOffset(ColorStack, (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))), Color);
+        ColorStack = static_cast<System::PCardinal>(EC_Mem::ReAllocREC(ColorStack,
+                ColorStackCount * static_cast<std::int32_t>(sizeof(std::uint32_t))));
+        EC_Mem::WriteIntegerEC(
+            EC_Mem::AddPointerOffset(ColorStack,
+                (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))), Color);
     }
 
     // Returns zero when empty.
@@ -1586,7 +1835,8 @@ namespace EC_CacheFont {
         if (ColorStackCount < 1) {
             return 0u;
         }
-        std::uint32_t Result = EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(ColorStack, (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))));
+        std::uint32_t Result = EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(ColorStack,
+            (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))));
         --ColorStackCount;
         return Result;
     }
@@ -1596,7 +1846,8 @@ namespace EC_CacheFont {
         if (static_cast<std::uint8_t>(ColorTagsEnabled ^ 1) || ColorStackCount < 1) {
             return DefaultColor;
         }
-        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(ColorStack, (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))));
+        return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(ColorStack,
+            (ColorStackCount - 1) * static_cast<std::int32_t>(sizeof(std::uint32_t))));
     }
 
     // Requires aft version 1 and at least 0x20 bytes; glyph offsets and counts are trusted. Ignores LoadOption; ResidentBytes remains zero.
@@ -1608,26 +1859,33 @@ namespace EC_CacheFont {
         }
         FontData = static_cast<PAftHeaderEC>(EC_Mem::AllocEC(SourceBuffer->DataSize));
         Windows::CopyMemory(FontData, SourceBuffer->Data, SourceBuffer->DataSize);
-        Glyphs = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(FontData, static_cast<std::int32_t>(sizeof(TAftHeaderEC))));
-        if (*static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 0 * sizeof(std::uint8_t))) != 'a' || *static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 1 * sizeof(std::uint8_t))) != 'f' || *static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 2 * sizeof(std::uint8_t))) != 't') {
+        Glyphs = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(FontData,
+                static_cast<std::int32_t>(sizeof(TAftHeaderEC))));
+        if (*static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 0 * sizeof(std::uint8_t))) != 'a' ||
+            *static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 1 * sizeof(std::uint8_t))) != 'f' ||
+            *static_cast<std::uint8_t*>(pas::byte_offset(&FontData->Magic, 2 * sizeof(std::uint8_t))) != 't') {
             pas::raise(pas::make_exception<pas::Exception>("TCFontEC.Load. Error format file."_a));
         }
         if (FontData->Version != 1) {
             pas::raise(pas::make_exception<pas::Exception>("TCFontEC.Load. Unknown version of font."_a));
         }
         GlyphCount = FontData->GlyphCount;
-        GlyphLookup = static_cast<PFontGlyphLookupEC>(EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TFontGlyphLookupEC))));
+        GlyphLookup =
+            static_cast<PFontGlyphLookupEC>(
+                EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TFontGlyphLookupEC))));
         AboveBaseline = 0;
         BelowBaseline = 0;
         MaxGlyphAdvance = 0;
         PAftGlyphEC Glyph = Glyphs;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, GlyphCount - 1); cpp_range.next(Index); ) {
-            EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Glyph->CharCode * 2), static_cast<std::uint16_t>(Index) + 1);
+            EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(GlyphLookup, Glyph->CharCode * 2),
+                static_cast<std::uint16_t>(Index) + 1);
             if (Glyph->OpaqueMaskPlane.DataOffset != 0) {
                 if (Glyph->OpaqueMaskPlane.Top <= 0 && -Glyph->OpaqueMaskPlane.Top + 1 > AboveBaseline) {
                     AboveBaseline = -Glyph->OpaqueMaskPlane.Top + 1;
                 }
-                if (Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > 0 && Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height - 1 > BelowBaseline) {
+                if (Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height > 0 && Glyph->OpaqueMaskPlane.Top +
+                        Glyph->OpaqueMaskPlane.Height - 1 > BelowBaseline) {
                     BelowBaseline = Glyph->OpaqueMaskPlane.Top + Glyph->OpaqueMaskPlane.Height - 1;
                 }
             }
@@ -1635,18 +1893,23 @@ namespace EC_CacheFont {
                 if (Glyph->AlphaMaskPlane.Top <= 0 && -Glyph->AlphaMaskPlane.Top + 1 > AboveBaseline) {
                     AboveBaseline = -Glyph->AlphaMaskPlane.Top + 1;
                 }
-                if (Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > 0 && Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height - 1 > BelowBaseline) {
+                if (Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height > 0 && Glyph->AlphaMaskPlane.Top +
+                        Glyph->AlphaMaskPlane.Height - 1 > BelowBaseline) {
                     BelowBaseline = Glyph->AlphaMaskPlane.Top + Glyph->AlphaMaskPlane.Height - 1;
                 }
             }
-            MaxGlyphAdvance = std::max<std::int32_t>(MaxGlyphAdvance, Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC);
-            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyph, static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
+            MaxGlyphAdvance = std::max<std::int32_t>(MaxGlyphAdvance,
+                    Glyph->AdvanceA + Glyph->AdvanceB + Glyph->AdvanceC);
+            Glyph = static_cast<PAftGlyphEC>(EC_Mem::AddPointerOffset(Glyph,
+                    static_cast<std::int32_t>(sizeof(TAftGlyphEC))));
         }
         ResidentBytes = 0;
     }
 
     // Zero dimensions use measured text size. ActualSize may be nil. Enables UseARGBColors on the shared font.
-    void TCFontEC::RenderTaggedTextToTexture(const pas::WideString& Text, std::int32_t Width, std::int32_t Height, std::int32_t AlignX, std::int32_t AlignY, std::uint8_t WordWrap, WindowsSdk::PPoint ActualSize, Direct3D9::IDirect3DTexture9& Texture) {
+    void TCFontEC::RenderTaggedTextToTexture(const pas::WideString& Text, std::int32_t Width, std::int32_t Height,
+        std::int32_t AlignX, std::int32_t AlignY, std::uint8_t WordWrap, WindowsSdk::PPoint ActualSize,
+        Direct3D9::IDirect3DTexture9& Texture) {
         Direct3D9::IDirect3DTexture9 cpp_result{};
         std::int32_t TopAdjustment{};
         std::int32_t CurrentY{};
@@ -1691,7 +1954,8 @@ namespace EC_CacheFont {
                     if (!WrappedLines->IsEmpty()) {
                         WrappedLines->First();
                         if (First) {
-                            MergedBounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY, &TopAdjustment);
+                            MergedBounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, CurrentY,
+                                    &TopAdjustment);
                             First = false;
                             CurrentY += GetLineHeight();
                             WrappedLines->Next();
@@ -1707,7 +1971,8 @@ namespace EC_CacheFont {
                 }
                 ExtraHeight = 2;
             }
-            Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left, ExtraHeight + MergedBounds.Bottom - MergedBounds.Top);
+            Result = ClassesImports::Point(MergedBounds.Right - MergedBounds.Left,
+                    ExtraHeight + MergedBounds.Bottom - MergedBounds.Top);
             return Result;
         };
         Lines = nullptr;
@@ -1760,7 +2025,8 @@ namespace EC_CacheFont {
                     Height = ImageSize.Y + 4;
                 }
                 Clip = ClassesImports::Rect(0, 0, Width, Height);
-                Image = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED, cpp_result), cpp_result);
+                Image = (GR_DX::GR_CreateTexture(Width, Height, Direct3D9::D3DFMT_A8R8G8B8, Direct3D9::D3DPOOL_MANAGED,
+                        cpp_result), cpp_result);
                 if (Image == nullptr) {
                     GR_Main::RaiseWideMessage(u"draw text to texture 2"_wref.get());
                 }
@@ -1768,7 +2034,8 @@ namespace EC_CacheFont {
                 ColorTagsEnabled = SavedColorTags;
                 if (!WordWrap) {
                     if (AlignY == 2) {
-                        CurrentY = Height / 2 - (GetLineHeight() * (Lines->GetCount() - 1) + GetCenteringHeight()) / 2 + GetCenteringHeight();
+                        CurrentY = Height / 2 - (GetLineHeight() * (Lines->GetCount() - 1) + GetCenteringHeight()) / 2 +
+                                GetCenteringHeight();
                     } else {
                         CurrentY = AboveBaseline + DrawY - 2;
                     }
@@ -1786,17 +2053,23 @@ namespace EC_CacheFont {
                         WrappedLines->First();
                         while (!WrappedLines->IsAtEnd()) {
                             if (AlignX == 0 || CenteredTabs) {
-                                DrawTaggedText32(Locked.Bits, Locked.Pitch, DrawX, CurrentY, WrappedLines->GetCurrentText(), Clip);
+                                DrawTaggedText32(Locked.Bits, Locked.Pitch, DrawX, CurrentY,
+                                    WrappedLines->GetCurrentText(), Clip);
                             } else if (AlignX == 2) {
                                 Bounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, 0, nullptr);
-                                DrawTaggedText32(Locked.Bits, Locked.Pitch, Width - (Bounds.Right - Bounds.Left), CurrentY, WrappedLines->GetCurrentText(), Clip);
+                                DrawTaggedText32(Locked.Bits, Locked.Pitch, Width - (Bounds.Right - Bounds.Left),
+                                    CurrentY, WrappedLines->GetCurrentText(), Clip);
                             } else if (AlignX == 1) {
                                 Bounds = MeasureTaggedTextBounds(WrappedLines->GetCurrentText(), 0, 0, nullptr);
-                                DrawTaggedText32(Locked.Bits, Locked.Pitch, Width / 2 - (Bounds.Right - Bounds.Left) / 2, CurrentY, WrappedLines->GetCurrentText(), Clip);
-                            } else if (AlignX == 3 && static_cast<std::uint8_t>(WrappedLines->IsAtLast() ^ 1)) {
-                                EC_CacheFont::TCFontEC_DrawJustifiedTaggedText32(this, Locked.Bits, Locked.Pitch, DrawX, CurrentY, WrappedLines->GetCurrentText(), Width - 4, Clip);
+                                DrawTaggedText32(Locked.Bits, Locked.Pitch,
+                                    Width / 2 - (Bounds.Right - Bounds.Left) / 2, CurrentY,
+                                    WrappedLines->GetCurrentText(), Clip);
+                            } else if (AlignX == 3 && !WrappedLines->IsAtLast()) {
+                                DrawJustifiedTaggedText32(Locked.Bits, Locked.Pitch, DrawX, CurrentY,
+                                    WrappedLines->GetCurrentText(), Width - 4, Clip);
                             } else {
-                                DrawTaggedText32(Locked.Bits, Locked.Pitch, DrawX, CurrentY, WrappedLines->GetCurrentText(), Clip);
+                                DrawTaggedText32(Locked.Bits, Locked.Pitch, DrawX, CurrentY,
+                                    WrappedLines->GetCurrentText(), Clip);
                             }
                             CurrentY += GetLineHeight();
                             WrappedLines->Next();

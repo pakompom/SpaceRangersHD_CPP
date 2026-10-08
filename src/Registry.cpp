@@ -69,7 +69,8 @@ namespace Registry {
             pas::ScopeExit cpp_cleanup = [&]() noexcept {
                 FAccess = OldAccess;
             };
-            FAccess = WindowsSdk::STANDARD_RIGHTS_READ | WindowsSdk::KEY_QUERY_VALUE | WindowsSdk::KEY_ENUMERATE_SUB_KEYS | OldAccess & WindowsSdk::KEY_WOW64_RES;
+            FAccess = WindowsSdk::STANDARD_RIGHTS_READ | WindowsSdk::KEY_QUERY_VALUE |
+                    WindowsSdk::KEY_ENUMERATE_SUB_KEYS | OldAccess & WindowsSdk::KEY_WOW64_RES;
             TempKey = GetKey(Key);
             if (TempKey != 0) {
                 WindowsSdk::RegCloseKey(TempKey);

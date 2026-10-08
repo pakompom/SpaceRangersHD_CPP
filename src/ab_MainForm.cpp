@@ -121,8 +121,10 @@ namespace ab_MainForm {
                 Map->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 {
                     GI_MessageLoop::TObjectGI* SE = Map->FindByNameRecursive(u"SE"sv);
-                    SE->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
-                    SE->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
+                    SE->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1),
+                        pas::shr(GR_Main::GameScreenHeight, 1)));
+                    SE->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1),
+                        pas::shr(GR_Main::GameScreenHeight, 1)));
                     SE->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                 }
                 {
@@ -130,16 +132,19 @@ namespace ab_MainForm {
                     UpdateObj->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
                     {
                         GI_MessageLoop::TObjectGI* FPS = UpdateObj->FindByNameRecursive(u"FPS"sv);
-                        FPS->SetPosition(ClassesImports::Point(FPS->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, FPS->LocalPosition.Y));
+                        FPS->SetPosition(ClassesImports::Point(FPS->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                            FPS->LocalPosition.Y));
                     }
                     {
                         GI_MessageLoop::TObjectGI* LInfo = UpdateObj->FindByNameRecursive(u"LInfo"sv);
-                        LInfo->SetPosition(ClassesImports::Point(LInfo->LocalPosition.X, LInfo->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        LInfo->SetPosition(ClassesImports::Point(LInfo->LocalPosition.X,
+                            LInfo->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         LInfo->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, LInfo->ClientSize.Y));
                     }
                     {
                         GI_MessageLoop::TObjectGI* LHelp = UpdateObj->FindByNameRecursive(u"LHelp"sv);
-                        LHelp->SetPosition(ClassesImports::Point(LHelp->LocalPosition.X, LHelp->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        LHelp->SetPosition(ClassesImports::Point(LHelp->LocalPosition.X,
+                            LHelp->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         LHelp->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 10, LHelp->ClientSize.Y));
                     }
                     if (GR_Main::GiResourceVariant() == 2) {
@@ -148,30 +153,39 @@ namespace ab_MainForm {
                     }
                     {
                         GI_MessageLoop::TObjectGI* PanelWeapon = UpdateObj->FindByNameRecursive(u"PanelWeapon"sv);
-                        PanelWeapon->SetPosition(ClassesImports::Point(PanelWeapon->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelWeapon->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        PanelWeapon->SetPosition(ClassesImports::Point(
+                            PanelWeapon->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                            PanelWeapon->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
                         GI_MessageLoop::TObjectGI* PRight = UpdateObj->FindByNameRecursive(u"PRight"sv);
-                        PRight->SetPosition(ClassesImports::Point(PRight->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PRight->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        PRight->SetPosition(ClassesImports::Point(
+                            PRight->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                            PRight->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
                         GI_MessageLoop::TObjectGI* PItem = UpdateObj->FindByNameRecursive(u"PItem"sv);
-                        PItem->SetPosition(ClassesImports::Point(PItem->LocalPosition.X, PItem->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        PItem->SetPosition(ClassesImports::Point(PItem->LocalPosition.X,
+                            PItem->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                     }
                     {
                         GI_MessageLoop::TObjectGI* PanelWin = UpdateObj->FindByNameRecursive(u"PanelWin"sv);
-                        PanelWin->SetPosition(ClassesImports::Point(PanelWin->LocalPosition.X, PanelWin->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        PanelWin->SetPosition(ClassesImports::Point(PanelWin->LocalPosition.X,
+                            PanelWin->LocalPosition.Y + GR_Main::ExtraScreenHeight));
                         PanelWin->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelWin->ClientSize.Y));
                         {
                             GI_MessageLoop::TObjectGI* PanelWinHide = PanelWin->FindByNameRecursive(u"PanelWinHide"sv);
-                            PanelWinHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelWinHide->ClientSize.Y));
+                            PanelWinHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                                PanelWinHide->ClientSize.Y));
                             {
                                 GI_MessageLoop::TObjectGI* WinText = PanelWinHide->FindByNameRecursive(u"WinText"sv);
-                                WinText->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, WinText->ClientSize.Y));
+                                WinText->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                                    WinText->ClientSize.Y));
                             }
                             {
                                 GI_MessageLoop::TObjectGI* WinItem = PanelWinHide->FindByNameRecursive(u"WinItem"sv);
-                                WinItem->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4, WinItem->ClientSize.Y));
+                                WinItem->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4,
+                                    WinItem->ClientSize.Y));
                             }
                             {
                                 GI_MessageLoop::TObjectGI* WinShr = PanelWinHide->FindByNameRecursive(u"WinShr"sv);
@@ -181,22 +195,31 @@ namespace ab_MainForm {
                     }
                     {
                         GI_MessageLoop::TObjectGI* PanelMenuLose = UpdateObj->FindByNameRecursive(u"PanelMenuLose"sv);
-                        PanelMenuLose->SetPosition(ClassesImports::Point(PanelMenuLose->LocalPosition.X, PanelMenuLose->LocalPosition.Y + GR_Main::ExtraScreenHeight));
-                        PanelMenuLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelMenuLose->ClientSize.Y));
+                        PanelMenuLose->SetPosition(ClassesImports::Point(PanelMenuLose->LocalPosition.X,
+                            PanelMenuLose->LocalPosition.Y + GR_Main::ExtraScreenHeight));
+                        PanelMenuLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                            PanelMenuLose->ClientSize.Y));
                         {
-                            GI_MessageLoop::TObjectGI* PanelLoseHide = PanelMenuLose->FindByNameRecursive(u"PanelLoseHide"sv);
-                            PanelLoseHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelLoseHide->ClientSize.Y));
+                            GI_MessageLoop::TObjectGI* PanelLoseHide = PanelMenuLose->FindByNameRecursive(
+                                u"PanelLoseHide"sv);
+                            PanelLoseHide->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                                PanelLoseHide->ClientSize.Y));
                             {
-                                GI_MessageLoop::TObjectGI* PanelLose = PanelLoseHide->FindByNameRecursive(u"PanelLose"sv);
-                                PanelLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, PanelLose->ClientSize.Y));
+                                GI_MessageLoop::TObjectGI* PanelLose = PanelLoseHide->FindByNameRecursive(
+                                    u"PanelLose"sv);
+                                PanelLose->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                                    PanelLose->ClientSize.Y));
                             }
                             {
-                                GI_MessageLoop::TObjectGI* LoseKeyPress = PanelLoseHide->FindByNameRecursive(u"LoseKeyPress"sv);
-                                LoseKeyPress->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4, LoseKeyPress->ClientSize.Y));
+                                GI_MessageLoop::TObjectGI* LoseKeyPress = PanelLoseHide->FindByNameRecursive(
+                                    u"LoseKeyPress"sv);
+                                LoseKeyPress->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth - 4,
+                                    LoseKeyPress->ClientSize.Y));
                             }
                             {
                                 GI_MessageLoop::TObjectGI* LoseShr = PanelLoseHide->FindByNameRecursive(u"LoseShr"sv);
-                                LoseShr->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, LoseShr->ClientSize.Y));
+                                LoseShr->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth,
+                                    LoseShr->ClientSize.Y));
                             }
                         }
                     }
@@ -204,8 +227,10 @@ namespace ab_MainForm {
                 {
                     GI_MessageLoop::TObjectGI* StarField = Map->FindByNameRecursive(u"StarField"sv);
                     StarField->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
-                    StarField->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
-                    StarField->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1), pas::shr(GR_Main::GameScreenHeight, 1)));
+                    StarField->SetPosition(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1),
+                        pas::shr(GR_Main::GameScreenHeight, 1)));
+                    StarField->SetOrigin(ClassesImports::Point(pas::shr(GR_Main::GameScreenWidth, 1),
+                        pas::shr(GR_Main::GameScreenHeight, 1)));
                 }
             }
         }
@@ -236,14 +261,22 @@ namespace ab_MainForm {
         BattleHelpLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"LHelp"sv));
         VictoryPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelWin"sv));
         DefeatPanel = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelMenuLose"sv));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButShip"sv))->UpCallback = pas::bind_method<&TfAB::OpenShipEquipment>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButShip"sv))->UpCallback = pas::bind_method<
+                &TfAB::OpenShipEquipment>(this);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, 4); cpp_range.next(Index); ) {
-            WeaponButtons[Index] = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Index + 1)})))));
-            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[Index])->UpCallback = pas::bind_method<&TfAB::WeaponButtonClick>(this);
-            WeaponChargeImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "C"})))));
-            WeaponPrimaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P"})))));
-            WeaponSecondaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "P2"})))));
-            WeaponIcons[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"W", SysUtils::IntToStr(Index + 1), "I"})))));
+            WeaponButtons[Index] =
+                pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"F",
+                    pas::wide_int_to_str(Index + 1)}))));
+            pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[Index])->UpCallback = pas::bind_method<
+                    &TfAB::WeaponButtonClick>(this);
+            WeaponChargeImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(pas::concat_wide({
+                    u"W", pas::wide_int_to_str(Index + 1), u"C"}))));
+            WeaponPrimaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(pas::concat_wide({
+                    u"W", pas::wide_int_to_str(Index + 1), u"P"}))));
+            WeaponSecondaryImages[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(pas::concat_wide({
+                    u"W", pas::wide_int_to_str(Index + 1), u"P2"}))));
+            WeaponIcons[Index] = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(pas::concat_wide({u"W",
+                    pas::wide_int_to_str(Index + 1), u"I"}))));
         }
         PlayButton = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButPlay"sv));
         PlayButton->UpCallback = pas::bind_method<&TfAB::TogglePause>(this);
@@ -271,11 +304,14 @@ namespace ab_MainForm {
         } else {
             ActiveArcadeRequestShips = nullptr;
         }
-        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && ActiveArcadeRequest == nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IsChaoticRandomEnabled() ^ 1)) {
+        if (aGalaxy::Galaxy != nullptr && aPlayer::GetPlayer() != nullptr && ActiveArcadeRequest == nullptr &&
+            !aGalaxy::Galaxy->IsChaoticRandomEnabled()) {
             if (aPlayer::GetPlayer()->TransitOriginStar != nullptr) {
-                InitialRandomSeed = aPlayer::GetPlayer()->TransitOriginStar->GenerationSeed * aPlayer::GetPlayer()->CurrentStar->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn / 77 + 1783);
+                InitialRandomSeed = aPlayer::GetPlayer()->TransitOriginStar->GenerationSeed *
+                        aPlayer::GetPlayer()->CurrentStar->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn / 77 + 1783);
             } else {
-                InitialRandomSeed = aPlayer::GetPlayer()->CurrentStar->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn / 77 + 1783);
+                InitialRandomSeed = aPlayer::GetPlayer()->CurrentStar->GenerationSeed * (aGalaxy::Galaxy->CurrentTurn /
+                            77 + 1783);
             }
             RandomSeed = InitialRandomSeed;
         } else {
@@ -296,7 +332,8 @@ namespace ab_MainForm {
             pas::free(ab_Global::ArcadeSpaceProcess);
             ab_Global::ArcadeSpaceProcess = nullptr;
         }
-        ab_Global::ArcadeSpaceProcess = pas::construct_call<SE_Process::TProcessSE>(SE_Process::TProcessSE_Create, u"Process.Normal"_wref.get());
+        ab_Global::ArcadeSpaceProcess = pas::construct_call<SE_Process::TProcessSE>(SE_Process::TProcessSE_Create,
+                u"Process.Normal"_wref.get());
         ab_Global::ArcadeSpaceProcess->RadarCenter = EC_Struct::MakePointF(0.0f, 0.0f);
         ab_Global::ArcadeSpaceProcess->RadarRange = 0;
         ab_Global::ArcadeSpaceProcess->ActionRange = 0;
@@ -324,22 +361,26 @@ namespace ab_MainForm {
         WorldCenterY = MapPanel->ClientSize.Y / 2;
         if (aPlayer::GetPlayer() == nullptr) {
             {
-                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, u"Ship.People.Ranger"_wref.get(), ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                    u"Ship.People.Ranger"_wref.get(), ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual, createSpaceObjectByName);
             }
             PlayerVisual->SetSize(ClassesImports::Point(GR_Main::GiScalePixels(64), GR_Main::GiScalePixels(64)));
         } else {
             if (pas::class_cast_if<SE_Ship2::TShip2SE*>(aPlayer::GetPlayer()->Graphic) != nullptr) {
-                SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv, aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName_2 = SE_Process::CreateSpaceObjectByName(u"Ship2"sv,
+                    aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual_2 = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual_2, createSpaceObjectByName_2);
             } else {
-                SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ruins"sv, aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
+                SE_Space::TObjectSE* createSpaceObjectByName_3 = SE_Process::CreateSpaceObjectByName(u"Ruins"sv,
+                    aPlayer::GetPlayer()->Graphic->GraphKey, ClassesImports::Point(0, 0));
                 pas::Var<SE_Space::TObjectSE*> playerVisual_3 = pas::Var<SE_Space::TObjectSE*>(&PlayerVisual);
                 SE_Space::RetainSpaceObject(playerVisual_3, createSpaceObjectByName_3);
             }
-            PlayerVisual->SetSize(ClassesImports::Point(aPlayer::GetPlayer()->Graphic->Size.X, aPlayer::GetPlayer()->Graphic->Size.Y));
+            PlayerVisual->SetSize(ClassesImports::Point(aPlayer::GetPlayer()->Graphic->Size.X,
+                aPlayer::GetPlayer()->Graphic->Size.Y));
         }
         PlayerVisual->SetAlpha(255);
         if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual)) {
@@ -362,7 +403,8 @@ namespace ab_MainForm {
             } else if (GR_Main::GiResourceVariant() == 2) {
                 Ship->CreateShipVisual(aPlayer::GetPlayer()->Graphic->GraphKey, aPlayer::GetPlayer()->Graphic->Size.X);
             } else {
-                Ship->CreateShipVisual(aPlayer::GetPlayer()->Graphic->GraphKey, System::Round(pas::real_divide(pas::shl(aPlayer::GetPlayer()->Graphic->Size.X, 10), 8.0E+2L)));
+                Ship->CreateShipVisual(aPlayer::GetPlayer()->Graphic->GraphKey,
+                    pas::real_round(static_cast<float>(pas::shl(aPlayer::GetPlayer()->Graphic->Size.X, 10) / 8.0E+2)));
             }
             aPlayer::GetPlayer()->ScriptItemsAct(aGalaxyStruct::satOnStartAB, Ship, nullptr, 0);
         }
@@ -374,31 +416,36 @@ namespace ab_MainForm {
             Ship->Health = 1000;
             Ship->WeaponCount = 5;
             {
-                std::uint8_t pickRandomItemType = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg = &Ship->Weapons[0];
                 ab_W::ab_Weapon_Initialize(cpp_arg, pickRandomItemType);
             }
             Ship->Weapons[0].SlotData = 0u;
             {
-                std::uint8_t pickRandomItemType_2 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_2 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_2 = &Ship->Weapons[1];
                 ab_W::ab_Weapon_Initialize(cpp_arg_2, pickRandomItemType_2);
             }
             Ship->Weapons[1].SlotData = 1u;
             {
-                std::uint8_t pickRandomItemType_3 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_3 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_3 = &Ship->Weapons[2];
                 ab_W::ab_Weapon_Initialize(cpp_arg_3, pickRandomItemType_3);
             }
             Ship->Weapons[2].SlotData = 2u;
             {
-                std::uint8_t pickRandomItemType_4 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_4 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_4 = &Ship->Weapons[3];
                 ab_W::ab_Weapon_Initialize(cpp_arg_4, pickRandomItemType_4);
             }
             Ship->Weapons[3].SlotData = 3 | aItem::EquipmentSecondaryFireFlag;
             {
-                std::uint8_t pickRandomItemType_5 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_5 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_5 = &Ship->Weapons[4];
                 ab_W::ab_Weapon_Initialize(cpp_arg_5, pickRandomItemType_5);
             }
@@ -431,27 +478,32 @@ namespace ab_MainForm {
             Ship->MaxHealth = 500;
             Ship->WeaponCount = 5;
             {
-                std::uint8_t pickRandomItemType_6 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_6 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_6 = &Ship->Weapons[0];
                 ab_W::ab_Weapon_Initialize(cpp_arg_6, pickRandomItemType_6);
             }
             {
-                std::uint8_t pickRandomItemType_7 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_7 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_7 = &Ship->Weapons[1];
                 ab_W::ab_Weapon_Initialize(cpp_arg_7, pickRandomItemType_7);
             }
             {
-                std::uint8_t pickRandomItemType_8 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_8 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_8 = &Ship->Weapons[2];
                 ab_W::ab_Weapon_Initialize(cpp_arg_8, pickRandomItemType_8);
             }
             {
-                std::uint8_t pickRandomItemType_9 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_9 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_9 = &Ship->Weapons[3];
                 ab_W::ab_Weapon_Initialize(cpp_arg_9, pickRandomItemType_9);
             }
             {
-                std::uint8_t pickRandomItemType_10 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_10 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_10 = &Ship->Weapons[4];
                 ab_W::ab_Weapon_Initialize(cpp_arg_10, pickRandomItemType_10);
             }
@@ -467,27 +519,32 @@ namespace ab_MainForm {
             Ship->MaxHealth = 500;
             Ship->WeaponCount = 5;
             {
-                std::uint8_t pickRandomItemType_11 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_11 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_11 = &Ship->Weapons[0];
                 ab_W::ab_Weapon_Initialize(cpp_arg_11, pickRandomItemType_11);
             }
             {
-                std::uint8_t pickRandomItemType_12 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_12 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_12 = &Ship->Weapons[1];
                 ab_W::ab_Weapon_Initialize(cpp_arg_12, pickRandomItemType_12);
             }
             {
-                std::uint8_t pickRandomItemType_13 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_13 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_13 = &Ship->Weapons[2];
                 ab_W::ab_Weapon_Initialize(cpp_arg_13, pickRandomItemType_13);
             }
             {
-                std::uint8_t pickRandomItemType_14 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_14 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_14 = &Ship->Weapons[3];
                 ab_W::ab_Weapon_Initialize(cpp_arg_14, pickRandomItemType_14);
             }
             {
-                std::uint8_t pickRandomItemType_15 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_15 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_15 = &Ship->Weapons[4];
                 ab_W::ab_Weapon_Initialize(cpp_arg_15, pickRandomItemType_15);
             }
@@ -503,27 +560,32 @@ namespace ab_MainForm {
             Ship->MaxHealth = 500;
             Ship->WeaponCount = 5;
             {
-                std::uint8_t pickRandomItemType_16 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_16 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_16 = &Ship->Weapons[0];
                 ab_W::ab_Weapon_Initialize(cpp_arg_16, pickRandomItemType_16);
             }
             {
-                std::uint8_t pickRandomItemType_17 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_17 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_17 = &Ship->Weapons[1];
                 ab_W::ab_Weapon_Initialize(cpp_arg_17, pickRandomItemType_17);
             }
             {
-                std::uint8_t pickRandomItemType_18 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_18 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_18 = &Ship->Weapons[2];
                 ab_W::ab_Weapon_Initialize(cpp_arg_18, pickRandomItemType_18);
             }
             {
-                std::uint8_t pickRandomItemType_19 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_19 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_19 = &Ship->Weapons[3];
                 ab_W::ab_Weapon_Initialize(cpp_arg_19, pickRandomItemType_19);
             }
             {
-                std::uint8_t pickRandomItemType_20 = aConst::PickRandomItemType(pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
+                std::uint8_t pickRandomItemType_20 = aConst::PickRandomItemType(
+                    pas::constant_set<aConst::TItemTypeSelection>({{50, 67}}));
                 ab_W::PabWeapon cpp_arg_20 = &Ship->Weapons[4];
                 ab_W::ab_Weapon_Initialize(cpp_arg_20, pickRandomItemType_20);
             }
@@ -553,14 +615,20 @@ namespace ab_MainForm {
             self_2->ABSpaceBuild(1, headingDegreesToRadians_2);
         } else if (aPlayer::GetPlayer()->Order == aShip::soJumpHole) {
             if (aPlayer::GetPlayer()->TransitOriginStar != nullptr) {
-                ABSpaceBuild(1, aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(aPlayer::GetPlayer()->TransitOriginStar->Position, aPlayer::GetPlayer()->CurrentStar->Position)));
+                ABSpaceBuild(1,
+                    aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(
+                        aPlayer::GetPlayer()->TransitOriginStar->Position,
+                        aPlayer::GetPlayer()->CurrentStar->Position)));
             } else {
                 ABSpaceBuild(1, 0.0f);
             }
         } else if (aPlayer::GetPlayer()->TransitOriginStar != nullptr) {
-            float headingDegreesToRadians_3 = aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(aPlayer::GetPlayer()->TransitOriginStar->Position, aPlayer::GetPlayer()->CurrentStar->Position));
-            std::int32_t round = System::Round(aMyFunction::RemapClamped(aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position, aPlayer::GetPlayer()->TransitOriginStar->Position), 1.0E+1, aConst::GalaxySizeY / 2, 3.0, 8.0));
-            ABSpaceBuild(round, headingDegreesToRadians_3);
+            ABSpaceBuild(
+                pas::real_round(aMyFunction::RemapClamped(
+                    aMyFunction::PointDistance(aPlayer::GetPlayer()->CurrentStar->Position,
+                        aPlayer::GetPlayer()->TransitOriginStar->Position), 1.0E+1, aConst::GalaxySizeY / 2, 3.0, 8.0)),
+                aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(
+                    aPlayer::GetPlayer()->TransitOriginStar->Position, aPlayer::GetPlayer()->CurrentStar->Position)));
         } else {
             ABSpaceBuild(3, 0.0f);
         }
@@ -590,7 +658,9 @@ namespace ab_MainForm {
             aGalaxy::Galaxy->PrimeIntegrityChecksum1(607);
             aGalaxy::Galaxy->PrimeIntegrityChecksum2(608);
         }
-        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->Order == aShip::soJumpHole || ActiveArcadeRequest != nullptr || aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->IsOldHyperspaceEnabled() ^ 1)) {
+        if (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->Order == aShip::soJumpHole ||
+            ActiveArcadeRequest != nullptr || aGalaxy::Galaxy != nullptr &&
+                !aGalaxy::Galaxy->IsOldHyperspaceEnabled()) {
             ab_Space::CurrentArcadeSpace = ab_Space::NextArcadeSpace;
             ab_Global::ArcadeMapViewPosition = ab_Space::CurrentArcadeSpace->MapPosition;
             EnterCurrentSpace();
@@ -599,8 +669,10 @@ namespace ab_MainForm {
             EnterMapView();
         }
         ab_Global::ArcadeTickCount = 0;
-        UpdateTimer = ScheduleCallbackTimer(ab_Global::ArcadeTickMs, ab_Global::ArcadeTickMs, pas::bind_method<&TfAB::TimerTakt>(this), 0);
-        ScrollTimer = ScheduleCallbackTimer(GlobalsV::ScrollTime, GlobalsV::ScrollTime, pas::bind_method<&TfAB::ScrollMapTimer>(this), 0);
+        UpdateTimer = ScheduleCallbackTimer(ab_Global::ArcadeTickMs, ab_Global::ArcadeTickMs,
+                pas::bind_method<&TfAB::TimerTakt>(this), 0);
+        ScrollTimer = ScheduleCallbackTimer(GlobalsV::ScrollTime, GlobalsV::ScrollTime,
+                pas::bind_method<&TfAB::ScrollMapTimer>(this), 0);
         TimerTakt(nullptr, 0);
         HideHelp();
     }
@@ -659,7 +731,9 @@ namespace ab_MainForm {
 
     void TfAB::RequestExit(GI_MessageLoop::TObjectGI* Sender) {
         std::uint8_t Standalone{};
-        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGameMenu.QExit"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+        if (GI_MessageBox::ShowMessageBoxGI(this,
+            GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormGameMenu.QExit"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
             Standalone = aGalaxy::Galaxy == nullptr;
             if (CacheLoader != nullptr) {
                 CacheLoader->ClearFlag18();
@@ -702,9 +776,14 @@ namespace ab_MainForm {
         pas::Object* Obj{};
         std::int32_t EnemyCount{};
         CancelCargoPickup();
-        if ((VirtualKey == WindowsSdk::VK_ESCAPE || VirtualKey == WindowsSdk::VK_SPACE) && (VictoryPanel->Active || DefeatPanel->Active)) {
-            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull()->HullPoints > 0 && VictoryPanel->Active) {
-                if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LookupLocalizedTextByKey(u"FormAB.QueryExit"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) == GI_MessageBox::mbgResultOK) {
+        if ((VirtualKey == WindowsSdk::VK_ESCAPE || VirtualKey == WindowsSdk::VK_SPACE) && (VictoryPanel->Active ||
+                DefeatPanel->Active)) {
+            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->GetHull()->HullPoints > 0 &&
+                VictoryPanel->Active) {
+                if (GI_MessageBox::ShowMessageBoxGI(this,
+                    GR_Main::LookupLocalizedTextByKey(u"FormAB.QueryExit"_wref.get()),
+                    GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) ==
+                    GI_MessageBox::mbgResultOK) {
                     if (aPlayer::GetPlayer()->Order == aShip::soJumpHole || ActiveArcadeRequest != nullptr) {
                         BeginBattleExit();
                     } else {
@@ -725,17 +804,24 @@ namespace ab_MainForm {
             GI_MessageLoop::TObjectGI* PanelWinHide = GetByName(u"PanelWinHide"sv);
             PanelWinHide->SetActive(static_cast<std::uint8_t>(PanelWinHide->Active ^ 1));
         }
-        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
+        if (GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_MENU)) {
             if (VirtualKey == 'K' && aPlayer::GetPlayer() == nullptr && ab_Ship::PlayerArcadeShip != nullptr) {
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ab_Ship::PlayerArcadeShip->Enemies) - 1); cpp_range.next(Index); ) {
-                    std::int32_t health = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->Enemies, Index)->Health;
-                    ab_Ship::TabShip* cpp_arg = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->Enemies, Index);
-                    cpp_arg->ApplyDamage(health, nullptr, false);
+                const std::int32_t cpp_last = pas::list_count(ab_Ship::PlayerArcadeShip->Enemies) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        std::int32_t health = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->Enemies,
+                            Index)->Health;
+                        ab_Ship::TabShip* cpp_arg = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->Enemies,
+                            Index);
+                        cpp_arg->ApplyDamage(health, nullptr, false);
+                    }
                 }
             }
             return;
         }
-        if (ab_Ship::PlayerArcadeShip != nullptr && VirtualKey >= '1' && VirtualKey <= '5' && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT)) {
+        if (ab_Ship::PlayerArcadeShip != nullptr && VirtualKey >= '1' && VirtualKey <= '5' &&
+            GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT)) {
             if (!pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[VirtualKey - '1'])->Disabled) {
                 ToggleWeaponGroup(WeaponButtons[VirtualKey - '1']);
             }
@@ -748,12 +834,19 @@ namespace ab_MainForm {
             PlayButton->SetActive(static_cast<std::uint8_t>(ab_Ship::ArcadePaused ^ 1));
             PauseButton->SetActive(ab_Ship::ArcadePaused);
             ab_Ship::ArcadePauseWithShift = GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT);
-        } else if (VirtualKey == WindowsSdk::VK_RETURN && ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace && ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace) {
+        } else if (VirtualKey == WindowsSdk::VK_RETURN && ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace ==
+                nullptr && ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace && ab_Space::CurrentArcadeSpace !=
+                ab_Space::EndArcadeSpace) {
             EnemyCount = 0;
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_2.next(Index); ) {
-                Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
-                if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
-                    ++EnemyCount;
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1;
+                if (0 <= cpp_last_2) {
+                    for (Index = 0; Index <= cpp_last_2; ++Index) {
+                        Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
+                        if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
+                            ++EnemyCount;
+                        }
+                    }
                 }
             }
             if (EnemyCount > 0) {
@@ -800,24 +893,33 @@ namespace ab_MainForm {
             ab_Ship::PlayerArcadeShip->Weapons[4].SlotData = 4 | aItem::EquipmentSecondaryFireFlag;
             TfAB::NormalizeWeaponSelection();
             UpdateWeaponPanel();
-        } else if (VirtualKey == WindowsSdk::VK_SPACE && ab_Global::ArcadeViewMode == 2 && ab_Space::CurrentArcadeSpace == ab_Space::NextArcadeSpace) {
+        } else if (VirtualKey == WindowsSdk::VK_SPACE && ab_Global::ArcadeViewMode == 2 &&
+            ab_Space::CurrentArcadeSpace == ab_Space::NextArcadeSpace) {
             EnemyCount = 0;
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_3.next(Index); ) {
-                Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
-                if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
-                    ++EnemyCount;
+            {
+                const std::int32_t cpp_last_3 = pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1;
+                if (0 <= cpp_last_3) {
+                    for (Index = 0; Index <= cpp_last_3; ++Index) {
+                        Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
+                        if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
+                            ++EnemyCount;
+                        }
+                    }
                 }
             }
             if (EnemyCount > 0) {
                 EnterCurrentSpace();
             }
         }
-        if (VirtualKey == WindowsSdk::VK_UP || VirtualKey == 'R' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        if (VirtualKey == WindowsSdk::VK_UP || VirtualKey == 'R' && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             ForwardKeyDown = true;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_DOWN || VirtualKey == 'F' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_DOWN || VirtualKey == 'F' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             ReverseKeyDown = true;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
@@ -827,12 +929,16 @@ namespace ab_MainForm {
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_LEFT || VirtualKey == 'D' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_LEFT || VirtualKey == 'D' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             TurnLeftKeyDown = true;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_RIGHT || VirtualKey == 'G' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_RIGHT || VirtualKey == 'G' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             TurnRightKeyDown = true;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
@@ -846,7 +952,8 @@ namespace ab_MainForm {
             RequestExit(nullptr);
         } else if (VirtualKey == 'A') {
             ToggleAutopilot(nullptr);
-        } else if (VirtualKey == 'S' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == 'S' && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+            !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             OpenShipEquipment(nullptr);
         } else if (VirtualKey == 'P' || VirtualKey == WindowsSdk::VK_PAUSE) {
             SimulationPaused = static_cast<std::uint8_t>(SimulationPaused ^ 1);
@@ -855,12 +962,15 @@ namespace ab_MainForm {
 
     void TfAB::BattleKeyUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t VirtualKey) {
         CancelCargoPickup();
-        if (VirtualKey == WindowsSdk::VK_UP || VirtualKey == 'R' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        if (VirtualKey == WindowsSdk::VK_UP || VirtualKey == 'R' && !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             ForwardKeyDown = false;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_DOWN || VirtualKey == 'F' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_DOWN || VirtualKey == 'F' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             ReverseKeyDown = false;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
@@ -870,12 +980,16 @@ namespace ab_MainForm {
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_LEFT || VirtualKey == 'D' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_LEFT || VirtualKey == 'D' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             TurnLeftKeyDown = false;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
             UpdateAutopilotButtons();
-        } else if (VirtualKey == WindowsSdk::VK_RIGHT || VirtualKey == 'G' && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) ^ 1) && static_cast<std::uint8_t>(GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL) ^ 1)) {
+        } else if (VirtualKey == WindowsSdk::VK_RIGHT || VirtualKey == 'G' &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_SHIFT) &&
+                !GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
             TurnRightKeyDown = false;
             ab_Global::ArcadeLastInputTick = ab_Global::ArcadeTickCount;
             ab_Global::ArcadeAutopilotEnabled = false;
@@ -894,23 +1008,31 @@ namespace ab_MainForm {
         std::int32_t Index{};
         pas::Object* Obj{};
         std::int32_t EnemyCount{};
-        if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && ab_Space::HoveredArcadeSpace != nullptr && static_cast<std::uint8_t>(Sender->IsOccludedAtPoint(Point) ^ 1)) {
+        if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && ab_Space::HoveredArcadeSpace !=
+                nullptr && !Sender->IsOccludedAtPoint(Point)) {
             Origin = ab_Space::CurrentArcadeSpace;
             if (pas::list_count(RouteSpaces) > 0 && GR_Main::IsVirtualKeyDown(WindowsSdk::VK_CONTROL)) {
                 Origin = pas::list_at<ab_Space::TabSpace>(RouteSpaces, pas::list_count(RouteSpaces) - 1);
             }
-            if (ab_Space::HoveredArcadeSpace == ab_Space::CurrentArcadeSpace && ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace) {
+            if (ab_Space::HoveredArcadeSpace == ab_Space::CurrentArcadeSpace && ab_Space::CurrentArcadeSpace !=
+                    ab_Space::EndArcadeSpace) {
                 EnemyCount = 0;
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range.next(Index); ) {
-                    Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
-                    if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
-                        ++EnemyCount;
+                {
+                    const std::int32_t cpp_last = pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1;
+                    if (0 <= cpp_last) {
+                        for (Index = 0; Index <= cpp_last; ++Index) {
+                            Obj = pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index);
+                            if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
+                                ++EnemyCount;
+                            }
+                        }
                     }
                 }
                 if (EnemyCount > 0) {
                     EnterCurrentSpace();
                 }
-            } else if (pas::list_count(RouteSpaces) > 0 && pas::list_get(RouteSpaces, pas::list_count(RouteSpaces) - 1) == ab_Space::HoveredArcadeSpace) {
+            } else if (pas::list_count(RouteSpaces) > 0 && pas::list_get(RouteSpaces,
+                    pas::list_count(RouteSpaces) - 1) == ab_Space::HoveredArcadeSpace) {
                 ab_Ship::ArcadePaused = true;
                 PlayButton->SetActive(static_cast<std::uint8_t>(ab_Ship::ArcadePaused ^ 1));
                 PauseButton->SetActive(ab_Ship::ArcadePaused);
@@ -924,15 +1046,24 @@ namespace ab_MainForm {
                 Route = pas::make_object<pas::List>();
                 TfAB::BuildSpaceRoute(Route, Origin, ab_Space::HoveredArcadeSpace);
                 if (pas::list_count(Route) > 0) {
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Route) - 1); cpp_range_2.next(Index); ) {
-                        pas::list_add(RouteSpaces, pas::list_get(Route, Index));
+                    const std::int32_t cpp_last_2 = pas::list_count(Route) - 1;
+                    if (0 <= cpp_last_2) {
+                        for (Index = 0; Index <= cpp_last_2; ++Index) {
+                            pas::list_add(RouteSpaces, pas::list_get(Route, Index));
+                        }
                     }
                 }
                 pas::free(Route);
                 RebuildShipPath();
                 BuildShipPathImages();
             }
-        } else if (ab_Global::ArcadeViewMode == 0 && CargoPickupItem != nullptr && CargoPickupItem->BonusKind < 0 && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= CargoPickupItem->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(CargoPickupItem) < ab_Global::ManualCargoPickupDistance && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= CargoPickupItem->Item->Weight) {
+        } else if (ab_Global::ArcadeViewMode == 0 && CargoPickupItem != nullptr && CargoPickupItem->BonusKind < 0 &&
+            ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && aPlayer::GetPlayer() !=
+                nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= CargoPickupItem->Item->Weight &&
+            ab_Ship::PlayerArcadeShip->DistanceTo(CargoPickupItem) < ab_Global::ManualCargoPickupDistance &&
+            aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) &&
+            aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >=
+                CargoPickupItem->Item->Weight) {
             TfAB::PickUpItem(CargoPickupItem);
             CancelCargoPickup();
         }
@@ -941,8 +1072,10 @@ namespace ab_MainForm {
     void TfAB::BattleMouseUp(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
     }
 
-    void TfAB::BattleRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && static_cast<std::uint8_t>(ContentPanel->IsOccludedAtPoint(Point) ^ 1)) {
+    void TfAB::BattleRightMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState,
+        WindowsSdk::TPoint Point) {
+        if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr &&
+            !ContentPanel->IsOccludedAtPoint(Point)) {
             MapDrag.Active = true;
             pas::store_unaligned<WindowsSdk::TPoint>(&MapDrag.Position, Point);
             if (IsCursorImageSelected(u"Main"sv)) {
@@ -972,12 +1105,15 @@ namespace ab_MainForm {
             if (IsCursorImageSelected(u"Main"sv)) {
                 SetCursorByName(u"Scroll"_wref.get());
             }
-            ab_Global::ArcadeMapViewPosition = ClassesImports::Point(ab_Global::ArcadeMapViewPosition.X + MapDrag.Position.X - Point.X, ab_Global::ArcadeMapViewPosition.Y + MapDrag.Position.Y - Point.Y);
+            ab_Global::ArcadeMapViewPosition = ClassesImports::Point(
+                    ab_Global::ArcadeMapViewPosition.X + MapDrag.Position.X - Point.X,
+                    ab_Global::ArcadeMapViewPosition.Y + MapDrag.Position.Y - Point.Y);
             pas::store_unaligned<WindowsSdk::TPoint>(&MapDrag.Position, Point);
             if (ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin > ab_Global::ArcadeMapViewPosition.Y) {
                 ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin;
             }
-            if (ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin < ab_Global::ArcadeMapViewPosition.Y) {
+            if (ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin <
+                ab_Global::ArcadeMapViewPosition.Y) {
                 ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin;
             }
             if (ab_Global::ArcadeMapBounds.Left - ab_Global::ArcadeMapPanMargin > ab_Global::ArcadeMapViewPosition.X) {
@@ -987,7 +1123,8 @@ namespace ab_MainForm {
                 ab_Global::ArcadeMapViewPosition.X = ab_Global::ArcadeMapBounds.Right + ab_Global::ArcadeMapPanMargin;
             }
         } else {
-            if (Point.X == 0 || Point.Y == 0 || GR_Main::GameScreenWidth - 1 == Point.X || GR_Main::GameScreenHeight - 1 == Point.Y) {
+            if (Point.X == 0 || Point.Y == 0 || GR_Main::GameScreenWidth - 1 == Point.X || GR_Main::GameScreenHeight -
+                    1 == Point.Y) {
                 if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr) {
                     SetCursorByName(u"Scroll"_wref.get());
                     return;
@@ -999,8 +1136,11 @@ namespace ab_MainForm {
                 NearestDistance = 1.0E+20;
                 Space = ab_Space::FirstArcadeSpace;
                 while (Space != nullptr) {
-                    Distance = aMyFunction::PointDistanceSquared(EC_Struct::PointToPointF(Point), EC_Struct::PointToPointF(Space->MapPosition));
-                    if (Distance < NearestDistance && static_cast<long double>(pas::sqr(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius))) > Distance) {
+                    Distance = aMyFunction::PointDistanceSquared(EC_Struct::PointToPointF(Point),
+                            EC_Struct::PointToPointF(Space->MapPosition));
+                    if (Distance < NearestDistance &&
+                        static_cast<double>(pas::sqr(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius))) >
+                            Distance) {
                         NearestDistance = Distance;
                         ab_Space::HoveredArcadeSpace = Space;
                     }
@@ -1013,10 +1153,12 @@ namespace ab_MainForm {
                 while (Obj != nullptr) {
                     if (ab_Item::TabItem* abItem = pas::class_cast_if<ab_Item::TabItem*>(Obj)) {
                         Position = Obj->GetWorldPosition();
-                        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Position));
+                        Position = ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix,
+                                pas::ConstRef<EC_Struct::TVector3D>(&Position));
                         if (ab_Global::IsDepthBeforeSphereHorizon(Position.Z)) {
-                            ItemDistance = pas::sqr(static_cast<long double>(LocalPoint.X) - Position.X) + pas::sqr(static_cast<long double>(LocalPoint.Y) - Position.Y);
-                            if (ItemDistance < 256.0L) {
+                            ItemDistance = static_cast<float>(pas::sqr(static_cast<float>(static_cast<double>(LocalPoint.X) - Position.X)) +
+                                    pas::sqr(static_cast<float>(static_cast<double>(LocalPoint.Y) - Position.Y)));
+                            if (ItemDistance < 256.0) {
                                 ShowItemInfo(abItem);
                                 break;
                             }
@@ -1054,13 +1196,19 @@ namespace ab_MainForm {
         Source = EC_Struct::MakeVector3D(Point.X, Point.Y, 1.0);
         Source = ab_Global::ProjectPointByMatrix(Matrix, pas::ConstRef<EC_Struct::TVector3D>(&Source));
         Matrix = ab_Global::InvertMatrix4D(ab_Global::SphereViewMatrix);
-        RayDirection.X = static_cast<long double>(Source.X) * Matrix[0][0] + static_cast<long double>(Source.Y) * Matrix[1][0] + static_cast<long double>(Source.Z) * Matrix[2][0];
-        RayDirection.Y = static_cast<long double>(Source.X) * Matrix[0][1] + static_cast<long double>(Source.Y) * Matrix[1][1] + static_cast<long double>(Source.Z) * Matrix[2][1];
-        RayDirection.Z = static_cast<long double>(Source.X) * Matrix[0][2] + static_cast<long double>(Source.Y) * Matrix[1][2] + static_cast<long double>(Source.Z) * Matrix[2][2];
+        RayDirection.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Source.X) * Matrix[0][0]) + static_cast<float>(static_cast<double>(Source.Y) * Matrix[1][0])) +
+                static_cast<float>(static_cast<double>(Source.Z) * Matrix[2][0]));
+        RayDirection.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Source.X) * Matrix[0][1]) + static_cast<float>(static_cast<double>(Source.Y) * Matrix[1][1])) +
+                static_cast<float>(static_cast<double>(Source.Z) * Matrix[2][1]));
+        RayDirection.Z = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(Source.X) * Matrix[0][2]) + static_cast<float>(static_cast<double>(Source.Y) * Matrix[1][2])) +
+                static_cast<float>(static_cast<double>(Source.Z) * Matrix[2][2]));
         RayOrigin.X = Matrix[3][0];
         RayOrigin.Y = Matrix[3][1];
         RayOrigin.Z = Matrix[3][2];
-        std::uint8_t Result = ab_Global::TryIntersectRayWithSphere(RayOrigin, EC_Struct::MakeVector3D(static_cast<long double>(RayOrigin.X) + RayDirection.X, static_cast<long double>(RayOrigin.Y) + RayDirection.Y, static_cast<long double>(RayOrigin.Z) + RayDirection.Z), EC_Struct::MakeVector3D(0.0, 0.0, 0.0), ab_Global::SphereRadius, RayOrigin);
+        std::uint8_t Result = ab_Global::TryIntersectRayWithSphere(RayOrigin,
+            EC_Struct::MakeVector3D(static_cast<float>(static_cast<double>(RayOrigin.X) + RayDirection.X),
+                static_cast<float>(static_cast<double>(RayOrigin.Y) + RayDirection.Y), static_cast<float>(static_cast<double>(RayOrigin.Z) + RayDirection.Z)),
+            EC_Struct::MakeVector3D(0.0, 0.0, 0.0), ab_Global::SphereRadius, RayOrigin);
         if (Result) {
             ab_Global::VectorToSphericalAngles(RayOrigin, Longitude, PolarAngle);
         }
@@ -1076,34 +1224,45 @@ namespace ab_MainForm {
         aItem::TWeapon* Item{};
         pas::WideString WeaponName{};
         std::int32_t MicroModule{};
-        if (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0 || ab_Global::ArcadeViewMode == 5) {
+        if (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0 ||
+            ab_Global::ArcadeViewMode == 5) {
             ClearWeaponPanel();
         } else {
             GetByName(u"PanelWeapon"sv)->SetActive(true);
             for (auto cpp_range = pas::for_to<std::int32_t>(1, 5); cpp_range.next(Value); ) {
-                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"F", SysUtils::IntToStr(Value)})))));
+                Button = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(pas::view(pas::concat_wide({u"F",
+                        pas::wide_int_to_str(Value)}))));
                 Button->HelpText = pas::WideString();
                 Button->SetDisabled(true);
                 Group = 0;
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_2.next(Index); ) {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                    ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_2.next(Index); ) {
                     SlotIndex = ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask;
                     if (Value - 1 == SlotIndex) {
-                        if ((ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSecondaryFireFlag) != 0) {
+                        if ((ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSecondaryFireFlag) !=
+                            0) {
                             Group = 1;
                         }
                         break;
                     }
                 }
                 if (Group != 0) {
-                    Button->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"GN"}));
-                    Button->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"GA"}));
-                    Button->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"GD"}));
+                    Button->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int_to_str(Value), u"GN"}));
+                    Button->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(),
+                        u"W", pas::wide_int_to_str(Value), u"GA"}));
+                    Button->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int_to_str(Value), u"GD"}));
                 } else {
-                    Button->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"BN"}));
-                    Button->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"BA"}));
-                    Button->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"BD"}));
+                    Button->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int_to_str(Value), u"BN"}));
+                    Button->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(),
+                        u"W", pas::wide_int_to_str(Value), u"BA"}));
+                    Button->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int_to_str(Value), u"BD"}));
                 }
-                Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"H"}));
+                Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                    pas::wide_int_to_str(Value), u"H"}));
                 Button->ImageNormal->SetImageKindY(GI_Main::ikyBottom);
                 Button->ImageNormalActive->SetImageKindY(GI_Main::ikyBottom);
                 Button->ImageDown->SetImageKindY(GI_Main::ikyBottom);
@@ -1111,7 +1270,8 @@ namespace ab_MainForm {
                 Button->UserIndex = -1;
                 Button->UserData = Value;
                 Button->StateChangedCallback = pas::bind_static_method<&TfAB::WeaponStateChanged>(this);
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_3.next(Index); ) {
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+                    ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_3.next(Index); ) {
                     SlotIndex = ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask;
                     if (Value - 1 == SlotIndex) {
                         Button->UserIndex = Index;
@@ -1119,26 +1279,37 @@ namespace ab_MainForm {
                     }
                 }
                 if (aPlayer::GetPlayer() != nullptr) {
-                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1));
+                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(
+                            aConst::WeaponCategoryItemType, Value - 1));
                     if (aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon) <= Value - 1) {
-                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"H"}));
+                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(),
+                            u"W", pas::wide_int_to_str(Value), u"H"}));
                     } else if (Item == nullptr) {
-                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"E"}));
+                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(),
+                            u"W", pas::wide_int_to_str(Value), u"E"}));
                     } else if (!aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Item)) {
-                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int_to_str(Value), u"R"}));
+                        Button->SetImageDisabledPath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(),
+                            u"W", pas::wide_int_to_str(Value), u"R"}));
                     }
                 }
-                WeaponChargeImages[Value - 1]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"CurH"}));
+                WeaponChargeImages[Value - 1]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.",
+                    GR_Main::GiResourceSuffix(), u"CurH"}));
                 WeaponPrimaryImages[Value - 1]->SetActive(false);
                 WeaponSecondaryImages[Value - 1]->SetActive(false);
                 {
                     GI_Image::TImageGI* cpp_with = WeaponIcons[Value - 1];
-                    if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1) != nullptr) {
+                    if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(
+                            aConst::WeaponCategoryItemType, Value - 1) != nullptr) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,", aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, Value - 1)->GetBitmapResourceName(), u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,",
+                            aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType,
+                                Value - 1)->GetBitmapResourceName(), u"s"}));
                     } else if (Button->UserIndex >= 0) {
                         WeaponIcons[Value - 1]->SetActive(true);
-                        cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), aConst::ItemTypeNames[static_cast<aConst::TItemType>(ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType)], u"s"}));
+                        cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(),
+                            aConst::ItemTypeNames[
+                                static_cast<aConst::TItemType>(
+                                    ab_Ship::PlayerArcadeShip->Weapons[Button->UserIndex].ItemType)], u"s"}));
                     } else {
                         WeaponIcons[Value - 1]->SetActive(false);
                     }
@@ -1153,37 +1324,49 @@ namespace ab_MainForm {
                 WeaponButtons[SlotIndex]->SetActive(true);
                 WeaponButtons[SlotIndex]->HelpCallback = pas::bind_method<&TfAB::UpdateHelp>(this);
                 if (WeaponButtons[SlotIndex]->UserState == 0) {
-                    WeaponButtons[SlotIndex]->UserState = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, WeaponButtons[SlotIndex])));
+                    WeaponButtons[SlotIndex]->UserState =
+                        static_cast<std::int32_t>(
+                            reinterpret_cast<std::uintptr_t>(pas::construct_call<GI_Image::TImageGI>(
+                                GI_Image::TImageGI_Create, WeaponButtons[SlotIndex])));
                 }
-                if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex) != nullptr) {
-                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex));
+                if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->FindEquippedItemInSlot(
+                        aConst::WeaponCategoryItemType, SlotIndex) != nullptr) {
+                    Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(
+                            aConst::WeaponCategoryItemType, SlotIndex));
                     MicroModule = Item->MicroModuleIndex;
                     Item->MicroModuleIndex = 0;
                     WeaponName = Item->GetShortName();
                     Item->MicroModuleIndex = MicroModule;
                 } else {
-                    WeaponName = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Weapon.Name.", SysUtils::IntToStr(ab_Ship::PlayerArcadeShip->Weapons[Value].ItemType - 50 + 1)})));
+                    WeaponName = aConst::LocalizedText(pas::concat_wide({u"Items.Weapon.Name.",
+                            pas::wide_int_to_str(ab_Ship::PlayerArcadeShip->Weapons[Value].ItemType - 50 + 1)}));
                 }
                 if ((ab_Ship::PlayerArcadeShip->Weapons[Value].SlotData & aItem::EquipmentSecondaryFireFlag) != 0) {
                     WeaponButtons[SlotIndex]->HelpText = ([&] {
-                        const pas::WideString& replaceAllWideString = ([&] {
-                            const pas::WideString& intToStr = pas::wide_int_to_str(Value + 1);
-                            const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(u"Help.ABWeapon2"_wref.get());
-                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey, u"<SelectKey>"_wref.get(), pas::view(intToStr));
+                            const pas::WideString& replaceAllWideString = ([&] {
+                                const pas::WideString& intToStr = pas::wide_int_to_str(Value + 1);
+                                const pas::WideString& lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                                    u"Help.ABWeapon2"_wref.get());
+                                return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey, u"<SelectKey>"_wref.get(),
+                                    pas::view(intToStr));
+                            }());
+                            const pas::WideString& weaponName = WeaponName;
+                            return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<WeaponName>"_wref.get(),
+                                pas::view(weaponName));
                         }());
-                        const pas::WideString& weaponName = WeaponName;
-                        return EC_Str::ReplaceAllWideString(replaceAllWideString, u"<WeaponName>"_wref.get(), pas::view(weaponName));
-                    }());
                 } else {
                     WeaponButtons[SlotIndex]->HelpText = ([&] {
-                        const pas::WideString& replaceAllWideString_2 = ([&] {
-                            const pas::WideString& intToStr_2 = pas::wide_int_to_str(Value + 1);
-                            const pas::WideString& lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"Help.ABWeapon1"_wref.get());
-                            return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey_2, u"<SelectKey>"_wref.get(), pas::view(intToStr_2));
+                            const pas::WideString& replaceAllWideString_2 = ([&] {
+                                const pas::WideString& intToStr_2 = pas::wide_int_to_str(Value + 1);
+                                const pas::WideString& lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(
+                                    u"Help.ABWeapon1"_wref.get());
+                                return EC_Str::ReplaceAllWideString(lookupLocalizedTextByKey_2,
+                                    u"<SelectKey>"_wref.get(), pas::view(intToStr_2));
+                            }());
+                            const pas::WideString& weaponName_2 = WeaponName;
+                            return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<WeaponName>"_wref.get(),
+                                pas::view(weaponName_2));
                         }());
-                        const pas::WideString& weaponName_2 = WeaponName;
-                        return EC_Str::ReplaceAllWideString(replaceAllWideString_2, u"<WeaponName>"_wref.get(), pas::view(weaponName_2));
-                    }());
                 }
                 pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(WeaponButtons[SlotIndex])->UpdateStateVisuals();
                 ++Value;
@@ -1196,7 +1379,8 @@ namespace ab_MainForm {
         float Charge{};
         std::int32_t Index{};
         GI_GraphButton::TGraphButtonGI* Button = reinterpret_cast<GI_GraphButton::TGraphButtonGI*>(Sender);
-        GI_Image::TImageGI* Image = reinterpret_cast<GI_Image::TImageGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Button->UserState)));
+        GI_Image::TImageGI* Image = reinterpret_cast<GI_Image::TImageGI*>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Button->UserState)));
         if (Image != nullptr) {
             if (Button->Disabled) {
                 Image->SetActive(false);
@@ -1206,29 +1390,43 @@ namespace ab_MainForm {
                     Charge = 0.0f;
                 } else {
                     Index = Sender->UserIndex;
-                    Charge = pas::real_divide(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo, ab_Ship::PlayerArcadeShip->Weapons[Index].MaxAmmo);
+                    Charge = static_cast<float>(static_cast<double>(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo) /
+                            ab_Ship::PlayerArcadeShip->Weapons[Index].MaxAmmo);
                 }
                 if (Button->Down) {
-                    Charge = Charge - 0.05L;
-                    if (Charge < 0.0L) {
+                    Charge = static_cast<float>(Charge - 0.05);
+                    if (Charge < 0.0) {
                         Charge = 0.0f;
                     }
                 }
                 if (pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->Down) {
-                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"OD"}));
+                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))),
+                        u"OD"}));
                 } else if (static_cast<GI_GraphButton::TGraphButtonGI*>(Sender)->IsHovered()) {
-                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"OA"}));
+                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))),
+                        u"OA"}));
                 } else {
-                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W", pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))), u"ON"}));
+                    Image->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"W",
+                        pas::wide_int64_to_str(static_cast<std::int64_t>(static_cast<std::uint32_t>(Sender->UserData))),
+                        u"ON"}));
                 }
                 Image->SetImageKindY(GI_Main::ikyTop);
-                Image->SetSize(ClassesImports::Point(Button->ClientSize.X, Button->ClientSize.Y - System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageNormal->SetPosition(ClassesImports::Point(Button->ImageNormal->LocalPosition.X, Button->ClientSize.Y - System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageNormal->SetSize(ClassesImports::Point(Button->ImageNormal->ClientSize.X, System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageNormalActive->SetPosition(ClassesImports::Point(Button->ImageNormalActive->LocalPosition.X, Button->ClientSize.Y - System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageNormalActive->SetSize(ClassesImports::Point(Button->ImageNormalActive->ClientSize.X, System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageDown->SetPosition(ClassesImports::Point(Button->ImageDown->LocalPosition.X, Button->ClientSize.Y - System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
-                Button->ImageDown->SetSize(ClassesImports::Point(Button->ImageDown->ClientSize.X, System::Round(static_cast<long double>(Button->ClientSize.Y) * Charge)));
+                Image->SetSize(ClassesImports::Point(Button->ClientSize.X,
+                    Button->ClientSize.Y - pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageNormal->SetPosition(ClassesImports::Point(Button->ImageNormal->LocalPosition.X,
+                    Button->ClientSize.Y - pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageNormal->SetSize(ClassesImports::Point(Button->ImageNormal->ClientSize.X,
+                    pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageNormalActive->SetPosition(ClassesImports::Point(Button->ImageNormalActive->LocalPosition.X,
+                    Button->ClientSize.Y - pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageNormalActive->SetSize(ClassesImports::Point(Button->ImageNormalActive->ClientSize.X,
+                    pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageDown->SetPosition(ClassesImports::Point(Button->ImageDown->LocalPosition.X,
+                    Button->ClientSize.Y - pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
+                Button->ImageDown->SetSize(ClassesImports::Point(Button->ImageDown->ClientSize.X,
+                    pas::real_round(static_cast<float>(static_cast<double>(Button->ClientSize.Y) * Charge))));
             }
         }
     }
@@ -1297,14 +1495,21 @@ namespace ab_MainForm {
                 if (Force || (ab_Global::ArcadeTickCount & 3) == 0) {
                     Button->UpdateStateVisuals();
                     if (ab_Ship::PlayerArcadeShip->PrimaryWeapon == Index) {
-                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"CurB"}));
+                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.",
+                            GR_Main::GiResourceSuffix(), u"CurB"}));
                     } else if (ab_Ship::PlayerArcadeShip->SecondaryWeapon == Index) {
-                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"CurG"}));
+                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.",
+                            GR_Main::GiResourceSuffix(), u"CurG"}));
                     } else {
-                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.", GR_Main::GiResourceSuffix(), u"CurH"}));
+                        WeaponChargeImages[Slot]->SetImagePath(pas::concat_wide({u"GI,Bm.FormAB2.",
+                            GR_Main::GiResourceSuffix(), u"CurH"}));
                     }
-                    WeaponPrimaryImages[Slot]->SetActive(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo < ab_Ship::PlayerArcadeShip->Weapons[Index].AmmoCost && (pas::shr(ab_Global::ArcadeTickCount, 2) & 1) == 0);
-                    WeaponSecondaryImages[Slot]->SetActive(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo < ab_Ship::PlayerArcadeShip->Weapons[Index].AmmoCost && (pas::shr(ab_Global::ArcadeTickCount, 2) & 1) != 0);
+                    WeaponPrimaryImages[Slot]->SetActive(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo <
+                        ab_Ship::PlayerArcadeShip->Weapons[Index].AmmoCost && (pas::shr(ab_Global::ArcadeTickCount, 2) &
+                            1) == 0);
+                    WeaponSecondaryImages[Slot]->SetActive(ab_Ship::PlayerArcadeShip->Weapons[Index].Ammo <
+                        ab_Ship::PlayerArcadeShip->Weapons[Index].AmmoCost && (pas::shr(ab_Global::ArcadeTickCount, 2) &
+                            1) != 0);
                 }
                 WeaponButtons[Slot]->UserValue = Index;
                 ++Index;
@@ -1322,7 +1527,8 @@ namespace ab_MainForm {
                 } else if (BonusIcons[Index] == nullptr) {
                     BonusIcons[Index] = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, ItemPanel);
                     Icon = BonusIcons[Index];
-                    Icon->SetImagePath(pas::concat_wide({u"GI,Bm.ABItem.", GR_Main::GiResourceSuffix(), u"_0", pas::wide_int_to_str(Index), u"_i"}));
+                    Icon->SetImagePath(pas::concat_wide({u"GI,Bm.ABItem.", GR_Main::GiResourceSuffix(), u"_0",
+                        pas::wide_int_to_str(Index), u"_i"}));
                     Icon->SetSize(ClassesImports::Point(ItemPanel->ClientSize.X, Height));
                     Icon->SetDepth(0.0);
                     BonusRings[Index] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, ItemPanel);
@@ -1362,7 +1568,9 @@ namespace ab_MainForm {
                 if (ab_Ship::PlayerArcadeShip->BonusTicks[Index] > 0) {
                     BonusIcons[Index]->SetPosition(ClassesImports::Point(0, Top));
                     BonusRings[Index]->SetPosition(ClassesImports::Point(0, Top));
-                    BonusRings[Index]->SetSequenceFrame(System::Round((1.0L - pas::real_divide(ab_Ship::PlayerArcadeShip->BonusTicks[Index], ab_Global::BonusDurationSeconds[Index] * 20)) * BonusRings[Index]->SequenceFrameCount));
+                    BonusRings[Index]->SetSequenceFrame(pas::real_round(static_cast<float>((static_cast<float>(1.0 -
+                        static_cast<float>(static_cast<double>(ab_Ship::PlayerArcadeShip->BonusTicks[Index]) /
+                            (ab_Global::BonusDurationSeconds[Index] * 20)))) * BonusRings[Index]->SequenceFrameCount)));
                     Top -= Height;
                 }
             }
@@ -1385,12 +1593,15 @@ namespace ab_MainForm {
         if (ab_Ship::PlayerArcadeShip != nullptr) {
             Index = Sender->UserValue;
             if (Index >= 0) {
-                ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData = ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData ^ aItem::EquipmentSecondaryFireFlag;
+                ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData =
+                    ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData ^ aItem::EquipmentSecondaryFireFlag;
                 if (aGalaxy::Galaxy != nullptr) {
                     aGalaxy::Galaxy->CheckIntegrityChecksum1(640);
                 }
                 if (aPlayer::GetPlayer() != nullptr) {
-                    aItem::TWeapon* cpp_with = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask));
+                    aItem::TWeapon* cpp_with = pas::checked_cast<aItem::TWeapon*>(
+                        aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType,
+                            ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSlotIndexMask));
                     cpp_with->AssignedSlotData = ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData;
                 }
                 TfAB::NormalizeWeaponSelection();
@@ -1409,22 +1620,28 @@ namespace ab_MainForm {
 
     void TfAB::NormalizeWeaponSelection() {
         std::int32_t Index{};
-        if (ab_Ship::PlayerArcadeShip->PrimaryWeapon >= 0 && (ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->PrimaryWeapon].SlotData & aItem::EquipmentSecondaryFireFlag) != 0) {
+        if (ab_Ship::PlayerArcadeShip->PrimaryWeapon >= 0 &&
+            (ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->PrimaryWeapon].SlotData &
+                aItem::EquipmentSecondaryFireFlag) != 0) {
             ab_Ship::PlayerArcadeShip->PrimaryWeapon = -1;
         }
         if (ab_Ship::PlayerArcadeShip->PrimaryWeapon < 0) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range.next(Index); ) {
+            for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range.next(Index); ) {
                 if ((ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSecondaryFireFlag) == 0) {
                     ab_Ship::PlayerArcadeShip->PrimaryWeapon = Index;
                     break;
                 }
             }
         }
-        if (ab_Ship::PlayerArcadeShip->SecondaryWeapon >= 0 && (ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->SecondaryWeapon].SlotData & aItem::EquipmentSecondaryFireFlag) == 0) {
+        if (ab_Ship::PlayerArcadeShip->SecondaryWeapon >= 0 &&
+            (ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->SecondaryWeapon].SlotData &
+                aItem::EquipmentSecondaryFireFlag) == 0) {
             ab_Ship::PlayerArcadeShip->SecondaryWeapon = -1;
         }
         if (ab_Ship::PlayerArcadeShip->SecondaryWeapon < 0) {
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_2.next(Index); ) {
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                ab_Ship::PlayerArcadeShip->WeaponCount - 1); cpp_range_2.next(Index); ) {
                 if ((ab_Ship::PlayerArcadeShip->Weapons[Index].SlotData & aItem::EquipmentSecondaryFireFlag) != 0) {
                     ab_Ship::PlayerArcadeShip->SecondaryWeapon = Index;
                     break;
@@ -1463,22 +1680,32 @@ namespace ab_MainForm {
         ab_Ship::TabShip* Ship{};
         aGalaxyEvent::TGalaxyEvent* Event{};
         if (ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ab_Ship::PlayerArcadeShip->TrackedShips) - 1); cpp_range.next(Index); ) {
-                Ship = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->TrackedShips, Index);
-                if (Ship != nullptr && Ship->ScriptLabel != u"" && Ship->Health > 0) {
-                    Event = aGalaxyEvent::AddGalaxyEvent(u"LabeledShipSurvivedInAB"_w, nullptr);
-                    Event->AddTextData(Ship->ScriptLabel);
-                    Event->AddData(Ship->Health);
-                    Event->AddData(Ship->MaxHealth);
+            {
+                const std::int32_t cpp_last = pas::list_count(ab_Ship::PlayerArcadeShip->TrackedShips) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Ship = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->TrackedShips, Index);
+                        if (Ship != nullptr && Ship->ScriptLabel != u"" && Ship->Health > 0) {
+                            Event = aGalaxyEvent::AddGalaxyEvent(u"LabeledShipSurvivedInAB"_w, nullptr);
+                            Event->AddTextData(Ship->ScriptLabel);
+                            Event->AddData(Ship->Health);
+                            Event->AddData(Ship->MaxHealth);
+                        }
+                    }
                 }
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ab_Ship::PlayerArcadeShip->InitialEnemies) - 1); cpp_range_2.next(Index); ) {
-                Ship = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->InitialEnemies, Index);
-                if (Ship != nullptr && Ship->ScriptLabel != u"" && Ship->Health > 0) {
-                    Event = aGalaxyEvent::AddGalaxyEvent(u"LabeledShipSurvivedInAB"_w, nullptr);
-                    Event->AddTextData(Ship->ScriptLabel);
-                    Event->AddData(Ship->Health);
-                    Event->AddData(Ship->MaxHealth);
+            {
+                const std::int32_t cpp_last_2 = pas::list_count(ab_Ship::PlayerArcadeShip->InitialEnemies) - 1;
+                if (0 <= cpp_last_2) {
+                    for (Index = 0; Index <= cpp_last_2; ++Index) {
+                        Ship = pas::list_at<ab_Ship::TabShip>(ab_Ship::PlayerArcadeShip->InitialEnemies, Index);
+                        if (Ship != nullptr && Ship->ScriptLabel != u"" && Ship->Health > 0) {
+                            Event = aGalaxyEvent::AddGalaxyEvent(u"LabeledShipSurvivedInAB"_w, nullptr);
+                            Event->AddTextData(Ship->ScriptLabel);
+                            Event->AddData(Ship->Health);
+                            Event->AddData(Ship->MaxHealth);
+                        }
+                    }
                 }
             }
         }
@@ -1522,18 +1749,18 @@ namespace ab_MainForm {
         if (Buffer == nullptr || Buffer->DataSize < 32) {
             ab_StopLine::ab_StopLine_AddLatitude(1.0E+1, 1.0E+1);
         } else {
-            if (EC_Buf::TBufEC_GetUInt32(Buffer) != 0x6d776261) {
+            if (Buffer->GetUInt32() != 0x6d776261) {
                 GR_Main::RaiseWideMessage(u"Incorrect format ABMap"_wref.get());
             }
-            ab_Global::ArcadeMapVersion = EC_Buf::TBufEC_GetUInt32(Buffer);
-            ab_Global::SphereRadius = EC_Buf::TBufEC_GetSingle(Buffer);
+            ab_Global::ArcadeMapVersion = Buffer->GetUInt32();
+            ab_Global::SphereRadius = Buffer->GetSingle();
             if (ab_Global::ArcadeMapColorBuffer == nullptr) {
                 ab_Global::ArcadeMapColorBuffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
             } else {
                 ab_Global::ArcadeMapColorBuffer->Clear();
             }
             {
-                std::int32_t int32 = EC_Buf::TBufEC_GetInt32(Buffer);
+                std::int32_t int32 = Buffer->GetInt32();
                 EC_Buf::TBufEC* arcadeMapColorBuffer = ab_Global::ArcadeMapColorBuffer;
                 arcadeMapColorBuffer->SetSize(int32);
             }
@@ -1620,8 +1847,13 @@ namespace ab_MainForm {
     void TfAB::ClearGrid() {
         std::int32_t Index{};
         if (GridLines != nullptr) {
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(GridLines) - 1); cpp_range.next(Index); ) {
-                ab_WorldLine::ab_WorldLine_Delete(pas::list_at<ab_WorldLine::TabWorldLine>(GridLines, Index));
+            {
+                const std::int32_t cpp_last = pas::list_count(GridLines) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        ab_WorldLine::ab_WorldLine_Delete(pas::list_at<ab_WorldLine::TabWorldLine>(GridLines, Index));
+                    }
+                }
             }
             pas::free(GridLines);
             GridLines = nullptr;
@@ -1638,42 +1870,44 @@ namespace ab_MainForm {
         ClearGrid();
         if (ab_Global::ArcadeGridMode != 0 && ab_Global::ArcadeViewMode == 0) {
             GridLines = pas::make_object<pas::List>();
-            LongitudeStep = pas::constant(static_cast<double>(SystemImports::Pi / 8.0L));
-            PolarStep = pas::constant(static_cast<double>(SystemImports::Pi / 16.0L));
+            LongitudeStep = pas::constant(static_cast<double>(SystemImports::Pi / 8.0));
+            PolarStep = pas::constant(static_cast<double>(SystemImports::Pi / 16.0));
             Longitude = 0.0;
-            while (Longitude < 6.282185307179586477L) {
-                PolarAngle = PolarStep * 2.0L;
-                while (PolarAngle < SystemImports::Pi - PolarStep * 2.0L - 0.001L) {
+            while (Longitude < pas::constant(pas::constant(SystemImports::Pi * 2.0) - 0.001)) {
+                PolarAngle = static_cast<float>(PolarStep * 2.0);
+                while (PolarAngle < static_cast<float>(static_cast<float>(SystemImports::Pi - static_cast<float>(PolarStep * 2.0)) - 0.001)) {
                     First = ab_Global::SphericalToVector3D(Longitude, PolarAngle, ab_Global::SphereRadius);
-                    Last = ab_Global::SphericalToVector3D(Longitude, static_cast<long double>(PolarAngle) + PolarStep, ab_Global::SphereRadius);
+                    Last = ab_Global::SphericalToVector3D(Longitude, static_cast<float>(static_cast<double>(PolarAngle) + PolarStep),
+                            ab_Global::SphereRadius);
                     {
-                        std::uint32_t packRgbBytes = GR_Main::CurrentPixelFormat->PackRgbBytes(240, 240, 255);
-                        std::uint32_t packRgbBytes_2 = GR_Main::CurrentPixelFormat->PackRgbBytes(75, 75, 75);
-                        void* ab_WorldLine_Create = static_cast<void*>(ab_WorldLine::ab_WorldLine_Create(First, Last, 1, packRgbBytes, packRgbBytes_2, true));
+                        void* ab_WorldLine_Create = static_cast<void*>(ab_WorldLine::ab_WorldLine_Create(First, Last, 1,
+                            GR_Main::CurrentPixelFormat->PackRgbBytes(240, 240, 255),
+                            GR_Main::CurrentPixelFormat->PackRgbBytes(75, 75, 75), true));
                         pas::List* gridLines = GridLines;
                         pas::list_add(gridLines, ab_WorldLine_Create);
                     }
-                    PolarAngle = static_cast<long double>(PolarAngle) + PolarStep;
+                    PolarAngle = static_cast<float>(static_cast<double>(PolarAngle) + PolarStep);
                 }
-                Longitude = static_cast<long double>(Longitude) + LongitudeStep;
+                Longitude = static_cast<float>(static_cast<double>(Longitude) + LongitudeStep);
             }
-            PolarStep = PolarStep * 2.0L;
+            PolarStep = static_cast<float>(PolarStep * 2.0);
             PolarAngle = PolarStep;
-            while (PolarAngle < SystemImports::Pi - PolarStep + 0.001L) {
+            while (PolarAngle < static_cast<float>(static_cast<float>(SystemImports::Pi - PolarStep) + 0.001)) {
                 Longitude = 0.0;
-                while (Longitude < 6.282185307179586477L) {
+                while (Longitude < pas::constant(pas::constant(SystemImports::Pi * 2.0) - 0.001)) {
                     First = ab_Global::SphericalToVector3D(Longitude, PolarAngle, ab_Global::SphereRadius);
-                    Last = ab_Global::SphericalToVector3D(static_cast<long double>(Longitude) + LongitudeStep, PolarAngle, ab_Global::SphereRadius);
+                    Last = ab_Global::SphericalToVector3D(static_cast<float>(static_cast<double>(Longitude) + LongitudeStep), PolarAngle,
+                            ab_Global::SphereRadius);
                     {
-                        std::uint32_t packRgbBytes_3 = GR_Main::CurrentPixelFormat->PackRgbBytes(240, 240, 255);
-                        std::uint32_t packRgbBytes_4 = GR_Main::CurrentPixelFormat->PackRgbBytes(75, 75, 75);
-                        void* ab_WorldLine_Create_2 = static_cast<void*>(ab_WorldLine::ab_WorldLine_Create(First, Last, 1, packRgbBytes_3, packRgbBytes_4, true));
+                        void* ab_WorldLine_Create_2 = static_cast<void*>(ab_WorldLine::ab_WorldLine_Create(First, Last,
+                            1, GR_Main::CurrentPixelFormat->PackRgbBytes(240, 240, 255),
+                            GR_Main::CurrentPixelFormat->PackRgbBytes(75, 75, 75), true));
                         pas::List* gridLines_2 = GridLines;
                         pas::list_add(gridLines_2, ab_WorldLine_Create_2);
                     }
-                    Longitude = static_cast<long double>(Longitude) + LongitudeStep;
+                    Longitude = static_cast<float>(static_cast<double>(Longitude) + LongitudeStep);
                 }
-                PolarAngle = static_cast<long double>(PolarAngle) + PolarStep;
+                PolarAngle = static_cast<float>(static_cast<double>(PolarAngle) + PolarStep);
             }
         }
     }
@@ -1696,7 +1930,7 @@ namespace ab_MainForm {
         EC_BlockPar::TBlockParEC* Config{};
         EC_BlockPar::TBlockParEC* Selected{};
         pas::Array<std::int32_t, 0, 2> Exits{};
-        std::int32_t Weight = std::min<std::int64_t>(static_cast<std::int64_t>(10), System::Round(GridSize * 0.8L));
+        std::int32_t Weight = std::min<std::int64_t>(static_cast<std::int64_t>(10), pas::real_round(static_cast<float>(GridSize * 0x1.999999999999bp-1)));
         if (Weight < 1) {
             Weight = 1;
         }
@@ -1709,20 +1943,18 @@ namespace ab_MainForm {
                     ab_Space::TabSpace* cpp_with = ab_Space::ab_Space_Add();
                     cpp_with->GridPosition = ClassesImports::Point(Index, Attempt);
                     {
-                        std::int32_t cpp_left = RandomRange(-GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius), GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius));
+                        std::int32_t cpp_left = RandomRange(-GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius),
+                            GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius));
                         Position.X = cpp_left + 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * Attempt;
                     }
                     {
-                        std::int32_t cpp_left_2 = RandomRange(-GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius), GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius));
+                        std::int32_t cpp_left_2 = RandomRange(-GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius),
+                            GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius));
                         Position.Y = cpp_left_2 + 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * Index;
                     }
-                    {
-                        pas::Extended cpp_left_4 = System::Sin(Angle) * Position.X;
-                        std::int32_t round = System::Round(cpp_left_4 - System::Cos(Angle) * Position.Y);
-                        pas::Extended cpp_left_3 = System::Cos(Angle) * Position.X;
-                        std::int32_t round_2 = System::Round(cpp_left_3 + System::Sin(Angle) * Position.Y);
-                        cpp_with->MapPosition = ClassesImports::Point(round_2, round);
-                    }
+                    cpp_with->MapPosition = ClassesImports::Point(
+                            pas::real_round(static_cast<float>(static_cast<float>(System::Cos(Angle) * Position.X) + static_cast<float>(System::Sin(Angle) * Position.Y))),
+                            pas::real_round(static_cast<float>(static_cast<float>(System::Sin(Angle) * Position.X) - static_cast<float>(System::Cos(Angle) * Position.Y))));
                 }
             }
             StartPoint = ClassesImports::Point(0, GridSize / 2);
@@ -1741,10 +1973,17 @@ namespace ab_MainForm {
                                 ++Attempt;
                                 Candidate.X = Current.X + 1;
                                 Candidate.Y = Current.Y + RandomRange(-1, 1);
-                                if ((Candidate.X != Current.X || Candidate.Y != Current.Y) && (Candidate.X != Previous.X || Candidate.Y != Previous.Y) && Candidate.X >= 0 && Candidate.X < GridSize && Candidate.Y >= 0 && Candidate.Y < GridSize) {
-                                    if (Candidate.X == Current.X || Candidate.Y == Current.Y || ab_Space::ab_SpaceLink_Find(ab_Space::ab_Space_Find(ClassesImports::Point(Candidate.X, Current.Y)), ab_Space::ab_Space_Find(ClassesImports::Point(Current.X, Candidate.Y))) == nullptr) {
+                                if ((Candidate.X != Current.X || Candidate.Y != Current.Y) && (Candidate.X !=
+                                        Previous.X || Candidate.Y != Previous.Y) && Candidate.X >= 0 && Candidate.X <
+                                        GridSize && Candidate.Y >= 0 && Candidate.Y < GridSize) {
+                                    if (Candidate.X == Current.X || Candidate.Y == Current.Y ||
+                                        ab_Space::ab_SpaceLink_Find(
+                                            ab_Space::ab_Space_Find(ClassesImports::Point(Candidate.X, Current.Y)),
+                                            ab_Space::ab_Space_Find(ClassesImports::Point(Current.X, Candidate.Y))) ==
+                                            nullptr) {
                                         Other = ab_Space::ab_Space_Find(Candidate);
-                                        if (Other->IncomingCount < 3 && Other->IncomingCount + Other->OutgoingCount < 4) {
+                                        if (Other->IncomingCount < 3 && Other->IncomingCount + Other->OutgoingCount <
+                                                4) {
                                             break;
                                         }
                                     }
@@ -1776,7 +2015,9 @@ namespace ab_MainForm {
                     while (Space != nullptr) {
                         Other = Space;
                         Space = Space->Next;
-                        if ((Other->GridPosition.X != EndPoint.X || Other->GridPosition.Y != EndPoint.Y) && (Other->GridPosition.X != StartPoint.X || Other->GridPosition.Y != StartPoint.Y) && (Other->OutgoingCount == 0 || Other->IncomingCount == 0)) {
+                        if ((Other->GridPosition.X != EndPoint.X || Other->GridPosition.Y != EndPoint.Y) &&
+                            (Other->GridPosition.X != StartPoint.X || Other->GridPosition.Y != StartPoint.Y) &&
+                            (Other->OutgoingCount == 0 || Other->IncomingCount == 0)) {
                             Changed = true;
                             ab_Space::ab_Space_Delete(Other);
                         }
@@ -1791,28 +2032,24 @@ namespace ab_MainForm {
         }
         ab_Space::StartArcadeSpace = ab_Space::ab_Space_Add();
         ab_Space::StartArcadeSpace->GridPosition = ClassesImports::Point(StartPoint.X - 1, StartPoint.Y);
-        Position.X = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * ab_Space::StartArcadeSpace->GridPosition.Y;
-        Position.Y = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * ab_Space::StartArcadeSpace->GridPosition.X;
+        Position.X = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) *
+                ab_Space::StartArcadeSpace->GridPosition.Y;
+        Position.Y = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) *
+                ab_Space::StartArcadeSpace->GridPosition.X;
         ab_Space::StartArcadeSpace->BoundaryKind = 1;
-        {
-            pas::Extended cpp_left_6 = System::Sin(Angle) * Position.X;
-            std::int32_t round_3 = System::Round(cpp_left_6 - System::Cos(Angle) * Position.Y);
-            pas::Extended cpp_left_5 = System::Cos(Angle) * Position.X;
-            std::int32_t round_4 = System::Round(cpp_left_5 + System::Sin(Angle) * Position.Y);
-            ab_Space::StartArcadeSpace->MapPosition = ClassesImports::Point(round_4, round_3);
-        }
+        ab_Space::StartArcadeSpace->MapPosition = ClassesImports::Point(
+                pas::real_round(static_cast<float>(static_cast<float>(System::Cos(Angle) * Position.X) + static_cast<float>(System::Sin(Angle) * Position.Y))),
+                pas::real_round(static_cast<float>(static_cast<float>(System::Sin(Angle) * Position.X) - static_cast<float>(System::Cos(Angle) * Position.Y))));
         ab_Space::EndArcadeSpace = ab_Space::ab_Space_Add();
         ab_Space::EndArcadeSpace->GridPosition = ClassesImports::Point(EndPoint.X + 1, EndPoint.Y);
-        Position.X = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * ab_Space::EndArcadeSpace->GridPosition.Y;
-        Position.Y = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * ab_Space::EndArcadeSpace->GridPosition.X;
+        Position.X = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) *
+                ab_Space::EndArcadeSpace->GridPosition.Y;
+        Position.Y = 5 * GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) *
+                ab_Space::EndArcadeSpace->GridPosition.X;
         ab_Space::EndArcadeSpace->BoundaryKind = 1;
-        {
-            pas::Extended cpp_left_8 = System::Sin(Angle) * Position.X;
-            std::int32_t round_5 = System::Round(cpp_left_8 - System::Cos(Angle) * Position.Y);
-            pas::Extended cpp_left_7 = System::Cos(Angle) * Position.X;
-            std::int32_t round_6 = System::Round(cpp_left_7 + System::Sin(Angle) * Position.Y);
-            ab_Space::EndArcadeSpace->MapPosition = ClassesImports::Point(round_6, round_5);
-        }
+        ab_Space::EndArcadeSpace->MapPosition = ClassesImports::Point(
+                pas::real_round(static_cast<float>(static_cast<float>(System::Cos(Angle) * Position.X) + static_cast<float>(System::Sin(Angle) * Position.Y))),
+                pas::real_round(static_cast<float>(static_cast<float>(System::Sin(Angle) * Position.X) - static_cast<float>(System::Cos(Angle) * Position.Y))));
         ab_Space::ab_SpaceLink_Connect(ab_Space::StartArcadeSpace, ab_Space::ab_Space_Find(StartPoint));
         ab_Space::ab_SpaceLink_Connect(ab_Space::ab_Space_Find(EndPoint), ab_Space::EndArcadeSpace);
         ab_Space::ab_Space_RecountLinks();
@@ -1840,16 +2077,20 @@ namespace ab_MainForm {
             Space->Danger = 0.0;
         }
         Other = nullptr;
-        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order == aShip::soJumpHole && pas::checked_cast<aGalaxy::THole*>(aPlayer::GetPlayer()->OrderTarget)->HoleType == 4 && aGalaxy::Galaxy->KellerLeaveTurn == 0 && aKling::KellerShip != nullptr && aKling::KellerShip->InHyperspace && pas::in_set<4, 5>(aGalaxy::Galaxy->KellerMissionState)) {
+        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order == aShip::soJumpHole &&
+            pas::checked_cast<aGalaxy::THole*>(aPlayer::GetPlayer()->OrderTarget)->HoleType == 4 &&
+            aGalaxy::Galaxy->KellerLeaveTurn == 0 && aKling::KellerShip != nullptr &&
+            aKling::KellerShip->InHyperspace && pas::in_set<4, 5>(aGalaxy::Galaxy->KellerMissionState)) {
             Other = ab_Space::ab_Space_Find(EndPoint);
             Other->Danger = 1.0E+2;
         }
         ab_Space::ab_Space_UpdateApproachDanger();
         Space = ab_Space::FirstArcadeSpace;
         while (Space != nullptr) {
-            if (Space->Danger <= 0.0L) {
+            if (Space->Danger <= 0.0) {
                 Space->AppearanceIndex = RandomRange(0, 1);
-            } else if (static_cast<long double>(Space->Danger) + Space->ApproachDanger < ab_Global::ArcadeHighDangerThreshold) {
+            } else if (static_cast<float>(static_cast<double>(Space->Danger) + Space->ApproachDanger) <
+                ab_Global::ArcadeHighDangerThreshold) {
                 Space->AppearanceIndex = RandomRange(0, 1) + 2;
             } else {
                 Space->AppearanceIndex = RandomRange(0, 1) + 4;
@@ -1865,7 +2106,8 @@ namespace ab_MainForm {
                 Space->Color34 = ab_Global::ArcadeMapPalette[Space->AppearanceIndex * 6 + 5] & 0x00ffffff | 0x80000000u;
                 if (Space == Other) {
                     Space->PopulateKellerEncounter();
-                } else if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order == aShip::soJumpHole && ActiveArcadeRequest == nullptr) {
+                } else if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order == aShip::soJumpHole &&
+                    ActiveArcadeRequest == nullptr) {
                     Space->PopulateHoleEncounter();
                 } else if (aPlayer::GetPlayer() != nullptr && ActiveArcadeRequest != nullptr) {
                     Space->PopulateScriptedEncounter();
@@ -1883,19 +2125,22 @@ namespace ab_MainForm {
         pas::list_add(RouteSpaces, reinterpret_cast<void*>(ab_Space::NextArcadeSpace));
         RebuildShipPath();
         ClearShipPath();
-        ab_Global::ArcadeMapCenter = ClassesImports::Point((ab_Space::StartArcadeSpace->MapPosition.X + ab_Space::EndArcadeSpace->MapPosition.X) / 2, (ab_Space::StartArcadeSpace->MapPosition.Y + ab_Space::EndArcadeSpace->MapPosition.Y) / 2);
+        ab_Global::ArcadeMapCenter = ClassesImports::Point(
+                (ab_Space::StartArcadeSpace->MapPosition.X + ab_Space::EndArcadeSpace->MapPosition.X) / 2,
+                (ab_Space::StartArcadeSpace->MapPosition.Y + ab_Space::EndArcadeSpace->MapPosition.Y) / 2);
         if (aPlayer::GetPlayer() != nullptr) {
             if (ab_Ship::KellerArcadeShip != nullptr) {
                 MapBackgroundPath = u"Bm.FormAB2.2bg3"_w;
             } else if (ActiveArcadeRequest != nullptr && ActiveArcadeRequest->BackgroundId != 0) {
-                MapBackgroundPath = static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormAB2.2bg", SysUtils::IntToStr(ActiveArcadeRequest->BackgroundId)}));
+                MapBackgroundPath = pas::concat_wide({u"Bm.FormAB2.2bg",
+                        pas::wide_int_to_str(ActiveArcadeRequest->BackgroundId)});
             } else if (ActiveArcadeRequest != nullptr && ActiveArcadeRequest->BackgroundMapName != u"") {
                 MapBackgroundPath = ActiveArcadeRequest->BackgroundMapName;
             } else {
-                MapBackgroundPath = static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormAB2.2bg", SysUtils::IntToStr(RandomRange(1, 3))}));
+                MapBackgroundPath = pas::concat_wide({u"Bm.FormAB2.2bg", pas::wide_int_to_str(RandomRange(1, 3))});
             }
         } else {
-            MapBackgroundPath = static_cast<pas::WideString>(pas::concat_ansi({"Bm.FormAB2.2bg", SysUtils::IntToStr(RandomRange(1, 3))}));
+            MapBackgroundPath = pas::concat_wide({u"Bm.FormAB2.2bg", pas::wide_int_to_str(RandomRange(1, 3))});
         }
         Config = GR_Main::GameDataConfig->GetBlock(u"ABMap"sv);
         std::int32_t BlockCount = Config->GetBlockCount();
@@ -1952,14 +2197,20 @@ namespace ab_MainForm {
                 Space = Space->Next;
             }
         }
-        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ab_Global::ArcadeMapBounds, 0), ab_Space::FirstArcadeSpace->MapPosition);
-        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ab_Global::ArcadeMapBounds, 8), ab_Space::FirstArcadeSpace->MapPosition);
+        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ab_Global::ArcadeMapBounds, 0),
+            ab_Space::FirstArcadeSpace->MapPosition);
+        pas::store_unaligned<Types::TPoint>(pas::byte_offset(&ab_Global::ArcadeMapBounds, 8),
+            ab_Space::FirstArcadeSpace->MapPosition);
         Space = ab_Space::FirstArcadeSpace;
         while (Space != nullptr) {
-            ab_Global::ArcadeMapBounds.Left = std::min<std::int32_t>(ab_Global::ArcadeMapBounds.Left, Space->MapPosition.X);
-            ab_Global::ArcadeMapBounds.Right = std::max<std::int32_t>(ab_Global::ArcadeMapBounds.Right, Space->MapPosition.X);
-            ab_Global::ArcadeMapBounds.Top = std::min<std::int32_t>(ab_Global::ArcadeMapBounds.Top, Space->MapPosition.Y);
-            ab_Global::ArcadeMapBounds.Bottom = std::max<std::int32_t>(ab_Global::ArcadeMapBounds.Bottom, Space->MapPosition.Y);
+            ab_Global::ArcadeMapBounds.Left = std::min<std::int32_t>(ab_Global::ArcadeMapBounds.Left,
+                    Space->MapPosition.X);
+            ab_Global::ArcadeMapBounds.Right = std::max<std::int32_t>(ab_Global::ArcadeMapBounds.Right,
+                    Space->MapPosition.X);
+            ab_Global::ArcadeMapBounds.Top = std::min<std::int32_t>(ab_Global::ArcadeMapBounds.Top,
+                    Space->MapPosition.Y);
+            ab_Global::ArcadeMapBounds.Bottom = std::max<std::int32_t>(ab_Global::ArcadeMapBounds.Bottom,
+                    Space->MapPosition.Y);
             Exits[0] = 0;
             Exits[1] = 0;
             Exits[2] = 0;
@@ -2010,7 +2261,8 @@ namespace ab_MainForm {
         UpdateAutopilotButtons();
         GR_Main::CacheLoadLoggingEnabled = false;
         ab_Global::ArcadeViewMode = 0;
-        GI_MessageLoop::TMessageLoopGI::SetSystemCursorPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 2, GR_Main::GameScreenHeight - 2));
+        GI_MessageLoop::TMessageLoopGI::SetSystemCursorPosition(ClassesImports::Point(GR_Main::GameScreenWidth - 2,
+            GR_Main::GameScreenHeight - 2));
     }
 
     void TfAB::BeginMapTransition() {
@@ -2068,7 +2320,7 @@ namespace ab_MainForm {
         }
         StarField->SetBackgroundImage(MapBackgroundPath);
         StarField->BackgroundScale = 8.0f;
-        ab_Global::SphereCameraDistance = 1.0E+3L + ab_Global::SphereNearCameraOffset;
+        ab_Global::SphereCameraDistance = static_cast<float>(1.0E+3 + ab_Global::SphereNearCameraOffset);
         ab_Global::UpdateSphereProjectionMetrics();
         ab_Space::ab_Space_CreateImages();
         ab_Space::ab_SpaceLink_BuildGeometry();
@@ -2080,7 +2332,9 @@ namespace ab_MainForm {
         PlayerMapPosition = EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition);
         PlayerVisual->SetPosition(PlayerMapPosition);
         if (ab_Space::NextArcadeSpace != nullptr) {
-            PlayerVisual->SetAngle(aMyFunction::HeadingDegreesToByte(aMyFunction::PointBearingDegrees(EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition), EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition))));
+            PlayerVisual->SetAngle(aMyFunction::HeadingDegreesToByte(aMyFunction::PointBearingDegrees(
+                EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition),
+                EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition))));
         }
         if (ab_Space::NextArcadeSpace == nullptr) {
             TfAB::BuildSpaceRoute(RouteSpaces, ab_Space::CurrentArcadeSpace, ab_Space::EndArcadeSpace);
@@ -2100,7 +2354,8 @@ namespace ab_MainForm {
         PauseButton->SetActive(ab_Ship::ArcadePaused);
         ab_StopLine::ab_StopLine_Clear();
         ab_StopLine::ab_StopPoint_Clear();
-        if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && CampaignLoadStarted && static_cast<std::uint8_t>(CampaignLoadFinished ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && CampaignLoadStarted &&
+            static_cast<std::uint8_t>(CampaignLoadFinished ^ 1)) {
             CacheLoader->ClearFlag18();
         }
         GetByName(u"PRight"sv)->SetActive(true);
@@ -2131,7 +2386,8 @@ namespace ab_MainForm {
         ab_Global::ArcadeViewMode = 3;
         StarField->SetViewPosition(EC_Struct::MakePointF(0.0f, 0.0f));
         ClearShipPath();
-        if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && CampaignLoadStarted && static_cast<std::uint8_t>(CampaignLoadFinished ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && CampaignLoadStarted &&
+            static_cast<std::uint8_t>(CampaignLoadFinished ^ 1)) {
             CacheLoader->SetFlag18();
         }
         ab_Ship::PlayerArcadeShip->StopThrust();
@@ -2144,7 +2400,8 @@ namespace ab_MainForm {
         StarField->SetBackgroundImage(MapBackgroundPath);
         StarField->BackgroundScale = 8.0f;
         if (SelectedMapName.length() > 0 && SelectedMapName != u"SkipAB" && SelectedMapName != u"NoEntry") {
-            if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({SelectedMapName, u".map"})))) {
+            if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({SelectedMapName,
+                u".map"})))) {
                 LoadMapFile(SelectedMapName, true);
             } else {
                 LoadMapResource(SelectedMapName, true);
@@ -2160,7 +2417,12 @@ namespace ab_MainForm {
             if (Selection == 0) {
                 Selection = 0;
                 for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorCount - 1); cpp_range.next(Index); ) {
-                    ColorValue = pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) + static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) + static_cast<std::int32_t>(sizeof(std::int32_t)) + reinterpret_cast<std::uint8_t*>(ColorData)));
+                    ColorValue =
+                        pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_add(
+                            reinterpret_cast<std::uint8_t*>(ColorData),
+                            Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) +
+                                static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) +
+                                static_cast<std::int32_t>(sizeof(std::int32_t)))));
                     if (ColorValue == 0) {
                         Selection = Index;
                         break;
@@ -2171,7 +2433,12 @@ namespace ab_MainForm {
                 if (ExitLink == nullptr) {
                     Selection = -1;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, ColorCount - 1); cpp_range_2.next(Index); ) {
-                        ColorValue = pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) + static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) + static_cast<std::int32_t>(sizeof(std::int32_t)) + reinterpret_cast<std::uint8_t*>(ColorData)));
+                        ColorValue =
+                            pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_add(
+                                reinterpret_cast<std::uint8_t*>(ColorData),
+                                Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) +
+                                    static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) +
+                                    static_cast<std::int32_t>(sizeof(std::int32_t)))));
                         if (ColorValue == 0) {
                             Selection = Index;
                             break;
@@ -2191,7 +2458,12 @@ namespace ab_MainForm {
                     Selection = 0;
                     BestDifference = 999999;
                     for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, ColorCount - 1); cpp_range_3.next(Index); ) {
-                        ColorValue = pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) + static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) + static_cast<std::int32_t>(sizeof(std::int32_t)) + reinterpret_cast<std::uint8_t*>(ColorData)));
+                        ColorValue =
+                            pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_add(
+                                reinterpret_cast<std::uint8_t*>(ColorData),
+                                Index * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) +
+                                    static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) +
+                                    static_cast<std::int32_t>(sizeof(std::int32_t)))));
                         if (ColorValue < 20) {
                             ColorValue -= 10;
                         }
@@ -2205,33 +2477,53 @@ namespace ab_MainForm {
             }
             pas::store_unaligned<std::int32_t>(&ColorData->SelectedVariant, Selection);
             Remaining -= pas::load_unaligned<std::int32_t>(&ColorData->ByteSize);
-            ColorData = static_cast<PArcadeMapColorHeader>(static_cast<void*>(pas::load_unaligned<std::int32_t>(&ColorData->ByteSize) + reinterpret_cast<std::uint8_t*>(ColorData)));
+            ColorData = static_cast<PArcadeMapColorHeader>(static_cast<void*>(pas::pointer_add(
+                    reinterpret_cast<std::uint8_t*>(ColorData),
+                    pas::load_unaligned<std::int32_t>(&ColorData->ByteSize))));
         }
-        ab_Space::ArcadeKellerEncounter = aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order == aShip::soJumpHole && pas::checked_cast<aGalaxy::THole*>(aPlayer::GetPlayer()->OrderTarget)->HoleType == 4 && aGalaxy::Galaxy->KellerLeaveTurn == 0 && aKling::KellerShip != nullptr && pas::in_set<4, 5>(aGalaxy::Galaxy->KellerMissionState);
+        ab_Space::ArcadeKellerEncounter = aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Order ==
+                    aShip::soJumpHole &&
+                pas::checked_cast<aGalaxy::THole*>(aPlayer::GetPlayer()->OrderTarget)->HoleType == 4 &&
+                aGalaxy::Galaxy->KellerLeaveTurn == 0 && aKling::KellerShip != nullptr && pas::in_set<4,
+                    5>(aGalaxy::Galaxy->KellerMissionState);
         if (aPlayer::GetPlayer() != nullptr) {
-            for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_4.next(Index); ) {
-                Obj = pas::list_at<ab_Object::TabObject>(ab_Space::CurrentArcadeSpace->Objects, Index);
-                ab_Object::ab_Object_Add(Obj);
-                if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj)) {
-                    if (ActiveArcadeRequest == nullptr) {
-                        Ship = abShipAI;
-                        ab_Ship::PlayerArcadeShip->AddEnemy(Ship);
-                        Ship->AddEnemy(ab_Ship::PlayerArcadeShip);
-                        if (aGalaxy::Galaxy != nullptr) {
-                            if (ab_Ship::KellerArcadeShip == nullptr && aGalaxy::Galaxy->IsArcadeBattleRoyaleEnabled()) {
-                                for (auto cpp_range_5 = pas::for_to<std::int32_t>(Index + 1, pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1); cpp_range_5.next(OtherIndex); ) {
-                                    Other = pas::list_at<ab_Object::TabObject>(ab_Space::CurrentArcadeSpace->Objects, OtherIndex);
-                                    if (ab_ShipAI::TabShipAI* abShipAI_2 = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Other); abShipAI_2 != nullptr && ab_Ship::PlayerArcadeShip != Other) {
-                                        if (Ship->Visual->GraphKey != abShipAI_2->Visual->GraphKey) {
-                                            Ship->AddEnemy(abShipAI_2);
-                                            pas::checked_cast<ab_ShipAI::TabShipAI*>(Other)->AddEnemy(Ship);
+            {
+                const std::int32_t cpp_last = pas::list_count(ab_Space::CurrentArcadeSpace->Objects) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Obj = pas::list_at<ab_Object::TabObject>(ab_Space::CurrentArcadeSpace->Objects, Index);
+                        ab_Object::ab_Object_Add(Obj);
+                        if (ab_ShipAI::TabShipAI* abShipAI = pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj)) {
+                            if (ActiveArcadeRequest == nullptr) {
+                                Ship = abShipAI;
+                                ab_Ship::PlayerArcadeShip->AddEnemy(Ship);
+                                Ship->AddEnemy(ab_Ship::PlayerArcadeShip);
+                                if (aGalaxy::Galaxy != nullptr) {
+                                    if (ab_Ship::KellerArcadeShip == nullptr &&
+                                        aGalaxy::Galaxy->IsArcadeBattleRoyaleEnabled()) {
+                                        const std::int32_t cpp_first = Index + 1;
+                                        const std::int32_t cpp_last_2 = pas::list_count(
+                                            ab_Space::CurrentArcadeSpace->Objects) - 1;
+                                        if (cpp_first <= cpp_last_2) {
+                                            for (OtherIndex = cpp_first; OtherIndex <= cpp_last_2; ++OtherIndex) {
+                                                Other = pas::list_at<ab_Object::TabObject>(
+                                                        ab_Space::CurrentArcadeSpace->Objects, OtherIndex);
+                                                if (ab_ShipAI::TabShipAI* abShipAI_2 = pas::class_cast_if<ab_ShipAI::TabShipAI*>(
+                                                    Other); abShipAI_2 != nullptr && ab_Ship::PlayerArcadeShip !=
+                                                        Other) {
+                                                    if (Ship->Visual->GraphKey != abShipAI_2->Visual->GraphKey) {
+                                                        Ship->AddEnemy(abShipAI_2);
+                                                        pas::checked_cast<ab_ShipAI::TabShipAI*>(Other)->AddEnemy(Ship);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
+                            HasEnemies = true;
                         }
                     }
-                    HasEnemies = true;
                 }
             }
             pas::list_clear(ab_Space::CurrentArcadeSpace->Objects);
@@ -2251,7 +2543,8 @@ namespace ab_MainForm {
                     }
                     pas::checked_cast<ab_Ship::TabShip*>(Obj)->State = ab_Zone::ab_Zone_RandomPosition(Zone);
                 } else {
-                    pas::checked_cast<ab_Ship::TabShip*>(Obj)->State = ab_Zone::ab_Zone_RandomPosition(ab_Zone::ab_Zone_RandomKind(0));
+                    pas::checked_cast<ab_Ship::TabShip*>(Obj)->State =
+                        ab_Zone::ab_Zone_RandomPosition(ab_Zone::ab_Zone_RandomKind(0));
                 }
                 pas::checked_cast<ab_Ship::TabShip*>(Obj)->Visual->SetAlpha(0);
                 pas::checked_cast<ab_Ship::TabShip*>(Obj)->AttachVisual();
@@ -2259,13 +2552,15 @@ namespace ab_MainForm {
                     abShipAI_3->ResetIntent();
                 }
             } else if (pas::class_cast_if<ab_Item::TabItem*>(Obj) != nullptr) {
-                pas::checked_cast<ab_Item::TabItem*>(Obj)->State = ab_Zone::ab_Zone_RandomPosition(ab_Zone::ab_Zone_RandomKind(0));
+                pas::checked_cast<ab_Item::TabItem*>(Obj)->State =
+                    ab_Zone::ab_Zone_RandomPosition(ab_Zone::ab_Zone_RandomKind(0));
             }
             Obj = Obj->Next;
         }
         Zone = ab_Zone::FirstZone;
         while (Zone != nullptr) {
-            if (Zone->Kind == 5 || pas::in_range(Zone->Kind, 6, 8) && (HasEnemies && static_cast<std::uint8_t>(ab_Space::ArcadeKellerEncounter ^ 1))) {
+            if (Zone->Kind == 5 || pas::in_range(Zone->Kind, 6, 8) && (HasEnemies &&
+                        static_cast<std::uint8_t>(ab_Space::ArcadeKellerEncounter ^ 1))) {
                 Wall = pas::construct_call<abWall::TabWall>(abWall::TabWall_Create);
                 ab_Object::ab_Object_Add(Wall);
                 Wall->BindZone(Zone);
@@ -2292,7 +2587,8 @@ namespace ab_MainForm {
         }
         ab_Zone::PabZoneLink ZoneLink = ab_Zone::FirstZoneLink;
         while (ZoneLink != nullptr) {
-            if (ZoneLink->BarrierLinkMode == 1 && pas::in_range(ZoneLink->First->Kind, 6, 8) && pas::in_range(ZoneLink->Last->Kind, 6, 8)) {
+            if (ZoneLink->BarrierLinkMode == 1 && pas::in_range(ZoneLink->First->Kind, 6, 8) && pas::in_range(
+                    ZoneLink->Last->Kind, 6, 8)) {
                 Wall = abWall::ab_Wall_FindZone(ZoneLink->First);
                 OtherWall = abWall::ab_Wall_FindZone(ZoneLink->Last);
                 if (Wall != nullptr) {
@@ -2357,7 +2653,8 @@ namespace ab_MainForm {
         ab_StopLine::ab_StopLine_UpdateWorldLines();
         ab_Global::SphereViewState = ab_Ship::PlayerArcadeShip->State;
         ab_Global::SphereViewState.BearingDegrees = 0.0;
-        ab_Global::SphereCameraDistance = static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereFarCameraOffset;
+        ab_Global::SphereCameraDistance = static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                ab_Global::SphereFarCameraOffset);
         TransitionSpeed = 5.0E+2;
         UpdateWeaponPanel();
         pas::List* PendingLoads = pas::make_object<pas::List>();
@@ -2385,7 +2682,12 @@ namespace ab_MainForm {
             if (Selection < 0) {
                 ColorData->CurrentColor = 0;
             } else {
-                Frames = static_cast<PArcadeMapColorSequence>(static_cast<void*>(reinterpret_cast<PArcadeMapColorVariant>(Selection * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) + static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader)) + reinterpret_cast<std::uint8_t*>(ColorData))->SequenceOffset + reinterpret_cast<std::uint8_t*>(ColorData)));
+                Frames = static_cast<PArcadeMapColorSequence>(static_cast<void*>(pas::pointer_add(
+                        reinterpret_cast<std::uint8_t*>(ColorData),
+                        reinterpret_cast<PArcadeMapColorVariant>(pas::pointer_add(
+                            reinterpret_cast<std::uint8_t*>(ColorData),
+                            Selection * static_cast<std::int32_t>(sizeof(TArcadeMapColorVariant)) +
+                            static_cast<std::int32_t>(sizeof(TArcadeMapColorHeader))))->SequenceOffset)));
                 FrameIndex = Frames->FrameIndex;
                 FrameCount = pas::load_unaligned<std::int32_t>(&Frames->FrameCount);
                 ++FrameIndex;
@@ -2393,9 +2695,14 @@ namespace ab_MainForm {
                     FrameIndex = 0;
                 }
                 Frames->FrameIndex = FrameIndex;
-                ColorData->CurrentColor = pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(FrameIndex * static_cast<std::int32_t>(sizeof(std::int32_t)) + static_cast<std::int32_t>(sizeof(TArcadeMapColorSequence)) + reinterpret_cast<std::uint8_t*>(Frames)));
+                ColorData->CurrentColor =
+                    pas::load_unaligned<std::int32_t>(reinterpret_cast<WindowsSdk::PInteger>(pas::pointer_add(
+                        reinterpret_cast<std::uint8_t*>(Frames),
+                        FrameIndex * static_cast<std::int32_t>(sizeof(std::int32_t)) +
+                            static_cast<std::int32_t>(sizeof(TArcadeMapColorSequence)))));
             }
-            ColorData = static_cast<PArcadeMapColorHeader>(static_cast<void*>(reinterpret_cast<std::uint8_t*>(ColorData) + BlockBytes));
+            ColorData = static_cast<PArcadeMapColorHeader>(static_cast<void*>(pas::pointer_add(
+                    reinterpret_cast<std::uint8_t*>(ColorData), BlockBytes)));
             Remaining -= BlockBytes;
         }
     }
@@ -2448,7 +2755,10 @@ namespace ab_MainForm {
             }
             Stage = 1;
             if (ab_Global::ArcadeViewMode == 0) {
-                if (static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1) && static_cast<std::uint8_t>(ab_Global::ArcadeEnemiesDefeated ^ 1) && static_cast<std::uint8_t>(GlobalsV::DisableAutoPilot ^ 1) && (ab_Global::ArcadeTickCount - ab_Global::ArcadeLastInputTick) * ab_Global::ArcadeTickMs > GlobalsV::ChangeAutoPilot * 1000) {
+                if (static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1) &&
+                    static_cast<std::uint8_t>(ab_Global::ArcadeEnemiesDefeated ^ 1) &&
+                    static_cast<std::uint8_t>(GlobalsV::DisableAutoPilot ^ 1) && (ab_Global::ArcadeTickCount -
+                        ab_Global::ArcadeLastInputTick) * ab_Global::ArcadeTickMs > GlobalsV::ChangeAutoPilot * 1000) {
                     ab_Global::ArcadeAutopilotEnabled = true;
                     UpdateAutopilotButtons();
                 }
@@ -2456,7 +2766,8 @@ namespace ab_MainForm {
                 ab_Item::ab_Item_Update();
             }
             Stage = 2;
-            if (aPlayer::GetPlayer() != nullptr && (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0)) {
+            if (aPlayer::GetPlayer() != nullptr && (ab_Ship::PlayerArcadeShip == nullptr ||
+                    ab_Ship::PlayerArcadeShip->Health <= 0)) {
                 Stage = 3;
                 if (DefeatCountdownTicks <= 0) {
                     Globals::ScoreScreen->RecordPlayerResult(false);
@@ -2482,7 +2793,8 @@ namespace ab_MainForm {
                 if (VictoryPanel->Active) {
                     CloseVictory(nullptr, 0u);
                 }
-            } else if (aGalaxy::Galaxy == nullptr && aPlayer::GetPlayer() == nullptr && (ab_Ship::PlayerArcadeShip == nullptr || ab_Ship::PlayerArcadeShip->Health <= 0)) {
+            } else if (aGalaxy::Galaxy == nullptr && aPlayer::GetPlayer() == nullptr && (ab_Ship::PlayerArcadeShip ==
+                    nullptr || ab_Ship::PlayerArcadeShip->Health <= 0)) {
                 Stage = 4;
                 if (DefeatCountdownTicks <= 0 && static_cast<std::uint8_t>(DefeatPanel->Active ^ 1)) {
                     Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"LoseKeyPress"sv));
@@ -2495,12 +2807,15 @@ namespace ab_MainForm {
                     LabelControl->SetTextAlignY(GI_Main::tayAuto);
                     LabelControl->SetText(aConst::LocalizedColorText(u"FormAB.TextExit"_wref.get()));
                     LabelControl->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255));
-                    Owner->SetSize(ClassesImports::Point(Owner->ClientSize.X, GR_Main::GiScalePixels(30) + Owner->ClientSize.Y + LabelControl->ClientSize.Y));
+                    Owner->SetSize(ClassesImports::Point(Owner->ClientSize.X,
+                        GR_Main::GiScalePixels(30) + Owner->ClientSize.Y + LabelControl->ClientSize.Y));
                     Panel = DefeatPanel;
-                    Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
+                    Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X,
+                        Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
                     Panel->SetActive(true);
                     Panel = GetByName(u"LoseShr"sv);
-                    Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
+                    Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X,
+                        Owner->LocalPosition.Y + Owner->ClientSize.Y + GR_Main::GiScalePixels(20)));
                     GetByName(u"PanelLoseHide"sv)->SetActive(true);
                 }
                 if (DefeatCountdownTicks <= -500) {
@@ -2517,7 +2832,9 @@ namespace ab_MainForm {
                 --DefeatCountdownTicks;
             } else if (ab_Space::ArcadeKellerEncounter) {
                 Stage = 5;
-                if (static_cast<std::uint8_t>(ab_Hit::KellerSplitActive ^ 1) && ab_Hit::KellerBreakupTicks > 50 && ab_Ship::KellerArcadeShip != nullptr && ab_Hit::KellerFragments[0] != nullptr && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0) {
+                if (static_cast<std::uint8_t>(ab_Hit::KellerSplitActive ^ 1) && ab_Hit::KellerBreakupTicks > 50 &&
+                    ab_Ship::KellerArcadeShip != nullptr && ab_Hit::KellerFragments[0] != nullptr &&
+                    ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0) {
                     ab_Hit::KellerSplitActive = true;
                     BeginKellerDialogTransition();
                 }
@@ -2525,58 +2842,72 @@ namespace ab_MainForm {
             Stage = 6;
             if (pas::in_set<2, 2, 5, 5>(ab_Global::ArcadeViewMode)) {
                 Stage = 7;
-                if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace != nullptr && ShipPath != nullptr && ShipPath->ActiveHead != nullptr) {
+                if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace != nullptr && ShipPath != nullptr &&
+                    ShipPath->ActiveHead != nullptr) {
                     Stage = 8;
                     if (IsCursorImageSelected(u"Scroll"sv)) {
                         SetCursorByName(u"Main"_wref.get());
                     }
                     MapDrag.Active = false;
-                    BearingDegrees = aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition), EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition)));
-                    PlayerMapPosition.X = System::Sin(BearingDegrees) * 4.0L + PlayerMapPosition.X;
-                    PlayerMapPosition.Y = PlayerMapPosition.Y - System::Cos(BearingDegrees) * 4.0L;
+                    BearingDegrees = aMyFunction::HeadingDegreesToRadians(aMyFunction::PointBearingDegrees(
+                            EC_Struct::PointToPointF(ab_Space::CurrentArcadeSpace->MapPosition),
+                            EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition)));
+                    PlayerMapPosition.X = static_cast<float>(static_cast<float>(System::Sin(BearingDegrees) * 4.0) + PlayerMapPosition.X);
+                    PlayerMapPosition.Y = static_cast<float>(PlayerMapPosition.Y - static_cast<float>(System::Cos(BearingDegrees) * 4.0));
                     if (pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual) != nullptr) {
-                        pas::Extended cpp_left = pas::real_divide(aMyFunction::PointDistance(PlayerMapPosition, ShipPath->ActiveHead->Position), 2.5L);
-                        float cpp_arg = cpp_left + aMyFunction::RandomIntRange(0, 1) * 0.3L;
+                        double cpp_left = static_cast<float>(aMyFunction::PointDistance(PlayerMapPosition,
+                            ShipPath->ActiveHead->Position) / 2.5);
+                        float cpp_arg = static_cast<float>(cpp_left + static_cast<float>(aMyFunction::RandomIntRange(0, 1) * 0x1.3333333333334p-2));
                         SE_Ship2::TShip2SE* playerVisual = reinterpret_cast<SE_Ship2::TShip2SE*>(PlayerVisual);
                         playerVisual->OffsetTailsAlongHeading(cpp_arg);
                     }
                     PlayerMapPosition = ShipPath->ActiveHead->Position;
                     PlayerVisual->SetAngle(aMyFunction::HeadingDegreesToByte(ShipPath->ActiveHead->Heading));
                     ShipPath->RemoveNode(ShipPath->ActiveHead);
-                    if (ShipPath->ActiveHead == nullptr || aMyFunction::PointDistanceSquared(EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition), PlayerMapPosition) <= static_cast<long double>(ab_Global::ArcadePathStep) * ab_Global::ArcadePathStep) {
+                    if (ShipPath->ActiveHead == nullptr || aMyFunction::PointDistanceSquared(
+                            EC_Struct::PointToPointF(ab_Space::NextArcadeSpace->MapPosition), PlayerMapPosition) <=
+                            static_cast<float>(static_cast<double>(ab_Global::ArcadePathStep) * ab_Global::ArcadePathStep)) {
                         Stage = 9;
                         ab_Space::CurrentArcadeSpace = ab_Space::NextArcadeSpace;
-                        pas::list_delete(RouteSpaces, pas::list_indexof(RouteSpaces, reinterpret_cast<void*>(ab_Space::NextArcadeSpace)));
+                        pas::list_delete(RouteSpaces,
+                            pas::list_indexof(RouteSpaces, reinterpret_cast<void*>(ab_Space::NextArcadeSpace)));
                         ab_Space::NextArcadeSpace = nullptr;
                         Index = 0;
                         while (Index < pas::list_count(ab_Space::CurrentArcadeSpace->Objects)) {
-                            if (pas::class_cast_if<ab_Ship::TabShip*>(pas::list_at<pas::Object>(ab_Space::CurrentArcadeSpace->Objects, Index)) != nullptr) {
+                            if (pas::class_cast_if<ab_Ship::TabShip*>(pas::list_at<pas::Object>(
+                                ab_Space::CurrentArcadeSpace->Objects, Index)) != nullptr) {
                                 break;
                             }
                             ++Index;
                         }
-                        if (Index < pas::list_count(ab_Space::CurrentArcadeSpace->Objects) && ([&] {
-                            pas::Extended cpp_left_2 = RandomRange(1, 100);
-                            return cpp_left_2 <= ab_Space::CurrentArcadeSpace->Danger;
-                        }())) {
-                            SelectMusic();
-                            EnterCurrentSpace();
-                        } else if (pas::list_count(RouteSpaces) > 0 && ab_Ship::ArcadePaused) {
-                            ab_Space::NextArcadeSpace = pas::list_at<ab_Space::TabSpace>(RouteSpaces, 0);
-                        } else {
-                            ab_Ship::ArcadePauseWithShift = false;
-                            ab_Ship::ArcadePaused = false;
-                            PlayButton->SetActive(static_cast<std::uint8_t>(ab_Ship::ArcadePaused ^ 1));
-                            PauseButton->SetActive(ab_Ship::ArcadePaused);
-                            if (pas::list_count(RouteSpaces) < 1) {
-                                TfAB::BuildSpaceRoute(RouteSpaces, ab_Space::CurrentArcadeSpace, ab_Space::EndArcadeSpace);
+                        {
+                            bool cpp_condition = Index < pas::list_count(ab_Space::CurrentArcadeSpace->Objects);
+                            if (cpp_condition) {
+                                double cpp_left_2 = RandomRange(1, 100);
+                                cpp_condition = cpp_left_2 <= ab_Space::CurrentArcadeSpace->Danger;
                             }
-                            RebuildShipPath();
-                            BuildShipPathImages();
+                            if (cpp_condition) {
+                                SelectMusic();
+                                EnterCurrentSpace();
+                            } else if (pas::list_count(RouteSpaces) > 0 && ab_Ship::ArcadePaused) {
+                                ab_Space::NextArcadeSpace = pas::list_at<ab_Space::TabSpace>(RouteSpaces, 0);
+                            } else {
+                                ab_Ship::ArcadePauseWithShift = false;
+                                ab_Ship::ArcadePaused = false;
+                                PlayButton->SetActive(static_cast<std::uint8_t>(ab_Ship::ArcadePaused ^ 1));
+                                PauseButton->SetActive(ab_Ship::ArcadePaused);
+                                if (pas::list_count(RouteSpaces) < 1) {
+                                    TfAB::BuildSpaceRoute(RouteSpaces, ab_Space::CurrentArcadeSpace,
+                                        ab_Space::EndArcadeSpace);
+                                }
+                                RebuildShipPath();
+                                BuildShipPathImages();
+                            }
                         }
                     }
                 }
-                if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr && ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace && ab_Ship::ArcadePaused) {
+                if (ab_Global::ArcadeViewMode == 2 && ab_Space::NextArcadeSpace == nullptr &&
+                    ab_Space::CurrentArcadeSpace != ab_Space::EndArcadeSpace && ab_Ship::ArcadePaused) {
                     Stage = 10;
                     HideObjectInfo();
                     ClearShipPath();
@@ -2592,7 +2923,8 @@ namespace ab_MainForm {
                         PauseButton->SetActive(ab_Ship::ArcadePaused);
                     }
                 }
-                if (ab_Space::CurrentArcadeSpace == ab_Space::EndArcadeSpace && aPlayer::GetPlayer() != nullptr && CampaignLoadFinished && CampaignTransitionStarted && CampaignLoadProgress >= 1.0L) {
+                if (ab_Space::CurrentArcadeSpace == ab_Space::EndArcadeSpace && aPlayer::GetPlayer() != nullptr &&
+                    CampaignLoadFinished && CampaignTransitionStarted && CampaignLoadProgress >= 1.0) {
                     Stage = 11;
                     if (UpdateTimer != nullptr) {
                         CancelCallbackTimer(UpdateTimer);
@@ -2602,13 +2934,16 @@ namespace ab_MainForm {
                     RequestClose(1);
                     return;
                 }
-                if (ab_Space::CurrentArcadeSpace == ab_Space::EndArcadeSpace && static_cast<std::uint8_t>(CampaignLoadFinished ^ 1) && ab_Global::ArcadeViewMode == 2) {
+                if (ab_Space::CurrentArcadeSpace == ab_Space::EndArcadeSpace &&
+                    static_cast<std::uint8_t>(CampaignLoadFinished ^ 1) && ab_Global::ArcadeViewMode == 2) {
                     BeginBattleExit();
                 }
-                if (ab_Global::ArcadeViewMode == 5 && aPlayer::GetPlayer() != nullptr && static_cast<std::uint8_t>(CampaignTransitionStarted ^ 1)) {
+                if (ab_Global::ArcadeViewMode == 5 && aPlayer::GetPlayer() != nullptr &&
+                    static_cast<std::uint8_t>(CampaignTransitionStarted ^ 1)) {
                     FinishCampaignTransition();
                 }
-                if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted && static_cast<std::uint8_t>(CampaignLoadStarted ^ 1)) {
+                if (aPlayer::GetPlayer() != nullptr && CampaignTransitionStarted &&
+                    static_cast<std::uint8_t>(CampaignLoadStarted ^ 1)) {
                     Stage = 12;
                     CampaignLoadStarted = true;
                     Loads = pas::make_object<pas::List>();
@@ -2640,16 +2975,20 @@ namespace ab_MainForm {
                 }
             } else if (ab_Global::ArcadeViewMode == 3) {
                 Stage = 13;
-                Step = pas::real_max<pas::Extended>(1.0E+1L, pas::real_divide(ab_Global::SphereCameraDistance - (static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereNearCameraOffset), 2.0E+1L));
+                Step = pas::real_max<double>(1.0E+1,
+                        static_cast<float>((static_cast<float>(ab_Global::SphereCameraDistance - (static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                            ab_Global::SphereNearCameraOffset)))) / 2.0E+1));
                 if (Step > TransitionSpeed) {
-                    Step = pas::real_min<pas::Extended>(static_cast<pas::Extended>(Step), TransitionSpeed + 5.0E+1L);
+                    Step = pas::real_min<double>(static_cast<double>(Step), static_cast<float>(TransitionSpeed + 5.0E+1));
                 } else if (Step < TransitionSpeed) {
-                    Step = pas::real_max<pas::Extended>(static_cast<pas::Extended>(Step), TransitionSpeed - 1.0E+1L);
+                    Step = pas::real_max<double>(static_cast<double>(Step), static_cast<float>(TransitionSpeed - 1.0E+1));
                 }
                 TransitionSpeed = Step;
-                ab_Global::SphereCameraDistance = static_cast<long double>(ab_Global::SphereCameraDistance) - Step;
-                if (ab_Global::SphereCameraDistance <= static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereNearCameraOffset) {
-                    ab_Global::SphereCameraDistance = static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereNearCameraOffset;
+                ab_Global::SphereCameraDistance = static_cast<float>(static_cast<double>(ab_Global::SphereCameraDistance) - Step);
+                if (ab_Global::SphereCameraDistance <= static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                        ab_Global::SphereNearCameraOffset)) {
+                    ab_Global::SphereCameraDistance = static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                            ab_Global::SphereNearCameraOffset);
                     ResetBattleControls();
                 }
             }
@@ -2657,14 +2996,16 @@ namespace ab_MainForm {
                 Stage = 14;
                 Step = 1.0E+3;
                 if (Step > TransitionSpeed) {
-                    Step = pas::real_min<pas::Extended>(static_cast<pas::Extended>(Step), TransitionSpeed + 2.0E+1L);
+                    Step = pas::real_min<double>(static_cast<double>(Step), static_cast<float>(TransitionSpeed + 2.0E+1));
                 } else if (Step < TransitionSpeed) {
-                    Step = pas::real_max<pas::Extended>(static_cast<pas::Extended>(Step), TransitionSpeed - 5.0L);
+                    Step = pas::real_max<double>(static_cast<double>(Step), static_cast<float>(TransitionSpeed - 5.0));
                 }
                 TransitionSpeed = Step;
-                ab_Global::SphereCameraDistance = static_cast<long double>(ab_Global::SphereCameraDistance) + Step;
-                if (ab_Global::SphereCameraDistance >= static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereFarCameraOffset) {
-                    ab_Global::SphereCameraDistance = static_cast<long double>(ab_Global::SphereRadius) + ab_Global::SphereFarCameraOffset;
+                ab_Global::SphereCameraDistance = static_cast<float>(static_cast<double>(ab_Global::SphereCameraDistance) + Step);
+                if (ab_Global::SphereCameraDistance >= static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                        ab_Global::SphereFarCameraOffset)) {
+                    ab_Global::SphereCameraDistance = static_cast<float>(static_cast<double>(ab_Global::SphereRadius) +
+                            ab_Global::SphereFarCameraOffset);
                     EnterMapView();
                 }
             }
@@ -2674,8 +3015,9 @@ namespace ab_MainForm {
                     if (CacheLoader->TotalLoadCount <= 0) {
                         CampaignLoadProgress = 1.0f;
                     } else {
-                        CampaignLoadProgress = pas::real_min<pas::Extended>(CampaignLoadProgress + 0.004L, pas::real_divide(CacheLoader->CompletedLoadCount, CacheLoader->TotalLoadCount));
-                        if (CampaignLoadProgress > 0.99L) {
+                        CampaignLoadProgress = pas::real_min<double>(static_cast<float>(CampaignLoadProgress + 0.004),
+                                static_cast<float>(static_cast<double>(CacheLoader->CompletedLoadCount) / CacheLoader->TotalLoadCount));
+                        if (CampaignLoadProgress > 0.99) {
                             CampaignLoadProgress = 1.0f;
                         }
                     }
@@ -2685,7 +3027,8 @@ namespace ab_MainForm {
             if (ab_Global::ArcadeViewMode == 0 && static_cast<std::uint8_t>(SimulationPaused ^ 1)) {
                 Stage = 16;
                 ++ab_Global::ArcadeTickCount;
-                if (ab_Ship::PlayerArcadeShip != nullptr && static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1)) {
+                if (ab_Ship::PlayerArcadeShip != nullptr &&
+                    static_cast<std::uint8_t>(ab_Global::ArcadeAutopilotEnabled ^ 1)) {
                     if (ForwardKeyDown) {
                         ab_Ship::PlayerArcadeShip->StartThrust();
                     } else if (ReverseKeyDown) {
@@ -2700,10 +3043,12 @@ namespace ab_MainForm {
                     Stage = 18;
                     if (TurnLeftKeyDown) {
                         ab_Ship::PlayerArcadeShip->SetTurnInput(-1.0E+2);
-                        ab_Global::SphereViewState.BearingDegrees = aMyFunction::WrapHeadingDegrees(ab_Global::SphereViewState.BearingDegrees - 0.3L);
+                        ab_Global::SphereViewState.BearingDegrees =
+                            aMyFunction::WrapHeadingDegrees(static_cast<float>(ab_Global::SphereViewState.BearingDegrees - 0.3));
                     } else if (TurnRightKeyDown) {
                         ab_Ship::PlayerArcadeShip->SetTurnInput(1.0E+2);
-                        ab_Global::SphereViewState.BearingDegrees = aMyFunction::WrapHeadingDegrees(ab_Global::SphereViewState.BearingDegrees + 0.3L);
+                        ab_Global::SphereViewState.BearingDegrees =
+                            aMyFunction::WrapHeadingDegrees(static_cast<float>(ab_Global::SphereViewState.BearingDegrees + 0.3));
                     } else {
                         ab_Ship::PlayerArcadeShip->SetTurnInput(0.0);
                     }
@@ -2737,7 +3082,11 @@ namespace ab_MainForm {
                     }
                 }
                 Stage = 24;
-                if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0 && reinterpret_cast<ab_ShipAI::TabShipAI*>(ab_Ship::PlayerArcadeShip)->InsideCurrentZone && pas::in_range(reinterpret_cast<ab_ShipAI::TabShipAI*>(ab_Ship::PlayerArcadeShip)->CurrentZone->Kind, 2, 4)) {
+                if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr &&
+                    ab_Ship::PlayerArcadeShip->Health > 0 &&
+                    reinterpret_cast<ab_ShipAI::TabShipAI*>(ab_Ship::PlayerArcadeShip)->InsideCurrentZone &&
+                    pas::in_range(reinterpret_cast<ab_ShipAI::TabShipAI*>(ab_Ship::PlayerArcadeShip)->CurrentZone->Kind,
+                        2, 4)) {
                     ab_Space::NextArcadeSpace = nullptr;
                     if (aPlayer::GetPlayer()->Order == aShip::soJumpHole) {
                         BeginBattleExit();
@@ -2753,19 +3102,25 @@ namespace ab_MainForm {
                 Stage = 25;
                 Step = 0.5;
                 if ((WindowsSdk::GetAsyncKeyState(WindowsSdk::VK_CONTROL) & 0x00008000) == 0x00008000) {
-                    Step = Step * 1.0E+1L;
+                    Step = static_cast<float>(Step * 1.0E+1);
                 }
                 if (ForwardKeyDown) {
-                    ab_Global::SphereViewState.PolarAngleDegrees = pas::real_max<pas::Extended>(0.0L, static_cast<long double>(ab_Global::SphereViewState.PolarAngleDegrees) - Step);
+                    ab_Global::SphereViewState.PolarAngleDegrees = pas::real_max<double>(0.0,
+                            static_cast<float>(static_cast<double>(ab_Global::SphereViewState.PolarAngleDegrees) - Step));
                 }
                 if (ReverseKeyDown) {
-                    ab_Global::SphereViewState.PolarAngleDegrees = pas::real_min<pas::Extended>(1.8E+2L, static_cast<long double>(ab_Global::SphereViewState.PolarAngleDegrees) + Step);
+                    ab_Global::SphereViewState.PolarAngleDegrees = pas::real_min<double>(1.8E+2,
+                            static_cast<float>(static_cast<double>(ab_Global::SphereViewState.PolarAngleDegrees) + Step));
                 }
                 if (TurnLeftKeyDown) {
-                    ab_Global::SphereViewState.LongitudeDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.LongitudeDegrees) - Step);
+                    ab_Global::SphereViewState.LongitudeDegrees =
+                        aMyFunction::WrapHeadingDegrees(
+                            static_cast<float>(static_cast<double>(ab_Global::SphereViewState.LongitudeDegrees) - Step));
                 }
                 if (TurnRightKeyDown) {
-                    ab_Global::SphereViewState.LongitudeDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.LongitudeDegrees) + Step);
+                    ab_Global::SphereViewState.LongitudeDegrees =
+                        aMyFunction::WrapHeadingDegrees(
+                            static_cast<float>(static_cast<double>(ab_Global::SphereViewState.LongitudeDegrees) + Step));
                 }
             }
             if (ab_Ship::PlayerArcadeShip != nullptr && pas::in_set<0, 0, 3, 3>(ab_Global::ArcadeViewMode)) {
@@ -2776,26 +3131,38 @@ namespace ab_MainForm {
                 if (Bearing.Distance > ab_Global::CameraFollowStep) {
                     Bearing.Distance = ab_Global::CameraFollowStep;
                 }
-                BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees), pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees), ab_Global::SphereRadius, Bearing.Distance);
+                BearingDegrees =
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(ab_Global::SphereViewState.BearingDegrees) +
+                        Bearing.BearingDeltaDegrees));
+                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees),
+                    pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees),
+                    ab_Global::SphereRadius, Bearing.Distance);
             } else if (ab_Global::ArcadeViewMode == 4 && ab_Ship::KellerArcadeShip != nullptr) {
                 Stage = 27;
-                ScreenPointToSphere(ClassesImports::Point(GR_Main::GameScreenWidth / 2, GR_Main::GameScreenHeight / 2), TargetLongitude, TargetPolarAngle);
-                ScreenPointToSphere(ClassesImports::Point(GR_Main::GiScalePixels(250), GR_Main::GiScalePixels(300)), SourceLongitude, SourcePolarAngle);
-                ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDegrees), pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude, TargetPolarAngle, ab_Global::SphereRadius);
-                if (BearingDegrees < 0.0L) {
-                    BearingDegrees = 3.6E+2L + BearingDegrees;
+                ScreenPointToSphere(ClassesImports::Point(GR_Main::GameScreenWidth / 2, GR_Main::GameScreenHeight / 2),
+                    TargetLongitude, TargetPolarAngle);
+                ScreenPointToSphere(ClassesImports::Point(GR_Main::GiScalePixels(250), GR_Main::GiScalePixels(300)),
+                    SourceLongitude, SourcePolarAngle);
+                ab_Global::ComputeSphericalBearingAndDistance(pas::Var<double>(&BearingDegrees),
+                    pas::Var<double>(&Distance), SourceLongitude, SourcePolarAngle, 0.0, TargetLongitude,
+                    TargetPolarAngle, ab_Global::SphereRadius);
+                if (BearingDegrees < 0.0) {
+                    BearingDegrees = static_cast<float>(3.6E+2 + BearingDegrees);
                 }
                 State = ab_Ship::KellerArcadeShip->State;
                 State = ab_Global::AdvanceSphericalStateAlongBearing(State, BearingDegrees, Distance);
                 Bearing = ab_Global::GetSphericalBearingAndDistance(ab_Global::SphereViewState, State);
-                if (Bearing.Distance > ab_Global::CameraFollowStep * 2.0L) {
-                    Bearing.Distance = ab_Global::CameraFollowStep * 2.0L;
+                if (Bearing.Distance > static_cast<float>(ab_Global::CameraFollowStep * 2.0)) {
+                    Bearing.Distance = static_cast<float>(ab_Global::CameraFollowStep * 2.0);
                 }
-                BearingDegrees = aMyFunction::WrapHeadingDegrees(static_cast<long double>(ab_Global::SphereViewState.BearingDegrees) + Bearing.BearingDeltaDegrees);
-                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees), pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees), ab_Global::SphereRadius, Bearing.Distance);
+                BearingDegrees =
+                    aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(ab_Global::SphereViewState.BearingDegrees) +
+                        Bearing.BearingDeltaDegrees));
+                ab_Global::AdvanceSphericalBearingState(pas::Var<double>(&ab_Global::SphereViewState.LongitudeDegrees),
+                    pas::Var<double>(&ab_Global::SphereViewState.PolarAngleDegrees), pas::Var<double>(&BearingDegrees),
+                    ab_Global::SphereRadius, Bearing.Distance);
                 ab_Global::SphereViewState.BearingDegrees = 0.0;
-                if (Bearing.Distance < 5.0L) {
+                if (Bearing.Distance < 5.0) {
                     Stage = 28;
                     if (aKling::KellerShip == nullptr || aKling::KellerShip->ScriptShip == nullptr) {
                         GR_Main::RaiseWideMessage(u"Not found script"_wref.get());
@@ -2804,16 +3171,22 @@ namespace ab_MainForm {
                     if (aPlayer::ArcadeKellerReward != nullptr) {
                         fShip2::ClearPlayerHoldEntries();
                         if (pas::class_cast_if<aItem::TArtefact*>(aPlayer::ArcadeKellerReward) != nullptr) {
-                            pas::list_insert(aPlayer::GetPlayer()->Artefacts, 0, reinterpret_cast<void*>(aPlayer::ArcadeKellerReward));
+                            pas::list_insert(aPlayer::GetPlayer()->Artefacts, 0,
+                                reinterpret_cast<void*>(aPlayer::ArcadeKellerReward));
                         } else {
-                            pas::list_add(aPlayer::GetPlayer()->Inventory, reinterpret_cast<void*>(aPlayer::ArcadeKellerReward));
+                            pas::list_add(aPlayer::GetPlayer()->Inventory,
+                                reinterpret_cast<void*>(aPlayer::ArcadeKellerReward));
                         }
                         aPlayer::ArcadeKellerReward = nullptr;
                     }
                     Stage = 29;
                     Globals::ScriptDialogIndex = -1;
-                    reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->Script->PublishShipContext(pas::checked_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip));
-                    aScript::CurrentScript->CallDialogByVariable(reinterpret_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip)->State->DialogTextOrVariable);
+                    reinterpret_cast<aScript::TScriptShip*>(
+                        aKling::KellerShip->ScriptShip)->Script->PublishShipContext(
+                        pas::checked_cast<aScript::TScriptShip*>(aKling::KellerShip->ScriptShip));
+                    aScript::CurrentScript->CallDialogByVariable(
+                        reinterpret_cast<aScript::TScriptShip*>(
+                            aKling::KellerShip->ScriptShip)->State->DialogTextOrVariable);
                     if (Globals::ScriptDialogIndex < 0) {
                         GR_Main::RaiseWideMessage(u"Not found dialog"_wref.get());
                     }
@@ -2836,14 +3209,27 @@ namespace ab_MainForm {
                 }
             }
             Stage = 30;
-            CameraPos = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.PolarAngleDegrees), ab_Global::SphereCameraDistance);
+            CameraPos = ab_Global::SphericalToVector3D(
+                    aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.PolarAngleDegrees),
+                    ab_Global::SphereCameraDistance);
             TargetPos = EC_Struct::MakeVector3D(0.0, 0.0, 0.0);
-            UpVector = ab_Global::SphericalToVector3D(aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.LongitudeDegrees), aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.PolarAngleDegrees + 9.0E+1L), ab_Global::SphereCameraDistance);
+            UpVector = ab_Global::SphericalToVector3D(
+                    aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.LongitudeDegrees),
+                    aMyFunction::HeadingDegreesToRadians(static_cast<float>(ab_Global::SphereViewState.PolarAngleDegrees + 9.0E+1)),
+                    ab_Global::SphereCameraDistance);
             View = ab_Global::BuildLookAtMatrix(CameraPos, TargetPos, UpVector);
-            Rotation = ab_Global::BuildZAxisRotationMatrix(aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.BearingDegrees));
+            Rotation =
+                ab_Global::BuildZAxisRotationMatrix(
+                    aMyFunction::HeadingDegreesToRadians(ab_Global::SphereViewState.BearingDegrees));
             ab_Global::SphereViewMatrix = ab_Global::MultiplyMatrix4D(Rotation, View);
-            ab_Global::SpherePerspectiveMatrix = ab_Global::BuildPerspectiveProjectionMatrix(static_cast<long double>(ab_Global::SphereCameraDistance) - ab_Global::SphereRadius - 1.0E+2L, static_cast<long double>(ab_Global::SphereCameraDistance) + ab_Global::SphereRadius + 1.0E+2L, aMyFunction::HeadingDegreesToRadians(ab_Global::SphereFieldOfView), static_cast<std::uint32_t>(GR_Main::GameScreenWidth));
-            ab_Global::SphereProjectionMatrix = ab_Global::MultiplyMatrix4D(ab_Global::SpherePerspectiveMatrix, ab_Global::SphereViewMatrix);
+            ab_Global::SpherePerspectiveMatrix = ab_Global::BuildPerspectiveProjectionMatrix(
+                    static_cast<float>(static_cast<float>(static_cast<double>(ab_Global::SphereCameraDistance) - ab_Global::SphereRadius) - 1.0E+2),
+                    static_cast<float>(static_cast<float>(static_cast<double>(ab_Global::SphereCameraDistance) + ab_Global::SphereRadius) + 1.0E+2),
+                    aMyFunction::HeadingDegreesToRadians(ab_Global::SphereFieldOfView),
+                    static_cast<std::uint32_t>(GR_Main::GameScreenWidth));
+            ab_Global::SphereProjectionMatrix = ab_Global::MultiplyMatrix4D(ab_Global::SpherePerspectiveMatrix,
+                    ab_Global::SphereViewMatrix);
             ab_Global::UpdateSphereProjectionMetrics();
             if (ab_Global::ArcadeViewMode == 2) {
                 Stage = 31;
@@ -2853,18 +3239,24 @@ namespace ab_MainForm {
                 }
                 ab_Space::ab_Space_Update();
                 ab_Space::ab_Space_CreateImages();
-                StartStarImage->SetPosition(EC_Struct::SubtractPoints(ab_Space::StartArcadeSpace->MapPosition, ab_Global::ArcadeMapViewPosition));
-                EndStarImage->SetPosition(EC_Struct::SubtractPoints(ab_Space::EndArcadeSpace->MapPosition, ab_Global::ArcadeMapViewPosition));
+                StartStarImage->SetPosition(EC_Struct::SubtractPoints(ab_Space::StartArcadeSpace->MapPosition,
+                    ab_Global::ArcadeMapViewPosition));
+                EndStarImage->SetPosition(EC_Struct::SubtractPoints(ab_Space::EndArcadeSpace->MapPosition,
+                    ab_Global::ArcadeMapViewPosition));
                 Space = ab_Space::FirstArcadeSpace;
                 while (Space != nullptr) {
                     if (Space->Image != nullptr) {
-                        Space->Image->SetPosition(EC_Struct::SubtractPoints(Space->MapPosition, ab_Global::ArcadeMapViewPosition));
+                        Space->Image->SetPosition(EC_Struct::SubtractPoints(Space->MapPosition,
+                            ab_Global::ArcadeMapViewPosition));
                     }
                     Space = Space->Next;
                 }
-                Position = EC_Struct::PointToPointF(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(PlayerMapPosition), ab_Global::ArcadeMapViewPosition));
+                Position = EC_Struct::PointToPointF(EC_Struct::SubtractPoints(
+                        EC_Struct::TruncatePointF(PlayerMapPosition), ab_Global::ArcadeMapViewPosition));
                 if (SE_Ship2::TShip2SE* ship2SE = pas::class_cast_if<SE_Ship2::TShip2SE*>(PlayerVisual)) {
-                    ship2SE->OffsetTails(EC_Struct::MakePointF(static_cast<long double>(Position.X) - PlayerVisual->Position.X, static_cast<long double>(Position.Y) - PlayerVisual->Position.Y));
+                    ship2SE->OffsetTails(EC_Struct::MakePointF(
+                        static_cast<float>(static_cast<double>(Position.X) - PlayerVisual->Position.X),
+                        static_cast<float>(static_cast<double>(Position.Y) - PlayerVisual->Position.Y)));
                 }
                 PlayerVisual->SetPosition(Position);
                 if (ab_Space::NextArcadeSpace == nullptr) {
@@ -2892,9 +3284,12 @@ namespace ab_MainForm {
                 DateLabel = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"Turn"sv));
                 CameraPos.X = ab_Space::EndArcadeSpace->MapPosition.X - ab_Space::StartArcadeSpace->MapPosition.X;
                 CameraPos.Y = ab_Space::EndArcadeSpace->MapPosition.Y - ab_Space::StartArcadeSpace->MapPosition.Y;
-                TargetPos.X = static_cast<long double>(PlayerMapPosition.X) - ab_Space::StartArcadeSpace->MapPosition.X;
-                TargetPos.Y = static_cast<long double>(PlayerMapPosition.Y) - ab_Space::StartArcadeSpace->MapPosition.Y;
-                DateLabel->SetText(aGalaxy::FormatGameTurnDate(System::Round(pas::real_divide(static_cast<long double>(CameraPos.X) * TargetPos.X + static_cast<long double>(CameraPos.Y) * TargetPos.Y, pas::sqr(static_cast<pas::Extended>(CameraPos.X)) + pas::sqr(static_cast<pas::Extended>(CameraPos.Y))) * (ArrivalTurn - DepartureTurn) + DepartureTurn)));
+                TargetPos.X = static_cast<float>(static_cast<double>(PlayerMapPosition.X) - ab_Space::StartArcadeSpace->MapPosition.X);
+                TargetPos.Y = static_cast<float>(static_cast<double>(PlayerMapPosition.Y) - ab_Space::StartArcadeSpace->MapPosition.Y);
+                DateLabel->SetText(aGalaxy::FormatGameTurnDate(pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<float>(static_cast<double>(CameraPos.X) *
+                    TargetPos.X) + static_cast<float>(static_cast<double>(CameraPos.Y) * TargetPos.Y))) /
+                    (static_cast<float>(pas::sqr(static_cast<double>(CameraPos.X)) + pas::sqr(static_cast<double>(CameraPos.Y))))) *
+                    (ArrivalTurn - DepartureTurn)) + DepartureTurn))));
             }
             Stage = 37;
             if (!SimulationPaused) {
@@ -2903,10 +3298,13 @@ namespace ab_MainForm {
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Error in procedure TfAB.TimerTakt, label = ", SysUtils::IntToStr(Stage)}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Error in procedure TfAB.TimerTakt, label = ",
+                    SysUtils::IntToStr(Stage)}));
                 if (Obj != nullptr) {
-                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Obj ", static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Obj)))}));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Obj ",
+                        static_cast<pas::AnsiString>(pas::class_name(pas::class_type(Obj)))}));
                 }
                 throw;
             } else {
@@ -2920,7 +3318,8 @@ namespace ab_MainForm {
         WindowsSdk::TPoint PreviousPosition{};
         std::int16_t CursorX{};
         std::int16_t CursorY{};
-        if (aGalaxy::Galaxy != nullptr && (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->GetHull()->HullPoints <= 0)) {
+        if (aGalaxy::Galaxy != nullptr && (aPlayer::GetPlayer() == nullptr ||
+                aPlayer::GetPlayer()->GetHull()->HullPoints <= 0)) {
             if (aPlayer::GetPlayer() != nullptr) {
                 aGalaxy::Galaxy->ScoreScreenDismissed = 1;
             }
@@ -2960,17 +3359,24 @@ namespace ab_MainForm {
             }
             if (PreviousPosition.X != Position.X || PreviousPosition.Y != Position.Y) {
                 ab_Global::ArcadeMapViewPosition = Position;
-                if (ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin > ab_Global::ArcadeMapViewPosition.Y) {
+                if (ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin >
+                    ab_Global::ArcadeMapViewPosition.Y) {
                     ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Top - ab_Global::ArcadeMapPanMargin;
                 }
-                if (ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin < ab_Global::ArcadeMapViewPosition.Y) {
-                    ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin;
+                if (ab_Global::ArcadeMapBounds.Bottom + ab_Global::ArcadeMapPanMargin <
+                    ab_Global::ArcadeMapViewPosition.Y) {
+                    ab_Global::ArcadeMapViewPosition.Y = ab_Global::ArcadeMapBounds.Bottom +
+                            ab_Global::ArcadeMapPanMargin;
                 }
-                if (ab_Global::ArcadeMapBounds.Left - ab_Global::ArcadeMapPanMargin > ab_Global::ArcadeMapViewPosition.X) {
-                    ab_Global::ArcadeMapViewPosition.X = ab_Global::ArcadeMapBounds.Left - ab_Global::ArcadeMapPanMargin;
+                if (ab_Global::ArcadeMapBounds.Left - ab_Global::ArcadeMapPanMargin >
+                    ab_Global::ArcadeMapViewPosition.X) {
+                    ab_Global::ArcadeMapViewPosition.X = ab_Global::ArcadeMapBounds.Left -
+                            ab_Global::ArcadeMapPanMargin;
                 }
-                if (ab_Global::ArcadeMapBounds.Right + ab_Global::ArcadeMapPanMargin < ab_Global::ArcadeMapViewPosition.X) {
-                    ab_Global::ArcadeMapViewPosition.X = ab_Global::ArcadeMapBounds.Right + ab_Global::ArcadeMapPanMargin;
+                if (ab_Global::ArcadeMapBounds.Right + ab_Global::ArcadeMapPanMargin <
+                    ab_Global::ArcadeMapViewPosition.X) {
+                    ab_Global::ArcadeMapViewPosition.X = ab_Global::ArcadeMapBounds.Right +
+                            ab_Global::ArcadeMapPanMargin;
                 }
             }
         }
@@ -2978,7 +3384,8 @@ namespace ab_MainForm {
 
     void TfAB::FinishCampaignTransition() {
         aGalaxy::TStar* SavedStar{};
-        if (aGalaxy::Galaxy != nullptr && (aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->GetHull()->HullPoints <= 0)) {
+        if (aGalaxy::Galaxy != nullptr && (aPlayer::GetPlayer() == nullptr ||
+                aPlayer::GetPlayer()->GetHull()->HullPoints <= 0)) {
             if (UpdateTimer != nullptr) {
                 CancelCallbackTimer(UpdateTimer);
                 UpdateTimer = nullptr;
@@ -2993,10 +3400,13 @@ namespace ab_MainForm {
             RequestClose(1);
         } else if (GlobalsV::RequestedScreenId != GlobalsV::screenStarMap) {
             CampaignTransitionStarted = true;
-        } else if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && static_cast<std::uint8_t>(pas::is_one_of<ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase) ^ 1)) {
+        } else if (static_cast<std::uint8_t>(aCalc::IsTurnCalculationRunningUI() ^ 1) && !pas::is_one_of<
+                ThreadCalc::tcpGalaxyRunning, ThreadCalc::tcpPlayerStarRunning>(aCalc::TurnCalculationPhase)) {
             if (aCalc::TurnCalculationPhase == ThreadCalc::tcpGalaxyFinished) {
                 aCalc::QueuePlayerStarTurnCalculation();
-            } else if (aPlayer::GetPlayer()->Order != aShip::soJump && aPlayer::GetPlayer()->Order != aShip::soJumpHole || aPlayer::GetPlayer()->Order == aShip::soJumpHole && aPlayer::GetPlayer()->OrderStateData == aGalaxyStruct::HoleExitOrderState) {
+            } else if (aPlayer::GetPlayer()->Order != aShip::soJump && aPlayer::GetPlayer()->Order !=
+                    aShip::soJumpHole || aPlayer::GetPlayer()->Order == aShip::soJumpHole &&
+                    aPlayer::GetPlayer()->OrderStateData == aGalaxyStruct::HoleExitOrderState) {
                 Globals::StarMapScreen->SetMapCenterManually(EC_Struct::TruncatePointF(aPlayer::GetPlayer()->Position));
                 Globals::StarMapScreen->ResumeMode = fStarMap::smrTurnFilm;
                 CampaignTransitionStarted = true;
@@ -3052,12 +3462,15 @@ namespace ab_MainForm {
             } else {
                 Ship = abShip;
                 Obj = Obj->Next;
-                if (Ship->Visual != nullptr && Ship->Visual->IsAttachedToSpace() && Ship->Visual->GetDepth() == ab_Global::ShipFrontDepth && Ship->HealthBarVisible && (Ship->BonusTicks[ab_Global::abkInvisibility] <= 0 || Ship->RevealTicks > 0 || ab_Ship::PlayerArcadeShip == Ship)) {
-                    CenterX = System::Round(Ship->Visual->Position.X) + WorldCenterX;
-                    CenterY = System::Round(Ship->Visual->Position.Y) + WorldCenterY;
+                if (Ship->Visual != nullptr && Ship->Visual->IsAttachedToSpace() && Ship->Visual->GetDepth() ==
+                        ab_Global::ShipFrontDepth && Ship->HealthBarVisible &&
+                    (Ship->BonusTicks[ab_Global::abkInvisibility] <= 0 || Ship->RevealTicks > 0 ||
+                        ab_Ship::PlayerArcadeShip == Ship)) {
+                    CenterX = pas::real_round(Ship->Visual->Position.X) + WorldCenterX;
+                    CenterY = pas::real_round(Ship->Visual->Position.Y) + WorldCenterY;
                     Width = Ship->EffectOriginSpread;
                     Height = 3;
-                    FilledWidth = System::Round(pas::real_divide(Ship->Health, Ship->MaxHealth) * Width);
+                    FilledWidth = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Ship->Health) / Ship->MaxHealth) * Width));
                     TopLeft.Y = CenterY + Ship->EffectOriginSpread / 2;
                     TopRight.Y = TopLeft.Y;
                     BottomRight.Y = TopRight.Y + Height;
@@ -3068,18 +3481,26 @@ namespace ab_MainForm {
                         BottomRight.X = TopRight.X;
                         BottomLeft.X = TopLeft.X;
                         if (GlobalsV::HardwareRenderingEnabled) {
-                            GR_DX::DrawColoredTriangle(TopLeft.X, TopLeft.Y, 0xffff0000u, TopRight.X, TopRight.Y, 0xffff0000u, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                            GR_DX::DrawColoredTriangle(TopRight.X, TopRight.Y, 0xffff0000u, BottomRight.X, BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                            GR_DX::DrawColoredTriangle(TopLeft.X, TopLeft.Y, 0xffff0000u, TopRight.X, TopRight.Y,
+                                0xffff0000u, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true,
+                                reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                            GR_DX::DrawColoredTriangle(TopRight.X, TopRight.Y, 0xffff0000u, BottomRight.X,
+                                BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true,
+                                reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                         } else {
                             {
                                 std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
                                 void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
-                                Rasterizer(pixels, pitchBytes, TopLeft.X, TopLeft.Y, 0xffff0000u, TopRight.X, TopRight.Y, 0xffff0000u, BottomLeft.X, BottomLeft.Y, 0xffffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                                Rasterizer(pixels, pitchBytes, TopLeft.X, TopLeft.Y, 0xffff0000u, TopRight.X,
+                                    TopRight.Y, 0xffff0000u, BottomLeft.X, BottomLeft.Y, 0xffffffffu,
+                                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                             }
                             {
                                 std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
                                 void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
-                                Rasterizer(pixels_2, pitchBytes_2, TopRight.X, TopRight.Y, 0xffff0000u, BottomRight.X, BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                                Rasterizer(pixels_2, pitchBytes_2, TopRight.X, TopRight.Y, 0xffff0000u, BottomRight.X,
+                                    BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu,
+                                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                             }
                         }
                     }
@@ -3089,18 +3510,26 @@ namespace ab_MainForm {
                         BottomRight.X = TopRight.X;
                         BottomLeft.X = TopLeft.X;
                         if (GlobalsV::HardwareRenderingEnabled) {
-                            GR_DX::DrawColoredTriangle(TopLeft.X, TopLeft.Y, 0xff0000ffu, TopRight.X, TopRight.Y, 0xff0000ffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                            GR_DX::DrawColoredTriangle(TopRight.X, TopRight.Y, 0xff0000ffu, BottomRight.X, BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                            GR_DX::DrawColoredTriangle(TopLeft.X, TopLeft.Y, 0xff0000ffu, TopRight.X, TopRight.Y,
+                                0xff0000ffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true,
+                                reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                            GR_DX::DrawColoredTriangle(TopRight.X, TopRight.Y, 0xff0000ffu, BottomRight.X,
+                                BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, true,
+                                reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                         } else {
                             {
                                 std::int32_t pitchBytes_3 = GR_Main::ScreenRenderBuffer->PitchBytes;
                                 void* pixels_3 = GR_Main::ScreenRenderBuffer->GetPixels();
-                                Rasterizer(pixels_3, pitchBytes_3, TopLeft.X, TopLeft.Y, 0xff0000ffu, TopRight.X, TopRight.Y, 0xff0000ffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                                Rasterizer(pixels_3, pitchBytes_3, TopLeft.X, TopLeft.Y, 0xff0000ffu, TopRight.X,
+                                    TopRight.Y, 0xff0000ffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu,
+                                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                             }
                             {
                                 std::int32_t pitchBytes_4 = GR_Main::ScreenRenderBuffer->PitchBytes;
                                 void* pixels_4 = GR_Main::ScreenRenderBuffer->GetPixels();
-                                Rasterizer(pixels_4, pitchBytes_4, TopRight.X, TopRight.Y, 0xff0000ffu, BottomRight.X, BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                                Rasterizer(pixels_4, pitchBytes_4, TopRight.X, TopRight.Y, 0xff0000ffu, BottomRight.X,
+                                    BottomRight.Y, 0xffffffffu, BottomLeft.X, BottomLeft.Y, 0xffffffffu,
+                                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                             }
                         }
                     }
@@ -3151,7 +3580,9 @@ namespace ab_MainForm {
         std::int32_t IconHeight{};
         ab_ShipAI::TabShipAI* Ship{};
         aItem::TItem* Item{};
-        if (ab_Ship::PlayerArcadeShip == nullptr || aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactScaner) <= 0 || ExitCode != 0 || ab_Global::ArcadeViewMode == 5) {
+        if (ab_Ship::PlayerArcadeShip == nullptr || aPlayer::GetPlayer() != nullptr &&
+                aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactScaner) <= 0 || ExitCode != 0 ||
+            ab_Global::ArcadeViewMode == 5) {
             for (Index = 0; Index <= 7; ++Index) {
                 ClearEnemyStatus(Index);
             }
@@ -3161,8 +3592,8 @@ namespace ab_MainForm {
         } else {
             RingWidth = GR_Main::GiScalePixels(64);
             RingHeight = GR_Main::GiScalePixels(64);
-            IconWidth = System::Round(RingWidth * 0.75L);
-            IconHeight = System::Round(RingHeight * 0.75L);
+            IconWidth = pas::real_round(static_cast<float>(RingWidth * 0.75));
+            IconHeight = pas::real_round(static_cast<float>(RingHeight * 0.75));
             for (Index = 0; Index <= 7; ++Index) {
                 if (Index >= pas::list_count(ab_Ship::PlayerArcadeShip->InitialEnemies)) {
                     ClearEnemyStatus(Index);
@@ -3173,32 +3604,53 @@ namespace ab_MainForm {
                     } else {
                         if (EnemyIcons[Index] == nullptr) {
                             if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Ship->Visual) != nullptr) {
-                                EnemyIcons[Index] = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, MapPanel);
+                                EnemyIcons[Index] = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(
+                                        GI_RotateImage5::TRotateImage5GI_Create, MapPanel);
                                 {
-                                    pas::WideString imagePath = pas::checked_cast<SE_Ship2::TShip2SE*>(Ship->Visual)->GetImagePath();
-                                    GI_RotateImage5::TRotateImage5GI* cpp_arg = pas::checked_cast<GI_RotateImage5::TRotateImage5GI*>(EnemyIcons[Index]);
-                                    cpp_arg->SetImage(std::move(imagePath), ClassesImports::Point(IconWidth, IconHeight), ClassesImports::Point(IconWidth, IconHeight));
+                                    pas::WideString imagePath = pas::checked_cast<SE_Ship2::TShip2SE*>(
+                                        Ship->Visual)->GetImagePath();
+                                    GI_RotateImage5::TRotateImage5GI* cpp_arg = pas::checked_cast<GI_RotateImage5::TRotateImage5GI*>(
+                                        EnemyIcons[Index]);
+                                    cpp_arg->SetImage(std::move(imagePath),
+                                        ClassesImports::Point(IconWidth, IconHeight),
+                                        ClassesImports::Point(IconWidth, IconHeight));
                                 }
                             } else if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(Ship->Visual) != nullptr) {
-                                EnemyIcons[Index] = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, MapPanel, false);
+                                EnemyIcons[Index] = pas::construct_call<GI_GraphBuf::TGraphBufGI>(
+                                        GI_GraphBuf::TGraphBufGI_Create, MapPanel, false);
                                 {
-                                    GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(EnemyIcons[Index]);
+                                    GI_GraphBuf::TGraphBufGI* cpp_with = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                                        EnemyIcons[Index]);
                                     cpp_with->SourceHasPerPixelAlpha = true;
                                     cpp_with->SetSize(ClassesImports::Point(IconWidth, IconHeight));
-                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath), 1, u","sv), cpp_with->GraphBuf);
-                                    if (static_cast<std::uint32_t>(cpp_with->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)) {
-                                        cpp_with->GraphBuf->RescaleRgba(cpp_with->ClientSize.X, System::Round(pas::real_divide(cpp_with->ClientSize.X, static_cast<std::uint32_t>(cpp_with->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)), 5);
+                                    GI_GI::LoadGiByPathIntoGraphBuf(
+                                        EC_Str::ExtractDelimitedPartW(
+                                            pas::view(
+                                                pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath),
+                                            1, u","sv), cpp_with->GraphBuf);
+                                    if (static_cast<std::uint32_t>(cpp_with->GraphBuf->Width) >=
+                                        static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)) {
+                                        cpp_with->GraphBuf->RescaleRgba(cpp_with->ClientSize.X,
+                                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with->ClientSize.X) /
+                                                static_cast<std::uint32_t>(cpp_with->GraphBuf->Width)) *
+                                                static_cast<std::uint32_t>(cpp_with->GraphBuf->Height))), 5);
                                     } else {
-                                        cpp_with->GraphBuf->RescaleRgba(System::Round(pas::real_divide(cpp_with->ClientSize.Y, static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)) * static_cast<std::uint32_t>(cpp_with->GraphBuf->Width)), cpp_with->ClientSize.Y, 5);
+                                        cpp_with->GraphBuf->RescaleRgba(
+                                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with->ClientSize.Y) /
+                                                static_cast<std::uint32_t>(cpp_with->GraphBuf->Height)) *
+                                                static_cast<std::uint32_t>(cpp_with->GraphBuf->Width))),
+                                            cpp_with->ClientSize.Y, 5);
                                     }
                                 }
                             }
                         }
                         if (EnemyHealthRings[Index] == nullptr) {
-                            EnemyHealthRings[Index] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, MapPanel);
+                            EnemyHealthRings[Index] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create,
+                                    MapPanel);
                             {
                                 GI_GAI::TgaiGI* cpp_with_2 = EnemyHealthRings[Index];
-                                cpp_with_2->SetImagePath(pas::concat_wide({u"Bm.ABItem.", GR_Main::GiResourceSuffix(), u"_Ring"}));
+                                cpp_with_2->SetImagePath(pas::concat_wide({u"Bm.ABItem.", GR_Main::GiResourceSuffix(),
+                                    u"_Ring"}));
                                 cpp_with_2->SetSize(ClassesImports::Point(RingWidth, RingHeight));
                                 cpp_with_2->SequenceIndex = 0;
                                 cpp_with_2->UpdateAutoGeometry();
@@ -3208,7 +3660,8 @@ namespace ab_MainForm {
                                 cpp_with_2->SetDepth(1.0);
                             }
                         }
-                        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) <= 0) {
+                        if (aPlayer::GetPlayer() != nullptr &&
+                            aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) <= 0) {
                             if (EnemyRewardIcons[Index] != nullptr) {
                                 pas::free(EnemyRewardIcons[Index]);
                                 EnemyRewardIcons[Index] = nullptr;
@@ -3216,24 +3669,36 @@ namespace ab_MainForm {
                                 EnemyRewardBackdrops[Index] = nullptr;
                             }
                         }
-                        if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 && EnemyRewardIcons[Index] == nullptr) {
-                            EnemyRewardBackdrops[Index] = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, MapPanel);
+                        if (aPlayer::GetPlayer() != nullptr &&
+                            aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0 &&
+                            EnemyRewardIcons[Index] == nullptr) {
+                            EnemyRewardBackdrops[Index] = pas::construct_call<GI_Image::TImageGI>(
+                                    GI_Image::TImageGI_Create, MapPanel);
                             {
-                                GI_Image::TImageGI* cpp_with_3 = pas::checked_cast<GI_Image::TImageGI*>(EnemyRewardBackdrops[Index]);
-                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(), u"ABArtSlot"}));
+                                GI_Image::TImageGI* cpp_with_3 = pas::checked_cast<GI_Image::TImageGI*>(
+                                    EnemyRewardBackdrops[Index]);
+                                cpp_with_3->SetImagePath(pas::concat_wide({u"GI,Bm.Items.", GR_Main::GiResourceSuffix(),
+                                    u"ABArtSlot"}));
                                 cpp_with_3->SetSize(cpp_with_3->GetContentSize());
                                 cpp_with_3->SetOrigin(EC_Struct::HalfPoint(cpp_with_3->ClientSize));
                             }
-                            EnemyRewardIcons[Index] = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, MapPanel);
+                            EnemyRewardIcons[Index] = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                                    MapPanel);
                             {
-                                GI_Image::TImageGI* cpp_with_4 = pas::checked_cast<GI_Image::TImageGI*>(EnemyRewardIcons[Index]);
-                                Item = pas::list_at<ab_ShipAI::TabShipAI>(ab_Ship::PlayerArcadeShip->InitialEnemies, Index)->GetRewardItem(true);
-                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
+                                GI_Image::TImageGI* cpp_with_4 = pas::checked_cast<GI_Image::TImageGI*>(
+                                    EnemyRewardIcons[Index]);
+                                Item = pas::list_at<ab_ShipAI::TabShipAI>(ab_Ship::PlayerArcadeShip->InitialEnemies,
+                                        Index)->GetRewardItem(true);
+                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) !=
+                                        nullptr) ||
+                                        static_cast<std::uint8_t>(
+                                            static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
                                     pas::free(Item);
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_4->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(),
+                                        u"ab"}));
                                     cpp_with_4->SetSize(cpp_with_4->GetContentSize());
                                     cpp_with_4->SetOrigin(EC_Struct::HalfPoint(cpp_with_4->ClientSize));
                                     pas::free(Item);
@@ -3258,32 +3723,53 @@ namespace ab_MainForm {
                     } else {
                         if (TrackedShipIcons[Index] == nullptr) {
                             if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Ship->Visual) != nullptr) {
-                                TrackedShipIcons[Index] = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(GI_RotateImage5::TRotateImage5GI_Create, MapPanel);
+                                TrackedShipIcons[Index] = pas::construct_call<GI_RotateImage5::TRotateImage5GI>(
+                                        GI_RotateImage5::TRotateImage5GI_Create, MapPanel);
                                 {
-                                    pas::WideString imagePath_2 = pas::checked_cast<SE_Ship2::TShip2SE*>(Ship->Visual)->GetImagePath();
-                                    GI_RotateImage5::TRotateImage5GI* cpp_arg_2 = pas::checked_cast<GI_RotateImage5::TRotateImage5GI*>(TrackedShipIcons[Index]);
-                                    cpp_arg_2->SetImage(std::move(imagePath_2), ClassesImports::Point(IconWidth, IconHeight), ClassesImports::Point(IconWidth, IconHeight));
+                                    pas::WideString imagePath_2 = pas::checked_cast<SE_Ship2::TShip2SE*>(
+                                        Ship->Visual)->GetImagePath();
+                                    GI_RotateImage5::TRotateImage5GI* cpp_arg_2 = pas::checked_cast<GI_RotateImage5::TRotateImage5GI*>(
+                                        TrackedShipIcons[Index]);
+                                    cpp_arg_2->SetImage(std::move(imagePath_2),
+                                        ClassesImports::Point(IconWidth, IconHeight),
+                                        ClassesImports::Point(IconWidth, IconHeight));
                                 }
                             } else if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(Ship->Visual) != nullptr) {
-                                TrackedShipIcons[Index] = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, MapPanel, false);
+                                TrackedShipIcons[Index] = pas::construct_call<GI_GraphBuf::TGraphBufGI>(
+                                        GI_GraphBuf::TGraphBufGI_Create, MapPanel, false);
                                 {
-                                    GI_GraphBuf::TGraphBufGI* cpp_with_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(TrackedShipIcons[Index]);
+                                    GI_GraphBuf::TGraphBufGI* cpp_with_5 = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                                        TrackedShipIcons[Index]);
                                     cpp_with_5->SourceHasPerPixelAlpha = true;
                                     cpp_with_5->SetSize(ClassesImports::Point(IconWidth, IconHeight));
-                                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath), 1, u","sv), cpp_with_5->GraphBuf);
-                                    if (static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)) {
-                                        cpp_with_5->GraphBuf->RescaleRgba(cpp_with_5->ClientSize.X, System::Round(pas::real_divide(cpp_with_5->ClientSize.X, static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)), 5);
+                                    GI_GI::LoadGiByPathIntoGraphBuf(
+                                        EC_Str::ExtractDelimitedPartW(
+                                            pas::view(
+                                                pas::checked_cast<SE_Ruins::TRuinsSE*>(Ship->Visual)->StaticImagePath),
+                                            1, u","sv), cpp_with_5->GraphBuf);
+                                    if (static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width) >=
+                                        static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)) {
+                                        cpp_with_5->GraphBuf->RescaleRgba(cpp_with_5->ClientSize.X,
+                                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_5->ClientSize.X) /
+                                                static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width)) *
+                                                static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height))), 5);
                                     } else {
-                                        cpp_with_5->GraphBuf->RescaleRgba(System::Round(pas::real_divide(cpp_with_5->ClientSize.Y, static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)) * static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width)), cpp_with_5->ClientSize.Y, 5);
+                                        cpp_with_5->GraphBuf->RescaleRgba(
+                                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_5->ClientSize.Y) /
+                                                static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Height)) *
+                                                static_cast<std::uint32_t>(cpp_with_5->GraphBuf->Width))),
+                                            cpp_with_5->ClientSize.Y, 5);
                                     }
                                 }
                             }
                         }
                         if (TrackedShipHealthRings[Index] == nullptr) {
-                            TrackedShipHealthRings[Index] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, MapPanel);
+                            TrackedShipHealthRings[Index] = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create,
+                                    MapPanel);
                             {
                                 GI_GAI::TgaiGI* cpp_with_6 = TrackedShipHealthRings[Index];
-                                cpp_with_6->SetImagePath(pas::concat_wide({u"Bm.ABItem.", GR_Main::GiResourceSuffix(), u"_Ring"}));
+                                cpp_with_6->SetImagePath(pas::concat_wide({u"Bm.ABItem.", GR_Main::GiResourceSuffix(),
+                                    u"_Ring"}));
                                 cpp_with_6->SetSize(ClassesImports::Point(RingWidth, RingHeight));
                                 cpp_with_6->SequenceIndex = 0;
                                 cpp_with_6->UpdateAutoGeometry();
@@ -3298,39 +3784,50 @@ namespace ab_MainForm {
             }
             PosX = 5;
             PosY = 5;
-            OffsetX = System::Round(pas::real_divide(RingWidth - IconWidth, 2.0L));
-            OffsetY = System::Round(pas::real_divide(RingHeight - IconHeight, 2.0L));
+            OffsetX = pas::real_round(static_cast<float>((RingWidth - IconWidth) / 2.0));
+            OffsetY = pas::real_round(static_cast<float>((RingHeight - IconHeight) / 2.0));
             for (Index = 0; Index <= 7; ++Index) {
                 if (Index < pas::list_count(ab_Ship::PlayerArcadeShip->InitialEnemies)) {
                     Ship = pas::list_at<ab_ShipAI::TabShipAI>(ab_Ship::PlayerArcadeShip->InitialEnemies, Index);
                     if (Ship != nullptr && EnemyIcons[Index] != nullptr && EnemyHealthRings[Index] != nullptr) {
                         if (pas::class_cast_if<GI_RotateImage5::TRotateImage5GI*>(EnemyIcons[Index]) != nullptr) {
-                            EnemyIcons[Index]->SetPosition(ClassesImports::Point(PosX + IconWidth + OffsetX, PosY + IconHeight + OffsetY));
+                            EnemyIcons[Index]->SetPosition(ClassesImports::Point(PosX + IconWidth + OffsetX,
+                                PosY + IconHeight + OffsetY));
                         } else if (pas::class_cast_if<GI_GraphBuf::TGraphBufGI*>(EnemyIcons[Index]) != nullptr) {
                             EnemyIcons[Index]->SetPosition(ClassesImports::Point(PosX + OffsetX, PosY + OffsetY));
                         }
                         EnemyHealthRings[Index]->SetPosition(ClassesImports::Point(PosX, PosY));
                         if (EnemyRewardIcons[Index] != nullptr) {
-                            EnemyHealthRings[Index]->SetSequenceFrame(System::Round((1.04L - pas::real_divide(Ship->Health * 0.96L, Ship->MaxHealth)) * EnemyHealthRings[Index]->SequenceFrameCount));
+                            EnemyHealthRings[Index]->SetSequenceFrame(pas::real_round(static_cast<float>((static_cast<float>(1.04 - static_cast<float>(static_cast<float>(Ship->Health *
+                                    0x1.eb851eb851eb7p-1) / Ship->MaxHealth))) *
+                                EnemyHealthRings[Index]->SequenceFrameCount)));
                         } else {
-                            EnemyHealthRings[Index]->SetSequenceFrame(System::Round((1.0L - pas::real_divide(Ship->Health, Ship->MaxHealth)) * EnemyHealthRings[Index]->SequenceFrameCount));
+                            EnemyHealthRings[Index]->SetSequenceFrame(pas::real_round(static_cast<float>((static_cast<float>(1.0 -
+                                static_cast<float>(static_cast<double>(Ship->Health) / Ship->MaxHealth))) *
+                                EnemyHealthRings[Index]->SequenceFrameCount)));
                         }
                         if (EnemyRewardIcons[Index] != nullptr) {
-                            GI_Image::TImageGI* cpp_with_7 = pas::checked_cast<GI_Image::TImageGI*>(EnemyRewardIcons[Index]);
+                            GI_Image::TImageGI* cpp_with_7 = pas::checked_cast<GI_Image::TImageGI*>(
+                                EnemyRewardIcons[Index]);
                             if (aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) <= 0) {
                                 pas::free(EnemyRewardIcons[Index]);
                                 EnemyRewardIcons[Index] = nullptr;
                                 pas::free(EnemyRewardBackdrops[Index]);
                                 EnemyRewardBackdrops[Index] = nullptr;
                             } else {
-                                cpp_with_7->SetPosition(ClassesImports::Point(PosX + GR_Main::GiScalePixels(31), PosY + GR_Main::GiScalePixels(60)));
+                                cpp_with_7->SetPosition(ClassesImports::Point(PosX + GR_Main::GiScalePixels(31),
+                                    PosY + GR_Main::GiScalePixels(60)));
                                 Item = Ship->GetRewardItem(true);
-                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) != nullptr) || static_cast<std::uint8_t>(static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
+                                if (Item != nullptr && (!(pas::class_cast_if<aItem::TEquipmentWithActCode*>(Item) !=
+                                        nullptr) ||
+                                        static_cast<std::uint8_t>(
+                                            static_cast<aItem::TEquipmentWithActCode*>(Item)->DisplayAsArtefact ^ 1))) {
                                     pas::free(Item);
                                     Item = nullptr;
                                 }
                                 if (Item != nullptr) {
-                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(), u"ab"}));
+                                    cpp_with_7->SetImagePath(pas::concat_wide({u"GI,", Item->GetBitmapResourceName(),
+                                        u"ab"}));
                                     cpp_with_7->SetSize(cpp_with_7->GetContentSize());
                                     cpp_with_7->SetOrigin(EC_Struct::HalfPoint(cpp_with_7->ClientSize));
                                     pas::free(Item);
@@ -3343,7 +3840,9 @@ namespace ab_MainForm {
                             }
                         }
                         if (EnemyRewardBackdrops[Index] != nullptr) {
-                            pas::checked_cast<GI_Image::TImageGI*>(EnemyRewardBackdrops[Index])->SetPosition(ClassesImports::Point(PosX + GR_Main::GiScalePixels(31), PosY + GR_Main::GiScalePixels(60)));
+                            pas::checked_cast<GI_Image::TImageGI*>(
+                                EnemyRewardBackdrops[Index])->SetPosition(ClassesImports::Point(
+                                PosX + GR_Main::GiScalePixels(31), PosY + GR_Main::GiScalePixels(60)));
                         }
                     }
                     PosX += RingWidth;
@@ -3351,19 +3850,23 @@ namespace ab_MainForm {
             }
             PosX = GR_Main::GameScreenWidth - 5 - RingWidth;
             PosY = 5;
-            OffsetX = System::Round(pas::real_divide(RingWidth - IconWidth, 2.0L));
-            OffsetY = System::Round(pas::real_divide(RingHeight - IconHeight, 2.0L));
+            OffsetX = pas::real_round(static_cast<float>((RingWidth - IconWidth) / 2.0));
+            OffsetY = pas::real_round(static_cast<float>((RingHeight - IconHeight) / 2.0));
             for (Index = 0; Index <= 7; ++Index) {
                 if (Index < pas::list_count(ab_Ship::PlayerArcadeShip->TrackedShips)) {
                     Ship = pas::list_at<ab_ShipAI::TabShipAI>(ab_Ship::PlayerArcadeShip->TrackedShips, Index);
-                    if (Ship != nullptr && TrackedShipIcons[Index] != nullptr && TrackedShipHealthRings[Index] != nullptr) {
+                    if (Ship != nullptr && TrackedShipIcons[Index] != nullptr && TrackedShipHealthRings[Index] !=
+                            nullptr) {
                         if (pas::class_cast_if<GI_RotateImage5::TRotateImage5GI*>(TrackedShipIcons[Index]) != nullptr) {
-                            TrackedShipIcons[Index]->SetPosition(ClassesImports::Point(PosX + IconWidth + OffsetX, PosY + IconHeight + OffsetY));
+                            TrackedShipIcons[Index]->SetPosition(ClassesImports::Point(PosX + IconWidth + OffsetX,
+                                PosY + IconHeight + OffsetY));
                         } else if (pas::class_cast_if<GI_GraphBuf::TGraphBufGI*>(TrackedShipIcons[Index]) != nullptr) {
                             TrackedShipIcons[Index]->SetPosition(ClassesImports::Point(PosX + OffsetX, PosY + OffsetY));
                         }
                         TrackedShipHealthRings[Index]->SetPosition(ClassesImports::Point(PosX, PosY));
-                        TrackedShipHealthRings[Index]->SetSequenceFrame(System::Round((1.0L - pas::real_divide(Ship->Health, Ship->MaxHealth)) * TrackedShipHealthRings[Index]->SequenceFrameCount));
+                        TrackedShipHealthRings[Index]->SetSequenceFrame(pas::real_round(static_cast<float>((static_cast<float>(1.0 -
+                            static_cast<float>(static_cast<double>(Ship->Health) / Ship->MaxHealth))) *
+                            TrackedShipHealthRings[Index]->SequenceFrameCount)));
                     }
                     PosX -= RingWidth;
                 }
@@ -3390,7 +3893,8 @@ namespace ab_MainForm {
             SysUtilsImports::Sleep(10u);
         }
         InvalidateFrame();
-        GI_StarField::TStarFieldGI* Background = pas::checked_cast<GI_StarField::TStarFieldGI*>(GetByName(u"StarField"sv));
+        GI_StarField::TStarFieldGI* Background = pas::checked_cast<GI_StarField::TStarFieldGI*>(
+            GetByName(u"StarField"sv));
         std::uint8_t PreviousSkipRestore = GlobalsV::SkipSavedPixelRestore;
         Background->UpdateBackgroundBounds();
         GlobalsV::SkipSavedPixelRestore = GlobalsV::SkipSavedPixelRestore || PreviousSkipRestore;
@@ -3401,7 +3905,7 @@ namespace ab_MainForm {
             UpdateRectsEnabled = false;
         }
         GR_Main::FullFrameRedrawRequested = false;
-        GI_MessageLoop::TMessageLoopGI_RestoreSavedPixels16(this);
+        RestoreSavedPixels16();
         ErasePreviousFrame();
         GR_Rect::TRectGR* Rect = UpdateRects->FirstRect;
         while (Rect != nullptr) {
@@ -3437,7 +3941,8 @@ namespace ab_MainForm {
     }
 
     void TfAB::WorldImageCycleComplete(GI_MessageLoop::TObjectGI* Sender) {
-        ab_WorldImage::PabWorldImage Entry = reinterpret_cast<ab_WorldImage::PabWorldImage>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
+        ab_WorldImage::PabWorldImage Entry = reinterpret_cast<ab_WorldImage::PabWorldImage>(
+            static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));
         Entry->Finished = true;
         if (Entry->Image != nullptr) {
             Entry->Image->SetActive(false);
@@ -3470,27 +3975,33 @@ namespace ab_MainForm {
                 pas::store_unaligned<EC_Struct::TPointF>(&Node->Position, Position);
                 Node->Heading = FromHeading;
             } else {
-                ToHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(-(static_cast<long double>(Position.X) - Destination.X), static_cast<long double>(Position.Y) - Destination.Y));
+                ToHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(
+                        -(static_cast<float>(static_cast<double>(Position.X) - Destination.X)),
+                        static_cast<float>(static_cast<double>(Position.Y) - Destination.Y)));
                 InitialDifference = aMyFunction::HeadingDifferenceDegrees(FromHeading, ToHeading);
-                if (std::fabs(static_cast<pas::Extended>(InitialDifference)) >= AngleStep) {
+                if (std::fabs(static_cast<double>(InitialDifference)) >= AngleStep) {
                     TangentStep = aMyFunction::CalculateTangentArcOffset(Position, Destination, FromHeading, AngleStep);
                     if (TangentStep < Step) {
                         Step = TangentStep;
                     }
                     while (Position.X != Destination.X || Position.Y != Destination.Y) {
-                        ToHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(-(static_cast<long double>(Position.X) - Destination.X), static_cast<long double>(Position.Y) - Destination.Y));
+                        ToHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(
+                                -(static_cast<float>(static_cast<double>(Position.X) - Destination.X)),
+                                static_cast<float>(static_cast<double>(Position.Y) - Destination.Y)));
                         Difference = aMyFunction::HeadingDifferenceDegrees(FromHeading, ToHeading);
-                        if (std::fabs(static_cast<pas::Extended>(Difference)) <= AngleStep) {
+                        if (std::fabs(static_cast<double>(Difference)) <= AngleStep) {
                             break;
                         }
-                        if (InitialDifference > 0.0L) {
-                            FromHeading = aMyFunction::WrapHeadingDegrees(static_cast<long double>(FromHeading) + AngleStep);
+                        if (InitialDifference > 0.0) {
+                            FromHeading = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(FromHeading) + AngleStep));
                         } else {
-                            FromHeading = aMyFunction::WrapHeadingDegrees(static_cast<long double>(FromHeading) - AngleStep);
+                            FromHeading = aMyFunction::WrapHeadingDegrees(static_cast<float>(static_cast<double>(FromHeading) - AngleStep));
                         }
-                        Position.X = System::Sin(aMyFunction::HeadingDegreesToRadians(FromHeading)) * Step + Position.X;
-                        Position.Y = Position.Y - System::Cos(aMyFunction::HeadingDegreesToRadians(FromHeading)) * Step;
-                        if ((static_cast<long double>(Position.X) - Destination.X) * (static_cast<long double>(Position.X) - Destination.X) + (static_cast<long double>(Position.Y) - Destination.Y) * (static_cast<long double>(Position.Y) - Destination.Y) <= static_cast<long double>(Step) * Step) {
+                        Position.X = static_cast<float>(static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(FromHeading)) * Step) + Position.X);
+                        Position.Y = static_cast<float>(Position.Y - static_cast<float>(System::Cos(aMyFunction::HeadingDegreesToRadians(FromHeading)) * Step));
+                        if (static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Position.X) - Destination.X)) * (static_cast<float>(static_cast<double>(Position.X) -
+                                Destination.X))) + static_cast<float>((static_cast<float>(static_cast<double>(Position.Y) - Destination.Y)) *
+                                (static_cast<float>(static_cast<double>(Position.Y) - Destination.Y)))) <= static_cast<float>(static_cast<double>(Step) * Step)) {
                             Position = Destination;
                         }
                         ShipPath->AppendNode();
@@ -3522,24 +4033,30 @@ namespace ab_MainForm {
         }
         if (Origin.X != Destination.X || Origin.Y != Destination.Y) {
             Step = ab_Global::ArcadePathStep;
-            Heading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(-(static_cast<long double>(Origin.X) - Destination.X), static_cast<long double>(Origin.Y) - Destination.Y));
-            if (std::fabs(static_cast<long double>(Origin.X) - Destination.X) < std::fabs(static_cast<long double>(Origin.Y) - Destination.Y)) {
+            Heading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(
+                    -(static_cast<float>(static_cast<double>(Origin.X) - Destination.X)), static_cast<float>(static_cast<double>(Origin.Y) - Destination.Y)));
+            if (std::fabs(static_cast<float>(static_cast<double>(Origin.X) - Destination.X)) < std::fabs(static_cast<float>(static_cast<double>(Origin.Y) -
+                    Destination.Y))) {
                 Vertical = true;
             } else {
                 Vertical = false;
             }
-            Distance = System::Sqrt((static_cast<long double>(Origin.X) - Destination.X) * (static_cast<long double>(Origin.X) - Destination.X) + (static_cast<long double>(Origin.Y) - Destination.Y) * (static_cast<long double>(Origin.Y) - Destination.Y));
+            Distance = System::Sqrt(static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Origin.X) - Destination.X)) * (static_cast<float>(static_cast<double>(Origin.X) -
+                        Destination.X))) + static_cast<float>((static_cast<float>(static_cast<double>(Origin.Y) - Destination.Y)) *
+                        (static_cast<float>(static_cast<double>(Origin.Y) - Destination.Y)))));
             if (Vertical) {
-                Slope = pas::real_divide(static_cast<long double>(Destination.X) - Origin.X, static_cast<long double>(Destination.Y) - Origin.Y);
-                AxisScale = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Slope) * Slope + 1.0L));
-                if (static_cast<long double>(Destination.Y) - Origin.Y < 0.0L) {
+                Slope = static_cast<float>((static_cast<float>(static_cast<double>(Destination.X) - Origin.X)) / (static_cast<float>(static_cast<double>(Destination.Y) -
+                            Origin.Y)));
+                AxisScale = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Slope) * Slope) + 1.0)));
+                if (static_cast<float>(static_cast<double>(Destination.Y) - Origin.Y) < 0.0) {
                     AxisScale = -AxisScale;
                 }
                 AxisOrigin = Origin.Y;
             } else {
-                Slope = pas::real_divide(static_cast<long double>(Destination.Y) - Origin.Y, static_cast<long double>(Destination.X) - Origin.X);
-                AxisScale = pas::real_divide(1.0L, System::Sqrt(static_cast<long double>(Slope) * Slope + 1.0L));
-                if (static_cast<long double>(Destination.X) - Origin.X < 0.0L) {
+                Slope = static_cast<float>((static_cast<float>(static_cast<double>(Destination.Y) - Origin.Y)) / (static_cast<float>(static_cast<double>(Destination.X) -
+                            Origin.X)));
+                AxisScale = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Slope) * Slope) + 1.0)));
+                if (static_cast<float>(static_cast<double>(Destination.X) - Origin.X) < 0.0) {
                     AxisScale = -AxisScale;
                 }
                 AxisOrigin = Origin.X;
@@ -3553,17 +4070,17 @@ namespace ab_MainForm {
             } else {
                 while (Travelled < Distance) {
                     if (Vertical) {
-                        Position.Y = static_cast<long double>(Travelled) * AxisScale + AxisOrigin;
-                        Position.X = (static_cast<long double>(Position.Y) - Origin.Y) * Slope + Origin.X;
+                        Position.Y = static_cast<float>(static_cast<float>(static_cast<double>(Travelled) * AxisScale) + AxisOrigin);
+                        Position.X = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Position.Y) - Origin.Y)) * Slope) + Origin.X);
                     } else {
-                        Position.X = static_cast<long double>(Travelled) * AxisScale + AxisOrigin;
-                        Position.Y = (static_cast<long double>(Position.X) - Origin.X) * Slope + Origin.Y;
+                        Position.X = static_cast<float>(static_cast<float>(static_cast<double>(Travelled) * AxisScale) + AxisOrigin);
+                        Position.Y = static_cast<float>(static_cast<float>((static_cast<float>(static_cast<double>(Position.X) - Origin.X)) * Slope) + Origin.Y);
                     }
                     ShipPath->AppendNode();
                     Node = ShipPath->ActiveTail;
                     pas::store_unaligned<EC_Struct::TPointF>(&Node->Position, Position);
                     Node->Heading = Heading;
-                    Travelled = static_cast<long double>(Travelled) + Step;
+                    Travelled = static_cast<float>(static_cast<double>(Travelled) + Step);
                 }
             }
         }
@@ -3573,7 +4090,8 @@ namespace ab_MainForm {
         AppendShipPathArc(Destination);
         AppendShipPathLine(Destination);
         float Step = ab_Global::ArcadePathStep;
-        if (ShipPath->ActiveHead != nullptr && static_cast<long double>(Step) * Step > aMyFunction::PointDistanceSquared(ShipPath->ActiveTail->Position, Destination)) {
+        if (ShipPath->ActiveHead != nullptr && static_cast<float>(static_cast<double>(Step) * Step) > aMyFunction::PointDistanceSquared(
+                    ShipPath->ActiveTail->Position, Destination)) {
             pas::store_unaligned<EC_Struct::TPointF>(&ShipPath->ActiveTail->Position, Destination);
         }
     }
@@ -3596,17 +4114,25 @@ namespace ab_MainForm {
         Destination->RouteCost = 0.0;
         while (pas::list_count(Pending) > 0) {
             pas::list_clear(Following);
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Pending) - 1); cpp_range.next(Index); ) {
-                Space = pas::list_at<ab_Space::TabSpace>(Pending, Index);
-                Link = ab_Space::FirstArcadeSpaceLink;
-                while (Link != nullptr) {
-                    if (Link->Last == Space && (Link->First->RouteCost < 0.0L || static_cast<long double>(Space->RouteCost) + Link->First->Danger + 0.001L < Link->First->RouteCost)) {
-                        Link->First->RouteCost = static_cast<long double>(Space->RouteCost) + Link->First->Danger + 0.001L;
-                        if (pas::list_indexof(Following, reinterpret_cast<void*>(Link->First)) < 0) {
-                            pas::list_add(Following, reinterpret_cast<void*>(Link->First));
+            {
+                const std::int32_t cpp_last = pas::list_count(Pending) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Space = pas::list_at<ab_Space::TabSpace>(Pending, Index);
+                        Link = ab_Space::FirstArcadeSpaceLink;
+                        while (Link != nullptr) {
+                            if (Link->Last == Space && (Link->First->RouteCost < 0.0 ||
+                                    static_cast<float>(static_cast<float>(static_cast<double>(Space->RouteCost) + Link->First->Danger) + 0.001) <
+                                        Link->First->RouteCost)) {
+                                Link->First->RouteCost = static_cast<float>(static_cast<float>(static_cast<double>(Space->RouteCost) + Link->First->Danger) +
+                                        0.001);
+                                if (pas::list_indexof(Following, reinterpret_cast<void*>(Link->First)) < 0) {
+                                    pas::list_add(Following, reinterpret_cast<void*>(Link->First));
+                                }
+                            }
+                            Link = Link->Next;
                         }
                     }
-                    Link = Link->Next;
                 }
             }
             Swap = Pending;
@@ -3621,7 +4147,7 @@ namespace ab_MainForm {
             BestSpace = nullptr;
             Link = ab_Space::FirstArcadeSpaceLink;
             while (Link != nullptr) {
-                if (Link->First == Space && Link->Last->RouteCost >= 0.0L && Link->Last->RouteCost < BestCost) {
+                if (Link->First == Space && Link->Last->RouteCost >= 0.0 && Link->Last->RouteCost < BestCost) {
                     BestSpace = Link->Last;
                     BestCost = Link->Last->RouteCost;
                 }
@@ -3639,9 +4165,14 @@ namespace ab_MainForm {
         std::int32_t Index{};
         ab_Space::TabSpace* Space{};
         ShipPath->Clear();
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(RouteSpaces) - 1); cpp_range.next(Index); ) {
-            Space = pas::list_at<ab_Space::TabSpace>(RouteSpaces, Index);
-            AppendShipPath(EC_Struct::PointToPointF(Space->MapPosition));
+        {
+            const std::int32_t cpp_last = pas::list_count(RouteSpaces) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    Space = pas::list_at<ab_Space::TabSpace>(RouteSpaces, Index);
+                    AppendShipPath(EC_Struct::PointToPointF(Space->MapPosition));
+                }
+            }
         }
     }
 
@@ -3664,40 +4195,49 @@ namespace ab_MainForm {
             }
             Images->ClearUnits();
             First = ShipPath->ActiveHead;
-            for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(RouteSpaces) - 1); cpp_range.next(Index); ) {
-                Space = pas::list_at<ab_Space::TabSpace>(RouteSpaces, Index);
-                Last = aPath::TSPath::FindNearestFollowingNode(First, EC_Struct::PointToPointF(Space->MapPosition));
-                if (Last == nullptr) {
-                    Last = ShipPath->ActiveTail;
-                }
-                PreviousPosition = EC_Struct::MakePointF(1.0E+10f, 1.0E+10f);
-                Node = Last;
-                while (true) {
-                    if (aMyFunction::PointDistanceSquared(PreviousPosition, Node->Position) > 225.0L) {
-                        PreviousPosition = Node->Position;
-                        if (ShipPath->ActiveTail != Node) {
-                            Item = Images->AddUnit();
-                            Item->UserData = Node;
-                            Images->SetUnitPosition(Item, EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(PreviousPosition), ab_Global::ArcadeMapViewPosition));
-                            if (Node != Last) {
-                                Item->ImageIndex = 1;
-                            } else {
-                                Item->ImageIndex = 2;
-                            }
+            {
+                const std::int32_t cpp_last = pas::list_count(RouteSpaces) - 1;
+                if (0 <= cpp_last) {
+                    for (Index = 0; Index <= cpp_last; ++Index) {
+                        Space = pas::list_at<ab_Space::TabSpace>(RouteSpaces, Index);
+                        Last = aPath::TSPath::FindNearestFollowingNode(First,
+                                EC_Struct::PointToPointF(Space->MapPosition));
+                        if (Last == nullptr) {
+                            Last = ShipPath->ActiveTail;
                         }
+                        PreviousPosition = EC_Struct::MakePointF(1.0E+10f, 1.0E+10f);
+                        Node = Last;
+                        while (true) {
+                            if (aMyFunction::PointDistanceSquared(PreviousPosition, Node->Position) > 225.0) {
+                                PreviousPosition = Node->Position;
+                                if (ShipPath->ActiveTail != Node) {
+                                    Item = Images->AddUnit();
+                                    Item->UserData = Node;
+                                    Images->SetUnitPosition(Item,
+                                        EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(PreviousPosition),
+                                            ab_Global::ArcadeMapViewPosition));
+                                    if (Node != Last) {
+                                        Item->ImageIndex = 1;
+                                    } else {
+                                        Item->ImageIndex = 2;
+                                    }
+                                }
+                            }
+                            if (Node == First) {
+                                break;
+                            }
+                            Node = Node->Prev;
+                        }
+                        First = Last->Next;
                     }
-                    if (Node == First) {
-                        break;
-                    }
-                    Node = Node->Prev;
                 }
-                First = Last->Next;
             }
             {
                 GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"sv));
                 ShipPathEnd->SetActive(true);
                 ShipPathEnd->SetOrigin(EC_Struct::HalfPoint(ShipPathEnd->GetContentSize()));
-                ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
+                ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(
+                    EC_Struct::TruncatePointF(ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
                 ShipPathEnd->RestartPlayback();
             }
         }
@@ -3708,11 +4248,14 @@ namespace ab_MainForm {
         GI_MultiImage::TMultiImageUnitGI* Item{};
         if (ShipPath->ActiveHead != nullptr) {
             {
-                GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(GetByName(u"ShipPath"sv));
+                GI_MultiImage::TMultiImageGI* ShipPath = pas::checked_cast<GI_MultiImage::TMultiImageGI*>(
+                    GetByName(u"ShipPath"sv));
                 Item = ShipPath->FirstUnit;
                 while (Item != nullptr) {
                     Node = static_cast<aPath::PSPathNode>(Item->UserData);
-                    ShipPath->SetUnitPosition(Item, EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(Node->Position), ab_Global::ArcadeMapViewPosition));
+                    ShipPath->SetUnitPosition(Item,
+                        EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(Node->Position),
+                            ab_Global::ArcadeMapViewPosition));
                     Item = Item->Next;
                 }
             }
@@ -3720,7 +4263,8 @@ namespace ab_MainForm {
                 GI_GAI::TgaiGI* ShipPathEnd = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"ShipPathEnd"sv));
                 ShipPathEnd->SetActive(true);
                 ShipPathEnd->SetOrigin(EC_Struct::HalfPoint(ShipPathEnd->GetContentSize()));
-                ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(EC_Struct::TruncatePointF(this->ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
+                ShipPathEnd->SetPosition(EC_Struct::SubtractPoints(
+                    EC_Struct::TruncatePointF(this->ShipPath->ActiveTail->Position), ab_Global::ArcadeMapViewPosition));
                 ShipPathEnd->RestartPlayback();
             }
         }
@@ -3794,7 +4338,8 @@ namespace ab_MainForm {
             HideObjectInfo();
         } else if (InfoSpace != Space) {
             InfoSpace = Space;
-            if (aPlayer::GetPlayer() != nullptr && (ab_Space::StartArcadeSpace == Space || ab_Space::EndArcadeSpace == Space)) {
+            if (aPlayer::GetPlayer() != nullptr && (ab_Space::StartArcadeSpace == Space || ab_Space::EndArcadeSpace ==
+                        Space)) {
                 GetByName(u"InfoStar"sv)->SetActive(true);
                 if (ab_Space::StartArcadeSpace == Space) {
                     Star = aPlayer::GetPlayer()->TransitOriginStar;
@@ -3802,18 +4347,31 @@ namespace ab_MainForm {
                     Star = aPlayer::GetPlayer()->CurrentStar;
                 }
                 {
-                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(Star->Name), pas::view(aMyFunction::TextHighlightColorTag));
+                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(Star->Name),
+                        pas::view(aMyFunction::TextHighlightColorTag));
                     GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoStarName"sv));
                     cpp_arg->SetText(wrapTextInColor);
                 }
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoStarImage"sv));
+                    GI_GraphBuf::TGraphBufGI* InfoStarImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                        GetByName(u"InfoStarImage"sv));
                     InfoStarImage->SourceHasPerPixelAlpha = true;
-                    GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath), 1, u","sv), InfoStarImage->GraphBuf);
-                    if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
-                        InfoStarImage->GraphBuf->RescaleBilinearRgba(InfoStarImage->ClientSize.X, System::Round(pas::real_divide(InfoStarImage->ClientSize.X, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)));
+                    GI_GI::LoadGiByPathIntoGraphBuf(
+                        EC_Str::ExtractDelimitedPartW(
+                            pas::view(reinterpret_cast<SE_Star::TStarSE*>(Star->Graphic)->StaticImagePath), 1, u","sv),
+                        InfoStarImage->GraphBuf);
+                    if (static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width) >=
+                        static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) {
+                        InfoStarImage->GraphBuf->RescaleBilinearRgba(InfoStarImage->ClientSize.X,
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoStarImage->ClientSize.X) /
+                                static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)) *
+                                static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height))));
                     } else {
-                        InfoStarImage->GraphBuf->RescaleBilinearRgba(System::Round(pas::real_divide(InfoStarImage->ClientSize.Y, static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) * static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width)), InfoStarImage->ClientSize.Y);
+                        InfoStarImage->GraphBuf->RescaleBilinearRgba(
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoStarImage->ClientSize.Y) /
+                                static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Height)) *
+                                static_cast<std::uint32_t>(InfoStarImage->GraphBuf->Width))),
+                            InfoStarImage->ClientSize.Y);
                     }
                     InfoStarImage->SetImageKindX(GI_Main::ikxCenter);
                     InfoStarImage->SetImageKindY(GI_Main::ikyCenter);
@@ -3821,19 +4379,28 @@ namespace ab_MainForm {
                 Owner = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"InfoStarPanel"sv));
                 Owner->FreeOwnedChildren();
                 Objects = pas::make_object<pas::List>();
-                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Star->Planets) - 1); cpp_range.next(Index); ) {
+                for (auto cpp_range = pas::for_to<std::int32_t>(0,
+                    pas::list_count(Star->Planets) - 1); cpp_range.next(Index); ) {
                     pas::list_add(Objects, pas::list_get(Star->Planets, Index));
                 }
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(Star->Ships) - 1); cpp_range_2.next(Index); ) {
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                    pas::list_count(Star->Ships) - 1); cpp_range_2.next(Index); ) {
                     if (pas::class_cast_if<aRuins::TRuins*>(pas::list_at<pas::Object>(Star->Ships, Index)) != nullptr) {
-                        Distance = aMyFunction::PointDistanceSquared(pas::list_at<aShip::TShip>(Star->Ships, Index)->Position, EC_Struct::MakePointF(0.0f, 0.0f));
+                        Distance = aMyFunction::PointDistanceSquared(
+                                pas::list_at<aShip::TShip>(Star->Ships, Index)->Position,
+                                EC_Struct::MakePointF(0.0f, 0.0f));
                         InsertIndex = 0;
                         while (InsertIndex < pas::list_count(Objects)) {
-                            if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, InsertIndex)) != nullptr) {
-                                if (aMyFunction::PointDistanceSquared(pas::list_at<aPlanet::TPlanet>(Objects, InsertIndex)->GetPosition(), EC_Struct::MakePointF(0.0f, 0.0f)) > Distance) {
+                            if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects,
+                                InsertIndex)) != nullptr) {
+                                if (aMyFunction::PointDistanceSquared(
+                                    pas::list_at<aPlanet::TPlanet>(Objects, InsertIndex)->GetPosition(),
+                                    EC_Struct::MakePointF(0.0f, 0.0f)) > Distance) {
                                     break;
                                 }
-                            } else if (aMyFunction::PointDistanceSquared(pas::list_at<aShip::TShip>(Objects, InsertIndex)->Position, EC_Struct::MakePointF(0.0f, 0.0f)) > Distance) {
+                            } else if (aMyFunction::PointDistanceSquared(
+                                pas::list_at<aShip::TShip>(Objects, InsertIndex)->Position,
+                                EC_Struct::MakePointF(0.0f, 0.0f)) > Distance) {
                                 break;
                             }
                             ++InsertIndex;
@@ -3842,9 +4409,11 @@ namespace ab_MainForm {
                     }
                 }
                 RowHeight = GR_Main::GiScalePixels(20);
-                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(Objects) - 1); cpp_range_3.next(Index); ) {
+                for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+                    pas::list_count(Objects) - 1); cpp_range_3.next(Index); ) {
                     {
-                        GI_Label::TLabelGI* cpp_with_2 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Owner);
+                        GI_Label::TLabelGI* cpp_with_2 = pas::construct_call<GI_Label::TLabelGI>(
+                            GI_Label::TLabelGI_Create, Owner);
                         cpp_with_2->SetFontName(GlobalsV::NormalFontName);
                         cpp_with_2->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255));
                         cpp_with_2->SetSize(ClassesImports::Point(Owner->ClientSize.X / 2 + 15, RowHeight));
@@ -3852,30 +4421,53 @@ namespace ab_MainForm {
                         cpp_with_2->SetWordWrapEnabled(false);
                         cpp_with_2->SetTextAlignX(GI_Main::taxRight);
                         cpp_with_2->SetTextAlignY(GI_Main::tayCenterEx);
-                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) != nullptr) {
+                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) !=
+                            nullptr) {
                             cpp_with_2->SetText(pas::list_at<aPlanet::TPlanet>(Objects, Index)->Name);
                         } else {
                             cpp_with_2->SetText(pas::list_at<aShip::TShip>(Objects, Index)->Name);
                         }
                     }
                     {
-                        GI_GraphBuf::TGraphBufGI* cpp_with_3 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
+                        GI_GraphBuf::TGraphBufGI* cpp_with_3 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(
+                            GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                         cpp_with_3->SourceHasPerPixelAlpha = true;
-                        cpp_with_3->SetPosition(ClassesImports::Point(Owner->ClientSize.X / 2 + 15 + 5 + 1, RowHeight * Index + 1));
+                        cpp_with_3->SetPosition(ClassesImports::Point(Owner->ClientSize.X / 2 + 15 + 5 + 1,
+                            RowHeight * Index + 1));
                         cpp_with_3->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
-                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) != nullptr) {
-                            pas::list_at<aPlanet::TPlanet>(Objects, Index)->Graphic->RenderToBuffer(this, cpp_with_3->GraphBuf, true);
-                            cpp_with_3->GraphBuf->RescaleBilinearRgba(cpp_with_3->ClientSize.X, cpp_with_3->ClientSize.Y);
+                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) !=
+                            nullptr) {
+                            pas::list_at<aPlanet::TPlanet>(Objects,
+                                Index)->Graphic->RenderToBuffer(this, cpp_with_3->GraphBuf, true);
+                            cpp_with_3->GraphBuf->RescaleBilinearRgba(cpp_with_3->ClientSize.X,
+                                cpp_with_3->ClientSize.Y);
                         } else {
-                            if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic) != nullptr) {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->StaticImagePath), 1, u","sv), cpp_with_3->GraphBuf);
+                            if (pas::class_cast_if<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(Objects,
+                                Index)->Graphic) != nullptr) {
+                                GI_GI::LoadGiByPathIntoGraphBuf(
+                                    EC_Str::ExtractDelimitedPartW(
+                                        pas::view(pas::checked_cast<SE_Ruins::TRuinsSE*>(pas::list_at<aShip::TShip>(
+                                            Objects, Index)->Graphic)->StaticImagePath), 1, u","sv),
+                                    cpp_with_3->GraphBuf);
                             } else {
-                                GI_GI::LoadGiByPathIntoGraphBuf(EC_Str::ExtractDelimitedPartW(pas::view(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(Objects, Index)->Graphic)->AlternateImagePath), 1, u","sv), cpp_with_3->GraphBuf);
+                                GI_GI::LoadGiByPathIntoGraphBuf(
+                                    EC_Str::ExtractDelimitedPartW(
+                                        pas::view(pas::checked_cast<SE_Ship2::TShip2SE*>(pas::list_at<aShip::TShip>(
+                                            Objects, Index)->Graphic)->AlternateImagePath), 1, u","sv),
+                                    cpp_with_3->GraphBuf);
                             }
-                            if (static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)) {
-                                cpp_with_3->GraphBuf->RescaleRgba(cpp_with_3->ClientSize.X, System::Round(pas::real_divide(cpp_with_3->ClientSize.X, static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)), 5);
+                            if (static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width) >=
+                                static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)) {
+                                cpp_with_3->GraphBuf->RescaleRgba(cpp_with_3->ClientSize.X,
+                                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_3->ClientSize.X) /
+                                        static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width)) *
+                                        static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height))), 5);
                             } else {
-                                cpp_with_3->GraphBuf->RescaleRgba(System::Round(pas::real_divide(cpp_with_3->ClientSize.Y, static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)) * static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width)), cpp_with_3->ClientSize.Y, 5);
+                                cpp_with_3->GraphBuf->RescaleRgba(
+                                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_3->ClientSize.Y) /
+                                        static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Height)) *
+                                        static_cast<std::uint32_t>(cpp_with_3->GraphBuf->Width))),
+                                    cpp_with_3->ClientSize.Y, 5);
                             }
                         }
                         cpp_with_3->SetImageKindX(GI_Main::ikxCenter);
@@ -3887,19 +4479,38 @@ namespace ab_MainForm {
                         OwnerId = pas::list_at<aShip::TShip>(Objects, Index)->OwnerId;
                     }
                     if (OwnerId != aGalaxyStruct::oiUninhabited) {
-                        GI_GraphBuf::TGraphBufGI* cpp_with_4 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(GI_GraphBuf::TGraphBufGI_Create, Owner, false);
+                        GI_GraphBuf::TGraphBufGI* cpp_with_4 = pas::construct_call<GI_GraphBuf::TGraphBufGI>(
+                            GI_GraphBuf::TGraphBufGI_Create, Owner, false);
                         cpp_with_4->SourceHasPerPixelAlpha = true;
-                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) != nullptr) {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({EC_CacheBitmap::RgbaImagePathSuffix, EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects, Index)->GetFactionResourceName())), 1, u","sv)}));
+                        if (pas::class_cast_if<aPlanet::TPlanet*>(pas::list_at<pas::Object>(Objects, Index)) !=
+                            nullptr) {
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({
+                                EC_CacheBitmap::RgbaImagePathSuffix,
+                                EC_Str::ExtractDelimitedPartW(
+                                    pas::view(aConst::GetFactionEmblemPath(pas::list_at<aPlanet::TPlanet>(Objects,
+                                        Index)->GetFactionResourceName())), 1, u","sv)}));
                         } else {
-                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({EC_CacheBitmap::RgbaImagePathSuffix, EC_Str::ExtractDelimitedPartW(pas::view(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects, Index)->GetFactionNameKey())), 1, u","sv)}));
+                            cpp_with_4->LoadBitmapPathAsRgba(pas::concat_wide_reverse({
+                                EC_CacheBitmap::RgbaImagePathSuffix,
+                                EC_Str::ExtractDelimitedPartW(
+                                    pas::view(aConst::GetFactionEmblemPath(pas::list_at<aShip::TShip>(Objects,
+                                        Index)->GetFactionNameKey())), 1, u","sv)}));
                         }
-                        cpp_with_4->SetPosition(ClassesImports::Point(Owner->ClientSize.X / 2 + 15 + 5 + RowHeight + 5 + 1, RowHeight * Index + 1));
+                        cpp_with_4->SetPosition(ClassesImports::Point(
+                            Owner->ClientSize.X / 2 + 15 + 5 + RowHeight + 5 + 1, RowHeight * Index + 1));
                         cpp_with_4->SetSize(ClassesImports::Point(RowHeight - 2, RowHeight - 2));
-                        if (static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width) >= static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)) {
-                            cpp_with_4->GraphBuf->RescaleRgba(cpp_with_4->ClientSize.X, System::Round(pas::real_divide(cpp_with_4->ClientSize.X, static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width)) * static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)), 5);
+                        if (static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width) >=
+                            static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)) {
+                            cpp_with_4->GraphBuf->RescaleRgba(cpp_with_4->ClientSize.X,
+                                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_4->ClientSize.X) /
+                                    static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width)) *
+                                    static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height))), 5);
                         } else {
-                            cpp_with_4->GraphBuf->RescaleRgba(System::Round(pas::real_divide(cpp_with_4->ClientSize.Y, static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)) * static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width)), cpp_with_4->ClientSize.Y, 5);
+                            cpp_with_4->GraphBuf->RescaleRgba(
+                                pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(cpp_with_4->ClientSize.Y) /
+                                    static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Height)) *
+                                    static_cast<std::uint32_t>(cpp_with_4->GraphBuf->Width))), cpp_with_4->ClientSize.Y,
+                                5);
                         }
                         cpp_with_4->SetImageKindX(GI_Main::ikxCenter);
                         cpp_with_4->SetImageKindY(GI_Main::ikyCenter);
@@ -3908,7 +4519,9 @@ namespace ab_MainForm {
                 Owner->SetSize(ClassesImports::Point(Owner->ClientSize.X, pas::list_count(Objects) * RowHeight));
                 {
                     GI_Window::TWindowGI* InfoStar = pas::checked_cast<GI_Window::TWindowGI*>(GetByName(u"InfoStar"sv));
-                    InfoStar->SetSize(ClassesImports::Point(InfoStar->ClientSize.X, InfoStar->WorkSubRect.Top + InfoStar->WorkSubRect.Bottom + pas::list_count(Objects) * RowHeight));
+                    InfoStar->SetSize(ClassesImports::Point(InfoStar->ClientSize.X,
+                        InfoStar->WorkSubRect.Top + InfoStar->WorkSubRect.Bottom + pas::list_count(Objects) *
+                                RowHeight));
                     InfoStar->UpdateAutoGeometry();
                 }
                 pas::free(Objects);
@@ -3920,7 +4533,8 @@ namespace ab_MainForm {
                     const pas::WideString& wrapTextInColor_2 = ([&] {
                         pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormAB.InfoName"_wref.get());
                         pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)), pas::view(std::move(textHighlightColorTag)));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(localizedColorText)),
+                            pas::view(std::move(textHighlightColorTag)));
                     }());
                     GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoName"sv));
                     cpp_arg_2->SetText(wrapTextInColor_2);
@@ -3933,20 +4547,23 @@ namespace ab_MainForm {
                 Text = Space->GetDangerText();
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoDanger"sv))->SetText(Text);
                 ShipCount = 0;
-                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, pas::list_count(Space->Objects) - 1); cpp_range_4.next(Index); ) {
+                for (auto cpp_range_4 = pas::for_to<std::int32_t>(0,
+                    pas::list_count(Space->Objects) - 1); cpp_range_4.next(Index); ) {
                     Obj = pas::list_at<pas::Object>(Space->Objects, Index);
                     if (pas::class_cast_if<ab_ShipAI::TabShipAI*>(Obj) != nullptr) {
                         ++ShipCount;
                     }
                 }
-                if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0) {
+                if (aPlayer::GetPlayer() != nullptr &&
+                    aPlayer::GetPlayer()->CountActiveArtefacts(aConst::t_ArtefactAnalyzer) > 0) {
                     Text = pas::wide_int_to_str(ShipCount);
                 } else {
                     Text = aConst::LocalizedColorText(u"FormAB.Unknow"_wref.get());
                 }
                 pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoPirate"sv))->SetText(Text);
                 {
-                    GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(GetByName(u"InfoPlanetImage"sv));
+                    GI_GraphBuf::TGraphBufGI* InfoPlanetImage = pas::checked_cast<GI_GraphBuf::TGraphBufGI*>(
+                        GetByName(u"InfoPlanetImage"sv));
                     InfoPlanetImage->SetActive(true);
                     InfoPlanetImage->SourceHasPerPixelAlpha = true;
                     if (ab_Space::StartArcadeSpace == Space) {
@@ -3956,10 +4573,18 @@ namespace ab_MainForm {
                     } else {
                         GI_GAI::LoadGaiFrameToGraphBuf(Space->Image->GetImagePath(), InfoPlanetImage->GraphBuf, 0u);
                     }
-                    if (static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width) >= static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height)) {
-                        InfoPlanetImage->GraphBuf->RescaleRgba(InfoPlanetImage->ClientSize.X, System::Round(pas::real_divide(InfoPlanetImage->ClientSize.X, static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width)) * static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height)), 5);
+                    if (static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width) >=
+                        static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height)) {
+                        InfoPlanetImage->GraphBuf->RescaleRgba(InfoPlanetImage->ClientSize.X,
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoPlanetImage->ClientSize.X) /
+                                static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width)) *
+                                static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height))), 5);
                     } else {
-                        InfoPlanetImage->GraphBuf->RescaleRgba(System::Round(pas::real_divide(InfoPlanetImage->ClientSize.Y, static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height)) * static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width)), InfoPlanetImage->ClientSize.Y, 5);
+                        InfoPlanetImage->GraphBuf->RescaleRgba(
+                            pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(InfoPlanetImage->ClientSize.Y) /
+                                static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Height)) *
+                                static_cast<std::uint32_t>(InfoPlanetImage->GraphBuf->Width))),
+                            InfoPlanetImage->ClientSize.Y, 5);
                     }
                     {
                         Types::TPoint visualCenter = InfoPlanetImage->GetVisualCenter();
@@ -3969,7 +4594,8 @@ namespace ab_MainForm {
                 }
                 BattleHelpLabel->SetActive(true);
                 {
-                    const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(u"Help.ABSphere"_wref.get());
+                    const pas::WideString& localizedColorText_2 = aConst::LocalizedColorText(
+                        u"Help.ABSphere"_wref.get());
                     GI_Label::TLabelGI* battleHelpLabel = BattleHelpLabel;
                     battleHelpLabel->SetText(localizedColorText_2);
                 }
@@ -4009,7 +4635,11 @@ namespace ab_MainForm {
                 SetCursorByName(u"Take"_wref.get());
             }
         } else {
-            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && ab_Ship::PlayerArcadeShip->DistanceTo(Item) < ab_Global::ManualCargoPickupDistance && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= Item->Item->Weight) {
+            if (aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight &&
+                ab_Ship::PlayerArcadeShip->DistanceTo(Item) < ab_Global::ManualCargoPickupDistance &&
+                aPlayer::GetPlayer()->CargoFreeSpace >= Item->Item->Weight && aShip::TShip_IsEquipmentUsable(
+                    aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) && aShip::TShip_CalculateCargoHookPower(
+                    aPlayer::GetPlayer(), aPlayer::GetPlayer()->GetCargoHook()) >= Item->Item->Weight) {
                 if (!IsCursorImageSelected(u"Take"sv)) {
                     SetCursorByName(u"Take"_wref.get());
                 }
@@ -4017,19 +4647,24 @@ namespace ab_MainForm {
                 SetCursorByName(u"Main"_wref.get());
             }
             Instance = Item->Item;
-            if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) && aPlayer::GetPlayer() != nullptr) {
+            if (aGalaxy::Galaxy != nullptr && static_cast<std::uint8_t>(aGalaxy::Galaxy->Destroying ^ 1) &&
+                aPlayer::GetPlayer() != nullptr) {
                 if (Instance->ScriptItem != nullptr) {
-                    reinterpret_cast<aScript::TScriptItem*>(Instance->ScriptItem)->RunActionCode(aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
+                    reinterpret_cast<aScript::TScriptItem*>(Instance->ScriptItem)->RunActionCode(
+                        aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
                 }
                 if (pas::class_cast_if<aItem::TEquipmentWithActCode*>(Instance) != nullptr) {
-                    aScript::RunItemConfigActionCode(Instance, aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr, nullptr, 0);
+                    aScript::RunItemConfigActionCode(Instance, aGalaxyStruct::satOnShowingItemInfo, nullptr, nullptr,
+                        nullptr, 0);
                 }
             }
             ItemInfoWindow->SetActive(true);
             {
-                GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemImage"sv));
+                GI_Image::TImageGI* InfoItemImage = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(u"InfoItemImage"sv));
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
-                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", aItem::GetItemTypeBitmapPath(Instance->ItemType)}));
+                    InfoItemImage->SetImagePath(pas::concat_wide({u"GI,",
+                        aItem::GetItemTypeBitmapPath(Instance->ItemType)}));
                 } else {
                     InfoItemImage->SetImagePath(pas::concat_wide({u"GI,", Instance->GetBitmapResourceName(), u"s"}));
                 }
@@ -4043,13 +4678,17 @@ namespace ab_MainForm {
             }
             if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
                 {
-                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(pas::view(aConst::GoodsMarket[Instance->ItemType].DisplayName), pas::view(aMyFunction::InfoNameColorTag));
+                    const pas::WideString& wrapTextInColor = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::GoodsMarket[Instance->ItemType].DisplayName),
+                        pas::view(aMyFunction::InfoNameColorTag));
                     GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                     cpp_arg->SetText(wrapTextInColor);
                 }
                 {
-                    const pas::WideString& localizedText = aConst::LocalizedText(static_cast<pas::WideString>(pas::concat_ansi({"Items.Goods.Text.", SysUtils::IntToStr(Instance->ItemType + 1)})));
-                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    const pas::WideString& localizedText = aConst::LocalizedText(pas::concat_wide({u"Items.Goods.Text.",
+                        pas::wide_int_to_str(Instance->ItemType + 1)}));
+                    GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"InfoItemText"sv));
                     cpp_arg_2->SetText(localizedText);
                 }
             } else {
@@ -4058,14 +4697,18 @@ namespace ab_MainForm {
                     const pas::WideString& wrapTextInColor_2 = ([&] {
                         pas::WideString displayName = Instance->GetDisplayName();
                         pas::WideString infoNameColorTag = aMyFunction::InfoNameColorTag;
-                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)), pas::view(std::move(infoNameColorTag)));
+                        return aMyFunction::WrapTextInColor(pas::view(std::move(displayName)),
+                            pas::view(std::move(infoNameColorTag)));
                     }());
-                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
+                    GI_Label::TLabelGI* cpp_arg_3 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"InfoItemName"sv));
                     cpp_arg_3->SetText(wrapTextInColor_2);
                 }
                 {
-                    const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(aMyFunction::TextHighlightColorTag, nullptr);
-                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemText"sv));
+                    const pas::WideString& infoText = Instance->virtual_TItem_GetInfoText(
+                        aMyFunction::TextHighlightColorTag, nullptr);
+                    GI_Label::TLabelGI* cpp_arg_4 = pas::checked_cast<GI_Label::TLabelGI*>(
+                        GetByName(u"InfoItemText"sv));
                     cpp_arg_4->SetText(infoText);
                 }
             }
@@ -4080,70 +4723,94 @@ namespace ab_MainForm {
                 cpp_arg_6->SetText(intToStr_2);
             }
             {
-                GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoItemEmRace"sv));
+                GI_Image::TImageGI* InfoItemEmRace = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(u"InfoItemEmRace"sv));
                 if (pas::class_cast_if<aItem::TGoods*>(Instance) != nullptr) {
-                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName));
+                    InfoItemEmRace->SetImagePath(
+                        aConst::GetFactionEmblemPath(aConst::OwnerInfo[aGalaxyStruct::oiUninhabited].InternalName));
                 } else {
-                    InfoItemEmRace->SetImagePath(aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Instance)));
+                    InfoItemEmRace->SetImagePath(
+                        aConst::GetFactionEmblemPath(aItem::TItem_GetOwnerConfigName(Instance)));
                 }
                 InfoItemEmRace->SetImageKindX(GI_Main::ikxCenter);
                 InfoItemEmRace->SetImageKindY(GI_Main::ikyCenter);
             }
-            if (!(pas::contains(pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9}, {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}}), static_cast<std::uint8_t>(Instance->ItemType)) || Instance->ItemType == aConst::t_Hull)) {
+            if (!(pas::contains(
+                pas::constant_set<pas::Set<0, 255>>({{0, 79}}) - pas::constant_set<pas::Set<0, 255>>({{0, 7}, {9},
+                        {23, 25}, {35, 38}, {42}, {69, 72}, {74, 79}}),
+                static_cast<std::uint8_t>(Instance->ItemType)) || Instance->ItemType == aConst::t_Hull)) {
                 {
-                    GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
+                    GI_Image::TImageGI* InfoDurable = pas::checked_cast<GI_Image::TImageGI*>(
+                        GetByName(u"InfoDurable"sv));
                     InfoDurable->Parent->Parent->SetActive(false);
                 }
                 MinimumWidth = 0;
             } else {
                 if (aItem::THull* hull = pas::class_cast_if<aItem::THull*>(Instance)) {
-                    float real_max = pas::real_max<float>(0.1f, hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})));
-                    Width = System::Round(System::Sqrt(pas::real_divide(pas::real_divide(Instance->Weight, aConst::HullBaseSize), real_max)) * 64.0L);
+                    Width = pas::real_round(static_cast<float>(System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Instance->Weight) / aConst::HullBaseSize) /
+                            pas::real_max_scalar<float>(0.1f,
+                                hull->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({}))))) *
+                            64.0));
                 } else {
-                    Width = System::Round(pas::real_divide(64.0L, pas::real_max<float>(0.1f, pas::checked_cast<aItem::TEquipment*>(Instance)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
+                    Width = pas::real_round(static_cast<float>(64.0 / pas::real_max_scalar<float>(0.1f,
+                                pas::checked_cast<aItem::TEquipment*>(
+                                Instance)->GetFragilityFactor(pas::constant_set<aGalaxyStruct::TDamageFlagSet>({})))));
                 }
                 Width = std::min<std::int32_t>(192, std::max<std::int32_t>(32, Width));
                 {
-                    GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableLeft"sv));
+                    GI_Image::TImageGI* InfoDurableLeft = pas::checked_cast<GI_Image::TImageGI*>(
+                        GetByName(u"InfoDurableLeft"sv));
                     LeftWidth = InfoDurableLeft->GetContentSize().X;
-                    MinimumWidth = LeftWidth * 2 + Width + InfoDurableLeft->LocalPosition.X + InfoDurableLeft->Parent->LocalPosition.X + InfoDurableLeft->Parent->Parent->LocalPosition.X * 2;
+                    MinimumWidth = LeftWidth * 2 + Width + InfoDurableLeft->LocalPosition.X +
+                            InfoDurableLeft->Parent->LocalPosition.X +
+                            InfoDurableLeft->Parent->Parent->LocalPosition.X * 2;
                 }
                 {
-                    GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurable"sv));
+                    GI_Image::TImageGI* InfoDurable_2 = pas::checked_cast<GI_Image::TImageGI*>(
+                        GetByName(u"InfoDurable"sv));
                     InfoDurable_2->Parent->Parent->SetActive(true);
-                    InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(LeftWidth * 2 + Width, InfoDurable_2->Parent->Parent->ClientSize.Y));
-                    InfoDurable_2->Parent->SetSize(ClassesImports::Point(Width + 2, InfoDurable_2->Parent->Parent->ClientSize.Y));
+                    InfoDurable_2->Parent->Parent->SetSize(ClassesImports::Point(LeftWidth * 2 + Width,
+                        InfoDurable_2->Parent->Parent->ClientSize.Y));
+                    InfoDurable_2->Parent->SetSize(ClassesImports::Point(Width + 2,
+                        InfoDurable_2->Parent->Parent->ClientSize.Y));
                     if (Instance->ItemType == aConst::t_Hull) {
-                        pas::Extended cpp_left_2 = pas::checked_cast<aItem::THull*>(Instance)->HullPoints;
-                        std::int64_t cpp_left = System::Round(pas::real_divide(cpp_left_2, pas::checked_cast<aItem::THull*>(Instance)->Weight) * Width);
+                        double cpp_left_2 = pas::checked_cast<aItem::THull*>(Instance)->HullPoints;
+                        std::int64_t cpp_left = pas::real_round(static_cast<float>(static_cast<float>(cpp_left_2 /
+                            pas::checked_cast<aItem::THull*>(Instance)->Weight) * Width));
                         std::int32_t cpp_arg_7 = cpp_left - (InfoDurable_2->GetContentSize().X - 5);
                         std::int32_t y = InfoDurable_2->LocalPosition.Y;
                         InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg_7, y));
                     } else {
-                        std::int64_t cpp_left_3 = System::Round(pas::real_divide(pas::checked_cast<aItem::TEquipment*>(Instance)->ConditionPercent, 1.0E+2L) * Width);
+                        std::int64_t cpp_left_3 = pas::real_round(
+                            static_cast<float>(static_cast<float>(pas::checked_cast<aItem::TEquipment*>(Instance)->ConditionPercent / 1.0E+2) * Width));
                         std::int32_t cpp_arg_8 = cpp_left_3 - (InfoDurable_2->GetContentSize().X - 5);
                         std::int32_t y_2 = InfoDurable_2->LocalPosition.Y;
                         InfoDurable_2->SetPosition(ClassesImports::Point(cpp_arg_8, y_2));
                     }
                 }
                 {
-                    GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableRight"sv));
+                    GI_Image::TImageGI* InfoDurableRight = pas::checked_cast<GI_Image::TImageGI*>(
+                        GetByName(u"InfoDurableRight"sv));
                     {
                         std::int32_t cpp_arg_9 = Width + LeftWidth - InfoDurableRight->GetContentSize().X;
                         std::int32_t y_3 = InfoDurableRight->LocalPosition.Y;
                         InfoDurableRight->SetPosition(ClassesImports::Point(cpp_arg_9, y_3));
                     }
-                    InfoDurableRight->Parent->SetPosition(ClassesImports::Point(LeftWidth, InfoDurableRight->Parent->LocalPosition.Y));
-                    InfoDurableRight->Parent->SetSize(ClassesImports::Point(Width + LeftWidth, InfoDurableRight->Parent->ClientSize.Y));
+                    InfoDurableRight->Parent->SetPosition(ClassesImports::Point(LeftWidth,
+                        InfoDurableRight->Parent->LocalPosition.Y));
+                    InfoDurableRight->Parent->SetSize(ClassesImports::Point(Width + LeftWidth,
+                        InfoDurableRight->Parent->ClientSize.Y));
                 }
                 {
-                    GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"InfoDurableBack"sv));
+                    GI_Image::TImageGI* InfoDurableBack = pas::checked_cast<GI_Image::TImageGI*>(
+                        GetByName(u"InfoDurableBack"sv));
                     {
                         std::int32_t cpp_arg_10 = Width + 1 - InfoDurableBack->GetContentSize().X;
                         std::int32_t y_4 = InfoDurableBack->LocalPosition.Y;
                         InfoDurableBack->SetPosition(ClassesImports::Point(cpp_arg_10, y_4));
                     }
-                    InfoDurableBack->Parent->SetSize(ClassesImports::Point(Width + LeftWidth, InfoDurableBack->Parent->ClientSize.Y));
+                    InfoDurableBack->Parent->SetSize(ClassesImports::Point(Width + LeftWidth,
+                        InfoDurableBack->Parent->ClientSize.Y));
                 }
             }
             {
@@ -4151,15 +4818,22 @@ namespace ab_MainForm {
                 GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"InfoItemName"sv));
                 fShip2::TfShip2::LayoutItemInfo(ItemInfoWindow, cpp_arg_12, cpp_arg_11, true, true, MinimumWidth);
             }
-            GetByName(u"InfoItemSize"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemSizeLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
-            GetByName(u"InfoItemPrice"sv)->SetPosition(ClassesImports::Point(Globals::ShipScreen->ItemPriceLabelPosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
-            GetByName(u"InfoItemEmRace"sv)->SetPosition(ClassesImports::Point(ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X, ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
+            GetByName(u"InfoItemSize"sv)->SetPosition(ClassesImports::Point(
+                Globals::ShipScreen->ItemSizeLabelPosition.X,
+                ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemSizeLabelPosition.Y));
+            GetByName(u"InfoItemPrice"sv)->SetPosition(ClassesImports::Point(
+                Globals::ShipScreen->ItemPriceLabelPosition.X,
+                ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemPriceLabelPosition.Y));
+            GetByName(u"InfoItemEmRace"sv)->SetPosition(ClassesImports::Point(
+                ItemInfoWindow->ClientSize.X + Globals::ShipScreen->ItemRaceImagePosition.X,
+                ItemInfoWindow->ClientSize.Y + Globals::ShipScreen->ItemRaceImagePosition.Y));
         }
         if (CargoPickupZone == nullptr) {
             CargoPickupZone = ab_Zone::ab_Zone_Add();
             CargoPickupZone->Kind = 20;
             CargoPickupZone->Radius = ab_Global::ManualCargoPickupDistance;
-            CargoPickupZone->RadiusDegrees = pas::real_divide(CargoPickupZone->Radius * 1.8E+2L, SystemImports::Pi * ab_Global::SphereRadius);
+            CargoPickupZone->RadiusDegrees = static_cast<float>(static_cast<float>(CargoPickupZone->Radius * 1.8E+2) / (static_cast<float>(SystemImports::Pi *
+                        ab_Global::SphereRadius)));
         }
         CargoPickupZone->Longitude = ab_Ship::PlayerArcadeShip->State.LongitudeDegrees;
         CargoPickupZone->PolarAngle = ab_Ship::PlayerArcadeShip->State.PolarAngleDegrees;
@@ -4182,7 +4856,8 @@ namespace ab_MainForm {
     }
 
     void TfAB::OpenShipEquipment(GI_MessageLoop::TObjectGI* Sender) {
-        if (ab_Global::ArcadeViewMode != 5 && aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr && ab_Ship::PlayerArcadeShip->Health > 0) {
+        if (ab_Global::ArcadeViewMode != 5 && aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr &&
+            ab_Ship::PlayerArcadeShip->Health > 0) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(601);
             aGalaxy::Galaxy->CheckIntegrityChecksum2(602);
             ForwardKeyDown = false;
@@ -4239,13 +4914,19 @@ namespace ab_MainForm {
             ab_Ship::PlayerArcadeShip->WeaponCount = 0;
             SlotCount = aPlayer::GetPlayer()->GetSlotCount(aConst::sskWeapon);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, SlotCount - 1); cpp_range.next(SlotIndex); ) {
-                Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(aConst::WeaponCategoryItemType, SlotIndex));
+                Item = pas::checked_cast<aItem::TWeapon*>(aPlayer::GetPlayer()->FindEquippedItemInSlot(
+                        aConst::WeaponCategoryItemType, SlotIndex));
                 if (aShip::TShip_IsEquipmentUsable(aPlayer::GetPlayer(), Item)) {
-                    if (CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] != Item || ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount].SlotData != Item->AssignedSlotData) {
-                        ab_W::ab_Weapon_InitializeFromInfo(&ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount], Item->GetWeaponInfo());
+                    if (CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] != Item ||
+                        ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount].SlotData !=
+                            Item->AssignedSlotData) {
+                        ab_W::ab_Weapon_InitializeFromInfo(
+                            &ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount],
+                            Item->GetWeaponInfo());
                         CampaignWeapons[ab_Ship::PlayerArcadeShip->WeaponCount] = Item;
                         {
-                            ab_W::TabWeapon& cpp_with = ab_Ship::PlayerArcadeShip->Weapons[ab_Ship::PlayerArcadeShip->WeaponCount];
+                            ab_W::TabWeapon& cpp_with = ab_Ship::PlayerArcadeShip->Weapons[
+                                ab_Ship::PlayerArcadeShip->WeaponCount];
                             cpp_with.Ammo = FindSavedWeaponAmmo(Item);
                             if (cpp_with.Ammo > cpp_with.MaxAmmo) {
                                 cpp_with.Ammo = 0;
@@ -4283,8 +4964,10 @@ namespace ab_MainForm {
         if (aItem::TArtefact* artefact = pas::class_cast_if<aItem::TArtefact*>(Instance)) {
             static_cast<aItem::TEquipment*>(artefact)->EquippedFlag = 0;
             pas::list_add(aPlayer::GetPlayer()->Artefacts, reinterpret_cast<void*>(Instance));
-            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(Instance)) {
-                pas::checked_cast<aTranclucator::TTranclucator*>(static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = aPlayer::GetPlayer();
+            if (aItem::TArtefactTranclucator* artefactTranclucator = pas::class_cast_if<aItem::TArtefactTranclucator*>(
+                Instance)) {
+                pas::checked_cast<aTranclucator::TTranclucator*>(
+                    static_cast<pas::Object*>(artefactTranclucator->Ship))->OwnerShip = aPlayer::GetPlayer();
             }
         } else if (aItem::TCountableItem* countableItem = pas::class_cast_if<aItem::TCountableItem*>(Instance)) {
             countableItem->DropFlag = 0;
@@ -4315,7 +4998,8 @@ namespace ab_MainForm {
                 cpp_target += cpp_step;
             }
             {
-                std::int32_t& cpp_target_2 = aPlayer::GetPlayer()->CargoGoods[pas::checked_cast<aItem::TGoods*>(Instance)->ItemType].TotalCost;
+                std::int32_t& cpp_target_2 = aPlayer::GetPlayer()->CargoGoods[
+                    pas::checked_cast<aItem::TGoods*>(Instance)->ItemType].TotalCost;
                 std::int32_t cpp_step_2 = pas::checked_cast<aItem::TGoods*>(Instance)->Cost;
                 cpp_target_2 += cpp_step_2;
             }
@@ -4337,9 +5021,10 @@ namespace ab_MainForm {
 
     double TfAB::RandomFloat(double BoundA, double BoundB) {
         RandomSeed = RandomSeed / 7931 + (RandomSeed * 7981 + 567);
-        std::int32_t trunc = System::Trunc(BoundB * pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)) + 1.0L);
-        std::int32_t trunc_2 = System::Trunc(BoundA * pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)) + 1.0L);
-        return pas::real_divide(aMyFunction::SeededRandomIntRange(trunc_2, trunc, RandomSeed), pas::constant(static_cast<long double>(aMyFunction::RandomFloatResolution)));
+        return static_cast<float>(aMyFunction::SeededRandomIntRange(
+            pas::real_trunc(static_cast<float>(static_cast<float>(BoundA * pas::constant(static_cast<double>(aMyFunction::RandomFloatResolution))) + 1.0)),
+            pas::real_trunc(static_cast<float>(static_cast<float>(BoundB * pas::constant(static_cast<double>(aMyFunction::RandomFloatResolution))) + 1.0)),
+            RandomSeed) / pas::constant(static_cast<double>(aMyFunction::RandomFloatResolution)));
     }
 
     void TfAB::UpdateHelp(GI_MessageLoop::TObjectGI* Sender, std::uint8_t Show) {
@@ -4372,7 +5057,8 @@ namespace ab_MainForm {
         if (pas::list_count(ListedObjects) <= 0) {
             ItemsPanel->SetSize(ClassesImports::Point(ItemsPanel->ClientSize.X, 0));
         } else {
-            ItemsPanel->SetSize(ClassesImports::Point(ItemsPanel->ClientSize.X, (pas::list_count(ListedObjects) + 1) * GR_Main::GiScalePixels(20) + 5));
+            ItemsPanel->SetSize(ClassesImports::Point(ItemsPanel->ClientSize.X,
+                (pas::list_count(ListedObjects) + 1) * GR_Main::GiScalePixels(20) + 5));
             Heading = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, ItemsPanel);
             Heading->SetFontName(GlobalsV::NormalFontName);
             Heading->SetPosition(ClassesImports::Point(0, 0 * GR_Main::GiScalePixels(20)));
@@ -4401,16 +5087,21 @@ namespace ab_MainForm {
         Footer->SetTextAlignY(GI_Main::tayAuto);
         Footer->SetText(aConst::LocalizedColorText(u"FormAB.TextExit"_wref.get()));
         Footer->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 255, 255));
-        ItemsPanel->SetSize(ClassesImports::Point(ItemsPanel->ClientSize.X, GR_Main::GiScalePixels(30) + ItemsPanel->ClientSize.Y + Footer->ClientSize.Y));
+        ItemsPanel->SetSize(ClassesImports::Point(ItemsPanel->ClientSize.X,
+            GR_Main::GiScalePixels(30) + ItemsPanel->ClientSize.Y + Footer->ClientSize.Y));
         GI_MessageLoop::TObjectGI* Panel = VictoryPanel;
-        Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
+        Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X,
+            ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
         Panel->SetActive(true);
         Panel = GetByName(u"WinShr"sv);
-        Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X, ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
+        Panel->SetSize(ClassesImports::Point(Panel->ClientSize.X,
+            ItemsPanel->LocalPosition.Y + ItemsPanel->ClientSize.Y + GR_Main::GiScalePixels(20)));
         GetByName(u"PanelWinHide"sv)->SetActive(true);
-        if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr && static_cast<std::uint8_t>(ab_Ship::PlayerArcadeShip->HasFiredWeapon ^ 1)) {
+        if (aPlayer::GetPlayer() != nullptr && ab_Ship::PlayerArcadeShip != nullptr &&
+            static_cast<std::uint8_t>(ab_Ship::PlayerArcadeShip->HasFiredWeapon ^ 1)) {
             aGalaxy::Galaxy->CheckIntegrityChecksum1(630);
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNoShotsArcadeVictoryAchievement();
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckNoShotsArcadeVictoryAchievement();
             aGalaxy::Galaxy->PrimeIntegrityChecksum1(631);
         }
     }

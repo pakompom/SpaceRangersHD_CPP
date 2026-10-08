@@ -95,7 +95,8 @@ namespace aEFilm {
         ++CameraEventCount;
     }
 
-    void TEFilm::AddCameraEvent(std::int32_t AStepIndex, EC_Struct::TPointF AStartPosition, EC_Struct::TPointF AEndPosition, std::int32_t APriority) {
+    void TEFilm::AddCameraEvent(std::int32_t AStepIndex, EC_Struct::TPointF AStartPosition,
+        EC_Struct::TPointF AEndPosition, std::int32_t APriority) {
         if (CameraEvents.length() - 1 <= CameraEventCount) {
             CameraEvents.set_length(CameraEventCount + 30);
         }
@@ -118,7 +119,8 @@ namespace aEFilm {
             Obj = nullptr;
         }
         if (Obj == nullptr) {
-            GR_Main::AppendLogTextThreadSafe("Failed to allocate memory for film object, trying to free some textures... "_a);
+            GR_Main::AppendLogTextThreadSafe(
+                "Failed to allocate memory for film object, trying to free some textures... "_a);
             GR_DX::EvictTextureCaches(true);
             try {
                 Obj = pas::make_object<TEFilmObj>();
@@ -233,10 +235,12 @@ namespace aEFilm {
     }
 
     // Matches all three keys; returns a borrowed object or nil.
-    TEFilmObj* TEFilm::FindObject(const std::u16string_view& KindName, const std::u16string_view& GraphKey, std::uint32_t ObjectId) {
+    TEFilmObj* TEFilm::FindObject(const std::u16string_view& KindName, const std::u16string_view& GraphKey,
+        std::uint32_t ObjectId) {
         TEFilmObj* Entry = FirstObject;
         while (Entry != nullptr) {
-            if (Entry->ObjectId == ObjectId && pas::view(Entry->KindName) == KindName && pas::view(Entry->GraphKey) == GraphKey) {
+            if (Entry->ObjectId == ObjectId && pas::view(Entry->KindName) == KindName && pas::view(Entry->GraphKey) ==
+                    GraphKey) {
                 return Entry;
             }
             Entry = Entry->Next;
@@ -380,7 +384,8 @@ namespace aEFilm {
     }
 
     // Retains SceneObject and copies its class name and graph key. Both stack arguments are unused.
-    TEFilmObj* TEFilm::AddObject(std::uint32_t ObjectId, SE_Space::TObjectSE* SceneObject, std::int32_t Unused1, std::int32_t Unused2) {
+    TEFilmObj* TEFilm::AddObject(std::uint32_t ObjectId, SE_Space::TObjectSE* SceneObject, std::int32_t Unused1,
+        std::int32_t Unused2) {
         TEFilmObj* Obj{};
         Obj = AllocateObject();
         Obj->ObjectId = ObjectId;
@@ -435,7 +440,8 @@ namespace aEFilm {
     }
 
     // Scale is decoded as a signed 16-bit value divided by 1000 during playback.
-    void TEFilm::SetPlanetState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t RotationInterval, std::int32_t SurfaceMapStep, std::uint16_t ScaleThousandths, std::uint8_t RingKind, std::uint8_t Owner) {
+    void TEFilm::SetPlanetState(std::int32_t StepIndex, TEFilmObj* Obj, std::int32_t RotationInterval,
+        std::int32_t SurfaceMapStep, std::uint16_t ScaleThousandths, std::uint8_t RingKind, std::uint8_t Owner) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
         }
@@ -447,7 +453,8 @@ namespace aEFilm {
         Command->Flags = ScaleThousandths | pas::shl(static_cast<std::int32_t>(Owner), 24);
     }
 
-    void TEFilm::SetShipSizeAndTailMode(std::int32_t StepIndex, TEFilmObj* Obj, Types::TPoint Size, std::int32_t TailMode) {
+    void TEFilm::SetShipSizeAndTailMode(std::int32_t StepIndex, TEFilmObj* Obj, Types::TPoint Size,
+        std::int32_t TailMode) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
         }
@@ -468,7 +475,8 @@ namespace aEFilm {
         Command->Value = State;
     }
 
-    void TEFilm::SetWeaponHit(std::int32_t StepIndex, TEFilmObj* Obj, std::uint16_t Color, std::int32_t Damage, std::uint8_t Destroyed, std::uint8_t PlaySound) {
+    void TEFilm::SetWeaponHit(std::int32_t StepIndex, TEFilmObj* Obj, std::uint16_t Color, std::int32_t Damage,
+        std::uint8_t Destroyed, std::uint8_t PlaySound) {
         if (Obj == nullptr) {
             pas::raise(pas::make_exception<pas::Exception>("obj=nil"_a));
         }
@@ -652,7 +660,8 @@ namespace aEFilm {
 
     // Keep all three tests in one expression to preserve the recovered load order.
     std::uint8_t HasSceneObjectOfClass(PEFilmCommand Command, System::TClass SceneClass) {
-        return Command->Obj != nullptr && Command->Obj->SceneObject != nullptr && pas::inherits_from(pas::class_type(Command->Obj->SceneObject), SceneClass);
+        return Command->Obj != nullptr && Command->Obj->SceneObject != nullptr && pas::inherits_from(
+                pas::class_type(Command->Obj->SceneObject), SceneClass);
     }
 
     void TEFilm::ExecuteCommand(SE_Process::TProcessSE* Process, PEFilmCommand Command, std::uint8_t ReplayMode) {
@@ -668,13 +677,15 @@ namespace aEFilm {
             switch (Command->Kind) {
                 case efcSetObjectPosition: {
                     if (aEFilm::HasSceneObject(Command)) {
-                        Command->Obj->SceneObject->SetPosition(reinterpret_cast<PEFilmVectorCommand>(Command)->Position);
+                        Command->Obj->SceneObject->SetPosition(
+                            reinterpret_cast<PEFilmVectorCommand>(Command)->Position);
                     }
                     break;
                 }
                 case efcSetObjectOrbitCenter: {
                     if (aEFilm::HasSceneObject(Command)) {
-                        Command->Obj->SceneObject->SetOrbitCenter(reinterpret_cast<PEFilmVectorCommand>(Command)->Position);
+                        Command->Obj->SceneObject->SetOrbitCenter(
+                            reinterpret_cast<PEFilmVectorCommand>(Command)->Position);
                     }
                     break;
                 }
@@ -708,15 +719,21 @@ namespace aEFilm {
                 }
                 case efcSetPlanetState: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Planet::TPlanetSE>())) {
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetRotationTimerInterval(reinterpret_cast<PEFilmObjectCommand>(Command)->Value & 0x00ffffff);
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetRingKind(pas::shr(reinterpret_cast<PEFilmObjectCommand>(Command)->Value, 24));
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetSurfaceMapStep(reinterpret_cast<PEFilmObjectCommand>(Command)->ExtraValue);
-                        {
-                            auto& cpp_target = pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->OrbitalVelocity;
-                            cpp_target = pas::real_divide(static_cast<std::int16_t>(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags & 0x0000ffff), 1.0E+3L);
-                        }
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetMinimapOwner(pas::shr(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags, 24));
-                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->Civilized = pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->MinimapOwner != 6;
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(
+                            Command->Obj->SceneObject)->SetRotationTimerInterval(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value & 0x00ffffff);
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetRingKind(pas::shr(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value, 24));
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(
+                            Command->Obj->SceneObject)->SetSurfaceMapStep(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->ExtraValue);
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->OrbitalVelocity =
+                            static_cast<float>(static_cast<std::int16_t>(reinterpret_cast<PEFilmObjectCommand>(Command)->Flags &
+                                0x0000ffff) / 1.0E+3);
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->SetMinimapOwner(pas::shr(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Flags, 24));
+                        pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->Civilized =
+                            pas::checked_cast<SE_Planet::TPlanetSE*>(Command->Obj->SceneObject)->MinimapOwner != 6;
                     }
                     break;
                 }
@@ -724,7 +741,8 @@ namespace aEFilm {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Ship2::TShip2SE>())) {
                         Ship = pas::checked_cast<SE_Ship2::TShip2SE*>(Command->Obj->SceneObject);
                         Ship->SetSize(reinterpret_cast<PEFilmSizeCommand>(Command)->Size);
-                        if (GlobalsV::ShipTail == 2 || GlobalsV::ShipTail == 1 && aPlayer::GetPlayer() != nullptr && aPlayer::GetPlayer()->Id == static_cast<std::int32_t>(Command->Obj->ObjectId)) {
+                        if (GlobalsV::ShipTail == 2 || GlobalsV::ShipTail == 1 && aPlayer::GetPlayer() != nullptr &&
+                                aPlayer::GetPlayer()->Id == static_cast<std::int32_t>(Command->Obj->ObjectId)) {
                             Ship->SetTailMode(reinterpret_cast<PEFilmSizeCommand>(Command)->TailMode);
                         } else {
                             Ship->SetTailMode(0);
@@ -741,40 +759,54 @@ namespace aEFilm {
                 }
                 case efcSetWeaponHit: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Weapon::TWeaponSE>())) {
-                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->SetHit(reinterpret_cast<PEFilmHitCommand>(Command)->Color, reinterpret_cast<PEFilmHitCommand>(Command)->Damage, reinterpret_cast<PEFilmHitCommand>(Command)->Destroyed, reinterpret_cast<PEFilmHitCommand>(Command)->PlaySound);
+                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->SetHit(
+                            reinterpret_cast<PEFilmHitCommand>(Command)->Color,
+                            reinterpret_cast<PEFilmHitCommand>(Command)->Damage,
+                            reinterpret_cast<PEFilmHitCommand>(Command)->Destroyed,
+                            reinterpret_cast<PEFilmHitCommand>(Command)->PlaySound);
                     }
                     break;
                 }
                 case efcSetWeaponEndpoints: {
                     // Both endpoint scene-object tests are repeated in the native code.
                     Source = nullptr;
-                    if (reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr) {
+                    if (reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source != nullptr &&
+                        reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr &&
+                        reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject != nullptr) {
                         Source = reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source->SceneObject;
                     }
                     Target = nullptr;
-                    if (reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target->SceneObject != nullptr && reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target->SceneObject != nullptr) {
+                    if (reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target != nullptr &&
+                        reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target->SceneObject != nullptr &&
+                        reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target->SceneObject != nullptr) {
                         Target = reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target->SceneObject;
                     }
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Weapon::TWeaponSE>())) {
-                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->SetEndpoints(Source, Target);
+                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->SetEndpoints(Source,
+                            Target);
                     }
                     break;
                 }
                 case efcSetDestructionEffect: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Weapon::TWeaponSE>())) {
-                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->DestructionEffect = reinterpret_cast<PEFilmObjectCommand>(Command)->Value;
+                        pas::checked_cast<SE_Weapon::TWeaponSE*>(Command->Obj->SceneObject)->DestructionEffect =
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value;
                     }
                     break;
                 }
                 case efcSetEffectImagePosition: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_GAIEffect::TGAIEffectSE>())) {
-                        pas::checked_cast<SE_GAIEffect::TGAIEffectSE*>(Command->Obj->SceneObject)->SetImagePosition(reinterpret_cast<PEFilmSizeCommand>(Command)->Size);
+                        pas::checked_cast<SE_GAIEffect::TGAIEffectSE*>(
+                            Command->Obj->SceneObject)->SetImagePosition(
+                            reinterpret_cast<PEFilmSizeCommand>(Command)->Size);
                     }
                     break;
                 }
                 case efcSetEffectDurationScale: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_GAIEffect::TGAIEffectSE>())) {
-                        pas::checked_cast<SE_GAIEffect::TGAIEffectSE*>(Command->Obj->SceneObject)->SetDurationScale(reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X);
+                        pas::checked_cast<SE_GAIEffect::TGAIEffectSE*>(
+                            Command->Obj->SceneObject)->SetDurationScale(
+                            reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X);
                     }
                     break;
                 }
@@ -785,9 +817,13 @@ namespace aEFilm {
                         if (pas::class_cast_if<SE_Ship2::TShip2SE*>(Command->Obj->SceneObject) != nullptr) {
                             ErrorStep = 3;
                             {
-                                SE_Ship2::TShip2SE* cpp_with = pas::checked_cast<SE_Ship2::TShip2SE*>(Command->Obj->SceneObject);
+                                SE_Ship2::TShip2SE* cpp_with = pas::checked_cast<SE_Ship2::TShip2SE*>(
+                                    Command->Obj->SceneObject);
                                 ErrorStep = 4;
-                                if (GlobalsV::ShipTail != 2 && (GlobalsV::ShipTail != 1 || aPlayer::GetPlayer() == nullptr || aPlayer::GetPlayer()->Id != static_cast<std::int32_t>(Command->Obj->ObjectId)) || cpp_with->TailMode <= 0) {
+                                if (GlobalsV::ShipTail != 2 && (GlobalsV::ShipTail != 1 || aPlayer::GetPlayer() ==
+                                            nullptr || aPlayer::GetPlayer()->Id !=
+                                            static_cast<std::int32_t>(Command->Obj->ObjectId)) || cpp_with->TailMode <=
+                                        0) {
                                     cpp_with->SetTailMode(0);
                                 }
                             }
@@ -813,7 +849,8 @@ namespace aEFilm {
                 case efcReleaseWeaponEffects: {
                     Obj = FirstObject;
                     while (Obj != nullptr) {
-                        if (Obj->SceneObject != nullptr && pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj->SceneObject) != nullptr) {
+                        if (Obj->SceneObject != nullptr &&
+                            pas::class_cast_if<SE_Weapon::TWeaponSE*>(Obj->SceneObject) != nullptr) {
                             Obj->SceneObject->DetachFromSpace();
                             SE_Space::ReleaseSpaceObject(pas::Var<SE_Space::TObjectSE*>(&Obj->SceneObject));
                         }
@@ -823,9 +860,11 @@ namespace aEFilm {
                 }
                 case efcSetViewCenter: {
                     if (ReplayMode) {
-                        Globals::FilmScreen->FollowViewOffset(EC_Struct::TruncatePointF(reinterpret_cast<PEFilmVectorCommand>(Command)->Position));
+                        Globals::FilmScreen->FollowViewOffset(
+                            EC_Struct::TruncatePointF(reinterpret_cast<PEFilmVectorCommand>(Command)->Position));
                     } else {
-                        Globals::StarMapScreen->SetMapCenter(EC_Struct::TruncatePointF(reinterpret_cast<PEFilmVectorCommand>(Command)->Position));
+                        Globals::StarMapScreen->SetMapCenter(
+                            EC_Struct::TruncatePointF(reinterpret_cast<PEFilmVectorCommand>(Command)->Position));
                     }
                     break;
                 }
@@ -855,31 +894,39 @@ namespace aEFilm {
                 }
                 case efcSetGateState: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Gate::TGateSE>())) {
-                        pas::checked_cast<SE_Gate::TGateSE*>(Command->Obj->SceneObject)->SetState(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
+                        pas::checked_cast<SE_Gate::TGateSE*>(
+                            Command->Obj->SceneObject)->SetState(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
                     }
                     break;
                 }
                 case efcSetGateSize: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Gate::TGateSE>())) {
-                        pas::checked_cast<SE_Gate::TGateSE*>(Command->Obj->SceneObject)->SetSize(ClassesImports::Point(reinterpret_cast<PEFilmObjectCommand>(Command)->Value, reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
+                        pas::checked_cast<SE_Gate::TGateSE*>(Command->Obj->SceneObject)->SetSize(ClassesImports::Point(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value,
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
                     }
                     break;
                 }
                 case efcSetGateEffectSize: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Gate::TGateEffectSE>())) {
-                        pas::checked_cast<SE_Gate::TGateEffectSE*>(Command->Obj->SceneObject)->SetSize(ClassesImports::Point(reinterpret_cast<PEFilmObjectCommand>(Command)->Value, reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
+                        pas::checked_cast<SE_Gate::TGateEffectSE*>(
+                            Command->Obj->SceneObject)->SetSize(ClassesImports::Point(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value,
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
                     }
                     break;
                 }
                 case efcSetHoleState: {
                     if (aEFilm::HasSceneObjectOfClass(Command, pas::class_ref<SE_Hole::THoleSE>())) {
-                        pas::checked_cast<SE_Hole::THoleSE*>(Command->Obj->SceneObject)->SetState(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
+                        pas::checked_cast<SE_Hole::THoleSE*>(
+                            Command->Obj->SceneObject)->SetState(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
                     }
                     break;
                 }
                 case efcSetObjectText: {
                     if (aEFilm::HasSceneObject(Command)) {
-                        const pas::WideString& textAt = StringTable->GetTextAt(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
+                        const pas::WideString& textAt = StringTable->GetTextAt(
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
                         SE_Space::TObjectSE* sceneObject = Command->Obj->SceneObject;
                         sceneObject->SetText(textAt);
                     }
@@ -888,8 +935,11 @@ namespace aEFilm {
                 case efcPlayObjectSound: {
                     if (Globals::FilmSoundEffectsEnabled && GlobalsV::SoundInSpaceEnabled) {
                         if (aEFilm::HasSceneObject(Command)) {
-                            if (Command->Obj->SceneObject->Space != nullptr && Command->Obj->SceneObject->Space->ContainsMapPoint(Command->Obj->SceneObject->Position)) {
-                                const pas::WideString& textAt_2 = StringTable->GetTextAt(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
+                            if (Command->Obj->SceneObject->Space != nullptr &&
+                                Command->Obj->SceneObject->Space->ContainsMapPoint(
+                                    Command->Obj->SceneObject->Position)) {
+                                const pas::WideString& textAt_2 = StringTable->GetTextAt(
+                                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
                                 GR_Sound::TSoundControl* soundManager = GR_Main::SoundManager;
                                 soundManager->PlaySound(textAt_2);
                             }
@@ -899,13 +949,15 @@ namespace aEFilm {
                 }
                 case efcSetObjectStateBuffer: {
                     if (aEFilm::HasSceneObject(Command)) {
-                        Command->Obj->SceneObject->LoadStateBuffer(pas::list_at<EC_Buf::TBufEC>(DataBuffers, reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
+                        Command->Obj->SceneObject->LoadStateBuffer(pas::list_at<EC_Buf::TBufEC>(DataBuffers,
+                            reinterpret_cast<PEFilmObjectCommand>(Command)->Value));
                     }
                     break;
                 }
                 case efcPlayPickupSound: {
                     if (aEFilm::HasSceneObject(Command)) {
-                        if (GlobalsV::SoundInSpaceEnabled && Globals::SpaceProcess->Space->ContainsMapPoint(Command->Obj->SceneObject->Position)) {
+                        if (GlobalsV::SoundInSpaceEnabled &&
+                            Globals::SpaceProcess->Space->ContainsMapPoint(Command->Obj->SceneObject->Position)) {
                             GR_Main::SoundManager->PlaySound(u"Sound.Take"_wref.get());
                         }
                     }
@@ -915,16 +967,21 @@ namespace aEFilm {
         } catch (...) {
             auto cpp_exception = pas::caught_object();
             if (pas::Exception* E = pas::class_cast_if<pas::Exception*>(cpp_exception)) {
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
-                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Error in procedure TEFilm.RunOrder, order = ", SysUtils::IntToStr(Command->Kind), ", label = ", SysUtils::IntToStr(ErrorStep)}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    static_cast<pas::AnsiString>(pas::class_name(pas::class_type(E))), " ", E->message}));
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Error in procedure TEFilm.RunOrder, order = ",
+                    SysUtils::IntToStr(Command->Kind), ", label = ", SysUtils::IntToStr(ErrorStep)}));
                 if (Command->Obj != nullptr) {
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Command->Obj->KindName));
                     GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Command->Obj->GraphKey));
                     if (Command->Obj->SceneObject != nullptr) {
-                        GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(Command->Obj->SceneObject->GraphKey));
+                        GR_Main::AppendLogLineThreadSafe(
+                            static_cast<pas::AnsiString>(Command->Obj->SceneObject->GraphKey));
                     }
                 }
-                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({"Error in procedure TEFilm.RunOrder, order = ", SysUtils::IntToStr(Command->Kind), ", label = ", SysUtils::IntToStr(ErrorStep)})));
+                pas::raise(pas::make_exception<pas::Exception>(pas::concat_ansi({
+                    "Error in procedure TEFilm.RunOrder, order = ", SysUtils::IntToStr(Command->Kind), ", label = ",
+                    SysUtils::IntToStr(ErrorStep)})));
             } else {
                 throw;
             }
@@ -1037,9 +1094,12 @@ namespace aEFilm {
                     Buffer->AddAnsiChar(reinterpret_cast<PEFilmObjectCommand>(Command)->Value);
                 } else if (Command->Kind == efcSetWeaponHit) {
                     Buffer->AddWideChar(ObjToNom(Command->Obj));
-                    Buffer->AddAnsiChar(GR_Main::CurrentPixelFormat->UnpackRed(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
-                    Buffer->AddAnsiChar(GR_Main::CurrentPixelFormat->UnpackGreen(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
-                    Buffer->AddAnsiChar(GR_GraphBuf::TPixelFormatGR::UnpackBlue(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
+                    Buffer->AddAnsiChar(
+                        GR_Main::CurrentPixelFormat->UnpackRed(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
+                    Buffer->AddAnsiChar(
+                        GR_Main::CurrentPixelFormat->UnpackGreen(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
+                    Buffer->AddAnsiChar(
+                        GR_GraphBuf::TPixelFormatGR::UnpackBlue(reinterpret_cast<PEFilmHitCommand>(Command)->Color));
                     Buffer->AddIntegerValue(reinterpret_cast<PEFilmHitCommand>(Command)->Damage);
                     Buffer->AddBoolean(reinterpret_cast<PEFilmHitCommand>(Command)->Destroyed);
                     Buffer->AddBoolean(reinterpret_cast<PEFilmHitCommand>(Command)->PlaySound);
@@ -1144,163 +1204,164 @@ namespace aEFilm {
         Clear();
         Buffer->SetPosition(0);
         SystemProcessName = Buffer->ReadWideString();
-        MapDiameter = EC_Buf::TBufEC_GetInt32(Buffer);
+        MapDiameter = Buffer->GetInt32();
         if (MapDiameter == SystemImports::MaxInt) {
-            Version = EC_Buf::TBufEC_GetInt32(Buffer);
-            MapDiameter = EC_Buf::TBufEC_GetInt32(Buffer);
+            Version = Buffer->GetInt32();
+            MapDiameter = Buffer->GetInt32();
         }
-        RadarRange = EC_Buf::TBufEC_GetInt32(Buffer);
-        PlayerCombatRecorded = EC_Buf::TBufEC_GetBoolean(Buffer);
-        StarGenerationSeed = EC_Buf::TBufEC_GetUInt32(Buffer);
+        RadarRange = Buffer->GetInt32();
+        PlayerCombatRecorded = Buffer->GetBoolean();
+        StarGenerationSeed = Buffer->GetUInt32();
         if (Version >= 2) {
-            BackgroundImage = EC_Buf::TBufEC_GetInt32(Buffer);
+            BackgroundImage = Buffer->GetInt32();
         } else {
             BackgroundImage = 0;
         }
-        InitialActivity = EC_Buf::TBufEC_GetUInt32(Buffer);
-        FinalActivity = EC_Buf::TBufEC_GetUInt32(Buffer);
-        CameraAnchor.X = EC_Buf::TBufEC_GetSingle(Buffer);
-        CameraAnchor.Y = EC_Buf::TBufEC_GetSingle(Buffer);
-        std::int32_t Count = EC_Buf::TBufEC_GetWord(Buffer);
+        InitialActivity = Buffer->GetUInt32();
+        FinalActivity = Buffer->GetUInt32();
+        CameraAnchor.X = Buffer->GetSingle();
+        CameraAnchor.Y = Buffer->GetSingle();
+        std::int32_t Count = Buffer->GetWord();
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             const pas::WideString& readWideString = Buffer->ReadWideString();
             EC_Str::TStringsEC* stringTable = StringTable;
             stringTable->Add(readWideString);
         }
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
+        Count = Buffer->GetWord();
         for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_2.next(I); ) {
             Data = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
             Buffer->ReadLengthPrefixedBuffer(Data);
             pas::list_add(DataBuffers, reinterpret_cast<void*>(Data));
         }
-        Count = EC_Buf::TBufEC_GetWord(Buffer);
+        Count = Buffer->GetWord();
         for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_3.next(I); ) {
             Obj = AllocateObject();
-            Obj->ObjectId = EC_Buf::TBufEC_GetUInt32(Buffer);
+            Obj->ObjectId = Buffer->GetUInt32();
             Obj->KindName = Buffer->ReadWideString();
             Obj->GraphKey = Buffer->ReadWideString();
             Obj->SceneObject = nullptr;
         }
-        Count = EC_Buf::TBufEC_GetUInt32(Buffer);
+        Count = Buffer->GetUInt32();
         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_4.next(I); ) {
             Command = AllocateCommand();
             AppendCommand(Command);
-            Command->Kind = EC_Buf::TBufEC_GetByte(Buffer);
-            Command->StepIndex = EC_Buf::TBufEC_GetWord(Buffer);
+            Command->Kind = Buffer->GetByte();
+            Command->StepIndex = Buffer->GetWord();
             if (Command->Kind == efcSetObjectPosition) {
-                Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
+                Command->Obj = NomToObj(Buffer->GetWord());
+                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
+                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = Buffer->GetSingle();
             } else if (Command->Kind == efcSetObjectOrbitCenter) {
-                Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
+                Command->Obj = NomToObj(Buffer->GetWord());
+                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
+                reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = Buffer->GetSingle();
             } else if (Command->Kind == efcSetObjectAlpha) {
-                Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                reinterpret_cast<PEFilmByteCommand>(Command)->Value = EC_Buf::TBufEC_GetByte(Buffer);
+                Command->Obj = NomToObj(Buffer->GetWord());
+                reinterpret_cast<PEFilmByteCommand>(Command)->Value = Buffer->GetByte();
             } else if (Command->Kind == efcSetObjectAngle) {
-                Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                reinterpret_cast<PEFilmByteCommand>(Command)->Value = EC_Buf::TBufEC_GetByte(Buffer);
+                Command->Obj = NomToObj(Buffer->GetWord());
+                reinterpret_cast<PEFilmByteCommand>(Command)->Value = Buffer->GetByte();
             } else if (Command->Kind == efcAdvanceObject) {
-                Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                Command->Obj = NomToObj(Buffer->GetWord());
             } else if (!(Command->Kind == efcAdvanceObjects)) {
                 if (Command->Kind == efcSetPlanetState) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
-                    reinterpret_cast<PEFilmObjectCommand>(Command)->ExtraValue = EC_Buf::TBufEC_GetInt32(Buffer);
-                    reinterpret_cast<PEFilmObjectCommand>(Command)->Flags = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
+                    reinterpret_cast<PEFilmObjectCommand>(Command)->ExtraValue = Buffer->GetInt32();
+                    reinterpret_cast<PEFilmObjectCommand>(Command)->Flags = Buffer->GetInt32();
                 } else if (Command->Kind == efcSetShipSizeAndTailMode) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.X = EC_Buf::TBufEC_GetWord(Buffer);
-                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.Y = EC_Buf::TBufEC_GetWord(Buffer);
-                    reinterpret_cast<PEFilmSizeCommand>(Command)->TailMode = EC_Buf::TBufEC_GetByte(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.X = Buffer->GetWord();
+                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.Y = Buffer->GetWord();
+                    reinterpret_cast<PEFilmSizeCommand>(Command)->TailMode = Buffer->GetByte();
                 } else if (Command->Kind == efcSetRuinsState) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetByte(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetByte();
                 } else if (Command->Kind == efcSetWeaponHit) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    Red = EC_Buf::TBufEC_GetByte(Buffer);
-                    Green = EC_Buf::TBufEC_GetByte(Buffer);
-                    Blue = EC_Buf::TBufEC_GetByte(Buffer);
-                    reinterpret_cast<PEFilmHitCommand>(Command)->Color = GR_Main::CurrentPixelFormat->PackRgbBytes(Red, Green, Blue);
-                    reinterpret_cast<PEFilmHitCommand>(Command)->Damage = EC_Buf::TBufEC_GetInt32(Buffer);
-                    reinterpret_cast<PEFilmHitCommand>(Command)->Destroyed = EC_Buf::TBufEC_GetBoolean(Buffer);
-                    reinterpret_cast<PEFilmHitCommand>(Command)->PlaySound = EC_Buf::TBufEC_GetBoolean(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    Red = Buffer->GetByte();
+                    Green = Buffer->GetByte();
+                    Blue = Buffer->GetByte();
+                    reinterpret_cast<PEFilmHitCommand>(Command)->Color = GR_Main::CurrentPixelFormat->PackRgbBytes(Red,
+                            Green, Blue);
+                    reinterpret_cast<PEFilmHitCommand>(Command)->Damage = Buffer->GetInt32();
+                    reinterpret_cast<PEFilmHitCommand>(Command)->Destroyed = Buffer->GetBoolean();
+                    reinterpret_cast<PEFilmHitCommand>(Command)->PlaySound = Buffer->GetBoolean();
                 } else if (Command->Kind == efcSetWeaponEndpoints) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmEndpointsCommand>(Command)->Source = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmEndpointsCommand>(Command)->Target = NomToObj(Buffer->GetWord());
                 } else if (Command->Kind == efcSetDestructionEffect) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetByte(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetByte();
                 } else if (Command->Kind == efcSetEffectImagePosition) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.X = EC_Buf::TBufEC_GetInt32(Buffer);
-                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.Y = EC_Buf::TBufEC_GetInt32(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.X = Buffer->GetInt32();
+                    reinterpret_cast<PEFilmSizeCommand>(Command)->Size.Y = Buffer->GetInt32();
                 } else if (Command->Kind == efcSetEffectDurationScale) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                    reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
+                    Command->Obj = NomToObj(Buffer->GetWord());
+                    reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
                 } else if (Command->Kind == efcAttachObject) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                    Command->Obj = NomToObj(Buffer->GetWord());
                 } else if (Command->Kind == efcDetachObject) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                    Command->Obj = NomToObj(Buffer->GetWord());
                 } else if (Command->Kind == efcReleaseObject) {
-                    Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                    Command->Obj = NomToObj(Buffer->GetWord());
                 } else if (!(Command->Kind == efcReleaseWeaponEffects)) {
                     if (Command->Kind == efcSetViewCenter) {
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = Buffer->GetSingle();
                     } else if (Command->Kind == efcSetRadarCenter) {
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = Buffer->GetSingle();
                     } else if (Command->Kind == efcSetCameraAnchor) {
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = EC_Buf::TBufEC_GetSingle(Buffer);
-                        reinterpret_cast<PEFilmVectorCommand>(Command)->ForceMovement = EC_Buf::TBufEC_GetBoolean(Buffer);
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.X = Buffer->GetSingle();
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->Position.Y = Buffer->GetSingle();
+                        reinterpret_cast<PEFilmVectorCommand>(Command)->ForceMovement = Buffer->GetBoolean();
                     } else if (Command->Kind == efcOpenGate) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                        Command->Obj = NomToObj(Buffer->GetWord());
                     } else if (Command->Kind == efcCloseGate) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                        Command->Obj = NomToObj(Buffer->GetWord());
                     } else if (Command->Kind == efcSetGateState) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (Command->Kind == efcSetGateSize) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (Command->Kind == efcSetGateEffectSize) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (Command->Kind == efcSetHoleState) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetBoolean(Buffer) & 127;
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetBoolean() & 127;
                     } else if (Command->Kind == efcSetObjectText) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (Command->Kind == efcPlayObjectSound) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (Command->Kind == efcSetObjectStateBuffer) {
-                        Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
-                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = EC_Buf::TBufEC_GetInt32(Buffer);
+                        Command->Obj = NomToObj(Buffer->GetWord());
+                        reinterpret_cast<PEFilmObjectCommand>(Command)->Value = Buffer->GetInt32();
                     } else if (!(Command->Kind == efcBeginTrailingEffects)) {
                         if (Command->Kind == efcPlayPickupSound) {
-                            Command->Obj = NomToObj(EC_Buf::TBufEC_GetWord(Buffer));
+                            Command->Obj = NomToObj(Buffer->GetWord());
                         }
                     }
                 }
             }
         }
-        Count = EC_Buf::TBufEC_GetInt32(Buffer);
+        Count = Buffer->GetInt32();
         for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, Count - 1); cpp_range_5.next(I); ) {
             ReserveCameraEventSlot();
             {
                 TEFilmCameraEvent& cpp_with = CameraEvents[CameraEventCount - 1];
-                cpp_with.StepIndex = EC_Buf::TBufEC_GetInt32(Buffer);
-                cpp_with.Priority = EC_Buf::TBufEC_GetInt32(Buffer);
-                cpp_with.StartPosition.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                cpp_with.StartPosition.Y = EC_Buf::TBufEC_GetSingle(Buffer);
-                cpp_with.EndPosition.X = EC_Buf::TBufEC_GetSingle(Buffer);
-                cpp_with.EndPosition.Y = EC_Buf::TBufEC_GetSingle(Buffer);
+                cpp_with.StepIndex = Buffer->GetInt32();
+                cpp_with.Priority = Buffer->GetInt32();
+                cpp_with.StartPosition.X = Buffer->GetSingle();
+                cpp_with.StartPosition.Y = Buffer->GetSingle();
+                cpp_with.EndPosition.X = Buffer->GetSingle();
+                cpp_with.EndPosition.Y = Buffer->GetSingle();
             }
         }
         if (Version > 0) {

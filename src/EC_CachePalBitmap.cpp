@@ -22,7 +22,8 @@ namespace EC_CachePalBitmap {
         if (HasEmptyCacheKey()) {
             return;
         }
-        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCPalBitmapEC>()) == nullptr) {
+        if (GR_Main::GlobalCache->FindDataByKeyAndClass(pas::view(CacheKey), pas::class_ref<TCPalBitmapEC>()) ==
+            nullptr) {
             Control = pas::construct_call<TCPalBitmapControlEC>(EC_Cache::TCacheControlEC_Create);
             EC_Cache::TCacheEC::ResetControl(Control);
             Control->SetCacheKey(CacheKey);
@@ -53,7 +54,8 @@ namespace EC_CachePalBitmap {
 
     void TCPalBitmapEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption) {
         Bitmap->LoadImage(SourceBuffer);
-        ResidentBytes = Bitmap->PitchBytes * Bitmap->Height + Bitmap->PaletteCount * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA));
+        ResidentBytes = Bitmap->PitchBytes * Bitmap->Height + Bitmap->PaletteCount *
+                    static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGBA));
     }
 
     void TCPalBitmapEC::p_destroy() {

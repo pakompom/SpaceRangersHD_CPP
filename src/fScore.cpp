@@ -94,12 +94,16 @@ namespace fScore {
         for (Difficulty = static_cast<std::uint8_t>(0); Difficulty <= static_cast<std::uint8_t>(7); ++Difficulty) {
             DifficultyLevels[Difficulty] = aGalaxy::Galaxy->DifficultyLevels[Difficulty];
         }
-        Disqualified = GR_Main::CCInterface->GetTamperDetected() || GR_Main::CCInterface->GetFlag0A() || GR_Main::CCInterface->GetEditableStateApplied() || aGalaxy::Galaxy->CustomRules.Enabled || GR_Main::CCInterface->GetIntegrityError() != 0 || aGalaxy::Galaxy->GetCheatPoints() != 0;
+        Disqualified = GR_Main::CCInterface->GetTamperDetected() || GR_Main::CCInterface->GetFlag0A() ||
+                GR_Main::CCInterface->GetEditableStateApplied() || aGalaxy::Galaxy->CustomRules.Enabled ||
+                GR_Main::CCInterface->GetIntegrityError() != 0 || aGalaxy::Galaxy->GetCheatPoints() != 0;
         FinishedTurn = aGalaxy::Galaxy->CurrentTurn;
         Rank = aPlayer::GetPlayer()->Rank;
         PirateRank = aPlayer::GetPlayer()->PirateRank;
         // Native copies the seven adjacent kill/liberation counters as one block.
-        pas::store_unaligned<TScoreKillCounters>(&reinterpret_cast<PScoreCounterView>(this)->Counters, pas::load_unaligned<TScoreKillCounters>(&reinterpret_cast<PShipCounterView>(aPlayer::GetPlayer())->Counters));
+        pas::store_unaligned<TScoreKillCounters>(&reinterpret_cast<PScoreCounterView>(this)->Counters,
+            pas::load_unaligned<TScoreKillCounters>(
+                &reinterpret_cast<PShipCounterView>(aPlayer::GetPlayer())->Counters));
         OtherShipKillCount = OtherShipKillCount - PirateKillCount - DominatorKillCount;
         ArcadeKillCount = aPlayer::GetPlayer()->HyperspaceKillCount + aPlayer::GetPlayer()->BlackHoleKillCount;
         if (aPlayer::GetPlayer()->AwardIds == nullptr) {
@@ -108,12 +112,14 @@ namespace fScore {
             AwardCount = pas::list_count(aPlayer::GetPlayer()->AwardIds);
             AwardIds.set_length(AwardCount);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, AwardCount - 1); cpp_range.next(I); ) {
-                Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlayer::GetPlayer()->AwardIds, I)));
+                Award = static_cast<std::uint8_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(
+                        aPlayer::GetPlayer()->AwardIds, I)));
                 AwardIds[I] = Award;
             }
         }
         TotalExperience = aPlayer::GetPlayer()->TotalExperience;
-        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range_2.next(Skill); ) {
+        for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy,
+            aGalaxyStruct::psLeadership); cpp_range_2.next(Skill); ) {
             SkillLevels[Skill] = aPlayer::GetPlayer()->GetBaseSkillLevel(Skill);
         }
         ScoreTags->Clear();
@@ -122,18 +128,23 @@ namespace fScore {
         }
         GenerationSeed = aGalaxy::Galaxy->GenerationSeed;
         QuestResults.set_length(pas::list_count(aRanger::PlayerOldQuests));
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, pas::list_count(aRanger::PlayerOldQuests) - 1); cpp_range_3.next(I); ) {
-            Quest = pas::list_at<aRanger::TPlayerOldQuest>(aRanger::PlayerOldQuests, I);
-            QuestResults[I].Successful = Quest->Successful;
-            QuestResults[I].QuestType = Quest->QuestType;
-            QuestResults[I].QuestNumber = Quest->QuestNumber;
+        {
+            const std::int32_t cpp_last = pas::list_count(aRanger::PlayerOldQuests) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Quest = pas::list_at<aRanger::TPlayerOldQuest>(aRanger::PlayerOldQuests, I);
+                    QuestResults[I].Successful = Quest->Successful;
+                    QuestResults[I].QuestType = Quest->QuestType;
+                    QuestResults[I].QuestNumber = Quest->QuestNumber;
+                }
+            }
         }
         PlanetBattles = aPlayer::GetPlayer()->PlanetBattles;
         PlanetBattleHistory.set_length(aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1 + 1);
         {
-            const std::int32_t cpp_last = aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1;
-            if (0 <= cpp_last) {
-                for (I = 0; I <= cpp_last; ++I) {
+            const std::int32_t cpp_last_2 = aPlayer::GetPlayer()->PlanetBattleHistory.length() - 1;
+            if (0 <= cpp_last_2) {
+                for (I = 0; I <= cpp_last_2; ++I) {
                     PlanetBattleHistory[I] = aPlayer::GetPlayer()->PlanetBattleHistory[I];
                 }
             }
@@ -180,13 +191,22 @@ namespace fScore {
         }
         VictoryAchieved = Victory;
         RecalculateTotalScore();
-        if (VictoryAchieved && static_cast<std::uint8_t>(GR_Main::CCInterface->GetTamperDetected() ^ 1) && static_cast<std::uint8_t>(GR_Main::CCInterface->GetFlag0A() ^ 1) && static_cast<std::uint8_t>(GR_Main::CCInterface->GetEditableStateApplied() ^ 1) && GR_Main::CCInterface->GetIntegrityError() == 0 && aGalaxy::Galaxy->GetCheatPoints() == 0) {
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNoQuestVictoryAchievement();
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckChampionVictoryAchievement(TotalScore);
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckLongGameVictoryAchievement(TotalScore, FinishedTurn);
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckPacifistVictoryAchievement();
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckNoLoadVictoryAchievement();
-            static_cast<void>(aPlayer::GetPlayer()->AchievementStats), Achievements::TAchievementStats::CheckFastVictoryAchievement();
+        if (VictoryAchieved && static_cast<std::uint8_t>(GR_Main::CCInterface->GetTamperDetected() ^ 1) &&
+            static_cast<std::uint8_t>(GR_Main::CCInterface->GetFlag0A() ^ 1) &&
+            static_cast<std::uint8_t>(GR_Main::CCInterface->GetEditableStateApplied() ^ 1) &&
+            GR_Main::CCInterface->GetIntegrityError() == 0 && aGalaxy::Galaxy->GetCheatPoints() == 0) {
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckNoQuestVictoryAchievement();
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckChampionVictoryAchievement(TotalScore);
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckLongGameVictoryAchievement(TotalScore, FinishedTurn);
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckPacifistVictoryAchievement();
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckNoLoadVictoryAchievement();
+            static_cast<void>(aPlayer::GetPlayer()->AchievementStats),
+                Achievements::TAchievementStats::CheckFastVictoryAchievement();
             if (SimpleSteamApi::SteamInitialized && SimpleSteamApi::SteamLeaderboardFound()) {
                 SimpleSteamApi::SteamUploadScore(TotalScore);
             }
@@ -204,8 +224,8 @@ namespace fScore {
 
     // Defeats score zero. Victories use experience, difficulty, elapsed years and ending-resolution penalties; Disqualified does not suppress the local score.
     void TfScoreUnit::RecalculateTotalScore() {
-        pas::Extended Experience{};
-        pas::Extended Difficulty{};
+        double Experience{};
+        double Difficulty{};
         std::uint8_t DominatorsResolved{};
         std::uint8_t PirateResolved{};
         std::uint8_t PirateDefeat{};
@@ -213,19 +233,16 @@ namespace fScore {
         Experience = TotalExperience;
         Difficulty = DifficultyPercent;
         if (VictoryAchieved) {
-            {
-                pas::Extended real_max = pas::real_max<pas::Extended>(7.0L, pas::real_divide(FinishedTurn - aGalaxyStruct::GalaxyWarmupTurns, pas::constant(static_cast<long double>(aGalaxyStruct::TurnsPerYear))));
-                {
-                    pas::Extended cpp_right = Math::Power(real_max, 1.3L);
-                    TotalScore = System::Round(pas::real_divide(pas::real_divide(Experience * Difficulty, 1.0E+2L), cpp_right));
-                }
-            }
+            TotalScore = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(Experience * Difficulty) / 1.0E+2) / Math::Power(
+                        pas::real_max<double>(7.0,
+                        static_cast<float>((FinishedTurn - aGalaxyStruct::GalaxyWarmupTurns) /
+                        pas::constant(static_cast<double>(aGalaxyStruct::TurnsPerYear)))), 1.3)));
             DominatorsResolved = TerronEndingState != 0 && KellerEndingState != 0 && BlazerEndingState != 0;
             PirateResolved = PirateRank >= 7 || PirateEndingState == 3;
             PirateDefeat = PirateEndingState == 4;
             if (DominatorsResolved == false || PirateDefeat != false) {
                 if (PirateResolved || DominatorsResolved) {
-                    TotalScore = MathImports::Floor(TotalScore * 0.75L);
+                    TotalScore = MathImports::Floor(static_cast<float>(TotalScore * 0.75));
                 } else {
                     TotalScore = TotalScore / 2;
                 }
@@ -267,7 +284,8 @@ namespace fScore {
             }
         }
         Buffer->AddIntegerValue(TotalExperience);
-        for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy,
+            aGalaxyStruct::psLeadership); cpp_range.next(Skill); ) {
             Buffer->AddAnsiChar(SkillLevels[Skill]);
         }
         Buffer->AddBoolean(Disqualified);
@@ -315,34 +333,35 @@ namespace fScore {
         std::int32_t I{};
         std::int32_t Count{};
         std::uint8_t Difficulty{};
-        std::int32_t Marker = EC_Buf::TBufEC_GetInt32(Buffer);
+        std::int32_t Marker = Buffer->GetInt32();
         if (Marker < 205 || Marker > 205) {
             Globals::ScoreScreen->CreateDefaultTable();
         } else {
-            VictoryAchieved = EC_Buf::TBufEC_GetBoolean(Buffer);
+            VictoryAchieved = Buffer->GetBoolean();
             for (Difficulty = static_cast<std::uint8_t>(0); Difficulty <= static_cast<std::uint8_t>(7); ++Difficulty) {
-                DifficultyLevels[Difficulty] = EC_Buf::TBufEC_GetByte(Buffer);
+                DifficultyLevels[Difficulty] = Buffer->GetByte();
             }
             PlayerName = Buffer->ReadWideString();
-            PortraitFaceId = EC_Buf::TBufEC_GetByte(Buffer);
-            PilotRace = static_cast<aGalaxyStruct::TOwnerId>(EC_Buf::TBufEC_GetByte(Buffer));
-            FinishedTurn = EC_Buf::TBufEC_GetInt32(Buffer);
-            Rank = EC_Buf::TBufEC_GetByte(Buffer);
-            PirateRank = EC_Buf::TBufEC_GetByte(Buffer);
-            OtherShipKillCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            PirateKillCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            DominatorKillCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            LiberatedSystemCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            ArcadeKillCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            AwardCount = EC_Buf::TBufEC_GetInt32(Buffer);
-            Count = EC_Buf::TBufEC_GetInt32(Buffer);
+            PortraitFaceId = Buffer->GetByte();
+            PilotRace = static_cast<aGalaxyStruct::TOwnerId>(Buffer->GetByte());
+            FinishedTurn = Buffer->GetInt32();
+            Rank = Buffer->GetByte();
+            PirateRank = Buffer->GetByte();
+            OtherShipKillCount = Buffer->GetInt32();
+            PirateKillCount = Buffer->GetInt32();
+            DominatorKillCount = Buffer->GetInt32();
+            LiberatedSystemCount = Buffer->GetInt32();
+            ArcadeKillCount = Buffer->GetInt32();
+            AwardCount = Buffer->GetInt32();
+            Count = Buffer->GetInt32();
             AwardIds.set_length(Count);
             for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
-                AwardIds[I] = EC_Buf::TBufEC_GetByte(Buffer);
+                AwardIds[I] = Buffer->GetByte();
             }
-            TotalExperience = EC_Buf::TBufEC_GetInt32(Buffer);
-            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy, aGalaxyStruct::psLeadership); cpp_range_2.next(Skill); ) {
-                SkillLevels[Skill] = EC_Buf::TBufEC_GetByte(Buffer);
+            TotalExperience = Buffer->GetInt32();
+            for (auto cpp_range_2 = pas::for_to<aGalaxyStruct::TPilotSkill>(aGalaxyStruct::psAccuracy,
+                aGalaxyStruct::psLeadership); cpp_range_2.next(Skill); ) {
+                SkillLevels[Skill] = Buffer->GetByte();
             }
             if (FileVersion < 1) {
                 Disqualified = false;
@@ -350,46 +369,46 @@ namespace fScore {
                 GenerationSeed = 0;
                 QuestResults = nullptr;
             } else {
-                Disqualified = EC_Buf::TBufEC_GetBoolean(Buffer);
+                Disqualified = Buffer->GetBoolean();
                 Buffer->ReadLengthPrefixedBuffer(ScoreTags);
-                GenerationSeed = EC_Buf::TBufEC_GetInt32(Buffer);
-                Count = EC_Buf::TBufEC_GetWord(Buffer);
+                GenerationSeed = Buffer->GetInt32();
+                Count = Buffer->GetWord();
                 QuestResults.set_length(Count);
                 {
                     const std::int32_t cpp_last = QuestResults.length() - 1;
                     if (0 <= cpp_last) {
                         for (I = 0; I <= cpp_last; ++I) {
-                            QuestResults[I].Successful = EC_Buf::TBufEC_GetBoolean(Buffer);
-                            QuestResults[I].QuestType = static_cast<aGalaxyStruct::TQuestType>(EC_Buf::TBufEC_GetByte(Buffer));
-                            QuestResults[I].QuestNumber = EC_Buf::TBufEC_GetByte(Buffer);
+                            QuestResults[I].Successful = Buffer->GetBoolean();
+                            QuestResults[I].QuestType = static_cast<aGalaxyStruct::TQuestType>(Buffer->GetByte());
+                            QuestResults[I].QuestNumber = Buffer->GetByte();
                         }
                     }
                 }
             }
-            PlanetBattles = EC_Buf::TBufEC_GetInt32(Buffer);
-            BlazerEndingState = EC_Buf::TBufEC_GetByte(Buffer);
-            KellerEndingState = EC_Buf::TBufEC_GetByte(Buffer);
-            TerronEndingState = EC_Buf::TBufEC_GetByte(Buffer);
-            PirateEndingState = EC_Buf::TBufEC_GetByte(Buffer);
+            PlanetBattles = Buffer->GetInt32();
+            BlazerEndingState = Buffer->GetByte();
+            KellerEndingState = Buffer->GetByte();
+            TerronEndingState = Buffer->GetByte();
+            PirateEndingState = Buffer->GetByte();
             PlanetBattleHistory = nullptr;
             // Native tests the entry marker here, not FileVersion.
             if (Marker >= 2) {
-                Count = EC_Buf::TBufEC_GetWord(Buffer);
+                Count = Buffer->GetWord();
                 PlanetBattleHistory.set_length(Count);
                 {
                     const std::int32_t cpp_last_2 = PlanetBattleHistory.length() - 1;
                     if (0 <= cpp_last_2) {
                         for (I = 0; I <= cpp_last_2; ++I) {
-                            PlanetBattleHistory[I].MapId = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.SignedTimeMs = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.RobotsBuilt = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.RobotsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.TurretsBuilt = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.TurretsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].Statistics.BuildingsDestroyed = EC_Buf::TBufEC_GetInt32(Buffer);
-                            PlanetBattleHistory[I].ResultCode = EC_Buf::TBufEC_GetByte(Buffer);
-                            PlanetBattleHistory[I].CompletionMode = EC_Buf::TBufEC_GetByte(Buffer);
-                            PlanetBattleHistory[I].DateTurn = EC_Buf::TBufEC_GetInt32(Buffer);
+                            PlanetBattleHistory[I].MapId = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.SignedTimeMs = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.RobotsBuilt = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.RobotsDestroyed = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.TurretsBuilt = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.TurretsDestroyed = Buffer->GetInt32();
+                            PlanetBattleHistory[I].Statistics.BuildingsDestroyed = Buffer->GetInt32();
+                            PlanetBattleHistory[I].ResultCode = Buffer->GetByte();
+                            PlanetBattleHistory[I].CompletionMode = Buffer->GetByte();
+                            PlanetBattleHistory[I].DateTurn = Buffer->GetInt32();
                         }
                     }
                 }
@@ -407,19 +426,30 @@ namespace fScore {
         Text = pas::concat_wide({u"// Score for Space Rangers 2", u"\r\n"});
         Text = pas::concat_wide({Text, u"Name=", PlayerName, u"\r\n"});
         Text = pas::concat_wide({Text, u"EMail=", u"\r\n"});
-        Text = pas::concat_wide({Text, u"Race=", aConst::OwnerInfo[aConst::RaceToOwner(PilotRace)].DisplayName, u"\r\n"});
+        Text = pas::concat_wide({Text, u"Race=", aConst::OwnerInfo[aConst::RaceToOwner(PilotRace)].DisplayName,
+                u"\r\n"});
         Text = pas::concat_wide({Text, u"Score=", pas::wide_int_to_str(TotalScore), u"\r\n"});
         Text = pas::concat_wide({Text, u"Level=", pas::wide_int_to_str(DifficultyPercent), u"\r\n"});
         Text = pas::concat_wide({Text, u"Date=", aGalaxy::FormatGameTurnDate(FinishedTurn), u"\r\n"});
-        Text = pas::concat_wide({Text, u"Rank=", aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Rank], u".Name"})), u"\r\n"});
+        Text = pas::concat_wide({Text, u"Rank=",
+                aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Rank], u".Name"})),
+                u"\r\n"});
         Text = pas::concat_wide({Text, u"LiberationSystem=", pas::wide_int_to_str(LiberatedSystemCount), u"\r\n"});
         Text = pas::concat_wide({Text, u"Rewards=", pas::wide_int_to_str(AwardCount), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillAccuracy=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psAccuracy])), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillMobility=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psManeuverability])), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillTechnical=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psTechnical])), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillTrader=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psTrading])), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillCharm=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psCharisma])), u"\r\n"});
-        Text = pas::concat_wide({Text, u"SkillLeadership=", pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psLeadership])), u"\r\n", u"\r\n", u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillAccuracy=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psAccuracy])), u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillMobility=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psManeuverability])),
+                u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillTechnical=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psTechnical])), u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillTrader=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psTrading])), u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillCharm=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psCharisma])), u"\r\n"});
+        Text = pas::concat_wide({Text, u"SkillLeadership=",
+                pas::wide_int_to_str(static_cast<std::int32_t>(SkillLevels[aGalaxyStruct::psLeadership])), u"\r\n",
+                u"\r\n", u"\r\n"});
         Text = pas::concat_wide({Text, u"*************** Protect database ****************", u"\r\n", u"\r\n"});
         EC_Buf::TBufEC* Buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
         EC_Buf::TBufEC* Encoded = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
@@ -441,11 +471,12 @@ namespace fScore {
         Buffer->Clear();
         Data = static_cast<std::uint8_t*>(Encoded->Data);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Encoded->DataSize - 1); cpp_range.next(I); ) {
-            Buffer->AddAnsiStringRaw(static_cast<pas::AnsiString>(pas::concat_wide({u" ", ExceptionInfo::ByteToHexText(*Data)})));
+            Buffer->AddAnsiStringRaw(static_cast<pas::AnsiString>(pas::concat_wide({u" ",
+                ExceptionInfo::ByteToHexText(*Data)})));
             if ((I & 0x0000000f) == 0x0000000f) {
                 Buffer->AddAnsiStringRaw("\r\n"_a);
             }
-            Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
+            Data = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Data), 1));
         }
         AnsiText = static_cast<pas::AnsiString>(Text);
         EC_File::TFileEC* FileObject = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -912,13 +943,20 @@ namespace fScore {
                 break;
             }
         }
-        Entry->PlayerName = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.Winners.", SysUtils::IntToStr(Index), ".Name"})));
-        Entry->PilotRace = aConst::OwnerToRace(aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.Winners.", SysUtils::IntToStr(Index), ".Race"}))))));
-        Entry->Rank = System::Round(aMyFunction::RemapClamped(Index, 0.0, 1.0E+1, 6.0, 3.0));
-        std::int32_t Count = QuestCounts[aGalaxyStruct::qtSendLetter] + QuestCounts[aGalaxyStruct::qtKillShip] + QuestCounts[aGalaxyStruct::qtPlanetQuest] + QuestCounts[aGalaxyStruct::qtDefendSystem] + QuestCounts[aGalaxyStruct::qtDefendShip];
+        Entry->PlayerName = GR_Main::LookupLocalizedTextByKey(pas::concat_wide({u"FormScore.Winners.",
+                pas::wide_int_to_str(Index), u".Name"}));
+        Entry->PilotRace =
+            aConst::OwnerToRace(
+                aConst::OwnerFromInternalName(pas::view(GR_Main::LookupLocalizedTextByKey(pas::concat_wide({
+                    u"FormScore.Winners.", pas::wide_int_to_str(Index), u".Race"})))));
+        Entry->Rank = pas::real_round(aMyFunction::RemapClamped(Index, 0.0, 1.0E+1, 6.0, 3.0));
+        std::int32_t Count = QuestCounts[aGalaxyStruct::qtSendLetter] + QuestCounts[aGalaxyStruct::qtKillShip] +
+            QuestCounts[aGalaxyStruct::qtPlanetQuest] + QuestCounts[aGalaxyStruct::qtDefendSystem] +
+            QuestCounts[aGalaxyStruct::qtDefendShip];
         Entry->QuestResults.set_length(Count);
         Count = 0;
-        for (auto cpp_range = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter, aGalaxyStruct::qtDefendShip); cpp_range.next(Kind); ) {
+        for (auto cpp_range = pas::for_to<aGalaxyStruct::TQuestType>(aGalaxyStruct::qtSendLetter,
+            aGalaxyStruct::qtDefendShip); cpp_range.next(Kind); ) {
             for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, QuestCounts[Kind] - 1); cpp_range_2.next(I); ) {
                 Entry->QuestResults[Count].Successful = true;
                 Entry->QuestResults[Count].QuestType = Kind;
@@ -946,7 +984,8 @@ namespace fScore {
         std::int32_t I{};
         std::int32_t J{};
         TfScoreUnit* Other{};
-        if (SimpleSteamApi::SteamInitialized && static_cast<std::uint8_t>(SimpleSteamApi::SteamLeaderboardFound() ^ 1)) {
+        if (SimpleSteamApi::SteamInitialized && static_cast<std::uint8_t>(SimpleSteamApi::SteamLeaderboardFound() ^
+                1)) {
             SimpleSteamApi::SteamSetLeaderboardName("Scores"_a);
         }
         ReloadTable();
@@ -957,21 +996,26 @@ namespace fScore {
         aGalaxy::TGalaxy::AppendIntegritySnapshot();
         TfScoreUnit* Entry = pas::construct_call<TfScoreUnit>(TfScoreUnit_Create);
         Entry->CapturePlayer(Victory);
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Entries) - 1); cpp_range.next(I); ) {
-            Other = pas::list_at<TfScoreUnit>(Entries, I);
-            if (Entry->TotalScore == Other->TotalScore && Entry->GenerationSeed == Other->GenerationSeed) {
-                Other->CapturePlayer(Victory);
-                SaveTableToDisk();
-                SelectedIndex = I;
-                pas::free(Entry);
-                return;
+        {
+            const std::int32_t cpp_last = pas::list_count(Entries) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Other = pas::list_at<TfScoreUnit>(Entries, I);
+                    if (Entry->TotalScore == Other->TotalScore && Entry->GenerationSeed == Other->GenerationSeed) {
+                        Other->CapturePlayer(Victory);
+                        SaveTableToDisk();
+                        SelectedIndex = I;
+                        pas::free(Entry);
+                        return;
+                    }
+                }
             }
         }
         pas::free(Entry);
         pas::list_at<TfScoreUnit>(Entries, pas::list_count(Entries) - 1)->CapturePlayer(Victory);
         SelectedIndex = Count - 1;
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Count - 2); cpp_range_2.next(I); ) {
-            for (auto cpp_range_3 = pas::for_to<std::int32_t>(I + 1, Count - 1); cpp_range_3.next(J); ) {
+        for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 2); cpp_range.next(I); ) {
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(I + 1, Count - 1); cpp_range_2.next(J); ) {
                 Entry = pas::list_at<TfScoreUnit>(Entries, I);
                 Other = pas::list_at<TfScoreUnit>(Entries, J);
                 if (Entry->TotalScore < Other->TotalScore) {
@@ -992,11 +1036,16 @@ namespace fScore {
     void TfScore::RemoveSelectedEntryAndRefill() {
         std::int32_t I{};
         TfScoreUnit* Entry{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Entries) - 1); cpp_range.next(I); ) {
-            Entry = pas::list_at<TfScoreUnit>(Entries, I);
-            if (Entry->ScoreTags->DataSize <= 0 || I == SelectedIndex) {
-                pas::free(Entry);
-                pas::list_put(Entries, I, nullptr);
+        {
+            const std::int32_t cpp_last = pas::list_count(Entries) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TfScoreUnit>(Entries, I);
+                    if (Entry->ScoreTags->DataSize <= 0 || I == SelectedIndex) {
+                        pas::free(Entry);
+                        pas::list_put(Entries, I, nullptr);
+                    }
+                }
             }
         }
         I = 0;
@@ -1018,9 +1067,14 @@ namespace fScore {
     void TfScore::ClearEntries() {
         std::int32_t I{};
         pas::Object* Entry{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Entries) - 1); cpp_range.next(I); ) {
-            Entry = pas::list_at<pas::Object>(Entries, I);
-            pas::free(Entry);
+        {
+            const std::int32_t cpp_last = pas::list_count(Entries) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<pas::Object>(Entries, I);
+                    pas::free(Entry);
+                }
+            }
         }
         pas::list_clear(Entries);
     }
@@ -1041,7 +1095,8 @@ namespace fScore {
             try {
                 try {
                     {
-                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"score.dat"}), cpp_text.pchar());
+                        char16_t* cpp_arg = (cpp_text = pas::concat_wide({GR_Main::GetGameUserDirectory(),
+                                u"score.dat"}), cpp_text.pchar());
                         EC_Buf::TBufEC* buffer = Buffer;
                         buffer->LoadFromWideFilePath(cpp_arg);
                     }
@@ -1052,28 +1107,39 @@ namespace fScore {
                     }
                     {
                         std::int32_t cpp_left_3 = Buffer->GetByteAt(6);
-                        std::int32_t cpp_left_2 = cpp_left_3 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(7)), 8);
-                        std::int32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(4)), 16);
+                        std::int32_t cpp_left_2 = cpp_left_3 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(7)),
+                                8);
+                        std::int32_t cpp_left = cpp_left_2 | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(4)),
+                                16);
                         Seed = cpp_left | pas::shl(static_cast<std::int32_t>(Buffer->GetByteAt(5)), 24);
                     }
-                    Data = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
+                    Data =
+                        reinterpret_cast<std::uint8_t*>(
+                            &static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
                     Size = Buffer->DataSize;
                     for (auto cpp_range = pas::for_to<std::int32_t>(8, Size - 1); cpp_range.next(I); ) {
                         *Data = *Data ^ static_cast<std::uint8_t>(Seed - 1);
-                        {
-                            std::int32_t cpp_left_4 = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
-                            Seed = cpp_left_4 - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
-                        }
+                        Seed = EC_Buf::SeedRngMultiplier * (Seed % EC_Buf::SeedRngQuotient) - EC_Buf::SeedRngRemainder *
+                                    (Seed / EC_Buf::SeedRngQuotient);
                         if (Seed <= 0) {
                             Seed += EC_Buf::SeedRngModulus;
                         }
-                        Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
+                        Data = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Data),
+                                1));
                     }
                     Checksum = 0u;
-                    Data = reinterpret_cast<std::uint8_t*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Buffer->Data)) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)))));
-                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(I); ) {
+                    Data =
+                        reinterpret_cast<std::uint8_t*>(
+                            static_cast<std::uintptr_t>(
+                                static_cast<std::uint32_t>(
+                                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Buffer->Data)) +
+                                static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)))));
+                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(
+                        static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)),
+                        Size - 1); cpp_range_2.next(I); ) {
                         Checksum += static_cast<std::uint8_t>(*Data ^ 0x000000ff);
-                        Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
+                        Data = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Data),
+                                1));
                     }
                     if (Buffer->GetUInt32At(8) != Checksum) {
                         pas::raise(pas::make_exception<pas::Abort>("Error unpacking score.dat"_a));
@@ -1098,7 +1164,8 @@ namespace fScore {
     // Clears Entries, loads score.dat when present, otherwise creates defaults.
     void TfScore::ReloadTable() {
         ClearEntries();
-        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"score.dat"})))) {
+        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+            u"score.dat"})))) {
             CreateDefaultTable();
         } else {
             LoadTableFromDisk();
@@ -1123,29 +1190,36 @@ namespace fScore {
         Buffer->SetByteAt(7, pas::shr(Seed, 8));
         Buffer->SetByteAt(4, pas::shr(Seed, 16));
         Buffer->SetByteAt(5, pas::shr(Seed, 24));
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Entries) - 1); cpp_range.next(I); ) {
-            Entry = pas::list_at<TfScoreUnit>(Entries, I);
-            Entry->SaveToBuffer(Buffer);
+        {
+            const std::int32_t cpp_last = pas::list_count(Entries) - 1;
+            if (0 <= cpp_last) {
+                for (I = 0; I <= cpp_last; ++I) {
+                    Entry = pas::list_at<TfScoreUnit>(Entries, I);
+                    Entry->SaveToBuffer(Buffer);
+                }
+            }
         }
         std::int32_t Size = Buffer->DataSize;
         std::int32_t Checksum = 0;
-        std::uint8_t* Data = reinterpret_cast<std::uint8_t*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Buffer->Data)) + static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)))));
-        for (auto cpp_range_2 = pas::for_to<std::int32_t>(static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range_2.next(I); ) {
+        std::uint8_t* Data = reinterpret_cast<std::uint8_t*>(
+            static_cast<std::uintptr_t>(
+                static_cast<std::uint32_t>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Buffer->Data)) +
+                    static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)))));
+        for (auto cpp_range = pas::for_to<std::int32_t>(
+            static_cast<std::int32_t>(sizeof(EC_Buf::TEncodedTableHeaderEC)), Size - 1); cpp_range.next(I); ) {
             Checksum += static_cast<std::uint8_t>(*Data ^ 0x000000ff);
-            Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
+            Data = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Data), 1));
         }
         Buffer->SetInt32At(8, Checksum);
         Data = reinterpret_cast<std::uint8_t*>(&static_cast<EC_Buf::PEncodedTableHeaderEC>(Buffer->Data)->Checksum);
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_3.next(I); ) {
+        for (auto cpp_range_2 = pas::for_to<std::int32_t>(8, Size - 1); cpp_range_2.next(I); ) {
             *Data = *Data ^ static_cast<std::uint8_t>(Seed - 1);
-            {
-                std::int32_t cpp_left = EC_Buf::SeedRngMultiplier * pas::imod(Seed, EC_Buf::SeedRngQuotient);
-                Seed = cpp_left - EC_Buf::SeedRngRemainder * pas::idiv(Seed, EC_Buf::SeedRngQuotient);
-            }
+            Seed = EC_Buf::SeedRngMultiplier * (Seed % EC_Buf::SeedRngQuotient) - EC_Buf::SeedRngRemainder * (Seed /
+                        EC_Buf::SeedRngQuotient);
             if (Seed <= 0) {
                 Seed += EC_Buf::SeedRngModulus;
             }
-            Data = reinterpret_cast<std::uint8_t*>(reinterpret_cast<std::uint8_t*>(Data) + 1);
+            Data = reinterpret_cast<std::uint8_t*>(pas::pointer_add(reinterpret_cast<std::uint8_t*>(Data), 1));
         }
         Buffer->CompressZlibPayloadInPlace(false);
         EC_File::TFileEC* FileObject = pas::construct_call<EC_File::TFileEC>(EC_File::TFileEC_Create);
@@ -1177,17 +1251,22 @@ namespace fScore {
             MainPanel->FirstChild->SetSize(ClassesImports::Point(GR_Main::GameScreenWidth, GR_Main::GameScreenHeight));
             {
                 GI_MessageLoop::TObjectGI* PanelToServer = MainPanel->FindByNameRecursive(u"PanelToServer"sv);
-                PanelToServer->SetPosition(ClassesImports::Point(PanelToServer->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelToServer->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                PanelToServer->SetPosition(ClassesImports::Point(
+                    PanelToServer->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    PanelToServer->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
             {
                 GI_MessageLoop::TObjectGI* PanelWin = MainPanel->FindByNameRecursive(u"PanelWin"sv);
-                PanelWin->SetPosition(ClassesImports::Point(PanelWin->LocalPosition.X + GR_Main::ExtraScreenWidth / 2, PanelWin->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
+                PanelWin->SetPosition(ClassesImports::Point(PanelWin->LocalPosition.X + GR_Main::ExtraScreenWidth / 2,
+                    PanelWin->LocalPosition.Y + GR_Main::ExtraScreenHeight / 2));
             }
         }
         GR_Main::AppendLogLineThreadSafe("ok"_a);
         SetHelpCallback(pas::bind_method<&TfScore::ShowControlHelp>(this));
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<&TfScore::DeleteEntryClicked>(this);
-        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->UpCallback = pas::bind_method<&TfScore::CloseClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv))->UpCallback = pas::bind_method<
+                &TfScore::DeleteEntryClicked>(this);
+        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButExit"sv))->UpCallback = pas::bind_method<
+                &TfScore::CloseClicked>(this);
         GetByName(u"MainPanel"sv)->KeyDownCallback = pas::bind_method<&TfScore::KeyDown>(this);
         SelectedIndex = 0;
     }
@@ -1197,7 +1276,8 @@ namespace fScore {
         std::int32_t I{};
         GI_Panel::TPanelGI* Row{};
         GI_Panel::TPanelGI* SendPanel{};
-        if (SimpleSteamApi::SteamInitialized && static_cast<std::uint8_t>(SimpleSteamApi::SteamLeaderboardFound() ^ 1)) {
+        if (SimpleSteamApi::SteamInitialized && static_cast<std::uint8_t>(SimpleSteamApi::SteamLeaderboardFound() ^
+                1)) {
             SimpleSteamApi::SteamSetLeaderboardName("Scores"_a);
         }
         if (aSaveLoad::MemorySnapshotBuffer != nullptr) {
@@ -1220,7 +1300,7 @@ namespace fScore {
                 Row->SetPosition(ClassesImports::Point(0, I * 51));
                 Row->SetSize(ClassesImports::Point(Panel->ClientSize.X, 51));
             }
-            Row->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I)})));
+            Row->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I)}));
             Row->LeftButtonDownCallback = pas::bind_method<&TfScore::EntryMouseDown>(this);
             Row->MouseEnterCallback = pas::bind_method<&TfScore::EntryMouseEnter>(this);
             Row->MouseLeaveCallback = pas::bind_method<&TfScore::EntryMouseLeave>(this);
@@ -1235,10 +1315,11 @@ namespace fScore {
                     cpp_with->SetSize(ClassesImports::Point(577, 51));
                 }
                 cpp_with->SetActive(true);
-                cpp_with->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Active"})));
+                cpp_with->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Active"}));
             }
             {
-                GI_Label::TLabelGI* cpp_with_2 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Row);
+                GI_Label::TLabelGI* cpp_with_2 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                    Row);
                 if (GR_Main::GiResourceVariant() == 1) {
                     cpp_with_2->SetPosition(ClassesImports::Point(6, 4));
                     cpp_with_2->SetSize(ClassesImports::Point(45, 32));
@@ -1250,11 +1331,12 @@ namespace fScore {
                 cpp_with_2->SetFontName(GlobalsV::NormalFontName);
                 cpp_with_2->SetTextAlignX(GI_Main::taxCenter);
                 cpp_with_2->SetTextAlignY(GI_Main::tayCenterEx);
-                cpp_with_2->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Nom"})));
+                cpp_with_2->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Nom"}));
                 cpp_with_2->SetText(pas::wide_int_to_str(I + 1));
             }
             {
-                GI_Label::TLabelGI* cpp_with_3 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Row);
+                GI_Label::TLabelGI* cpp_with_3 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                    Row);
                 if (GR_Main::GiResourceVariant() == 1) {
                     cpp_with_3->SetPosition(ClassesImports::Point(370, 4));
                     cpp_with_3->SetSize(ClassesImports::Point(80, 28));
@@ -1266,10 +1348,11 @@ namespace fScore {
                 cpp_with_3->SetFontName(GlobalsV::NormalBoldFontName);
                 cpp_with_3->SetTextAlignX(GI_Main::taxCenter);
                 cpp_with_3->SetTextAlignY(GI_Main::tayCenterEx);
-                cpp_with_3->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Score"})));
+                cpp_with_3->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Score"}));
             }
             {
-                GI_Label::TLabelGI* cpp_with_4 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Row);
+                GI_Label::TLabelGI* cpp_with_4 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                    Row);
                 if (GR_Main::GiResourceVariant() == 1) {
                     cpp_with_4->SetPosition(ClassesImports::Point(117, 4));
                     cpp_with_4->SetSize(ClassesImports::Point(173, 32));
@@ -1281,10 +1364,11 @@ namespace fScore {
                 cpp_with_4->SetFontName(GlobalsV::NormalBoldFontName);
                 cpp_with_4->SetTextAlignX(GI_Main::taxCenter);
                 cpp_with_4->SetTextAlignY(GI_Main::tayCenterEx);
-                cpp_with_4->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Name"})));
+                cpp_with_4->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Name"}));
             }
             {
-                GI_Label::TLabelGI* cpp_with_5 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, Row);
+                GI_Label::TLabelGI* cpp_with_5 = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                    Row);
                 if (GR_Main::GiResourceVariant() == 1) {
                     cpp_with_5->SetPosition(ClassesImports::Point(291, 4));
                     cpp_with_5->SetSize(ClassesImports::Point(78, 32));
@@ -1296,36 +1380,48 @@ namespace fScore {
                 cpp_with_5->SetFontName(GlobalsV::NormalFontName);
                 cpp_with_5->SetTextAlignX(GI_Main::taxCenter);
                 cpp_with_5->SetTextAlignY(GI_Main::tayCenterEx);
-                cpp_with_5->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Code"})));
+                cpp_with_5->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Code"}));
             }
-            SendPanel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create, pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelToServer"sv)));
-            SendPanel->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "ToServer"})));
+            SendPanel = pas::construct_call<GI_Panel::TPanelGI>(GI_Panel::TPanelGI_Create,
+                    pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(u"PanelToServer"sv)));
+            SendPanel->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"ToServer"}));
             SendPanel->SetPosition(ClassesImports::Point(0, I * GR_Main::GiScalePixelsEx(51, 40)));
-            SendPanel->SetSize(ClassesImports::Point(GR_Main::GiScalePixelsEx(56, 45), GR_Main::GiScalePixelsEx(55, 44)));
+            SendPanel->SetSize(ClassesImports::Point(GR_Main::GiScalePixelsEx(56, 45),
+                GR_Main::GiScalePixelsEx(55, 44)));
             {
-                GI_Image::TImageGI* cpp_with_6 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, SendPanel);
-                cpp_with_6->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"SendPanel"}));
+                GI_Image::TImageGI* cpp_with_6 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                    SendPanel);
+                cpp_with_6->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    u"SendPanel"}));
                 cpp_with_6->SetPosition(ClassesImports::Point(0, 0));
                 cpp_with_6->SetSize(cpp_with_6->GetContentSize());
                 cpp_with_6->SetDepth(9.0);
             }
             {
-                GI_Image::TImageGI* cpp_with_7 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create, SendPanel);
-                cpp_with_7->SetName(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "ToServerLight"})));
-                cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"SendLight"}));
-                cpp_with_7->SetPosition(ClassesImports::Point(GR_Main::GiScalePixelsEx(20, 16), GR_Main::GiScalePixelsEx(4, 5)));
+                GI_Image::TImageGI* cpp_with_7 = pas::construct_call<GI_Image::TImageGI>(GI_Image::TImageGI_Create,
+                    SendPanel);
+                cpp_with_7->SetName(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"ToServerLight"}));
+                cpp_with_7->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    u"SendLight"}));
+                cpp_with_7->SetPosition(ClassesImports::Point(GR_Main::GiScalePixelsEx(20, 16),
+                    GR_Main::GiScalePixelsEx(4, 5)));
                 cpp_with_7->SetSize(cpp_with_7->GetContentSize());
                 cpp_with_7->SetDepth(8.0);
                 cpp_with_7->SetActive(true);
             }
             {
-                GI_GraphButton::TGraphButtonGI* cpp_with_8 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, SendPanel);
+                GI_GraphButton::TGraphButtonGI* cpp_with_8 = pas::construct_call<GI_GraphButton::TGraphButtonGI>(
+                    GI_GraphButton::TGraphButtonGI_Create, SendPanel);
                 cpp_with_8->UpCallback = pas::bind_method<&TfScore::ExportEntryClicked>(this);
-                cpp_with_8->SetPosition(ClassesImports::Point(GR_Main::GiScalePixelsEx(12, 10), GR_Main::GiScalePixelsEx(9, 7)));
+                cpp_with_8->SetPosition(ClassesImports::Point(GR_Main::GiScalePixelsEx(12, 10),
+                    GR_Main::GiScalePixelsEx(9, 7)));
                 cpp_with_8->SetDepth(7.0);
-                cpp_with_8->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"SendN"}));
-                cpp_with_8->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"SendA"}));
-                cpp_with_8->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"SendD"}));
+                cpp_with_8->SetImageNormalPath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    u"SendN"}));
+                cpp_with_8->SetImageNormalActivePath(pas::concat_wide({u"GI,Bm.FormScore2.",
+                    GR_Main::GiResourceSuffix(), u"SendA"}));
+                cpp_with_8->SetImageDownPath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    u"SendD"}));
                 cpp_with_8->EnterSound = u"Sound.ButtonEnter"_w;
                 cpp_with_8->LeaveSound = u"Sound.ButtonLeave"_w;
                 cpp_with_8->ClickSound = u"Sound.ButtonClick"_w;
@@ -1356,8 +1452,12 @@ namespace fScore {
         if (Sender->UserValue != SelectedIndex) {
             GR_Main::SoundManager->PlaySound(u"Sound.ButtonEnter"_wref.get());
             {
-                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(Sender->UserValue), "Active"})))));
-                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(pas::list_at<TfScoreUnit>(Entries, Sender->UserValue)->PilotRace)].InternalName, u"A"}));
+                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(Sender->UserValue),
+                        u"Active"}))));
+                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    aConst::OwnerInfo[aConst::RaceToOwner(pas::list_at<TfScoreUnit>(Entries,
+                        Sender->UserValue)->PilotRace)].InternalName, u"A"}));
             }
         }
     }
@@ -1366,8 +1466,12 @@ namespace fScore {
         if (Sender->UserValue != SelectedIndex) {
             GR_Main::SoundManager->PlaySound(u"Sound.ButtonLeave"_wref.get());
             {
-                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(Sender->UserValue), "Active"})))));
-                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(pas::list_at<TfScoreUnit>(Entries, Sender->UserValue)->PilotRace)].InternalName, u"N"}));
+                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(Sender->UserValue),
+                        u"Active"}))));
+                cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                    aConst::OwnerInfo[aConst::RaceToOwner(pas::list_at<TfScoreUnit>(Entries,
+                        Sender->UserValue)->PilotRace)].InternalName, u"N"}));
             }
         }
     }
@@ -1376,13 +1480,17 @@ namespace fScore {
         pas::WideString Text{};
         TfScoreUnit* Entry = pas::list_at<TfScoreUnit>(Entries, SelectedIndex);
         Text = ([&] {
-            auto playerName = pas::borrow(Entry->PlayerName);
-            pas::WideString intToStr = pas::wide_int_to_str(Entry->TotalScore);
-            pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormScore.QueryDelete"_wref.get());
-            pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-            return aMyFunction::FormatText2(std::move(paramByPathOrMarker), std::move(textHighlightColorTag), u"<Name>"_w, playerName.get(), u"<Score>"_w, std::move(intToStr));
-        }());
-        if (GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
+                auto playerName = pas::borrow(Entry->PlayerName);
+                pas::WideString intToStr = pas::wide_int_to_str(Entry->TotalScore);
+                pas::WideString paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(
+                    u"FormScore.QueryDelete"_wref.get());
+                pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
+                return aMyFunction::FormatText2(std::move(paramByPathOrMarker), std::move(textHighlightColorTag),
+                    u"<Name>"_w, playerName.get(), u"<Score>"_w, std::move(intToStr));
+            }());
+        if (GI_MessageBox::ShowMessageBoxGI(this, Text,
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) !=
+            GI_MessageBox::mbgResultOK) {
             GR_Main::PostMouseMoveMessage();
         } else {
             GR_Main::PostMouseMoveMessage();
@@ -1393,11 +1501,15 @@ namespace fScore {
     }
 
     void TfScore::ClearTableClicked(GI_MessageLoop::TObjectGI* Sender) {
-        if (GI_MessageBox::ShowMessageBoxGI(this, GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormScore.QueryClear"_wref.get()), GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) != GI_MessageBox::mbgResultOK) {
+        if (GI_MessageBox::ShowMessageBoxGI(this,
+            GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormScore.QueryClear"_wref.get()),
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgCancel | GI_MessageBox::mbgQuestion, 0, 0, 0) !=
+            GI_MessageBox::mbgResultOK) {
             GR_Main::PostMouseMoveMessage();
         } else {
             GR_Main::PostMouseMoveMessage();
-            SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"score.dat"})));
+            SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(),
+                u"score.dat"})));
             ReloadTable();
             SaveTableToDisk();
             RefreshDetails();
@@ -1450,15 +1562,19 @@ namespace fScore {
             Entry = pas::list_at<TfScoreUnit>(Entries, I);
             Selected = I == SelectedIndex;
             {
-                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Active"})))));
+                GI_Image::TImageGI* cpp_with = pas::checked_cast<GI_Image::TImageGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Active"}))));
                 if (Selected) {
-                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, u"D"}));
+                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                        aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, u"D"}));
                 } else {
-                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, u"N"}));
+                    cpp_with->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(),
+                        aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, u"N"}));
                 }
             }
             {
-                GI_Label::TLabelGI* cpp_with_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Nom"})))));
+                GI_Label::TLabelGI* cpp_with_2 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Nom"}))));
                 if (Selected) {
                     cpp_with_2->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 222, 0));
                 } else {
@@ -1466,7 +1582,8 @@ namespace fScore {
                 }
             }
             {
-                GI_Label::TLabelGI* cpp_with_3 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Score"})))));
+                GI_Label::TLabelGI* cpp_with_3 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Score"}))));
                 if (Selected) {
                     cpp_with_3->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 222, 0));
                 } else {
@@ -1475,7 +1592,8 @@ namespace fScore {
                 cpp_with_3->SetText(pas::wide_int_to_str(Entry->TotalScore));
             }
             {
-                GI_Label::TLabelGI* cpp_with_4 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Name"})))));
+                GI_Label::TLabelGI* cpp_with_4 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Name"}))));
                 cpp_with_4->SetText(Entry->PlayerName);
                 if (Selected) {
                     cpp_with_4->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 222, 0));
@@ -1484,8 +1602,9 @@ namespace fScore {
                 }
             }
             {
-                GI_Label::TLabelGI* cpp_with_5 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "Code"})))));
-                cpp_with_5->SetText(static_cast<pas::WideString>(pas::concat_ansi({SysUtils::IntToStr(Entry->DifficultyPercent), "%"})));
+                GI_Label::TLabelGI* cpp_with_5 = pas::checked_cast<GI_Label::TLabelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"Code"}))));
+                cpp_with_5->SetText(pas::concat_wide({pas::wide_int_to_str(Entry->DifficultyPercent), u"%"}));
                 if (Selected) {
                     cpp_with_5->SetTextColor(GR_Main::CurrentPixelFormat->PackRgbBytes(255, 222, 0));
                 } else {
@@ -1493,22 +1612,27 @@ namespace fScore {
                 }
             }
             {
-                GI_Panel::TPanelGI* cpp_with_6 = pas::checked_cast<GI_Panel::TPanelGI*>(GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "ToServer"})))));
+                GI_Panel::TPanelGI* cpp_with_6 = pas::checked_cast<GI_Panel::TPanelGI*>(
+                    GetByName(pas::view(pas::concat_wide({u"Slot", pas::wide_int_to_str(I), u"ToServer"}))));
                 cpp_with_6->SetActive(false);
             }
             {
-                GI_MessageLoop::TObjectGI* cpp_with_7 = GetByName(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Slot", SysUtils::IntToStr(I), "ToServerLight"}))));
+                GI_MessageLoop::TObjectGI* cpp_with_7 = GetByName(pas::view(pas::concat_wide({u"Slot",
+                    pas::wide_int_to_str(I), u"ToServerLight"})));
                 cpp_with_7->SetActive(pas::list_at<TfScoreUnit>(Entries, I)->Exported);
             }
         }
         Entry = pas::list_at<TfScoreUnit>(Entries, SelectedIndex);
         {
-            GI_GraphButton::TGraphButtonGI* ButClear = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"ButClear"sv));
+            GI_GraphButton::TGraphButtonGI* ButClear = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(
+                GetByName(u"ButClear"sv));
             ButClear->SetDisabled(Entry->ScoreTags->DataSize <= 0);
         }
         {
             GI_Image::TImageGI* CaptainI = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"CaptainI"sv));
-            CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, pas::wide_int_to_str(Entry->PortraitFaceId), u"i"}));
+            CaptainI->SetImagePath(pas::concat_wide({u"GI,Bm.Captain.", GR_Main::GiResourceSuffix(),
+                aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName,
+                pas::wide_int_to_str(Entry->PortraitFaceId), u"i"}));
             CaptainI->SetImageKindX(GI_Main::ikxCenter);
             CaptainI->SetImageKindY(GI_Main::ikyCenter);
             CaptainI->SetActive(true);
@@ -1516,7 +1640,9 @@ namespace fScore {
         {
             GI_GAI::TgaiGI* CaptainA = pas::checked_cast<GI_GAI::TgaiGI*>(GetByName(u"CaptainA"sv));
             CaptainA->FirstFrameOnly = static_cast<std::uint8_t>(GlobalsV::AnimCaptain ^ 1);
-            CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(), aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName, pas::wide_int_to_str(Entry->PortraitFaceId), u"a"}));
+            CaptainA->SetImagePath(pas::concat_wide({u"Bm.Captain.", GR_Main::GiResourceSuffix(),
+                aConst::OwnerInfo[aConst::RaceToOwner(Entry->PilotRace)].InternalName,
+                pas::wide_int_to_str(Entry->PortraitFaceId), u"a"}));
             CaptainA->SequenceIndex = 0;
             CaptainA->UpdateAutoGeometry();
             CaptainA->SetImageKindX(GI_Main::ikxCenter);
@@ -1548,42 +1674,48 @@ namespace fScore {
             GI_Image::TImageGI* Skill0 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill0"sv));
             Skill0->SetActive(Entry->SkillLevels[aGalaxyStruct::psAccuracy] > 0);
             if (Skill0->Active) {
-                Skill0->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psAccuracy] - 1)}));
+                Skill0->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psAccuracy] - 1)}));
             }
         }
         {
             GI_Image::TImageGI* Skill1 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill1"sv));
             Skill1->SetActive(Entry->SkillLevels[aGalaxyStruct::psManeuverability] > 0);
             if (Skill1->Active) {
-                Skill1->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psManeuverability] - 1)}));
+                Skill1->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psManeuverability] - 1)}));
             }
         }
         {
             GI_Image::TImageGI* Skill2 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill2"sv));
             Skill2->SetActive(Entry->SkillLevels[aGalaxyStruct::psTechnical] > 0);
             if (Skill2->Active) {
-                Skill2->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psTechnical] - 1)}));
+                Skill2->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psTechnical] - 1)}));
             }
         }
         {
             GI_Image::TImageGI* Skill3 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill3"sv));
             Skill3->SetActive(Entry->SkillLevels[aGalaxyStruct::psTrading] > 0);
             if (Skill3->Active) {
-                Skill3->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psTrading] - 1)}));
+                Skill3->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psTrading] - 1)}));
             }
         }
         {
             GI_Image::TImageGI* Skill4 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill4"sv));
             Skill4->SetActive(Entry->SkillLevels[aGalaxyStruct::psCharisma] > 0);
             if (Skill4->Active) {
-                Skill4->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psCharisma] - 1)}));
+                Skill4->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psCharisma] - 1)}));
             }
         }
         {
             GI_Image::TImageGI* Skill5 = pas::checked_cast<GI_Image::TImageGI*>(GetByName(u"Skill5"sv));
             Skill5->SetActive(Entry->SkillLevels[aGalaxyStruct::psLeadership] > 0);
             if (Skill5->Active) {
-                Skill5->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill", pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psLeadership] - 1)}));
+                Skill5->SetImagePath(pas::concat_wide({u"GI,Bm.FormScore2.", GR_Main::GiResourceSuffix(), u"Skill",
+                    pas::wide_int_to_str(Entry->SkillLevels[aGalaxyStruct::psLeadership] - 1)}));
             }
         }
         {
@@ -1591,7 +1723,8 @@ namespace fScore {
                 pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Entry->FinishedTurn);
                 pas::WideString localizedColorText = aConst::LocalizedColorText(u"FormScore.DateWin"_wref.get());
                 pas::WideString scoreValueColorTag = ScoreValueColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(scoreValueColorTag), u"<Date>"_w, std::move(formatGameTurnDate));
+                return aMyFunction::FormatText1(std::move(localizedColorText), std::move(scoreValueColorTag),
+                    u"<Date>"_w, std::move(formatGameTurnDate));
             }());
             GI_Label::TLabelGI* cpp_arg = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IDate"sv));
             cpp_arg->SetText(formatText1);
@@ -1600,14 +1733,17 @@ namespace fScore {
             GI_Label::TLabelGI* checked_cast = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITurn"sv));
             pas::WideString LocalizedColorText = aConst::LocalizedColorText(u"FormScore.TurnWin"_wref.get());
             std::int32_t max = std::max<std::int32_t>(0, Entry->FinishedTurn - aGalaxyStruct::GalaxyWarmupTurns);
-            checked_cast->SetText(aMyFunction::FormatText1(LocalizedColorText, ScoreValueColorTag, u"<Date>"_w, pas::wide_int_to_str(max)));
+            checked_cast->SetText(aMyFunction::FormatText1(LocalizedColorText, ScoreValueColorTag, u"<Date>"_w,
+                pas::wide_int_to_str(max)));
         }
         {
             const pas::WideString& formatText1_2 = ([&] {
-                pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Rank.", aConst::CoalitionRankNames[Entry->Rank], u".Name"}));
+                pas::WideString localizedText = aConst::LocalizedText(pas::concat_wide({u"Rank.",
+                    aConst::CoalitionRankNames[Entry->Rank], u".Name"}));
                 pas::WideString localizedColorText_2 = aConst::LocalizedColorText(u"FormScore.Rank"_wref.get());
                 pas::WideString textHighlightColorTag = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag), u"<Rank>"_w, std::move(localizedText));
+                return aMyFunction::FormatText1(std::move(localizedColorText_2), std::move(textHighlightColorTag),
+                    u"<Rank>"_w, std::move(localizedText));
             }());
             GI_Label::TLabelGI* cpp_arg_2 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRank"sv));
             cpp_arg_2->SetText(formatText1_2);
@@ -1635,9 +1771,11 @@ namespace fScore {
         {
             const pas::WideString& formatText1_3 = ([&] {
                 pas::WideString intToStr_5 = pas::wide_int_to_str(Entry->LiberatedSystemCount);
-                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(u"FormScore.LiberationSystem"_wref.get());
+                pas::WideString localizedColorText_3 = aConst::LocalizedColorText(
+                    u"FormScore.LiberationSystem"_wref.get());
                 pas::WideString scoreValueColorTag_2 = ScoreValueColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(scoreValueColorTag_2), u"<LiberationSystem>"_w, std::move(intToStr_5));
+                return aMyFunction::FormatText1(std::move(localizedColorText_3), std::move(scoreValueColorTag_2),
+                    u"<LiberationSystem>"_w, std::move(intToStr_5));
             }());
             GI_Label::TLabelGI* cpp_arg_7 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ILiberationSystem"sv));
             cpp_arg_7->SetText(formatText1_3);
@@ -1647,7 +1785,8 @@ namespace fScore {
                 pas::WideString intToStr_6 = pas::wide_int_to_str(Entry->AwardCount);
                 pas::WideString localizedColorText_4 = aConst::LocalizedColorText(u"FormScore.Rewards"_wref.get());
                 pas::WideString textHighlightColorTag_2 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_2), u"<Rewards>"_w, std::move(intToStr_6));
+                return aMyFunction::FormatText1(std::move(localizedColorText_4), std::move(textHighlightColorTag_2),
+                    u"<Rewards>"_w, std::move(intToStr_6));
             }());
             GI_Label::TLabelGI* cpp_arg_8 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IRewards"sv));
             cpp_arg_8->SetText(formatText1_4);
@@ -1674,10 +1813,12 @@ namespace fScore {
         }
         {
             const pas::WideString& formatText1_5 = ([&] {
-                pas::WideString intToStr_7 = pas::wide_int_to_str(LetterQuests + ShipKillQuests + PlanetQuests + SystemDefenseQuests + ShipDefenseQuests);
+                pas::WideString intToStr_7 = pas::wide_int_to_str(LetterQuests + ShipKillQuests + PlanetQuests +
+                    SystemDefenseQuests + ShipDefenseQuests);
                 pas::WideString localizedColorText_5 = aConst::LocalizedColorText(u"FormScore.Quests"_wref.get());
                 pas::WideString textHighlightColorTag_3 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_5), std::move(textHighlightColorTag_3), u"<Quests>"_w, std::move(intToStr_7));
+                return aMyFunction::FormatText1(std::move(localizedColorText_5), std::move(textHighlightColorTag_3),
+                    u"<Quests>"_w, std::move(intToStr_7));
             }());
             GI_Label::TLabelGI* cpp_arg_9 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IQuests"sv));
             cpp_arg_9->SetText(formatText1_5);
@@ -1691,10 +1832,11 @@ namespace fScore {
             GI_MessageLoop::TObjectGI* IQuests = GetByName(u"IQuests"sv);
             X = IQuests->LocalPosition.X + IQuests->ClientSize.X + 5;
             for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 10); cpp_range_3.next(I); ) {
-                Control = FindControlByPath(static_cast<pas::WideString>(pas::concat_ansi({"QI", SysUtils::IntToStr(I)})));
+                Control = FindControlByPath(pas::concat_wide({u"QI", pas::wide_int_to_str(I)}));
                 if (Control == nullptr) {
-                    Control = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create, GetByName(u"PanelWin"sv));
-                    Control->SetName(static_cast<pas::WideString>(pas::concat_ansi({"QI", SysUtils::IntToStr(I)})));
+                    Control = pas::construct_call<GI_Label::TLabelGI>(GI_Label::TLabelGI_Create,
+                            GetByName(u"PanelWin"sv));
+                    Control->SetName(pas::concat_wide({u"QI", pas::wide_int_to_str(I)}));
                 }
                 Control->SetPosition(ClassesImports::Point(X, IQuests->LocalPosition.Y + 2));
                 Control->SetSize(ClassesImports::Point(1, IQuests->ClientSize.Y - 2));
@@ -1733,19 +1875,23 @@ namespace fScore {
                     }
                     if (pas::in_set<1, 1, 3, 3, 5, 5, 7, 7, 9, 9>(I)) {
                         cpp_with_19->HelpText = ([&] {
-                            pas::WideString text = cpp_with_19->GetText();
-                            pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.Quests", SysUtils::IntToStr((I - 1) / 2 + 1)})));
-                            pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
-                            return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey), std::move(textHighlightColorTag_4), u"<N>"_w, std::move(text));
-                        }());
+                                pas::WideString text = cpp_with_19->GetText();
+                                pas::WideString lookupLocalizedTextByKey = GR_Main::LookupLocalizedTextByKey(
+                                    pas::concat_wide({u"FormScore.Quests", pas::wide_int_to_str((I - 1) / 2 + 1)}));
+                                pas::WideString textHighlightColorTag_4 = aMyFunction::TextHighlightColorTag;
+                                return aMyFunction::FormatText1(std::move(lookupLocalizedTextByKey),
+                                    std::move(textHighlightColorTag_4), u"<N>"_w, std::move(text));
+                            }());
                         cpp_with_19->MouseEnterCallback = pas::bind_method<&TfScore::QuestHelpMouseEnter>(this);
                         cpp_with_19->MouseLeaveCallback = pas::bind_method<&TfScore::QuestHelpMouseLeave>(this);
                     }
                     cpp_with_19->SetTextAlignX(GI_Main::taxCenter);
                     if (GR_Main::GiResourceVariant() == 1) {
-                        cpp_with_19->SetSize(ClassesImports::Point(cpp_with_19->ClientSize.X - 3, cpp_with_19->ClientSize.Y));
+                        cpp_with_19->SetSize(ClassesImports::Point(cpp_with_19->ClientSize.X - 3,
+                            cpp_with_19->ClientSize.Y));
                     } else {
-                        cpp_with_19->SetSize(ClassesImports::Point(cpp_with_19->ClientSize.X - 4, cpp_with_19->ClientSize.Y));
+                        cpp_with_19->SetSize(ClassesImports::Point(cpp_with_19->ClientSize.X - 4,
+                            cpp_with_19->ClientSize.Y));
                     }
                     X += cpp_with_19->ClientSize.X;
                 }
@@ -1754,9 +1900,11 @@ namespace fScore {
         {
             const pas::WideString& formatText1_6 = ([&] {
                 pas::WideString intToStr_8 = pas::wide_int_to_str(Entry->PlanetBattles);
-                pas::WideString localizedColorText_6 = aConst::LocalizedColorText(u"FormScore.PlanetBattles"_wref.get());
+                pas::WideString localizedColorText_6 = aConst::LocalizedColorText(
+                    u"FormScore.PlanetBattles"_wref.get());
                 pas::WideString textHighlightColorTag_5 = aMyFunction::TextHighlightColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_5), u"<PlanetBattles>"_w, std::move(intToStr_8));
+                return aMyFunction::FormatText1(std::move(localizedColorText_6), std::move(textHighlightColorTag_5),
+                    u"<PlanetBattles>"_w, std::move(intToStr_8));
             }());
             GI_Label::TLabelGI* cpp_arg_10 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPlanetBattles"sv));
             cpp_arg_10->SetText(formatText1_6);
@@ -1766,7 +1914,8 @@ namespace fScore {
                 pas::WideString intToStr_9 = pas::wide_int_to_str(Entry->TotalExperience);
                 pas::WideString localizedColorText_7 = aConst::LocalizedColorText(u"FormScore.Exp"_wref.get());
                 pas::WideString scoreValueColorTag_3 = ScoreValueColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(scoreValueColorTag_3), u"<Exp>"_w, std::move(intToStr_9));
+                return aMyFunction::FormatText1(std::move(localizedColorText_7), std::move(scoreValueColorTag_3),
+                    u"<Exp>"_w, std::move(intToStr_9));
             }());
             GI_Label::TLabelGI* cpp_arg_11 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IExp"sv));
             cpp_arg_11->SetText(formatText1_7);
@@ -1775,93 +1924,130 @@ namespace fScore {
         UnresolvedColor = u"<color=30,252,30>"_w;
         switch (Entry->BlazerEndingState) {
             case 0: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.BlazerLeave"_wref.get())), pas::view(UnresolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.BlazerLeave"_wref.get())),
+                        pas::view(UnresolvedColor));
                 break;
             }
             case 1: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.BlazerDead"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.BlazerDead"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             case 2: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.BlazerSuicide"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.BlazerSuicide"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             default: {
                 if (Entry->PirateEndingState == 5) {
-                    Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.BlazerChangeSideAlt"_wref.get())), pas::view(ResolvedColor));
+                    Text = aMyFunction::WrapTextInColor(
+                            pas::view(aConst::LocalizedColorText(u"FormScore.BlazerChangeSideAlt"_wref.get())),
+                            pas::view(ResolvedColor));
                 } else {
-                    Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.BlazerChangeSide"_wref.get())), pas::view(ResolvedColor));
+                    Text = aMyFunction::WrapTextInColor(
+                            pas::view(aConst::LocalizedColorText(u"FormScore.BlazerChangeSide"_wref.get())),
+                            pas::view(ResolvedColor));
                 }
                 break;
             }
         }
         {
             const pas::WideString& formatText1_8 = ([&] {
-                pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Blazer.0"_wref.get());
+                pas::WideString lookupLocalizedTextByKey_2 = GR_Main::LookupLocalizedTextByKey(
+                    u"ShipType.Dominator.Blazer.0"_wref.get());
                 pas::WideString text_2 = Text;
-                return aMyFunction::FormatText1(std::move(text_2), pas::WideString(), u"<Blazer>"_w, std::move(lookupLocalizedTextByKey_2));
+                return aMyFunction::FormatText1(std::move(text_2), pas::WideString(), u"<Blazer>"_w,
+                    std::move(lookupLocalizedTextByKey_2));
             }());
             GI_Label::TLabelGI* cpp_arg_12 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IBlazer"sv));
             cpp_arg_12->SetText(formatText1_8);
         }
         switch (Entry->KellerEndingState) {
             case 0: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.KellerLeave"_wref.get())), pas::view(UnresolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.KellerLeave"_wref.get())),
+                        pas::view(UnresolvedColor));
                 break;
             }
             case 1: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.KellerDead"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.KellerDead"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             case 2: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.KellerFly"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.KellerFly"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             default: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.KellerNewResearch"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.KellerNewResearch"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
         }
         {
             const pas::WideString& formatText1_9 = ([&] {
-                pas::WideString lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Keller.0"_wref.get());
+                pas::WideString lookupLocalizedTextByKey_3 = GR_Main::LookupLocalizedTextByKey(
+                    u"ShipType.Dominator.Keller.0"_wref.get());
                 pas::WideString text_3 = Text;
-                return aMyFunction::FormatText1(std::move(text_3), pas::WideString(), u"<Keller>"_w, std::move(lookupLocalizedTextByKey_3));
+                return aMyFunction::FormatText1(std::move(text_3), pas::WideString(), u"<Keller>"_w,
+                    std::move(lookupLocalizedTextByKey_3));
             }());
             GI_Label::TLabelGI* cpp_arg_13 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IKeller"sv));
             cpp_arg_13->SetText(formatText1_9);
         }
         switch (Entry->TerronEndingState) {
             case 0: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.TerronLeave"_wref.get())), pas::view(UnresolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.TerronLeave"_wref.get())),
+                        pas::view(UnresolvedColor));
                 break;
             }
             case 1: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.TerronDead"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.TerronDead"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             case 2: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.TerronStar"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.TerronStar"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
             default: {
-                Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.TerronBattle"_wref.get())), pas::view(ResolvedColor));
+                Text = aMyFunction::WrapTextInColor(
+                        pas::view(aConst::LocalizedColorText(u"FormScore.TerronBattle"_wref.get())),
+                        pas::view(ResolvedColor));
                 break;
             }
         }
         {
             const pas::WideString& formatText1_10 = ([&] {
-                pas::WideString lookupLocalizedTextByKey_4 = GR_Main::LookupLocalizedTextByKey(u"ShipType.Dominator.Terron.0"_wref.get());
+                pas::WideString lookupLocalizedTextByKey_4 = GR_Main::LookupLocalizedTextByKey(
+                    u"ShipType.Dominator.Terron.0"_wref.get());
                 pas::WideString text_4 = Text;
-                return aMyFunction::FormatText1(std::move(text_4), pas::WideString(), u"<Terron>"_w, std::move(lookupLocalizedTextByKey_4));
+                return aMyFunction::FormatText1(std::move(text_4), pas::WideString(), u"<Terron>"_w,
+                    std::move(lookupLocalizedTextByKey_4));
             }());
             GI_Label::TLabelGI* cpp_arg_14 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITerron"sv));
             cpp_arg_14->SetText(formatText1_10);
         }
         if (Entry->PirateEndingState > 0) {
-            Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(static_cast<pas::WideString>(pas::concat_ansi({"FormScore.PirateWin", SysUtils::IntToStr(Entry->PirateEndingState)})))), pas::view(ResolvedColor));
+            Text = aMyFunction::WrapTextInColor(
+                    pas::view(aConst::LocalizedColorText(pas::concat_wide({u"FormScore.PirateWin",
+                        pas::wide_int_to_str(static_cast<std::int32_t>(Entry->PirateEndingState))}))),
+                    pas::view(ResolvedColor));
         } else {
-            Text = aMyFunction::WrapTextInColor(pas::view(aConst::LocalizedColorText(u"FormScore.PirateWin0"_wref.get())), pas::view(UnresolvedColor));
+            Text = aMyFunction::WrapTextInColor(
+                    pas::view(aConst::LocalizedColorText(u"FormScore.PirateWin0"_wref.get())),
+                    pas::view(UnresolvedColor));
         }
         {
             GI_Label::TLabelGI* IPirate = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"IPirate"sv));
@@ -1873,7 +2059,8 @@ namespace fScore {
                 pas::WideString intToStr_10 = pas::wide_int_to_str(Entry->TotalScore);
                 pas::WideString localizedColorText_8 = aConst::LocalizedColorText(u"FormScore.TotalWin"_wref.get());
                 pas::WideString scoreValueColorTag_4 = ScoreValueColorTag;
-                return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(scoreValueColorTag_4), u"<Total>"_w, std::move(intToStr_10));
+                return aMyFunction::FormatText1(std::move(localizedColorText_8), std::move(scoreValueColorTag_4),
+                    u"<Total>"_w, std::move(intToStr_10));
             }());
             GI_Label::TLabelGI* cpp_arg_15 = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(u"ITotal"sv));
             cpp_arg_15->SetText(formatText1_11);
@@ -1903,26 +2090,34 @@ namespace fScore {
         pas::WideString Text{};
         std::int32_t Index = Sender->UserValue;
         TfScoreUnit* Entry = pas::list_at<TfScoreUnit>(Entries, Index);
-        if (SimpleSteamApi::SteamInitialized && SimpleSteamApi::SteamLeaderboardFound() && static_cast<std::uint8_t>(Entry->Disqualified ^ 1)) {
+        if (SimpleSteamApi::SteamInitialized && SimpleSteamApi::SteamLeaderboardFound() &&
+            static_cast<std::uint8_t>(Entry->Disqualified ^ 1)) {
             SimpleSteamApi::SteamUploadScore(Entry->TotalScore);
         }
         if (Index + 1 < 10) {
-            FileName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"ToServer0", pas::wide_int_to_str(Index + 1), u".txt"});
+            FileName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"ToServer0", pas::wide_int_to_str(Index + 1),
+                    u".txt"});
         } else {
-            FileName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"ToServer", pas::wide_int_to_str(Index + 1), u".txt"});
+            FileName = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"ToServer", pas::wide_int_to_str(Index + 1),
+                    u".txt"});
         }
         Entry->ExportToFile(FileName);
         Text = aConst::LocalizedColorText(u"FormScore.ToServer"_wref.get());
-        Text = aMyFunction::ReplaceColoredToken(Text, u"<Player>"_w, Entry->PlayerName, aMyFunction::TextHighlightColorTag);
-        Text = aMyFunction::ReplaceColoredToken(Text, u"<File>"_w, EC_Str::ReplaceAllWideString(FileName, u"\\"_wref.get(), u" \\ "sv), aMyFunction::TextHighlightColorTag);
+        Text = aMyFunction::ReplaceColoredToken(Text, u"<Player>"_w, Entry->PlayerName,
+                aMyFunction::TextHighlightColorTag);
+        Text = aMyFunction::ReplaceColoredToken(Text, u"<File>"_w,
+                EC_Str::ReplaceAllWideString(FileName, u"\\"_wref.get(), u" \\ "sv),
+                aMyFunction::TextHighlightColorTag);
         Text = ([&] {
-            auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
-            pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Entry->FinishedTurn);
-            pas::WideString text = Text;
-            return aMyFunction::ReplaceColoredToken(std::move(text), u"<WinGameDate>"_w, std::move(formatGameTurnDate), textHighlightColorTag.get());
-        }());
+                auto textHighlightColorTag = pas::borrow(aMyFunction::TextHighlightColorTag);
+                pas::WideString formatGameTurnDate = aGalaxy::FormatGameTurnDate(Entry->FinishedTurn);
+                pas::WideString text = Text;
+                return aMyFunction::ReplaceColoredToken(std::move(text), u"<WinGameDate>"_w,
+                    std::move(formatGameTurnDate), textHighlightColorTag.get());
+            }());
         Entry->Exported = true;
-        GI_MessageBox::ShowMessageBoxGI(this, Text, GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04 | GI_MessageBox::mbgLeftAlign, 0, 0, 0);
+        GI_MessageBox::ShowMessageBoxGI(this, Text,
+            GI_MessageBox::mbgOK | GI_MessageBox::mbgUnused04 | GI_MessageBox::mbgLeftAlign, 0, 0, 0);
         RefreshDetails();
     }
 

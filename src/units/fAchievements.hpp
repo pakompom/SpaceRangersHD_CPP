@@ -2,8 +2,10 @@
 #include "types/fAchievements.hpp"
 
 namespace fAchievements {
-    void TfAchievements_Create(TfAchievements* Self);
+    inline void TfAchievements_Create(TfAchievements* Self);
 
     void TfAchievements_Destroy(TfAchievements* Self);
 
 } // namespace fAchievements
+
+#include "inline/fAchievements.hpp"

@@ -20,20 +20,21 @@ namespace GI_StarFieldM {
         std::int32_t I{};
         std::int32_t J{};
         GI_Panel::TPanelGI_Create(Self, Owner);
-        {
-            float cpp_arg = pas::real_divide(static_cast<std::uint32_t>(GR_Main::GameScreenWidth), 2.0L);
-            float cpp_arg_2 = pas::real_divide(static_cast<std::uint32_t>(GR_Main::GameScreenHeight), 2.0L);
-            Self->FocusPoint = EC_Struct::MakePointF(cpp_arg, cpp_arg_2);
-        }
-        Self->ColorTable = static_cast<PMovingStarColorTable>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TMovingStarColorTable))));
+        Self->FocusPoint = EC_Struct::MakePointF(static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth) / 2.0),
+                static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 2.0));
+        Self->ColorTable =
+            static_cast<PMovingStarColorTable>(
+                EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TMovingStarColorTable))));
         for (I = 0; I <= 15; ++I) {
             for (J = 0; J <= 31; ++J) {
-                double cpp_arg_3 = pas::random_real(&System::RandSeed) * 0.5L + 0.5L;
-                double cpp_arg_4 = pas::random_real(&System::RandSeed) * 0.5L + 0.5L;
-                double cpp_arg_5 = pas::random_real(&System::RandSeed) * 0.5L + 0.5L;
+                double cpp_arg = static_cast<float>(static_cast<float>(pas::random_real(&System::RandSeed) * 0.5) + 0.5);
+                double cpp_arg_2 = static_cast<float>(static_cast<float>(pas::random_real(&System::RandSeed) * 0.5) + 0.5);
+                double cpp_arg_3 = static_cast<float>(static_cast<float>(pas::random_real(&System::RandSeed) * 0.5) + 0.5);
                 GR_GraphBuf::TPixelFormatGR* currentPixelFormat = GR_Main::CurrentPixelFormat;
-                std::uint16_t packNormalizedRgb = currentPixelFormat->PackNormalizedRgb(cpp_arg_3, cpp_arg_4, cpp_arg_5);
-                void* addPointerOffset = EC_Mem::AddPointerOffset(Self->ColorTable, I * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) + J * static_cast<std::int32_t>(sizeof(std::uint16_t)));
+                std::uint16_t packNormalizedRgb = currentPixelFormat->PackNormalizedRgb(cpp_arg, cpp_arg_2, cpp_arg_3);
+                void* addPointerOffset = EC_Mem::AddPointerOffset(Self->ColorTable,
+                    I * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) + J *
+                            static_cast<std::int32_t>(sizeof(std::uint16_t)));
                 EC_Mem::WriteWordEC(addPointerOffset, packNormalizedRgb);
             }
         }
@@ -58,7 +59,8 @@ namespace GI_StarFieldM {
             MessageLoop->CancelCallbackTimer(AnimationTimer);
             AnimationTimer = nullptr;
         }
-        AnimationTimer = MessageLoop->ScheduleCallbackTimer(50, 50, pas::bind_method<&TStarFieldMGI::AnimateStars>(this), 0);
+        AnimationTimer = MessageLoop->ScheduleCallbackTimer(50, 50,
+                pas::bind_method<&TStarFieldMGI::AnimateStars>(this), 0);
     }
 
     void TStarFieldMGI::OnDeactivate() {
@@ -80,7 +82,8 @@ namespace GI_StarFieldM {
     void TStarFieldMGI::GrowStars() {
         void* Tail{};
         Capacity += 64;
-        Stars = static_cast<PMovingStarPixel>(EC_Mem::ReAllocREC(Stars, static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * Capacity));
+        Stars = static_cast<PMovingStarPixel>(EC_Mem::ReAllocREC(Stars,
+                static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * Capacity));
         Tail = EC_Mem::AddPointerOffset(Stars, static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * (Capacity - 64));
         pas::fill_memory(Tail, static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * 64, static_cast<std::uint8_t>(0));
     }
@@ -90,36 +93,40 @@ namespace GI_StarFieldM {
         if (StarCount > Capacity) {
             GrowStars();
         }
-        return static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Stars, static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * (StarCount - 1)));
+        return static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Stars,
+            static_cast<std::int32_t>(sizeof(TMovingStarPixel)) * (StarCount - 1)));
     }
 
     void TStarFieldMGI::InitializeStar(PMovingStarPixel Star) {
         {
-            pas::Extended cpp_left = pas::random_real(&System::RandSeed);
-            Star->Position.X = cpp_left * (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) - 1);
+            double cpp_left = pas::random_real(&System::RandSeed);
+            Star->Position.X = static_cast<float>(cpp_left * (static_cast<std::uint32_t>(GR_Main::GameScreenWidth) - 1));
         }
         {
-            pas::Extended cpp_left_2 = pas::random_real(&System::RandSeed);
-            Star->Position.Y = cpp_left_2 * (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) - 1);
+            double cpp_left_2 = pas::random_real(&System::RandSeed);
+            Star->Position.Y = static_cast<float>(cpp_left_2 * (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) - 1));
         }
-        Star->PixelPosition.X = System::Round(Star->Position.X);
-        Star->PixelPosition.Y = System::Round(Star->Position.Y);
+        Star->PixelPosition.X = pas::real_round(Star->Position.X);
+        Star->PixelPosition.Y = pas::real_round(Star->Position.Y);
         float Factor = pas::random_real(&System::RandSeed);
-        float Angle = Math::ArcTan2(static_cast<long double>(Star->Position.X) - FocusPoint.X, -(static_cast<long double>(Star->Position.Y) - FocusPoint.Y));
+        float Angle = Math::ArcTan2(static_cast<float>(static_cast<double>(Star->Position.X) - FocusPoint.X),
+            -(static_cast<float>(static_cast<double>(Star->Position.Y) - FocusPoint.Y)));
         float DX = System::Sin(Angle);
         float DY = -System::Cos(Angle);
         Star->Direction.X = DX;
         Star->Direction.Y = DY;
-        float Speed = 0.5L * Factor + 0.1L;
-        Star->Velocity.X = static_cast<long double>(DX) * Speed;
-        Star->Velocity.Y = static_cast<long double>(DY) * Speed;
-        Speed = 0.3L * Factor + 0.1L;
-        Star->Acceleration.X = static_cast<long double>(DX) * Speed;
-        Star->Acceleration.Y = static_cast<long double>(DY) * Speed;
+        float Speed = static_cast<float>(static_cast<float>(0.5 * Factor) + 0.1);
+        Star->Velocity.X = static_cast<float>(static_cast<double>(DX) * Speed);
+        Star->Velocity.Y = static_cast<float>(static_cast<double>(DY) * Speed);
+        Speed = static_cast<float>(static_cast<float>(0x1.3333333333334p-2 * Factor) + 0.1);
+        Star->Acceleration.X = static_cast<float>(static_cast<double>(DX) * Speed);
+        Star->Acceleration.Y = static_cast<float>(static_cast<double>(DY) * Speed);
         Star->ColorPosition = 0.0f;
-        Star->ColorStep = 4.0L * Factor + 2.0L;
+        Star->ColorStep = static_cast<float>(static_cast<float>(4.0 * Factor) + 2.0);
         Star->PaletteIndex = 0;
-        Star->Color = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(ColorTable, Star->PaletteIndex * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) + System::Round(Star->ColorPosition) * static_cast<std::int32_t>(sizeof(std::uint16_t))));
+        Star->Color = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(ColorTable,
+                Star->PaletteIndex * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) +
+                    pas::real_round(Star->ColorPosition) * static_cast<std::int32_t>(sizeof(std::uint16_t))));
     }
 
     void TStarFieldMGI::SeedStars() {
@@ -127,7 +134,7 @@ namespace GI_StarFieldM {
         PMovingStarPixel Star{};
         std::int32_t Count = 50;
         if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) < 768) {
-            Count = System::Round(Count * 0.6103515625L);
+            Count = pas::real_round(static_cast<float>(Count * 0.6103515625));
         }
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(I); ) {
             Star = AllocateStar();
@@ -141,26 +148,30 @@ namespace GI_StarFieldM {
         std::int32_t Y{};
         PMovingStarPixel Star = Stars;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, StarCount - 1); cpp_range.next(I); ) {
-            Star->Velocity.X = static_cast<long double>(Star->Velocity.X) + Star->Acceleration.X;
-            Star->Velocity.Y = static_cast<long double>(Star->Velocity.Y) + Star->Acceleration.Y;
-            Star->Position.X = static_cast<long double>(Star->Position.X) + Star->Velocity.X;
-            Star->Position.Y = static_cast<long double>(Star->Position.Y) + Star->Velocity.Y;
-            X = System::Round(Star->Position.X);
-            Y = System::Round(Star->Position.Y);
+            Star->Velocity.X = static_cast<float>(static_cast<double>(Star->Velocity.X) + Star->Acceleration.X);
+            Star->Velocity.Y = static_cast<float>(static_cast<double>(Star->Velocity.Y) + Star->Acceleration.Y);
+            Star->Position.X = static_cast<float>(static_cast<double>(Star->Position.X) + Star->Velocity.X);
+            Star->Position.Y = static_cast<float>(static_cast<double>(Star->Position.Y) + Star->Velocity.Y);
+            X = pas::real_round(Star->Position.X);
+            Y = pas::real_round(Star->Position.Y);
             Star->PixelPosition.X = X;
             Star->PixelPosition.Y = Y;
-            if (X < HitTestBounds.Left || X >= HitTestBounds.Right || Y < HitTestBounds.Top || Y >= HitTestBounds.Bottom) {
+            if (X < HitTestBounds.Left || X >= HitTestBounds.Right || Y < HitTestBounds.Top || Y >=
+                    HitTestBounds.Bottom) {
                 InitializeStar(Star);
             }
-            if (Star->ColorPosition < 31.0L) {
-                Star->ColorPosition = static_cast<long double>(Star->ColorPosition) + Star->ColorStep;
-                if (Star->ColorPosition > 31.0L) {
+            if (Star->ColorPosition < 31.0) {
+                Star->ColorPosition = static_cast<float>(static_cast<double>(Star->ColorPosition) + Star->ColorStep);
+                if (Star->ColorPosition > 31.0) {
                     Star->ColorPosition = 31.0f;
                     Star->ColorStep = 0.0f;
                 }
-                Star->Color = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(ColorTable, Star->PaletteIndex * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) + System::Round(Star->ColorPosition) * static_cast<std::int32_t>(sizeof(std::uint16_t))));
+                Star->Color = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(ColorTable,
+                        Star->PaletteIndex * 32 * static_cast<std::int32_t>(sizeof(std::uint16_t)) +
+                            pas::real_round(Star->ColorPosition) * static_cast<std::int32_t>(sizeof(std::uint16_t))));
             }
-            Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+            Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                    static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
         }
     }
 
@@ -172,20 +183,23 @@ namespace GI_StarFieldM {
         float DX{};
         PMovingStarPixel Star = Stars;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, StarCount - 1); cpp_range.next(I); ) {
-            DX = static_cast<long double>(Star->Position.X) - FocusPoint.X;
-            DY = static_cast<long double>(Star->Position.Y) - FocusPoint.Y;
-            Distance = System::Sqrt(static_cast<long double>(DX) * DX + static_cast<long double>(DY) * DY);
-            DX = pas::real_divide(DX, Distance);
-            DY = pas::real_divide(DY, Distance);
+            DX = static_cast<float>(static_cast<double>(Star->Position.X) - FocusPoint.X);
+            DY = static_cast<float>(static_cast<double>(Star->Position.Y) - FocusPoint.Y);
+            Distance = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(DX) * DX) + static_cast<float>(static_cast<double>(DY) * DY)));
+            DX = static_cast<float>(static_cast<double>(DX) / Distance);
+            DY = static_cast<float>(static_cast<double>(DY) / Distance);
             Star->Direction.X = DX;
             Star->Direction.Y = DY;
-            Speed = System::Sqrt(static_cast<long double>(Star->Velocity.X) * Star->Velocity.X + static_cast<long double>(Star->Velocity.Y) * Star->Velocity.Y);
-            Star->Velocity.X = static_cast<long double>(Speed) * DX;
-            Star->Velocity.Y = static_cast<long double>(Speed) * DY;
-            Speed = System::Sqrt(static_cast<long double>(Star->Acceleration.X) * Star->Acceleration.X + static_cast<long double>(Star->Acceleration.Y) * Star->Acceleration.Y);
-            Star->Acceleration.X = static_cast<long double>(Speed) * DX;
-            Star->Acceleration.Y = static_cast<long double>(Speed) * DY;
-            Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+            Speed = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Star->Velocity.X) * Star->Velocity.X) +
+                    static_cast<float>(static_cast<double>(Star->Velocity.Y) * Star->Velocity.Y)));
+            Star->Velocity.X = static_cast<float>(static_cast<double>(Speed) * DX);
+            Star->Velocity.Y = static_cast<float>(static_cast<double>(Speed) * DY);
+            Speed = System::Sqrt(static_cast<float>(static_cast<float>(static_cast<double>(Star->Acceleration.X) * Star->Acceleration.X) +
+                    static_cast<float>(static_cast<double>(Star->Acceleration.Y) * Star->Acceleration.Y)));
+            Star->Acceleration.X = static_cast<float>(static_cast<double>(Speed) * DX);
+            Star->Acceleration.Y = static_cast<float>(static_cast<double>(Speed) * DY);
+            Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                    static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
         }
     }
 
@@ -199,26 +213,24 @@ namespace GI_StarFieldM {
             }
             if (TargetHeading != CurrentHeading || TargetFocusDistance != CurrentFocusDistance) {
                 Delta = aMyFunction::HeadingDifferenceDegrees(CurrentHeading, TargetHeading);
-                if (std::fabs(static_cast<pas::Extended>(Delta)) <= 15.0L) {
+                if (std::fabs(static_cast<double>(Delta)) <= 15.0) {
                     CurrentHeading = TargetHeading;
-                } else if (Delta < 0.0L) {
-                    CurrentHeading = aMyFunction::WrapHeadingDegrees(CurrentHeading - 15.0L);
-                } else if (Delta > 0.0L) {
-                    CurrentHeading = aMyFunction::WrapHeadingDegrees(CurrentHeading + 15.0L);
+                } else if (Delta < 0.0) {
+                    CurrentHeading = aMyFunction::WrapHeadingDegrees(static_cast<float>(CurrentHeading - 15.0));
+                } else if (Delta > 0.0) {
+                    CurrentHeading = aMyFunction::WrapHeadingDegrees(static_cast<float>(CurrentHeading + 15.0));
                 }
                 if (TargetFocusDistance < CurrentFocusDistance) {
-                    CurrentFocusDistance = pas::real_max<pas::Extended>(static_cast<pas::Extended>(TargetFocusDistance), CurrentFocusDistance - 9.0E+1L);
+                    CurrentFocusDistance = pas::real_max<double>(static_cast<double>(TargetFocusDistance),
+                            static_cast<float>(CurrentFocusDistance - 9.0E+1));
                 } else if (TargetFocusDistance > CurrentFocusDistance) {
-                    CurrentFocusDistance = pas::real_min<pas::Extended>(static_cast<pas::Extended>(TargetFocusDistance), CurrentFocusDistance + 6.0E+1L);
+                    CurrentFocusDistance = pas::real_min<double>(static_cast<double>(TargetFocusDistance),
+                            static_cast<float>(CurrentFocusDistance + 6.0E+1));
                 }
-                {
-                    pas::Extended cpp_left = System::Sin(aMyFunction::HeadingDegreesToRadians(CurrentHeading)) * CurrentFocusDistance;
-                    FocusPoint.X = cpp_left + pas::real_divide(static_cast<std::uint32_t>(GR_Main::GameScreenWidth), 2.0L);
-                }
-                {
-                    pas::Extended cpp_right = System::Cos(aMyFunction::HeadingDegreesToRadians(CurrentHeading)) * CurrentFocusDistance;
-                    FocusPoint.Y = pas::real_divide(static_cast<std::uint32_t>(GR_Main::GameScreenHeight), 2.0L) - cpp_right;
-                }
+                FocusPoint.X = static_cast<float>(static_cast<float>(System::Sin(aMyFunction::HeadingDegreesToRadians(CurrentHeading)) *
+                        CurrentFocusDistance) + static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenWidth) / 2.0));
+                FocusPoint.Y = static_cast<float>(static_cast<float>(static_cast<std::uint32_t>(GR_Main::GameScreenHeight) / 2.0) -
+                        static_cast<float>(System::Cos(aMyFunction::HeadingDegreesToRadians(CurrentHeading)) * CurrentFocusDistance));
                 RedirectStars();
             }
             AdvanceStars();
@@ -227,12 +239,12 @@ namespace GI_StarFieldM {
     }
 
     void TStarFieldMGI::SetViewPosition(EC_Struct::TPointF Position) {
-        float DX = static_cast<long double>(Position.X) - ViewPosition.X;
-        float DY = static_cast<long double>(Position.Y) - ViewPosition.Y;
-        if (static_cast<long double>(DY) * DY + static_cast<long double>(DX) * DX >= 25.0L) {
-            if (DX != 0.0L || DY != 0.0L) {
+        float DX = static_cast<float>(static_cast<double>(Position.X) - ViewPosition.X);
+        float DY = static_cast<float>(static_cast<double>(Position.Y) - ViewPosition.Y);
+        if (static_cast<float>(static_cast<float>(static_cast<double>(DY) * DY) + static_cast<float>(static_cast<double>(DX) * DX)) >= 25.0) {
+            if (DX != 0.0 || DY != 0.0) {
                 TargetHeading = aMyFunction::RadiansToHeadingDegrees(Math::ArcTan2(DX, -DY));
-                if (CurrentFocusDistance == 0.0L) {
+                if (CurrentFocusDistance == 0.0) {
                     CurrentFocusDistance = TargetFocusDistance;
                 }
                 if (static_cast<std::uint32_t>(GR_Main::GameScreenHeight) >= 768) {
@@ -261,13 +273,16 @@ namespace GI_StarFieldM {
                     Star = Stars;
                     for (auto cpp_range = pas::for_to<std::int32_t>(0, StarCount - 1); cpp_range.next(I); ) {
                         EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Star->PreviousByteOffset), 0);
-                        Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                        Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                                static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                     }
                 } else {
                     Star = Stars;
                     for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, StarCount - 1); cpp_range_2.next(I); ) {
-                        EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Star->PreviousByteOffset), Star->SavedPixel);
-                        Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                        EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Star->PreviousByteOffset),
+                            Star->SavedPixel);
+                        Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                                static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                     }
                 }
             }
@@ -283,11 +298,13 @@ namespace GI_StarFieldM {
             Star = Stars;
             I = StarCount;
             while (I > 0) {
-                Star->ByteOffset = Star->PixelPosition.X * 2 + Star->PixelPosition.Y * GR_Main::ScreenRenderBuffer->PitchBytes;
+                Star->ByteOffset = Star->PixelPosition.X * 2 + Star->PixelPosition.Y *
+                            GR_Main::ScreenRenderBuffer->PitchBytes;
                 if (GlobalsV::BGImage) {
                     Star->SavedPixel = EC_Mem::ReadWordEC(EC_Mem::AddPointerOffset(Buffer, Star->ByteOffset));
                 }
-                Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                        static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                 --I;
             }
         }
@@ -303,8 +320,10 @@ namespace GI_StarFieldM {
         std::int32_t Count = StarCount;
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Count > 0) {
-                GR_DX::QueueDrawPoint(Pixel->PixelPosition.X, Pixel->PixelPosition.Y, GR_DX::Color565ToArgb(Pixel->Color), 255);
-                Pixel = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                GR_DX::QueueDrawPoint(Pixel->PixelPosition.X, Pixel->PixelPosition.Y,
+                    GR_DX::Color565ToArgb(Pixel->Color), 255);
+                Pixel = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Pixel,
+                        static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(nullptr);
@@ -312,7 +331,8 @@ namespace GI_StarFieldM {
             Buffer = GR_Main::ScreenRenderBuffer->GetPixels();
             while (Count > 0) {
                 EC_Mem::WriteWordEC(EC_Mem::AddPointerOffset(Buffer, Pixel->ByteOffset), Pixel->Color);
-                Pixel = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Pixel, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                Pixel = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Pixel,
+                        static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                 --Count;
             }
         }
@@ -326,7 +346,8 @@ namespace GI_StarFieldM {
             I = StarCount;
             while (I > 0) {
                 Star->PreviousByteOffset = Star->ByteOffset;
-                Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star, static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
+                Star = static_cast<PMovingStarPixel>(EC_Mem::AddPointerOffset(Star,
+                        static_cast<std::int32_t>(sizeof(TMovingStarPixel))));
                 --I;
             }
         }

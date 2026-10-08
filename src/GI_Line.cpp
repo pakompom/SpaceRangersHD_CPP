@@ -52,9 +52,11 @@ namespace GI_Line {
 
     void TLineGI::Draw(Types::TRect ClipRect) {
         if (GlobalsV::HardwareRenderingEnabled) {
-            GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1, HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(Color), 255, &ClipRect);
+            GR_DX::DrawAlphaLine(HitTestBounds.Left, HitTestBounds.Top, HitTestBounds.Right - 1,
+                HitTestBounds.Bottom - 1, GR_DX::Color565ToArgb(Color), 255, &ClipRect);
         } else {
-            GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top), ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
+            GR_Main::ScreenRenderBuffer->DrawLine16Clipped(ClassesImports::Point(HitTestBounds.Left, HitTestBounds.Top),
+                ClassesImports::Point(HitTestBounds.Right - 1, HitTestBounds.Bottom - 1), Color, ClipRect);
         }
     }
 

@@ -7,8 +7,10 @@ namespace GI_PSWeapon02FragCannon {
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, FirstParticle) == 308);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, LastParticle) == 312);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, PrimaryColor) == 316);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, SecondaryColor) == 318);
-    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, ProjectionBounds) == 320);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, SecondaryColor) ==
+            318);
+    static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TPSWeapon02FragCannon, ProjectionBounds) ==
+            320);
     static_assert(sizeof(void*) != 4 || sizeof(GI_PSWeapon02FragCannon::TFragCannonParticle) == 32);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TFragCannonParticle, Prev) == 0);
     static_assert(sizeof(void*) != 4 || offsetof(GI_PSWeapon02FragCannon::TFragCannonParticle, Next) == 4);

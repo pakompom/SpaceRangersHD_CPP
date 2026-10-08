@@ -14,7 +14,6 @@
 #include "units/GR_Main.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native TPSWeapon10AVision and methods; includes its configuration palette loader.
@@ -33,7 +32,8 @@ namespace GI_PSWeapon10AVision {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         AVisionPalettes.set_length(Count);
         AVisionAnimationPaths.set_length(Count);
@@ -42,14 +42,19 @@ namespace GI_PSWeapon10AVision {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 3); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         AVisionPalettes[Index][ColorIndex] = ([&] {
-                            double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
-                            double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
-                            double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
-                            return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW, extractDecimalToSingleW_2, extractDecimalToSingleW_3);
-                        }());
+                                double extractDecimalToSingleW = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 0, u","sv));
+                                double extractDecimalToSingleW_2 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 1, u","sv));
+                                double extractDecimalToSingleW_3 = EC_Str::ExtractDecimalToSingleW(
+                                    EC_Str::ExtractDelimitedPartW(pas::view(Text), 2, u","sv));
+                                return GR_Main::CurrentPixelFormat->PackNormalizedRgb(extractDecimalToSingleW,
+                                    extractDecimalToSingleW_2, extractDecimalToSingleW_3);
+                            }());
                     }
                 }
                 if (PaletteBlock->CountParams(u"GAI"_wref.get()) > 0) {
@@ -59,7 +64,8 @@ namespace GI_PSWeapon10AVision {
         }
     }
 
-    void TPSWeapon10AVision_Create(TPSWeapon10AVision* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon10AVision_Create(TPSWeapon10AVision* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->RemainingTicks = 40;
         Self->LifetimeTicks = 40;
@@ -109,14 +115,16 @@ namespace GI_PSWeapon10AVision {
 
     void TPSWeapon10AVision::GrowParticles() {
         ParticleCapacity += 100;
-        Particles = static_cast<PAVisionParticle>(EC_Mem::ReAllocREC(Particles, ParticleCapacity * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
+        Particles = static_cast<PAVisionParticle>(EC_Mem::ReAllocREC(Particles,
+                ParticleCapacity * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
     }
 
     PAVisionParticle TPSWeapon10AVision::AddParticle() {
         if (ParticleCount >= ParticleCapacity) {
             GrowParticles();
         }
-        PAVisionParticle Result = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particles, ParticleCount * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
+        PAVisionParticle Result = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particles,
+            ParticleCount * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
         ++ParticleCount;
         return Result;
     }
@@ -126,7 +134,8 @@ namespace GI_PSWeapon10AVision {
         std::int32_t I{};
         float Y{};
         if (RemainingTicks == 40) {
-            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y));
+            OriginalLength = System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                        TargetPoint.Y));
             for (I = 0; I <= 3; ++I) {
                 Y = 0.0f;
                 while (Y < OriginalLength) {
@@ -142,10 +151,11 @@ namespace GI_PSWeapon10AVision {
                     Particle->InitialFadeInTicks = 11 - I;
                     Particle->FadeInTicks = Particle->InitialFadeInTicks;
                     Particle->Velocity.X = 0.0f;
-                    Particle->Velocity.Y = 7.0L - I * 2;
-                    Particle->FadeOutThreshold = System::Trunc(System::Sin(pas::real_divide(SystemImports::Pi * Y, 4.0E+1L)) * 8.0L + 2.0E+1L);
+                    Particle->Velocity.Y = static_cast<float>(7.0 - I * 2);
+                    Particle->FadeOutThreshold = pas::real_trunc(static_cast<float>(static_cast<float>(System::Sin(static_cast<float>(static_cast<float>(SystemImports::Pi * Y) / 4.0E+1)) * 8.0) +
+                            2.0E+1));
                     Particle->Color = Colors[I];
-                    Y = Y + 1.5L + I;
+                    Y = static_cast<float>(static_cast<float>(Y + 1.5) + I);
                 }
             }
         }
@@ -155,10 +165,10 @@ namespace GI_PSWeapon10AVision {
         UpdateHitTestBounds();
         while (Count > 0) {
             if (Particle->Kind == 1) {
-                Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
+                Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
                 if (Particle->Position.Y > OriginalLength) {
-                    Particle->Position.Y = static_cast<long double>(Particle->Position.Y) - OriginalLength;
+                    Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) - OriginalLength);
                     Particle->Alpha = 0;
                     Particle->FadeInTicks = Particle->InitialFadeInTicks;
                 } else {
@@ -173,9 +183,9 @@ namespace GI_PSWeapon10AVision {
                     Particle->Kind = 3;
                 }
             } else if (Particle->Kind == 2) {
-                Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
-                if (OriginalLength - 32.0L < Particle->Position.Y) {
+                Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
+                if (static_cast<float>(OriginalLength - 32.0) < Particle->Position.Y) {
                     if (Particle->Alpha < 245) {
                         Particle->Alpha += 10;
                     } else {
@@ -183,7 +193,7 @@ namespace GI_PSWeapon10AVision {
                     }
                 }
                 if (Particle->Position.Y > OriginalLength) {
-                    Particle->Position.Y = static_cast<long double>(Particle->Position.Y) - OriginalLength;
+                    Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) - OriginalLength);
                     Particle->Alpha = 0;
                     Particle->FadeInTicks = Particle->InitialFadeInTicks;
                     Particle->Kind = 1;
@@ -192,10 +202,10 @@ namespace GI_PSWeapon10AVision {
                     Particle->Kind = 3;
                 }
             } else if (Particle->Kind == 3) {
-                Particle->Position.X = static_cast<long double>(Particle->Position.X) + Particle->Velocity.X;
-                Particle->Position.Y = static_cast<long double>(Particle->Position.Y) + Particle->Velocity.Y;
+                Particle->Position.X = static_cast<float>(static_cast<double>(Particle->Position.X) + Particle->Velocity.X);
+                Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) + Particle->Velocity.Y);
                 if (Particle->Position.Y > OriginalLength) {
-                    Particle->Position.Y = static_cast<long double>(Particle->Position.Y) - OriginalLength;
+                    Particle->Position.Y = static_cast<float>(static_cast<double>(Particle->Position.Y) - OriginalLength);
                     Particle->Alpha = 0;
                 }
                 if (Particle->Alpha > 12) {
@@ -205,7 +215,8 @@ namespace GI_PSWeapon10AVision {
                 }
             }
             ++I;
-            Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particles, I * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
+            Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particles,
+                    I * static_cast<std::int32_t>(sizeof(TAVisionParticle))));
             --Count;
         }
         --RemainingTicks;
@@ -215,12 +226,13 @@ namespace GI_PSWeapon10AVision {
         std::int32_t X{};
         std::int32_t Y{};
         float PX{};
-        if (OriginalLength == 0.0L) {
+        if (OriginalLength == 0.0) {
             OriginalLength = 1.0f;
         }
-        float Scale = pas::real_divide(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y - TargetPoint.Y)), OriginalLength);
+        float Scale = static_cast<float>(System::Sqrt(pas::sqr(LocalPosition.X - TargetPoint.X) + pas::sqr(LocalPosition.Y -
+                TargetPoint.Y)) / OriginalLength);
         float PY = -(TargetPoint.Y - LocalPosition.Y);
-        if (PY == 0.0L) {
+        if (PY == 0.0) {
             PY = 1.0f;
         }
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, PY);
@@ -232,12 +244,15 @@ namespace GI_PSWeapon10AVision {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
-                Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TAVisionParticle))));
+                Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TAVisionParticle))));
                 --Count;
             }
             GR_DX::FlushDrawPoints(&ClipRect);
@@ -245,14 +260,17 @@ namespace GI_PSWeapon10AVision {
             while (Count > 0) {
                 if (Particle->Kind >= 1) {
                     PX = Particle->Position.X;
-                    PY = static_cast<long double>(Particle->Position.Y) * Scale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine + static_cast<long double>(PY) * Sine) + AbsolutePosition.X;
-                    Y = System::Round(static_cast<long double>(PX) * Sine - static_cast<long double>(PY) * Cosine) + AbsolutePosition.Y;
+                    PY = static_cast<float>(static_cast<double>(Particle->Position.Y) * Scale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) + static_cast<float>(static_cast<double>(PY) * Sine))) +
+                            AbsolutePosition.X;
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) - static_cast<float>(static_cast<double>(PY) * Cosine))) +
+                            AbsolutePosition.Y;
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }
                 }
-                Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particle, static_cast<std::int32_t>(sizeof(TAVisionParticle))));
+                Particle = static_cast<PAVisionParticle>(EC_Mem::AddPointerOffset(Particle,
+                        static_cast<std::int32_t>(sizeof(TAVisionParticle))));
                 --Count;
             }
         }

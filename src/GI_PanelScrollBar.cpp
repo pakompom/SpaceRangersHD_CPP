@@ -15,9 +15,11 @@
 namespace GI_PanelScrollBar {
     void TPanelScrollBarGI_Create(TPanelScrollBarGI* Self, GI_MessageLoop::TObjectGI* Owner) {
         GI_Panel::TPanelGI_Create(Self, Owner);
-        Self->HorizontalScrollBar = pas::construct_call<GI_ScrollBar::TScrollBarGI>(GI_ScrollBar::TScrollBarGI_Create, Self);
+        Self->HorizontalScrollBar = pas::construct_call<GI_ScrollBar::TScrollBarGI>(GI_ScrollBar::TScrollBarGI_Create,
+                Self);
         Self->HorizontalScrollBar->UserValue = -1;
-        Self->VerticalScrollBar = pas::construct_call<GI_ScrollBar::TScrollBarGI>(GI_ScrollBar::TScrollBarGI_Create, Self);
+        Self->VerticalScrollBar = pas::construct_call<GI_ScrollBar::TScrollBarGI>(GI_ScrollBar::TScrollBarGI_Create,
+                Self);
         Self->VerticalScrollBar->UserValue = -1;
         Self->HorizontalScrollBar->DestroyNotify = pas::bind_method<&TPanelScrollBarGI::ScrollbarDestroyed>(Self);
         Self->VerticalScrollBar->DestroyNotify = pas::bind_method<&TPanelScrollBarGI::ScrollbarDestroyed>(Self);
@@ -29,8 +31,10 @@ namespace GI_PanelScrollBar {
         Self->VerticalScrollBar->SetKindCalcMode(1);
         Self->HorizontalScrollBar->SetDepth(-1.0E+30);
         Self->VerticalScrollBar->SetDepth(-1.0E+30);
-        Self->HorizontalScrollBar->PositionChangedCallback = pas::bind_method<&TPanelScrollBarGI::ScrollbarPositionChanged>(Self);
-        Self->VerticalScrollBar->PositionChangedCallback = pas::bind_method<&TPanelScrollBarGI::ScrollbarPositionChanged>(Self);
+        Self->HorizontalScrollBar->PositionChangedCallback = pas::bind_method<
+                &TPanelScrollBarGI::ScrollbarPositionChanged>(Self);
+        Self->VerticalScrollBar->PositionChangedCallback = pas::bind_method<
+                &TPanelScrollBarGI::ScrollbarPositionChanged>(Self);
         Self->AutoHorizontalPlacement = true;
         Self->AutoVerticalPlacement = true;
         Self->ScrollbarsOutside = false;
@@ -139,33 +143,50 @@ namespace GI_PanelScrollBar {
     void TPanelScrollBarGI::UpdateScrollbarPlacement() {
         if (!ScrollbarsOutside) {
             if (AutoHorizontalPlacement) {
-                HorizontalScrollBar->SetPosition(ClassesImports::Point(0, ClientSize.Y - HorizontalScrollBar->ClientSize.Y));
-                HorizontalScrollBar->SetSize(ClassesImports::Point(ClientSize.X - VerticalScrollBar->ClientSize.X, HorizontalScrollBar->ClientSize.Y));
+                HorizontalScrollBar->SetPosition(ClassesImports::Point(0,
+                    ClientSize.Y - HorizontalScrollBar->ClientSize.Y));
+                HorizontalScrollBar->SetSize(ClassesImports::Point(ClientSize.X - VerticalScrollBar->ClientSize.X,
+                    HorizontalScrollBar->ClientSize.Y));
             } else {
-                HorizontalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0)));
-                HorizontalScrollBar->SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0))));
+                HorizontalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(
+                    &HorizontalScrollBarRect, 0)));
+                HorizontalScrollBar->SetSize(EC_Struct::SubtractPoints(
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0))));
             }
             if (AutoVerticalPlacement) {
-                VerticalScrollBar->SetPosition(ClassesImports::Point(ClientSize.X - VerticalScrollBar->ClientSize.X, 0));
-                VerticalScrollBar->SetSize(ClassesImports::Point(VerticalScrollBar->ClientSize.X, ClientSize.Y - HorizontalScrollBar->ClientSize.Y));
+                VerticalScrollBar->SetPosition(ClassesImports::Point(ClientSize.X - VerticalScrollBar->ClientSize.X,
+                    0));
+                VerticalScrollBar->SetSize(ClassesImports::Point(VerticalScrollBar->ClientSize.X,
+                    ClientSize.Y - HorizontalScrollBar->ClientSize.Y));
             } else {
-                VerticalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0)));
-                VerticalScrollBar->SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0))));
+                VerticalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(
+                    &VerticalScrollBarRect, 0)));
+                VerticalScrollBar->SetSize(EC_Struct::SubtractPoints(
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0))));
             }
         } else {
             if (AutoHorizontalPlacement) {
-                HorizontalScrollBar->SetPosition(ClassesImports::Point(LocalPosition.X, LocalPosition.Y + ClientSize.Y));
+                HorizontalScrollBar->SetPosition(ClassesImports::Point(LocalPosition.X,
+                    LocalPosition.Y + ClientSize.Y));
                 HorizontalScrollBar->SetSize(ClassesImports::Point(ClientSize.X, HorizontalScrollBar->ClientSize.Y));
             } else {
-                HorizontalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0)));
-                HorizontalScrollBar->SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0))));
+                HorizontalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(
+                    &HorizontalScrollBarRect, 0)));
+                HorizontalScrollBar->SetSize(EC_Struct::SubtractPoints(
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&HorizontalScrollBarRect, 0))));
             }
             if (AutoVerticalPlacement) {
                 VerticalScrollBar->SetPosition(ClassesImports::Point(LocalPosition.X + ClientSize.X, LocalPosition.Y));
                 VerticalScrollBar->SetSize(ClassesImports::Point(VerticalScrollBar->ClientSize.X, ClientSize.Y));
             } else {
-                VerticalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0)));
-                VerticalScrollBar->SetSize(EC_Struct::SubtractPoints(pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 8)), pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0))));
+                VerticalScrollBar->SetPosition(pas::load_unaligned<WindowsSdk::TPoint>(pas::byte_offset(
+                    &VerticalScrollBarRect, 0)));
+                VerticalScrollBar->SetSize(EC_Struct::SubtractPoints(
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 8)),
+                    pas::load_unaligned<Types::TPoint>(pas::byte_offset(&VerticalScrollBarRect, 0))));
             }
         }
     }
@@ -183,7 +204,8 @@ namespace GI_PanelScrollBar {
         Bounds.Bottom = -0x7ffffff0;
         GI_MessageLoop::TObjectGI* Child = FirstChild;
         while (Child != nullptr) {
-            if (Child != HorizontalScrollBar && Child != VerticalScrollBar && Child->PositionModeW == true && Child->Active == true) {
+            if (Child != HorizontalScrollBar && Child != VerticalScrollBar && Child->PositionModeW == true &&
+                Child->Active == true) {
                 ChildBounds = Child->GetLocalBounds();
                 if (ChildBounds.Left < Bounds.Left) {
                     Bounds.Left = ChildBounds.Left;

@@ -61,7 +61,7 @@ namespace SysUtilsImports {
 
     std::int32_t StrComp(std::uint8_t* Left, std::uint8_t* Right);
 
-    std::int32_t AnsiStrComp(std::uint8_t* Left, std::uint8_t* Right);
+    inline std::int32_t AnsiStrComp(std::uint8_t* Left, std::uint8_t* Right);
 
     pas::AnsiString StrPas(std::uint8_t* Str);
 
@@ -75,15 +75,17 @@ namespace SysUtilsImports {
 
     System::TDateTime EncodeTime(std::uint16_t Hour, std::uint16_t Min, std::uint16_t Sec, std::uint16_t MSec);
 
-    pas::AnsiString FloatToStrF(pas::Extended Value, TFloatFormat Format, std::int32_t Precision, std::int32_t Digits);
+    pas::AnsiString FloatToStrF(double Value, TFloatFormat Format, std::int32_t Precision, std::int32_t Digits);
 
-    inline pas::AnsiString FixedFloatText(pas::Extended Value, std::int32_t Precision, std::int32_t Digits, std::uint8_t Separator);
+    inline pas::AnsiString FixedFloatText(double Value, std::int32_t Precision, std::int32_t Digits,
+        std::uint8_t Separator);
 
     System::TDateTime Now();
 
     void DecodeDate(System::TDateTime DateTime, std::uint16_t& Year, std::uint16_t& Month, std::uint16_t& Day);
 
-    void DecodeTime(System::TDateTime DateTime, std::uint16_t& Hour, std::uint16_t& Min, std::uint16_t& Sec, std::uint16_t& MSec);
+    void DecodeTime(System::TDateTime DateTime, std::uint16_t& Hour, std::uint16_t& Min, std::uint16_t& Sec,
+        std::uint16_t& MSec);
 
     System::TDateTime SystemTimeToDateTime(const Windows::TSystemTime& SystemTime);
 

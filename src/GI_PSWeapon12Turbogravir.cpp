@@ -16,7 +16,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Turbogravir dual strands and Blue Whirl, including dormant particle states.
@@ -36,7 +35,8 @@ namespace GI_PSWeapon12Turbogravir {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         TurbogravirPrimaryPalettes.set_length(Count);
         TurbogravirSecondaryPalettes.set_length(Count);
@@ -45,18 +45,25 @@ namespace GI_PSWeapon12Turbogravir {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 2); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                            TurbogravirPrimaryPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                            TurbogravirPrimaryPalettes[Index][3 * ColorIndex + PartIndex] =
+                                EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                                    PartIndex, u","sv));
                         }
                     }
                 }
                 for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, 2); cpp_range_5.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex + 3)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex + 3)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex + 3)})) >
+                        0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex + 3)})));
                         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, 2); cpp_range_6.next(PartIndex); ) {
-                            TurbogravirSecondaryPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                            TurbogravirSecondaryPalettes[Index][3 * ColorIndex + PartIndex] =
+                                EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                                    PartIndex, u","sv));
                         }
                     }
                 }
@@ -64,7 +71,8 @@ namespace GI_PSWeapon12Turbogravir {
         }
     }
 
-    void TPSWeapon12Turbogravir_Create(TPSWeapon12Turbogravir* Self, GI_MessageLoop::TObjectGI* Owner, std::int32_t APaletteIndex) {
+    void TPSWeapon12Turbogravir_Create(TPSWeapon12Turbogravir* Self, GI_MessageLoop::TObjectGI* Owner,
+        std::int32_t APaletteIndex) {
         GI_PSWeapon::TPSWeaponGI_Create(Self, Owner);
         Self->HalfWidth = 3;
         Self->Wavelength = 64;
@@ -87,9 +95,9 @@ namespace GI_PSWeapon12Turbogravir {
         std::int32_t I{};
         float Angle{};
         for (auto cpp_range = pas::for_to<std::int32_t>(0, PhaseMask); cpp_range.next(I); ) {
-            Angle = pas::real_divide(I, Wavelength) * 2.0L * SystemImports::Pi;
-            OffsetTable[I] = System::Trunc(System::Sin(Angle) * HalfWidth);
-            AlphaTable[I] = System::Trunc((System::Cos(Angle) + 1.5L) * 1.0E+2L);
+            Angle = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(I) / Wavelength) * 2.0) * SystemImports::Pi);
+            OffsetTable[I] = pas::real_trunc(static_cast<float>(System::Sin(Angle) * HalfWidth));
+            AlphaTable[I] = pas::real_trunc(static_cast<float>((static_cast<float>(System::Cos(Angle) + 1.5)) * 1.0E+2));
         }
     }
 
@@ -115,20 +123,25 @@ namespace GI_PSWeapon12Turbogravir {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth * 2) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth * 2) * Cosine;
-        float D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth * 2) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth * 2) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth * 2) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth * 2) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth * 2) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth * 2) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon12Turbogravir::UpdateHitTestBounds() {
@@ -148,7 +161,8 @@ namespace GI_PSWeapon12Turbogravir {
     }
 
     PTurbogravirParticle TPSWeapon12Turbogravir::AddParticle() {
-        PTurbogravirParticle Particle = static_cast<PTurbogravirParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TTurbogravirParticle))));
+        PTurbogravirParticle Particle = static_cast<PTurbogravirParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TTurbogravirParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -180,7 +194,8 @@ namespace GI_PSWeapon12Turbogravir {
     void TPSWeapon12Turbogravir::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -199,9 +214,10 @@ namespace GI_PSWeapon12Turbogravir {
         std::int32_t X{};
         if (FirstParticle == nullptr && RemainingTicks > 24) {
             I = 0;
-            Distance = System::Trunc(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)));
+            Distance = pas::real_trunc(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)));
             OriginalLength = Distance;
-            if (OriginalLength == 0.0L) {
+            if (OriginalLength == 0.0) {
                 OriginalLength = 1.0;
             }
             LengthScale = 1.0;
@@ -212,7 +228,9 @@ namespace GI_PSWeapon12Turbogravir {
                         Particle = AddParticle();
                         Particle->Position.X = X;
                         Particle->Position.Y = I;
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(TurbogravirPrimaryPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 5.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(TurbogravirPrimaryPalettes[PaletteIndex]),
+                                static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 5.0));
                         if (I < 64) {
                             Particle->Alpha = pas::shr(I * AlphaTable[I & PhaseMask], 6);
                         }
@@ -223,7 +241,9 @@ namespace GI_PSWeapon12Turbogravir {
                         Particle = AddParticle();
                         Particle->Position.X = X;
                         Particle->Position.Y = I + 1;
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(TurbogravirPrimaryPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 5.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(TurbogravirPrimaryPalettes[PaletteIndex]),
+                                static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 5.0));
                         if (I < 64) {
                             Particle->Alpha = pas::shr(I * AlphaTable[I & PhaseMask], 6);
                         }
@@ -237,7 +257,9 @@ namespace GI_PSWeapon12Turbogravir {
                         Particle = AddParticle();
                         Particle->Position.X = X;
                         Particle->Position.Y = I;
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(TurbogravirSecondaryPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 5.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(TurbogravirSecondaryPalettes[PaletteIndex]),
+                                static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 5.0));
                         Particle->Alpha = AlphaTable[I + HalfWavelength & PhaseMask];
                         if (I < 64) {
                             Particle->Alpha = pas::shr(I * AlphaTable[I + HalfWavelength & PhaseMask], 6);
@@ -249,7 +271,9 @@ namespace GI_PSWeapon12Turbogravir {
                         Particle = AddParticle();
                         Particle->Position.X = X;
                         Particle->Position.Y = I + 1;
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(TurbogravirSecondaryPalettes[PaletteIndex]), pas::real_divide(I, Distance) * 5.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(TurbogravirSecondaryPalettes[PaletteIndex]),
+                                static_cast<float>(static_cast<float>(static_cast<double>(I) / Distance) * 5.0));
                         Particle->Alpha = AlphaTable[I + HalfWavelength & PhaseMask];
                         if (I < 64) {
                             Particle->Alpha = pas::shr(I * AlphaTable[I + HalfWavelength & PhaseMask], 6);
@@ -263,8 +287,9 @@ namespace GI_PSWeapon12Turbogravir {
                 I += 2;
             }
         } else {
-            Distance = System::Round(OriginalLength);
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            Distance = pas::real_round(OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -279,7 +304,8 @@ namespace GI_PSWeapon12Turbogravir {
                         }
                         Current->Position.X = OffsetTable[Current->Position.Y & PhaseMask];
                         if (Current->Position.Y < 64) {
-                            Current->Alpha = pas::shr(Current->Position.Y * AlphaTable[Current->Position.Y & PhaseMask], 6);
+                            Current->Alpha = pas::shr(Current->Position.Y * AlphaTable[Current->Position.Y & PhaseMask],
+                                    6);
                         } else {
                             Current->Alpha = AlphaTable[Current->Position.Y & PhaseMask];
                         }
@@ -293,7 +319,9 @@ namespace GI_PSWeapon12Turbogravir {
                         }
                         Current->Position.X = OffsetTable[Current->Position.Y + HalfWavelength & PhaseMask];
                         if (Current->Position.Y < 64) {
-                            Current->Alpha = pas::shr(Current->Position.Y * AlphaTable[Current->Position.Y + HalfWavelength & PhaseMask], 6);
+                            Current->Alpha = pas::shr(
+                                    Current->Position.Y * AlphaTable[Current->Position.Y + HalfWavelength & PhaseMask],
+                                    6);
                         } else {
                             Current->Alpha = AlphaTable[Current->Position.Y + HalfWavelength & PhaseMask];
                         }
@@ -334,12 +362,14 @@ namespace GI_PSWeapon12Turbogravir {
                         break;
                     }
                     case 5: {
-                        Current->FloatPosition.Y = static_cast<long double>(Current->FloatPosition.Y) + Current->FloatVelocity.Y;
-                        Current->FloatPosition.X = static_cast<long double>(Current->FloatPosition.X) + Current->FloatVelocity.X;
-                        Current->Position.X = System::Trunc(Current->FloatPosition.X);
-                        Current->Position.Y = System::Trunc(Current->FloatPosition.Y);
-                        Current->FloatVelocity.Y = 0.95L * Current->FloatVelocity.Y;
-                        Current->FloatVelocity.X = 0.95L * Current->FloatVelocity.X;
+                        Current->FloatPosition.Y = static_cast<float>(static_cast<double>(Current->FloatPosition.Y) +
+                                Current->FloatVelocity.Y);
+                        Current->FloatPosition.X = static_cast<float>(static_cast<double>(Current->FloatPosition.X) +
+                                Current->FloatVelocity.X);
+                        Current->Position.X = pas::real_trunc(Current->FloatPosition.X);
+                        Current->Position.Y = pas::real_trunc(Current->FloatPosition.Y);
+                        Current->FloatVelocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->FloatVelocity.Y);
+                        Current->FloatVelocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->FloatVelocity.X);
                         if (Current->Alpha < 246) {
                             Current->Alpha += 16;
                         }
@@ -349,12 +379,14 @@ namespace GI_PSWeapon12Turbogravir {
                         break;
                     }
                     case 6: {
-                        Current->FloatPosition.Y = static_cast<long double>(Current->FloatPosition.Y) + Current->FloatVelocity.Y;
-                        Current->FloatPosition.X = static_cast<long double>(Current->FloatPosition.X) + Current->FloatVelocity.X;
-                        Current->Position.X = System::Trunc(Current->FloatPosition.X);
-                        Current->Position.Y = System::Trunc(Current->FloatPosition.Y);
-                        Current->FloatVelocity.Y = 0.95L * Current->FloatVelocity.Y;
-                        Current->FloatVelocity.X = 0.95L * Current->FloatVelocity.X;
+                        Current->FloatPosition.Y = static_cast<float>(static_cast<double>(Current->FloatPosition.Y) +
+                                Current->FloatVelocity.Y);
+                        Current->FloatPosition.X = static_cast<float>(static_cast<double>(Current->FloatPosition.X) +
+                                Current->FloatVelocity.X);
+                        Current->Position.X = pas::real_trunc(Current->FloatPosition.X);
+                        Current->Position.Y = pas::real_trunc(Current->FloatPosition.Y);
+                        Current->FloatVelocity.Y = static_cast<float>(0x1.e666666666665p-1 * Current->FloatVelocity.Y);
+                        Current->FloatVelocity.X = static_cast<float>(0x1.e666666666665p-1 * Current->FloatVelocity.X);
                         if (Current->Alpha > 25) {
                             Current->Alpha -= 20;
                         }
@@ -384,10 +416,12 @@ namespace GI_PSWeapon12Turbogravir {
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
                 if (Particle->State != 255) {
-                    PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                     GR_DX::QueueDrawPoint(X - 1, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 }
@@ -397,10 +431,12 @@ namespace GI_PSWeapon12Turbogravir {
         } else {
             while (Particle != nullptr) {
                 if (Particle->State != 255) {
-                    PX = static_cast<long double>(Particle->Position.X) * LengthScale;
-                    PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                    X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                    Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                    PX = static_cast<float>(static_cast<double>(Particle->Position.X) * LengthScale);
+                    PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                    X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                            AbsolutePosition.X));
+                    Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                            AbsolutePosition.Y));
                     if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                         GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                     }

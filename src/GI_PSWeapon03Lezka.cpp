@@ -15,7 +15,6 @@
 #include "units/GlobalsV.hpp"
 #include "units/Math.hpp"
 #include "units/MathImports.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 
 // Native Lezka beam and its two configured gradient palettes.
@@ -35,7 +34,8 @@ namespace GI_PSWeapon03Lezka {
         ColorIndex = Block->GetBlockCount();
         std::int32_t Count = 0;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, ColorIndex - 1); cpp_range.next(Index); ) {
-            Count = std::max<std::int32_t>(Count, EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
+            Count = std::max<std::int32_t>(Count,
+                    EC_Str::ExtractDigitsToIntW(pas::view(Block->GetBlockNameByIndex(Index))) + 1);
         }
         LezkaPrimaryPalettes.set_length(Count);
         LezkaSecondaryPalettes.set_length(Count);
@@ -44,18 +44,25 @@ namespace GI_PSWeapon03Lezka {
             if (Block->CountBlocks(Text) != 0) {
                 PaletteBlock = Block->GetBlockByPath(Text);
                 for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, 2); cpp_range_3.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex)})) > 0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex)})));
                         for (auto cpp_range_4 = pas::for_to<std::int32_t>(0, 2); cpp_range_4.next(PartIndex); ) {
-                            LezkaPrimaryPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                            LezkaPrimaryPalettes[Index][3 * ColorIndex + PartIndex] =
+                                EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                                    PartIndex, u","sv));
                         }
                     }
                 }
                 for (auto cpp_range_5 = pas::for_to<std::int32_t>(0, 2); cpp_range_5.next(ColorIndex); ) {
-                    if (PaletteBlock->CountParams(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex + 3)}))) > 0) {
-                        Text = PaletteBlock->GetParam(pas::view(static_cast<pas::WideString>(pas::concat_ansi({"Color", SysUtils::IntToStr(ColorIndex + 3)}))));
+                    if (PaletteBlock->CountParams(pas::concat_wide({u"Color", pas::wide_int_to_str(ColorIndex + 3)})) >
+                        0) {
+                        Text = PaletteBlock->GetParam(pas::view(pas::concat_wide({u"Color",
+                                pas::wide_int_to_str(ColorIndex + 3)})));
                         for (auto cpp_range_6 = pas::for_to<std::int32_t>(0, 2); cpp_range_6.next(PartIndex); ) {
-                            LezkaSecondaryPalettes[Index][3 * ColorIndex + PartIndex] = EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text), PartIndex, u","sv));
+                            LezkaSecondaryPalettes[Index][3 * ColorIndex + PartIndex] =
+                                EC_Str::ExtractDecimalToSingleW(EC_Str::ExtractDelimitedPartW(pas::view(Text),
+                                    PartIndex, u","sv));
                         }
                     }
                 }
@@ -107,20 +114,25 @@ namespace GI_PSWeapon03Lezka {
         float Angle = Math::ArcTan2(TargetPoint.X - LocalPosition.X, DY);
         float Sine = System::Sin(Angle);
         float Cosine = System::Cos(Angle);
-        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
-        float A = static_cast<long double>(-HalfWidth - 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float B = static_cast<long double>(HalfWidth + 12) * Cosine - static_cast<long double>(-Distance) * Sine;
-        float C = static_cast<long double>(-HalfWidth - 12) * Cosine;
-        float D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Left = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Right = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
-        A = static_cast<long double>(-HalfWidth - 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        B = static_cast<long double>(HalfWidth + 12) * Sine + static_cast<long double>(-Distance) * Cosine;
-        C = static_cast<long double>(-HalfWidth - 12) * Sine;
+        float Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                LocalPosition.Y));
+        float A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine) - static_cast<float>(static_cast<double>(-Distance) * Sine));
+        float C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Cosine);
+        float D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Left = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Right = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
+        A = static_cast<float>(static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        B = static_cast<float>(static_cast<float>(static_cast<double>(HalfWidth + 12) * Sine) + static_cast<float>(static_cast<double>(-Distance) * Cosine));
+        C = static_cast<float>(static_cast<double>(-HalfWidth - 12) * Sine);
         // Native uses Cosine for this final corner as well.
-        D = static_cast<long double>(HalfWidth + 12) * Cosine;
-        ProjectionBounds.Top = MathImports::Floor(pas::real_min<float>(pas::real_min<float>(pas::real_min<float>(A, B), C), D));
-        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max<float>(pas::real_max<float>(pas::real_max<float>(A, B), C), D));
+        D = static_cast<float>(static_cast<double>(HalfWidth + 12) * Cosine);
+        ProjectionBounds.Top = MathImports::Floor(pas::real_min_scalar<float>(
+                pas::real_min_scalar<float>(pas::real_min_scalar<float>(A, B), C), D));
+        ProjectionBounds.Bottom = MathImports::Ceil(pas::real_max_scalar<float>(
+                pas::real_max_scalar<float>(pas::real_max_scalar<float>(A, B), C), D));
     }
 
     void TPSWeapon03Lezka::UpdateHitTestBounds() {
@@ -140,7 +152,8 @@ namespace GI_PSWeapon03Lezka {
     }
 
     PLezkaParticle TPSWeapon03Lezka::AddParticle() {
-        PLezkaParticle Particle = static_cast<PLezkaParticle>(EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TLezkaParticle))));
+        PLezkaParticle Particle = static_cast<PLezkaParticle>(
+            EC_Mem::AllocEC(static_cast<std::int32_t>(sizeof(TLezkaParticle))));
         if (LastParticle != nullptr) {
             LastParticle->Next = Particle;
         }
@@ -168,7 +181,8 @@ namespace GI_PSWeapon03Lezka {
     void TPSWeapon03Lezka::InvalidateRect(Types::TRect Rect) {
         Types::TPoint Target{};
         Types::TRect Intersection{};
-        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition), Parent->ToAbsolutePoint(TargetPoint));
+        MessageLoop->UpdateRects->AddScreenClippedRect(HitTestBounds, Parent->ToAbsolutePoint(LocalPosition),
+            Parent->ToAbsolutePoint(TargetPoint));
         Target = Parent->ToAbsolutePoint(TargetPoint);
         Rect.Left = Target.X - 24;
         Rect.Right = Target.X + 24;
@@ -192,37 +206,42 @@ namespace GI_PSWeapon03Lezka {
         std::uint8_t UnusedAlpha{};
         if (FirstParticle == nullptr && RemainingTicks >= 2) {
             Y = 0;
-            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y));
+            Distance = System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y));
             OriginalLength = Distance;
-            if (OriginalLength == 0.0L) {
+            if (OriginalLength == 0.0) {
                 OriginalLength = 1.0;
             }
             LengthScale = 1.0;
             UnusedAlpha = 0;
-            while (static_cast<long double>(Y) < Distance) {
-                Phase = pas::real_divide(Y, Distance);
+            while (static_cast<double>(Y) < Distance) {
+                Phase = static_cast<float>(static_cast<double>(Y) / Distance);
                 Particle = AddParticle();
                 {
                     std::int32_t cpp_left = pas::random(HalfWidth * 2, &System::RandSeed);
-                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position, EC_Struct::MakePointF(cpp_left - HalfWidth, Y));
+                    pas::store_unaligned<EC_Struct::TPointF>(&Particle->Position,
+                        EC_Struct::MakePointF(cpp_left - HalfWidth, Y));
                 }
                 switch (pas::random(3, &System::RandSeed)) {
                     case 0: {
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(LezkaPrimaryPalettes[PaletteIndex]), Phase * 8.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(LezkaPrimaryPalettes[PaletteIndex]), static_cast<float>(Phase * 8.0));
                         break;
                     }
                     case 1: {
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(LezkaSecondaryPalettes[PaletteIndex]), Phase * 8.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(LezkaSecondaryPalettes[PaletteIndex]), static_cast<float>(Phase * 8.0));
                         break;
                     }
                     case 2: {
-                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(pas::open_array(LezkaPrimaryPalettes[PaletteIndex]), Phase * 8.0L);
+                        Particle->Color = GI_PSWeapon::TPSWeaponGI::SampleGradientColor(
+                                pas::open_array(LezkaPrimaryPalettes[PaletteIndex]), static_cast<float>(Phase * 8.0));
                         break;
                     }
                 }
                 Particle->MaximumAlpha = pas::random(250, &System::RandSeed);
                 if (Y < 64) {
-                    Particle->Alpha = pas::shr(System::Trunc(Particle->MaximumAlpha * Y), 6);
+                    Particle->Alpha = pas::shr(pas::real_trunc(Particle->MaximumAlpha * Y), 6);
                 } else {
                     Particle->Alpha = Particle->MaximumAlpha;
                 }
@@ -239,7 +258,8 @@ namespace GI_PSWeapon03Lezka {
             }
         } else {
             Distance = OriginalLength;
-            LengthScale = pas::real_divide(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y - LocalPosition.Y)), OriginalLength);
+            LengthScale = static_cast<float>(System::Sqrt(pas::sqr(TargetPoint.X - LocalPosition.X) + pas::sqr(TargetPoint.Y -
+                        LocalPosition.Y)) / OriginalLength);
             UpdateHitTestBounds();
             Particle = FirstParticle;
             while (Particle != nullptr) {
@@ -247,23 +267,26 @@ namespace GI_PSWeapon03Lezka {
                 Particle = Particle->Next;
                 switch (Current->State) {
                     case 1: {
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        if (Distance + 16.0L < Current->Position.Y) {
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) - Distance;
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        if (static_cast<float>(Distance + 16.0) < Current->Position.Y) {
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) - Distance);
                             {
                                 std::int32_t cpp_left_2 = pas::random(HalfWidth * 2, &System::RandSeed);
                                 Current->Position.X = cpp_left_2 - HalfWidth;
                             }
-                            pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity, EC_Struct::MakePointF(0.0f, 3.0f));
+                            pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity,
+                                EC_Struct::MakePointF(0.0f, 3.0f));
                         }
                         if (Current->MaximumAlpha > 254 - Current->AlphaStep) {
                             Current->MaximumAlpha = 255;
                         } else {
                             Current->MaximumAlpha += Current->AlphaStep;
                         }
-                        if (Current->Position.Y < 64.0L) {
-                            Current->Alpha = pas::shr(System::Trunc(static_cast<long double>(Current->MaximumAlpha) * Current->Position.Y), 6);
+                        if (Current->Position.Y < 64.0) {
+                            Current->Alpha = pas::shr(
+                                    pas::real_trunc(static_cast<float>(static_cast<double>(Current->MaximumAlpha) * Current->Position.Y)),
+                                    6);
                         } else {
                             Current->Alpha = Current->MaximumAlpha;
                         }
@@ -273,23 +296,26 @@ namespace GI_PSWeapon03Lezka {
                         break;
                     }
                     case 2: {
-                        Current->Position.X = static_cast<long double>(Current->Position.X) + Current->Velocity.X;
-                        Current->Position.Y = static_cast<long double>(Current->Position.Y) + Current->Velocity.Y;
-                        if (Distance + 16.0L < Current->Position.Y) {
-                            Current->Position.Y = static_cast<long double>(Current->Position.Y) - Distance;
+                        Current->Position.X = static_cast<float>(static_cast<double>(Current->Position.X) + Current->Velocity.X);
+                        Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) + Current->Velocity.Y);
+                        if (static_cast<float>(Distance + 16.0) < Current->Position.Y) {
+                            Current->Position.Y = static_cast<float>(static_cast<double>(Current->Position.Y) - Distance);
                             {
                                 std::int32_t cpp_left_3 = pas::random(HalfWidth * 2, &System::RandSeed);
                                 Current->Position.X = cpp_left_3 - HalfWidth;
                             }
-                            pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity, EC_Struct::MakePointF(0.0f, 3.0f));
+                            pas::store_unaligned<EC_Struct::TPointF>(&Current->Velocity,
+                                EC_Struct::MakePointF(0.0f, 3.0f));
                         }
                         if (Current->MaximumAlpha < Current->AlphaStep) {
                             Current->MaximumAlpha = 0;
                         } else {
                             Current->MaximumAlpha -= Current->AlphaStep;
                         }
-                        if (Current->Position.Y < 64.0L) {
-                            Current->Alpha = pas::shr(System::Trunc(static_cast<long double>(Current->MaximumAlpha) * Current->Position.Y), 6);
+                        if (Current->Position.Y < 64.0) {
+                            Current->Alpha = pas::shr(
+                                    pas::real_trunc(static_cast<float>(static_cast<double>(Current->MaximumAlpha) * Current->Position.Y)),
+                                    6);
                         } else {
                             Current->Alpha = Current->MaximumAlpha;
                         }
@@ -319,9 +345,11 @@ namespace GI_PSWeapon03Lezka {
         if (GlobalsV::HardwareRenderingEnabled) {
             while (Particle != nullptr) {
                 PX = Particle->Position.X;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 GR_DX::QueueDrawPoint(X, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 GR_DX::QueueDrawPoint(X - 1, Y, GR_DX::Color565ToArgb(Particle->Color), Particle->Alpha);
                 Particle = Particle->Next;
@@ -330,9 +358,11 @@ namespace GI_PSWeapon03Lezka {
         } else {
             while (Particle != nullptr) {
                 PX = Particle->Position.X;
-                PY = static_cast<long double>(-Particle->Position.Y) * LengthScale;
-                X = System::Round(static_cast<long double>(PX) * Cosine - static_cast<long double>(PY) * Sine + AbsolutePosition.X);
-                Y = System::Round(static_cast<long double>(PX) * Sine + static_cast<long double>(PY) * Cosine + AbsolutePosition.Y);
+                PY = static_cast<float>(static_cast<double>(-Particle->Position.Y) * LengthScale);
+                X = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Cosine) - static_cast<float>(static_cast<double>(PY) * Sine)) +
+                        AbsolutePosition.X));
+                Y = pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(PX) * Sine) + static_cast<float>(static_cast<double>(PY) * Cosine)) +
+                        AbsolutePosition.Y));
                 if (X >= ClipRect.Left && X < ClipRect.Right && Y >= ClipRect.Top && Y < ClipRect.Bottom) {
                     GR_Main::ScreenRenderBuffer->BlendPixel16(X, Y, Particle->Color, Particle->Alpha);
                 }

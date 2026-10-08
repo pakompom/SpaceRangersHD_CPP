@@ -112,8 +112,10 @@ namespace fEquipmentShop {
         static void PreviewCycleComplete(GI_MessageLoop::TObjectGI* Sender);
         void HideItemInfo(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData);
         void RefreshItemInfo(aItem::TItem* Item);
-        void BuildHullSlotOverlays(GI_MessageLoop::TObjectGI* Parent, aItem::THull* Hull, std::int32_t OffsetX, std::int32_t OffsetY);
-        void RefreshHullInfo(GI_MessageLoop::TMessageLoopGI* Target, aItem::THull* Hull, pas::WideString Text, std::uint8_t SuppressImage);
+        void BuildHullSlotOverlays(GI_MessageLoop::TObjectGI* Parent, aItem::THull* Hull, std::int32_t OffsetX,
+            std::int32_t OffsetY);
+        void RefreshHullInfo(GI_MessageLoop::TMessageLoopGI* Target, aItem::THull* Hull, pas::WideString Text,
+            std::uint8_t SuppressImage);
         void ProcessMouseWheel(std::uint32_t KeyState, WindowsSdk::TPoint Point, std::int32_t Delta) override;
         void MainPanelKeyDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t Key);
         void ExecuteUiCode(EC_BlockPar::TBlockParEC* Block, std::uint32_t Key) override;

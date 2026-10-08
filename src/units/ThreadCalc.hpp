@@ -21,6 +21,4 @@ namespace ThreadCalc {
 
     void ProcessPlayerStarTurn();
 
-    void TThreadCalc_Execute(TThreadCalc* Self);
-
 } // namespace ThreadCalc

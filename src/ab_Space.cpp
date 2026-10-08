@@ -14,7 +14,6 @@
 #include "units/GR_Main.hpp"
 #include "units/Globals.hpp"
 #include "units/GlobalsV.hpp"
-#include "units/SysUtils.hpp"
 #include "units/System.hpp"
 #include "units/aConst.hpp"
 #include "units/aGalaxy.hpp"
@@ -33,7 +32,7 @@
 
 // Native TabSpace VMT; field recovery is incomplete.
 namespace ab_Space {
-    float FindApproachDanger(TabSpace* Space, float Accumulated);
+    static float FindApproachDanger(TabSpace* Space, float Accumulated);
 
     ab_Space::TabSpace* FirstArcadeSpace = nullptr;
 
@@ -98,10 +97,22 @@ namespace ab_Space {
             Bounds.Top = 1000000000;
             Bounds.Bottom = -1000000000;
             for (Index = 0; Index <= 10; ++Index) {
-                Bounds.Left = std::min<std::int32_t>(Bounds.Left, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))));
-                Bounds.Top = std::min<std::int32_t>(Bounds.Top, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))));
-                Bounds.Right = std::max<std::int32_t>(Bounds.Right, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))));
-                Bounds.Bottom = std::max<std::int32_t>(Bounds.Bottom, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))));
+                Bounds.Left = std::min<std::int32_t>(Bounds.Left,
+                        pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                            pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)),
+                            offsetof(Types::TPoint, X))));
+                Bounds.Top = std::min<std::int32_t>(Bounds.Top,
+                        pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                            pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)),
+                            offsetof(Types::TPoint, Y))));
+                Bounds.Right = std::max<std::int32_t>(Bounds.Right,
+                        pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                            pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)),
+                            offsetof(Types::TPoint, X))));
+                Bounds.Bottom = std::max<std::int32_t>(Bounds.Bottom,
+                        pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                            pas::byte_offset(&Link->Points, Index * sizeof(Types::TPoint)),
+                            offsetof(Types::TPoint, Y))));
             }
             Bounds.Left += OffsetX;
             Bounds.Top += OffsetY;
@@ -125,75 +136,56 @@ namespace ab_Space {
         while (Link != nullptr) {
             First = EC_Struct::PointToPointF(Link->First->MapPosition);
             Last = EC_Struct::PointToPointF(Link->Last->MapPosition);
-            DirectionX = static_cast<long double>(Last.X) - First.X;
-            DirectionY = static_cast<long double>(Last.Y) - First.Y;
-            InverseLength = pas::real_divide(1.0L, System::Sqrt(pas::sqr(static_cast<pas::Extended>(DirectionX)) + pas::sqr(static_cast<pas::Extended>(DirectionY))));
-            DirectionX = static_cast<long double>(DirectionX) * InverseLength;
-            DirectionY = static_cast<long double>(DirectionY) * InverseLength;
-            ArrowLength = GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 0.5L;
-            First.X = static_cast<long double>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius)) * DirectionX * 1.1L + First.X;
-            First.Y = static_cast<long double>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius)) * DirectionY * 1.1L + First.Y;
-            Last.X = Last.X - (GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 1.1L + ArrowLength) * DirectionX;
-            Last.Y = Last.Y - (GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 1.1L + ArrowLength) * DirectionY;
-            WidthX = static_cast<long double>(GR_Main::GiScalePixels(7)) * DirectionX;
-            WidthY = static_cast<long double>(GR_Main::GiScalePixels(7)) * DirectionY;
-            {
-                std::int32_t round = System::Round(static_cast<long double>(First.Y) + WidthX);
-                std::int32_t round_2 = System::Round(static_cast<long double>(First.X) - WidthY);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), ClassesImports::Point(round_2, round));
-            }
-            {
-                std::int32_t round_3 = System::Round(static_cast<long double>(First.Y) - WidthX);
-                std::int32_t round_4 = System::Round(static_cast<long double>(First.X) + WidthY);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), ClassesImports::Point(round_4, round_3));
-            }
-            {
-                std::int32_t round_5 = System::Round(static_cast<long double>(Last.Y) - WidthX - DirectionY * 2.0L);
-                std::int32_t round_6 = System::Round(static_cast<long double>(Last.X) + WidthY - DirectionX * 2.0L);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), ClassesImports::Point(round_6, round_5));
-            }
-            {
-                std::int32_t round_7 = System::Round(static_cast<long double>(Last.Y) + WidthX - DirectionY * 2.0L);
-                std::int32_t round_8 = System::Round(static_cast<long double>(Last.X) - WidthY - DirectionX * 2.0L);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), ClassesImports::Point(round_8, round_7));
-            }
-            {
-                std::int32_t round_9 = System::Round(0.7L * WidthX + First.Y);
-                std::int32_t round_10 = System::Round(First.X - 0.7L * WidthY);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), ClassesImports::Point(round_10, round_9));
-            }
-            {
-                std::int32_t round_11 = System::Round(First.Y - 0.7L * WidthX);
-                std::int32_t round_12 = System::Round(0.7L * WidthY + First.X);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), ClassesImports::Point(round_12, round_11));
-            }
-            {
-                std::int32_t round_13 = System::Round(Last.Y - 0.7L * WidthX - DirectionY * 2.0L);
-                std::int32_t round_14 = System::Round(0.7L * WidthY + Last.X - DirectionX * 2.0L);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), ClassesImports::Point(round_14, round_13));
-            }
-            {
-                std::int32_t round_15 = System::Round(0.7L * WidthX + Last.Y - DirectionY * 2.0L);
-                std::int32_t round_16 = System::Round(Last.X - 0.7L * WidthY - DirectionX * 2.0L);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), ClassesImports::Point(round_16, round_15));
-            }
-            WidthX = static_cast<long double>(DirectionX) * ArrowLength * 0.4L;
-            WidthY = static_cast<long double>(DirectionY) * ArrowLength * 0.4L;
-            {
-                std::int32_t round_17 = System::Round(static_cast<long double>(Last.Y) + WidthX);
-                std::int32_t round_18 = System::Round(static_cast<long double>(Last.X) - WidthY);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), ClassesImports::Point(round_18, round_17));
-            }
-            {
-                std::int32_t round_19 = System::Round(static_cast<long double>(DirectionY) * ArrowLength + Last.Y);
-                std::int32_t round_20 = System::Round(static_cast<long double>(DirectionX) * ArrowLength + Last.X);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), ClassesImports::Point(round_20, round_19));
-            }
-            {
-                std::int32_t round_21 = System::Round(static_cast<long double>(Last.Y) - WidthX);
-                std::int32_t round_22 = System::Round(static_cast<long double>(Last.X) + WidthY);
-                pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), ClassesImports::Point(round_22, round_21));
-            }
+            DirectionX = static_cast<float>(static_cast<double>(Last.X) - First.X);
+            DirectionY = static_cast<float>(static_cast<double>(Last.Y) - First.Y);
+            InverseLength = static_cast<float>(1.0 / System::Sqrt(static_cast<float>(pas::sqr(static_cast<double>(DirectionX)) +
+                        pas::sqr(static_cast<double>(DirectionY)))));
+            DirectionX = static_cast<float>(static_cast<double>(DirectionX) * InverseLength);
+            DirectionY = static_cast<float>(static_cast<double>(DirectionY) * InverseLength);
+            ArrowLength = static_cast<float>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 0.5);
+            First.X = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius)) * DirectionX) * 0x1.199999999999bp+0) +
+                    First.X);
+            First.Y = static_cast<float>(static_cast<float>(static_cast<float>(static_cast<double>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius)) * DirectionY) * 0x1.199999999999bp+0) +
+                    First.Y);
+            Last.X = static_cast<float>(Last.X - static_cast<float>((static_cast<float>(static_cast<float>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 0x1.199999999999bp+0) + ArrowLength)) * DirectionX));
+            Last.Y = static_cast<float>(Last.Y - static_cast<float>((static_cast<float>(static_cast<float>(GR_Main::GiScalePixels(ab_Global::ArcadeMapNodeRadius) * 0x1.199999999999bp+0) + ArrowLength)) * DirectionY));
+            WidthX = static_cast<float>(static_cast<double>(GR_Main::GiScalePixels(7)) * DirectionX);
+            WidthY = static_cast<float>(static_cast<double>(GR_Main::GiScalePixels(7)) * DirectionY);
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<double>(First.X) - WidthY)),
+                    pas::real_round(static_cast<float>(static_cast<double>(First.Y) + WidthX))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<double>(First.X) + WidthY)),
+                    pas::real_round(static_cast<float>(static_cast<double>(First.Y) - WidthX))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Last.X) + WidthY) - static_cast<float>(DirectionX * 2.0))),
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Last.Y) - WidthX) - static_cast<float>(DirectionY * 2.0)))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Last.X) - WidthY) - static_cast<float>(DirectionX * 2.0))),
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(Last.Y) + WidthX) - static_cast<float>(DirectionY * 2.0)))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(First.X - static_cast<float>(0x1.6666666666665p-1 * WidthY))),
+                    pas::real_round(static_cast<float>(static_cast<float>(0x1.6666666666665p-1 * WidthX) + First.Y))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(0x1.6666666666665p-1 * WidthY) + First.X)),
+                    pas::real_round(static_cast<float>(First.Y - static_cast<float>(0x1.6666666666665p-1 * WidthX)))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(0x1.6666666666665p-1 * WidthY) + Last.X) - static_cast<float>(DirectionX * 2.0))),
+                    pas::real_round(static_cast<float>(static_cast<float>(Last.Y - static_cast<float>(0x1.6666666666665p-1 * WidthX)) - static_cast<float>(DirectionY * 2.0)))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(Last.X - static_cast<float>(0x1.6666666666665p-1 * WidthY)) - static_cast<float>(DirectionX * 2.0))),
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<float>(0x1.6666666666665p-1 * WidthX) + Last.Y) - static_cast<float>(DirectionY * 2.0)))));
+            WidthX = static_cast<float>(static_cast<float>(static_cast<double>(DirectionX) * ArrowLength) * 0x1.999999999999bp-2);
+            WidthY = static_cast<float>(static_cast<float>(static_cast<double>(DirectionY) * ArrowLength) * 0x1.999999999999bp-2);
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<double>(Last.X) - WidthY)),
+                    pas::real_round(static_cast<float>(static_cast<double>(Last.Y) + WidthX))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(DirectionX) * ArrowLength) + Last.X)),
+                    pas::real_round(static_cast<float>(static_cast<float>(static_cast<double>(DirectionY) * ArrowLength) + Last.Y))));
+            pas::store_unaligned<Types::TPoint>(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)),
+                ClassesImports::Point(pas::real_round(static_cast<float>(static_cast<double>(Last.X) + WidthY)),
+                    pas::real_round(static_cast<float>(static_cast<double>(Last.Y) - WidthX))));
             Link = Link->Next;
         }
     }
@@ -208,73 +200,214 @@ namespace ab_Space {
         while (Link != nullptr) {
             ColorOffset = Link->Last->AppearanceIndex * 6;
             if (GlobalsV::HardwareRenderingEnabled) {
-                GR_DX::DrawGradientLine(pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, 0x40ffffffu, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, 0xc0ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                GR_DX::DrawGradientLine(pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, 0x40ffffffu, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, 0xc0ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                GR_DX::DrawColoredTriangle(pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2], true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                GR_DX::DrawColoredTriangle(pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3], true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
-                GR_DX::DrawColoredTriangle(pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 1], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset], pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX, pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 1], true, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                GR_DX::DrawGradientLine(
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, 0x40ffffffu,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, 0xc0ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                GR_DX::DrawGradientLine(
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, 0x40ffffffu,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, 0xc0ffffffu, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                GR_DX::DrawColoredTriangle(
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2], true,
+                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                GR_DX::DrawColoredTriangle(
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 2],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 3], true,
+                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                GR_DX::DrawColoredTriangle(
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 1],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset],
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX,
+                    pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY, ab_Global::ArcadeMapPalette[ColorOffset + 1], true,
+                    reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
             } else {
                 {
-                    std::int32_t cpp_arg = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_2 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
-                    std::int32_t cpp_arg_3 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
+                    std::int32_t cpp_arg = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_2 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
+                    std::int32_t cpp_arg_3 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 10 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
                     WindowsSdk::TRect gameScreenRect = GR_Main::GameScreenRect;
                     void* pixels = GR_Main::ScreenRenderBuffer->GetPixels();
-                    std::int32_t cpp_arg_4 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_4 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 7 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::int32_t pitchBytes = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::DrawGradientLine16Clipped(pixels, pitchBytes, cpp_arg_4, cpp_arg, 0x40ffffffu, cpp_arg_2, cpp_arg_3, 0xc0ffffffu, gameScreenRect);
+                    GR_Main::DrawGradientLine16Clipped(pixels, pitchBytes, cpp_arg_4, cpp_arg, 0x40ffffffu, cpp_arg_2,
+                        cpp_arg_3, 0xc0ffffffu, gameScreenRect);
                 }
                 {
-                    std::int32_t cpp_arg_5 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_6 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
-                    std::int32_t cpp_arg_7 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
+                    std::int32_t cpp_arg_5 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_6 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
+                    std::int32_t cpp_arg_7 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 9 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
                     WindowsSdk::TRect gameScreenRect_2 = GR_Main::GameScreenRect;
                     void* pixels_2 = GR_Main::ScreenRenderBuffer->GetPixels();
-                    std::int32_t cpp_arg_8 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_8 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 8 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::int32_t pitchBytes_2 = GR_Main::ScreenRenderBuffer->PitchBytes;
-                    GR_Main::DrawGradientLine16Clipped(pixels_2, pitchBytes_2, cpp_arg_8, cpp_arg_5, 0x40ffffffu, cpp_arg_6, cpp_arg_7, 0xc0ffffffu, gameScreenRect_2);
+                    GR_Main::DrawGradientLine16Clipped(pixels_2, pitchBytes_2, cpp_arg_8, cpp_arg_5, 0x40ffffffu,
+                        cpp_arg_6, cpp_arg_7, 0xc0ffffffu, gameScreenRect_2);
                 }
                 {
                     std::uint32_t cpp_arg_9 = ab_Global::ArcadeMapPalette[ColorOffset + 2];
-                    std::int32_t cpp_arg_10 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_11 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_10 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_11 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_12 = ab_Global::ArcadeMapPalette[ColorOffset + 3];
-                    std::int32_t cpp_arg_13 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_14 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_13 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_14 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 1 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_15 = ab_Global::ArcadeMapPalette[ColorOffset + 3];
-                    std::int32_t cpp_arg_16 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_17 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_16 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_17 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::int32_t pitchBytes_3 = GR_Main::ScreenRenderBuffer->PitchBytes;
                     void* pixels_3 = GR_Main::ScreenRenderBuffer->GetPixels();
-                    Rasterizer(pixels_3, pitchBytes_3, cpp_arg_17, cpp_arg_16, cpp_arg_15, cpp_arg_14, cpp_arg_13, cpp_arg_12, cpp_arg_11, cpp_arg_10, cpp_arg_9, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                    Rasterizer(pixels_3, pitchBytes_3, cpp_arg_17, cpp_arg_16, cpp_arg_15, cpp_arg_14, cpp_arg_13,
+                        cpp_arg_12, cpp_arg_11, cpp_arg_10, cpp_arg_9,
+                        reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                 }
                 {
                     std::uint32_t cpp_arg_18 = ab_Global::ArcadeMapPalette[ColorOffset + 3];
-                    std::int32_t cpp_arg_19 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_20 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_19 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_20 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 0 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_21 = ab_Global::ArcadeMapPalette[ColorOffset + 2];
-                    std::int32_t cpp_arg_22 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_23 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_22 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_23 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 3 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_24 = ab_Global::ArcadeMapPalette[ColorOffset + 2];
-                    std::int32_t cpp_arg_25 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_26 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_25 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_26 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 2 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::int32_t pitchBytes_4 = GR_Main::ScreenRenderBuffer->PitchBytes;
                     void* pixels_4 = GR_Main::ScreenRenderBuffer->GetPixels();
-                    Rasterizer(pixels_4, pitchBytes_4, cpp_arg_26, cpp_arg_25, cpp_arg_24, cpp_arg_23, cpp_arg_22, cpp_arg_21, cpp_arg_20, cpp_arg_19, cpp_arg_18, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                    Rasterizer(pixels_4, pitchBytes_4, cpp_arg_26, cpp_arg_25, cpp_arg_24, cpp_arg_23, cpp_arg_22,
+                        cpp_arg_21, cpp_arg_20, cpp_arg_19, cpp_arg_18,
+                        reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                 }
                 {
                     std::uint32_t cpp_arg_27 = ab_Global::ArcadeMapPalette[ColorOffset + 1];
-                    std::int32_t cpp_arg_28 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_29 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_28 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_29 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 6 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_30 = ab_Global::ArcadeMapPalette[ColorOffset];
-                    std::int32_t cpp_arg_31 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_32 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_31 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_32 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 5 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::uint32_t cpp_arg_33 = ab_Global::ArcadeMapPalette[ColorOffset + 1];
-                    std::int32_t cpp_arg_34 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) + OffsetY;
-                    std::int32_t cpp_arg_35 = pas::load_unaligned<std::int32_t>(pas::byte_offset(pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) + OffsetX;
+                    std::int32_t cpp_arg_34 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, Y))) +
+                        OffsetY;
+                    std::int32_t cpp_arg_35 = pas::load_unaligned<std::int32_t>(pas::byte_offset(
+                        pas::byte_offset(&Link->Points, 4 * sizeof(Types::TPoint)), offsetof(Types::TPoint, X))) +
+                        OffsetX;
                     std::int32_t pitchBytes_5 = GR_Main::ScreenRenderBuffer->PitchBytes;
                     void* pixels_5 = GR_Main::ScreenRenderBuffer->GetPixels();
-                    Rasterizer(pixels_5, pitchBytes_5, cpp_arg_35, cpp_arg_34, cpp_arg_33, cpp_arg_32, cpp_arg_31, cpp_arg_30, cpp_arg_29, cpp_arg_28, cpp_arg_27, reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
+                    Rasterizer(pixels_5, pitchBytes_5, cpp_arg_35, cpp_arg_34, cpp_arg_33, cpp_arg_32, cpp_arg_31,
+                        cpp_arg_30, cpp_arg_29, cpp_arg_28, cpp_arg_27,
+                        reinterpret_cast<WindowsSdk::PRect>(&GR_Main::GameScreenRect));
                 }
             }
             Link = Link->Next;
@@ -365,7 +498,8 @@ namespace ab_Space {
     }
 
     PabSpaceLink ab_SpaceLink_Add() {
-        PabSpaceLink Link = static_cast<PabSpaceLink>(EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TabSpaceLink))));
+        PabSpaceLink Link = static_cast<PabSpaceLink>(
+            EC_Mem::AllocClearEC(static_cast<std::int32_t>(sizeof(TabSpaceLink))));
         if (LastArcadeSpaceLink != nullptr) {
             LastArcadeSpaceLink->Next = Link;
         }
@@ -459,16 +593,19 @@ namespace ab_Space {
         if (Image == nullptr && this != StartArcadeSpace && this != EndArcadeSpace) {
             Image = pas::construct_call<GI_GAI::TgaiGI>(GI_GAI::TgaiGI_Create, Globals::ArcadeBattleScreen->WorldPanel);
             Image->SetDepth(3.0E+1);
-            if (Danger <= 0.0L) {
-                const pas::WideString& cpp_arg = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"0_", pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))});
+            if (Danger <= 0.0) {
+                const pas::WideString& cpp_arg = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"0_",
+                    pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))});
                 GI_GAI::TgaiGI* image = Image;
                 image->SetImagePath(cpp_arg);
-            } else if (static_cast<long double>(Danger) + ApproachDanger < ab_Global::ArcadeHighDangerThreshold) {
-                const pas::WideString& cpp_arg_2 = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"1_", pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 3))});
+            } else if (static_cast<float>(static_cast<double>(Danger) + ApproachDanger) < ab_Global::ArcadeHighDangerThreshold) {
+                const pas::WideString& cpp_arg_2 = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"1_",
+                    pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 3))});
                 GI_GAI::TgaiGI* image_2 = Image;
                 image_2->SetImagePath(cpp_arg_2);
             } else {
-                const pas::WideString& cpp_arg_3 = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"2_", pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))});
+                const pas::WideString& cpp_arg_3 = pas::concat_wide({u"Bm.ABClot.", GR_Main::GiResourceSuffix(), u"2_",
+                    pas::wide_int_to_str(aMyFunction::RandomIntRange(0, 1))});
                 GI_GAI::TgaiGI* image_3 = Image;
                 image_3->SetImagePath(cpp_arg_3);
             }
@@ -504,8 +641,13 @@ namespace ab_Space {
 
     void TabSpace::ClearObjects() {
         std::int32_t Index{};
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Objects) - 1); cpp_range.next(Index); ) {
-            pas::free(pas::list_at<pas::Object>(Objects, Index));
+        {
+            const std::int32_t cpp_last = pas::list_count(Objects) - 1;
+            if (0 <= cpp_last) {
+                for (Index = 0; Index <= cpp_last; ++Index) {
+                    pas::free(pas::list_at<pas::Object>(Objects, Index));
+                }
+            }
         }
         pas::list_clear(Objects);
     }
@@ -526,7 +668,7 @@ namespace ab_Space {
             return;
         }
         {
-            std::int32_t cpp_case = static_cast<std::int32_t>(System::Round(Danger));
+            std::int32_t cpp_case = static_cast<std::int32_t>(pas::real_round(Danger));
             if (cpp_case == 0) {
                 if (Globals::ArcadeBattleScreen->RandomRange(0, 100) > 90) {
                     Count = Globals::ArcadeBattleScreen->RandomRange(1, 2);
@@ -564,21 +706,26 @@ namespace ab_Space {
             }
         }
         if (Count > 0) {
-            pas::Extended cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, 100);
-            if (cpp_left < aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 2.0E+1, 3.0E+2, 0.0, 9.0E+1)) {
+            double cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, 100);
+            if (cpp_left < aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 2.0E+1, 3.0E+2, 0.0,
+                    9.0E+1)) {
                 Count = 0;
             }
         }
-        if (aPlayer::GetPlayer()->HyperspaceKillCount < pas::real_divide(4.0L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
+        if (aPlayer::GetPlayer()->HyperspaceKillCount < static_cast<float>(4.0 /
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
             Count = std::min<std::int32_t>(Count, 2);
-        } else if (aPlayer::GetPlayer()->HyperspaceKillCount < pas::real_divide(1.0E+1L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
+        } else if (aPlayer::GetPlayer()->HyperspaceKillCount < static_cast<float>(1.0E+1 /
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
             Count = std::min<std::int32_t>(Count, 3);
         }
         if (aPlayer::GetPlayer()->HyperspaceKillCount == 0) {
             Count = 1;
         }
-        std::int32_t Minimum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 0.0, 6.0));
-        std::int32_t Maximum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 5.0, 11.0));
+        std::int32_t Minimum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 0.0,
+            6.0));
+        std::int32_t Maximum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 3.0, 8.0, 5.0,
+            11.0));
         VisualIndex = Globals::ArcadeBattleScreen->RandomRange(1, 5);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Ship = pas::construct_call<ab_ShipAI::TabShipAI>(ab_ShipAI::TabShipAI_Create);
@@ -591,76 +738,89 @@ namespace ab_Space {
                 } else if (cpp_case_2 >= 5 && cpp_case_2 <= 12) {
                     Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 5.0, 12.0, 0.5, 0.8);
                 } else if (cpp_case_2 >= 13 && cpp_case_2 <= 30) {
-                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 13.0, 3.0E+1, 0.8, 1.0);
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 13.0, 3.0E+1, 0.8,
+                            1.0);
                 } else if (cpp_case_2 >= 31 && cpp_case_2 <= 80) {
-                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 31.0, 8.0E+1, 1.0, 1.3);
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 31.0, 8.0E+1, 1.0,
+                            1.3);
                 } else {
-                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 81.0, 1.0E+2, 1.3, 1.6);
+                    Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->HyperspaceKillCount, 81.0, 1.0E+2, 1.3,
+                            1.6);
                 }
             }
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(Danger, 0.0, 1.0E+2, 0.8, 1.2)) * Scale;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth, pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0L), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0, 0.5, 1.2)) * Scale;
-            Scale = static_cast<long double>(Scale) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(Danger, 0.0, 1.0E+2, 0.8, 1.2)) * Scale);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth,
+                    static_cast<float>(aGalaxy::Galaxy->AverageRangerCapital / 2.0), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0,
+                    0.5, 1.2)) * Scale);
+            Scale = static_cast<float>(static_cast<double>(Scale) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             if (Index == 0) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.3)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.3)) * Scale);
             } else if (Index == 1) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale);
             } else {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale);
             }
-            Hitpoints = System::Round(pas::real_max<pas::Extended>(1.5E+2L, pas::real_min<pas::Extended>(aPlayer::GetPlayer()->GetHull()->Weight * 1.2L, 525.0L * Scale)));
-            {
-                const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"Ship.HS.", SysUtils::IntToStr(aMyFunction::IncrementWrapped(VisualIndex, 1, 5))}));
-                std::int32_t round = System::Round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1));
-                Ship->CreateShipVisual(cpp_arg, round);
-            }
-            Hitpoints = System::Round(static_cast<long double>(aGalaxy::Galaxy->GetArcadeHitpointsModifier()) * Hitpoints);
+            Hitpoints = pas::real_round(pas::real_max<double>(1.5E+2,
+                    pas::real_min<double>(static_cast<float>(aPlayer::GetPlayer()->GetHull()->Weight * 0x1.3333333333334p+0), static_cast<float>(525.0 * Scale))));
+            Ship->CreateShipVisual(
+                pas::concat_wide({u"Ship.HS.", pas::wide_int_to_str(aMyFunction::IncrementWrapped(VisualIndex, 1, 5))}),
+                pas::real_round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
+            Hitpoints = pas::real_round(static_cast<float>(static_cast<double>(aGalaxy::Galaxy->GetArcadeHitpointsModifier()) * Hitpoints));
             Ship->MaxHealth = Hitpoints;
             Ship->Health = Hitpoints;
             Ship->MaxSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 7.0, 5.0);
-            Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(Ship->MaxSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->TurnSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 3.0, 2.0);
-            Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(Ship->TurnSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->Thrust = 0.0;
             Ship->WeaponCount = 0;
             Kind = Globals::ArcadeBattleScreen->RandomRange(Minimum, Maximum);
             Ship->AddWeapon(Kind);
             if (Index == 0) {
                 Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
-                if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.9L || aPlayer::GetPlayer()->WealthInBestRanger > 0.9L) {
+                if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.9 || aPlayer::GetPlayer()->WealthInBestRanger >
+                        0.9) {
                     Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
                 }
             }
-            if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7L || aPlayer::GetPlayer()->WealthInBestRanger > 0.7L) {
+            if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7 || aPlayer::GetPlayer()->WealthInBestRanger > 0.7) {
                 Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
             }
-            {
-                pas::Extended cpp_left_2 = Globals::ArcadeBattleScreen->RandomRange(0, System::Round(Danger));
-                if (cpp_left_2 < Danger) {
-                    Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
-                }
+            if (static_cast<double>(Globals::ArcadeBattleScreen->RandomRange(0, pas::real_round(Danger))) < Danger) {
+                Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Ship->WeaponCount - 1); cpp_range_2.next(WeaponIndex); ) {
-                Ship->Weapons[WeaponIndex].Damage = System::Round(static_cast<long double>(aGalaxy::Galaxy->GetArcadeDamageModifier()) * Ship->Weapons[WeaponIndex].Damage);
+            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                Ship->WeaponCount - 1); cpp_range_2.next(WeaponIndex); ) {
+                Ship->Weapons[WeaponIndex].Damage =
+                    pas::real_round(static_cast<float>(static_cast<double>(aGalaxy::Galaxy->GetArcadeDamageModifier()) *
+                        Ship->Weapons[WeaponIndex].Damage));
             }
             Ship->PrimaryWeapon = 0;
             Ship->EncounterTag = 1;
             pas::list_add(Objects, reinterpret_cast<void*>(Ship));
         }
         Kind = 0;
-        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
-        MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(static_cast<long double>(Danger) + ApproachDanger, 0.0, 2.5E+2, 0.2, 1.2)) * MineralBudget);
-        MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(Count, 0.0, 4.0, 0.8, 1.2)) * MineralBudget);
+        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower,
+            pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
+        MineralBudget = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(
+                static_cast<float>(static_cast<double>(Danger) + ApproachDanger), 0.0, 2.5E+2, 0.2, 1.2)) * MineralBudget));
+        MineralBudget = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(Count, 0.0, 4.0, 0.8, 1.2)) *
+                MineralBudget));
         for (Index = 1; Index <= 8; ++Index) {
             Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
             {
                 aItem::TGoods* cpp_with = pas::checked_cast<aItem::TGoods*>(Item);
                 {
-                    pas::Extended cpp_left_3 = Globals::ArcadeBattleScreen->RandomFloat(0.6, 1.3);
-                    std::int64_t round_2 = System::Round(cpp_left_3 * aConst::CargoHookLevelStats[aGalaxy::Galaxy->TechLevel].PickupPower);
-                    std::int64_t randomRange = static_cast<std::int64_t>(Globals::ArcadeBattleScreen->RandomRange(MineralBudget / 8, MineralBudget / 2));
-                    Count = std::min<std::int64_t>(round_2, randomRange) + 1;
+                    double cpp_left_2 = Globals::ArcadeBattleScreen->RandomFloat(0.6, 1.3);
+                    std::int64_t round = pas::real_round(static_cast<float>(cpp_left_2 *
+                        aConst::CargoHookLevelStats[aGalaxy::Galaxy->TechLevel].PickupPower));
+                    std::int64_t randomRange = static_cast<std::int64_t>(Globals::ArcadeBattleScreen->RandomRange(
+                        MineralBudget / 8, MineralBudget / 2));
+                    Count = std::min<std::int64_t>(round, randomRange) + 1;
                 }
                 Kind += Count;
                 cpp_with->Init(aConst::t_Minerals, Count);
@@ -689,14 +849,18 @@ namespace ab_Space {
             return;
         }
         std::int32_t Count = Globals::ArcadeBattleScreen->RandomRange(2, 4);
-        Count = std::min<std::int32_t>(6, Count + System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.0, 2.0)));
+        Count = std::min<std::int64_t>(static_cast<std::int64_t>(6),
+                Count + pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->TechLevel, 4.0, 8.0, 0.0, 2.0)));
         if (aPlayer::GetPlayer()->BlackHoleKillCount == 0) {
             Count = 1;
-        } else if (aPlayer::GetPlayer()->BlackHoleKillCount < pas::real_divide(5.0L, aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
+        } else if (aPlayer::GetPlayer()->BlackHoleKillCount < static_cast<float>(5.0 /
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor)) {
             Count = std::min<std::int32_t>(Count, 2);
         }
-        std::int32_t Minimum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 0.0, 6.0));
-        std::int32_t Maximum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 6.0, 15.0));
+        std::int32_t Minimum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0,
+            0.0, 6.0));
+        std::int32_t Maximum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0,
+            6.0, 15.0));
         VisualIndex = Globals::ArcadeBattleScreen->RandomRange(0, 2);
         for (auto cpp_range = pas::for_to<std::int32_t>(0, Count - 1); cpp_range.next(Index); ) {
             Ship = pas::construct_call<ab_ShipAI::TabShipAI>(ab_ShipAI::TabShipAI_Create);
@@ -716,37 +880,44 @@ namespace ab_Space {
                     Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 41.0, 1.0E+2, 1.3, 1.6);
                 }
             }
-            Scale = static_cast<long double>(Scale) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth, pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0L), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0, 0.5, 1.1)) * Scale;
+            Scale = static_cast<float>(static_cast<double>(Scale) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth,
+                    static_cast<float>(aGalaxy::Galaxy->AverageRangerCapital / 2.0), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0,
+                    0.5, 1.1)) * Scale);
             if (Index == 0) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale);
             } else if (Index == 1) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale);
             } else {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale);
             }
             if (aPlayer::GetPlayer()->BlackHoleKillCount == 0) {
                 Hitpoints = 150;
             } else {
-                Hitpoints = System::Round(pas::real_max<pas::Extended>(1.5E+2L, pas::real_min<pas::Extended>(aPlayer::GetPlayer()->GetHull()->Weight * 1.2L, 525.0L * Scale)));
+                Hitpoints = pas::real_round(pas::real_max<double>(1.5E+2,
+                        pas::real_min<double>(static_cast<float>(aPlayer::GetPlayer()->GetHull()->Weight * 0x1.3333333333334p+0), static_cast<float>(525.0 * Scale))));
             }
-            {
-                const pas::WideString& cpp_arg = static_cast<pas::WideString>(pas::concat_ansi({"Ship.X.", SysUtils::IntToStr(aMyFunction::IncrementWrapped(VisualIndex, 0, 2))}));
-                std::int32_t round = System::Round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1));
-                Ship->CreateShipVisual(cpp_arg, round);
-            }
+            Ship->CreateShipVisual(
+                pas::concat_wide({u"Ship.X.", pas::wide_int_to_str(aMyFunction::IncrementWrapped(VisualIndex, 0, 2))}),
+                pas::real_round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
             if (aGalaxy::Galaxy != nullptr) {
-                Hitpoints = System::Round(static_cast<long double>(aGalaxy::Galaxy->GetArcadeHitpointsModifier()) * Hitpoints);
+                Hitpoints = pas::real_round(static_cast<float>(static_cast<double>(aGalaxy::Galaxy->GetArcadeHitpointsModifier()) *
+                        Hitpoints));
             }
             Ship->MaxHealth = Hitpoints;
             Ship->Health = Hitpoints;
             Ship->MaxSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 7.0, 5.0);
-            Ship->MaxSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed;
-            Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount,
+                    0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed);
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(Ship->MaxSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->TurnSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 4.0, 3.0);
-            Ship->TurnSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed;
-            Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount,
+                    0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed);
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(Ship->TurnSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->Thrust = 0.0;
             Ship->WeaponCount = 0;
             Kind = Globals::ArcadeBattleScreen->RandomRange(Minimum, Maximum);
@@ -754,24 +925,27 @@ namespace ab_Space {
             Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
             if (Index == 0) {
                 Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
-                if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger > 0.9L || aPlayer::GetPlayer()->WealthInBestRanger > 0.9L) {
+                if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger > 0.9 ||
+                    aPlayer::GetPlayer()->WealthInBestRanger > 0.9) {
                     Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
                 }
             }
             if (aPlayer::GetPlayer()->BlackHoleKillCount > 0) {
-                if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7L || aPlayer::GetPlayer()->WealthInBestRanger > 0.7L) {
+                if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7 || aPlayer::GetPlayer()->WealthInBestRanger >
+                        0.7) {
                     Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
                 }
-                {
-                    pas::Extended cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, System::Round(Danger));
-                    if (cpp_left < Danger) {
-                        Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
-                    }
+                if (static_cast<double>(Globals::ArcadeBattleScreen->RandomRange(0, pas::real_round(Danger))) <
+                    Danger) {
+                    Ship->AddWeapon(aMyFunction::IncrementWrapped(Kind, Minimum, Maximum));
                 }
             }
             if (aGalaxy::Galaxy != nullptr) {
-                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, Ship->WeaponCount - 1); cpp_range_2.next(WeaponIndex); ) {
-                    Ship->Weapons[WeaponIndex].Damage = System::Round(static_cast<long double>(aGalaxy::Galaxy->GetArcadeDamageModifier()) * Ship->Weapons[WeaponIndex].Damage);
+                for (auto cpp_range_2 = pas::for_to<std::int32_t>(0,
+                    Ship->WeaponCount - 1); cpp_range_2.next(WeaponIndex); ) {
+                    Ship->Weapons[WeaponIndex].Damage =
+                        pas::real_round(static_cast<float>(static_cast<double>(aGalaxy::Galaxy->GetArcadeDamageModifier()) *
+                            Ship->Weapons[WeaponIndex].Damage));
                 }
             }
             Ship->PrimaryWeapon = 0;
@@ -779,17 +953,21 @@ namespace ab_Space {
             pas::list_add(Objects, reinterpret_cast<void*>(Ship));
         }
         Kind = 0;
-        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower, pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
-        MineralBudget = System::Round(static_cast<long double>(aMyFunction::RemapClamped(Count, 2.0, 4.0, 0.8, 1.2)) * MineralBudget);
+        std::int32_t MineralBudget = std::min<std::int32_t>(aConst::CargoHookLevelStats[8].PickupPower,
+            pas::idiv(aPlayer::GetPlayer()->Wealth / 40, aConst::GoodsMarket[aConst::t_Minerals].AveragePrice));
+        MineralBudget = pas::real_round(static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(Count, 2.0, 4.0, 0.8, 1.2)) *
+                MineralBudget));
         for (Index = 1; Index <= 8; ++Index) {
             Item = pas::construct_call<aItem::TGoods>(aItem::TItem_Create);
             {
                 aItem::TGoods* cpp_with = pas::checked_cast<aItem::TGoods*>(Item);
                 {
-                    pas::Extended cpp_left_2 = Globals::ArcadeBattleScreen->RandomFloat(0.6, 1.3);
-                    std::int64_t round_2 = System::Round(cpp_left_2 * aConst::CargoHookLevelStats[aGalaxy::Galaxy->TechLevel].PickupPower);
-                    std::int64_t randomRange = static_cast<std::int64_t>(Globals::ArcadeBattleScreen->RandomRange(MineralBudget / 8, MineralBudget / 2));
-                    Count = std::min<std::int64_t>(round_2, randomRange) + 1;
+                    double cpp_left = Globals::ArcadeBattleScreen->RandomFloat(0.6, 1.3);
+                    std::int64_t round = pas::real_round(static_cast<float>(cpp_left *
+                        aConst::CargoHookLevelStats[aGalaxy::Galaxy->TechLevel].PickupPower));
+                    std::int64_t randomRange = static_cast<std::int64_t>(Globals::ArcadeBattleScreen->RandomRange(
+                        MineralBudget / 8, MineralBudget / 2));
+                    Count = std::min<std::int64_t>(round, randomRange) + 1;
                 }
                 Kind += Count;
                 cpp_with->Init(aConst::t_Minerals, Count);
@@ -832,36 +1010,45 @@ namespace ab_Space {
                     Scale = aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 41.0, 1.0E+2, 1.3, 1.6);
                 }
             }
-            Scale = static_cast<long double>(Scale) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth, pas::real_divide(aGalaxy::Galaxy->AverageRangerCapital, 2.0L), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale;
-            Scale = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0, 0.5, 1.1)) * Scale;
+            Scale = static_cast<float>(static_cast<double>(Scale) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->Wealth,
+                    static_cast<float>(aGalaxy::Galaxy->AverageRangerCapital / 2.0), aGalaxy::Galaxy->MaxRangerWealth, 0.8, 1.1)) * Scale);
+            Scale = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->StrengthInBestRanger, 0.2, 1.0,
+                    0.5, 1.1)) * Scale);
             if (Index == 0) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(1.0, 1.5)) * Scale);
             } else if (Index == 1) {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.7, 1.1)) * Scale);
             } else {
-                Scale = static_cast<long double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale;
+                Scale = static_cast<float>(static_cast<double>(Globals::ArcadeBattleScreen->RandomFloat(0.2, 0.6)) * Scale);
             }
             if (Ship->ConvertedFromGameShip) {
                 Ship->Health = Ship->Health * Ship->HealthScalePercent / 100;
                 Ship->MaxHealth = Ship->MaxHealth * Ship->HealthScalePercent / 100;
             } else {
-                Hitpoints = System::Round(pas::real_max<pas::Extended>(1.5E+2L, pas::real_min<pas::Extended>(aPlayer::GetPlayer()->GetHull()->Weight * 1.2L, 525.0L * Scale)));
+                Hitpoints = pas::real_round(pas::real_max<double>(1.5E+2,
+                        pas::real_min<double>(static_cast<float>(aPlayer::GetPlayer()->GetHull()->Weight * 0x1.3333333333334p+0), static_cast<float>(525.0 * Scale))));
                 Hitpoints = Ship->HealthScalePercent * Hitpoints / 100;
                 if (Ship->SpawnGraphKey.read(1) == u'R') {
                     Ship->CreateRuinsVisual(Ship->SpawnGraphKey, 128);
                 } else {
-                    Ship->CreateShipVisual(Ship->SpawnGraphKey, System::Round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
+                    Ship->CreateShipVisual(Ship->SpawnGraphKey,
+                        pas::real_round(aMyFunction::RemapClamped(Hitpoints, 1.5E+2, 9.0E+2, 5.0E+1, 8.0E+1)));
                 }
                 Ship->MaxHealth = Hitpoints;
                 Ship->Health = Hitpoints;
             }
             Ship->MaxSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 7.0, 5.0);
-            Ship->MaxSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed;
-            Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount,
+                    0.0, 3.0E+1, 0.6, 1.0)) * Ship->MaxSpeed);
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(Ship->MaxSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->TurnSpeed = aMyFunction::RemapClamped(Ship->VisualDiameter, 5.0E+1, 8.0E+1, 4.0, 3.0);
-            Ship->TurnSpeed = static_cast<long double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount, 0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed;
-            Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(aMyFunction::RemapClamped(aPlayer::GetPlayer()->BlackHoleKillCount,
+                    0.0, 3.0E+1, 0.6, 1.0)) * Ship->TurnSpeed);
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(Ship->TurnSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->Thrust = 0.0;
             if (!Ship->ConvertedFromGameShip) {
                 Ship->WeaponCount = 0;
@@ -878,25 +1065,25 @@ namespace ab_Space {
                         ab_Ship::TabShip* ship_2 = Ship;
                         ship_2->AddWeapon(incrementWrapped_2);
                     }
-                    if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger > 0.9L || aPlayer::GetPlayer()->WealthInBestRanger > 0.9L) {
+                    if (aPlayer::GetPlayer()->BlackHoleKillCount > 0 && aPlayer::GetPlayer()->StrengthInBestRanger >
+                            0.9 || aPlayer::GetPlayer()->WealthInBestRanger > 0.9) {
                         std::int32_t incrementWrapped_3 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
                         ab_Ship::TabShip* ship_3 = Ship;
                         ship_3->AddWeapon(incrementWrapped_3);
                     }
                 }
                 if (aPlayer::GetPlayer()->BlackHoleKillCount > 0) {
-                    if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7L || aPlayer::GetPlayer()->WealthInBestRanger > 0.7L) {
+                    if (aPlayer::GetPlayer()->StrengthInBestRanger > 0.7 || aPlayer::GetPlayer()->WealthInBestRanger >
+                            0.7) {
                         std::int32_t incrementWrapped_4 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
                         ab_Ship::TabShip* ship_4 = Ship;
                         ship_4->AddWeapon(incrementWrapped_4);
                     }
-                    {
-                        pas::Extended cpp_left = Globals::ArcadeBattleScreen->RandomRange(0, System::Round(this->Danger));
-                        if (cpp_left < this->Danger) {
-                            std::int32_t incrementWrapped_5 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
-                            ab_Ship::TabShip* ship_5 = Ship;
-                            ship_5->AddWeapon(incrementWrapped_5);
-                        }
+                    if (static_cast<double>(Globals::ArcadeBattleScreen->RandomRange(0,
+                        pas::real_round(this->Danger))) < this->Danger) {
+                        std::int32_t incrementWrapped_5 = aMyFunction::IncrementWrapped(Kind, Minimum, Maximum);
+                        ab_Ship::TabShip* ship_5 = Ship;
+                        ship_5->AddWeapon(incrementWrapped_5);
                     }
                 }
             }
@@ -909,9 +1096,10 @@ namespace ab_Space {
         if (aPlayer::GetPlayer() == nullptr || ab_MainForm::ActiveArcadeRequestShips == nullptr) {
             return;
         }
-        Minimum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 0.0, 6.0));
-        Maximum = System::Round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 6.0, 15.0));
-        for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(ab_MainForm::ActiveArcadeRequestShips) - 1); cpp_range.next(Index); ) {
+        Minimum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 0.0, 6.0));
+        Maximum = pas::real_round(aMyFunction::RemapClamped(aGalaxy::Galaxy->RefreshTechLevel(), 3.0, 8.0, 6.0, 15.0));
+        for (auto cpp_range = pas::for_to<std::int32_t>(0,
+            pas::list_count(ab_MainForm::ActiveArcadeRequestShips) - 1); cpp_range.next(Index); ) {
             Ship = pas::list_at<ab_ShipAI::TabShipAI>(ab_MainForm::ActiveArcadeRequestShips, Index);
             InitializeScriptedEncounterShip();
             if (Ship->Team == 1) {
@@ -920,11 +1108,16 @@ namespace ab_Space {
                 ab_Ship::PlayerArcadeShip->AddEnemy(Ship);
                 Ship->AddEnemy(ab_Ship::PlayerArcadeShip);
             }
-            for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, pas::list_count(ab_MainForm::ActiveArcadeRequestShips) - 1); cpp_range_2.next(J); ) {
-                if (J != Index) {
-                    OtherShip = pas::list_at<ab_Ship::TabShip>(ab_MainForm::ActiveArcadeRequestShips, J);
-                    if (Ship->Team != OtherShip->Team) {
-                        Ship->AddEnemy(OtherShip);
+            {
+                const std::int32_t cpp_last = pas::list_count(ab_MainForm::ActiveArcadeRequestShips) - 1;
+                if (0 <= cpp_last) {
+                    for (J = 0; J <= cpp_last; ++J) {
+                        if (J != Index) {
+                            OtherShip = pas::list_at<ab_Ship::TabShip>(ab_MainForm::ActiveArcadeRequestShips, J);
+                            if (Ship->Team != OtherShip->Team) {
+                                Ship->AddEnemy(OtherShip);
+                            }
+                        }
                     }
                 }
             }
@@ -943,37 +1136,50 @@ namespace ab_Space {
         Ship = pas::construct_call<ab_ShipAI::TabShipAI>(ab_ShipAI::TabShipAI_Create);
         Ship->CreateRuinsVisual(u"Ruins.Keller"_wref.get(), 128);
         {
-            std::int32_t cpp_case = aPlayer::GetPlayer()->BlackHoleKillCount + aPlayer::GetPlayer()->HyperspaceKillCount;
+            std::int32_t cpp_case = aPlayer::GetPlayer()->BlackHoleKillCount +
+                aPlayer::GetPlayer()->HyperspaceKillCount;
             if (cpp_case >= 0 && cpp_case <= 10) {
-                Ship->MaxHealth = std::max<std::int32_t>(2000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->Weight, 2.0L)));
+                Ship->MaxHealth = std::max<std::int32_t>(2000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->Weight / 2.0)));
             } else if (cpp_case >= 11 && cpp_case <= 20) {
-                Ship->MaxHealth = std::max<std::int32_t>(2000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->Weight, 1.6L)));
+                Ship->MaxHealth = std::max<std::int32_t>(2000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->Weight / 1.6)));
             } else if (cpp_case >= 21 && cpp_case <= 52) {
-                Ship->MaxHealth = std::max<std::int32_t>(2000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->Weight, 1.3L)));
+                Ship->MaxHealth = std::max<std::int32_t>(2000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->Weight / 1.3)));
             } else {
-                Ship->MaxHealth = std::max<std::int32_t>(2000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->Weight, 1.0L)));
+                Ship->MaxHealth = std::max<std::int32_t>(2000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->Weight / 1.0)));
             }
         }
         {
-            std::int32_t cpp_case_2 = aPlayer::GetPlayer()->BlackHoleKillCount + aPlayer::GetPlayer()->HyperspaceKillCount;
+            std::int32_t cpp_case_2 = aPlayer::GetPlayer()->BlackHoleKillCount +
+                aPlayer::GetPlayer()->HyperspaceKillCount;
             if (cpp_case_2 >= 0 && cpp_case_2 <= 10) {
-                Ship->Health = std::max<std::int32_t>(1000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->HullPoints, 2.0L)));
+                Ship->Health = std::max<std::int32_t>(1000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->HullPoints / 2.0)));
             } else if (cpp_case_2 >= 11 && cpp_case_2 <= 20) {
-                Ship->Health = std::max<std::int32_t>(1000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->HullPoints, 1.5L)));
+                Ship->Health = std::max<std::int32_t>(1000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->HullPoints / 1.5)));
             } else if (cpp_case_2 >= 21 && cpp_case_2 <= 52) {
-                Ship->Health = std::max<std::int32_t>(1000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->HullPoints, 1.3L)));
+                Ship->Health = std::max<std::int32_t>(1000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->HullPoints / 1.3)));
             } else {
-                Ship->Health = std::max<std::int32_t>(1000, aMyFunction::RoundAndTruncateToHundreds(pas::real_divide(aKling::KellerShip->GetHull()->HullPoints, 1.0L)));
+                Ship->Health = std::max<std::int32_t>(1000,
+                        aMyFunction::RoundAndTruncateToHundreds(static_cast<float>(aKling::KellerShip->GetHull()->HullPoints / 1.0)));
             }
         }
-        Ship->Health = System::Round(static_cast<long double>(Ship->Health) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
+        Ship->Health = pas::real_round(static_cast<float>(static_cast<double>(Ship->Health) *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor));
         if (Ship->Health > Ship->MaxHealth) {
             Ship->Health = Ship->MaxHealth;
         }
         Ship->MaxSpeed = 6.0;
-        Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+        Ship->MaxSpeed = static_cast<float>(static_cast<double>(Ship->MaxSpeed) *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
         Ship->TurnSpeed = 3.0;
-        Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+        Ship->TurnSpeed = static_cast<float>(static_cast<double>(Ship->TurnSpeed) *
+                aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
         Ship->Thrust = 0.0;
         Ship->WeaponCount = aKling::KellerShip->WeaponCount;
         for (auto cpp_range = pas::for_to<std::int32_t>(0, aKling::KellerShip->WeaponCount - 1); cpp_range.next(I); ) {
@@ -990,7 +1196,8 @@ namespace ab_Space {
         }
         ab_Hit::KellerBreakupTicks = 0;
         ab_Hit::KellerSplitActive = false;
-        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(aGalaxy::Galaxy->DifficultyLevels[6])); cpp_range_3.next(I); ) {
+        for (auto cpp_range_3 = pas::for_to<std::int32_t>(0,
+            static_cast<std::int32_t>(aGalaxy::Galaxy->DifficultyLevels[6])); cpp_range_3.next(I); ) {
             Ship = pas::construct_call<ab_ShipAI::TabShipAI>(ab_ShipAI::TabShipAI_Create);
             if (I == 0) {
                 Ship->CreateShipVisual(u"Ship.Keller.K1"_wref.get(), 100);
@@ -1000,17 +1207,22 @@ namespace ab_Space {
                 {
                     std::int32_t cpp_right = Globals::ArcadeBattleScreen->RandomRange(0, 10);
                     std::int32_t cpp_arg = 90 - 10 * VisualIndex + cpp_right;
-                    const pas::WideString& cpp_arg_2 = static_cast<pas::WideString>(pas::concat_ansi({"Ship.Keller.K", SysUtils::IntToStr(VisualIndex)}));
+                    const pas::WideString& cpp_arg_2 = pas::concat_wide({u"Ship.Keller.K",
+                        pas::wide_int_to_str(VisualIndex)});
                     ab_Ship::TabShip* ship = Ship;
                     ship->CreateShipVisual(cpp_arg_2, cpp_arg);
                 }
-                Ship->Health = System::Round(static_cast<long double>(100 * (8 - VisualIndex)) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
+                Ship->Health = pas::real_round(static_cast<float>(static_cast<double>(100 * (8 - VisualIndex)) *
+                        aConst::GalaxyDifficultyTuning[
+                            aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor));
             }
             Ship->MaxHealth = Ship->Health;
             Ship->MaxSpeed = 7.0;
-            Ship->MaxSpeed = static_cast<long double>(Ship->MaxSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->MaxSpeed = static_cast<float>(static_cast<double>(Ship->MaxSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->TurnSpeed = 4.0;
-            Ship->TurnSpeed = static_cast<long double>(Ship->TurnSpeed) * aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor;
+            Ship->TurnSpeed = static_cast<float>(static_cast<double>(Ship->TurnSpeed) *
+                    aConst::GalaxyDifficultyTuning[aGalaxy::Galaxy->DifficultyLevels[6]].QuestTimeAndExperienceFactor);
             Ship->Thrust = 0.0;
             Ship->WeaponCount = 0;
             if (I == 0) {
@@ -1034,18 +1246,18 @@ namespace ab_Space {
     }
 
     void TabSpace::UpdateApproachDanger() {
-        if (Danger <= 0.0L) {
+        if (Danger <= 0.0) {
             ApproachDanger = 0.0;
             return;
         }
         ApproachDanger = ab_Space::FindApproachDanger(this, 0.0f);
     }
 
-    float FindApproachDanger(TabSpace* Space, float Accumulated) {
+    static float FindApproachDanger(TabSpace* Space, float Accumulated) {
         float Candidate{};
         PabSpaceLink Link = FirstArcadeSpaceLink;
         while (Link != nullptr) {
-            if (Link->Last == Space && Link->First->Danger <= 0.0L) {
+            if (Link->Last == Space && Link->First->Danger <= 0.0) {
                 return Accumulated;
             }
             Link = Link->Next;
@@ -1054,7 +1266,8 @@ namespace ab_Space {
         Link = FirstArcadeSpaceLink;
         while (Link != nullptr) {
             if (Link->Last == Space) {
-                Candidate = ab_Space::FindApproachDanger(Link->First, static_cast<long double>(Accumulated) + Link->First->Danger);
+                Candidate = ab_Space::FindApproachDanger(Link->First,
+                        static_cast<float>(static_cast<double>(Accumulated) + Link->First->Danger));
                 if (Candidate < Result) {
                     Result = Candidate;
                 }
@@ -1073,10 +1286,10 @@ namespace ab_Space {
             Changed = false;
             Space = FirstArcadeSpace;
             while (Space != nullptr) {
-                if (Space->ApproachDanger > 0.0L) {
+                if (Space->ApproachDanger > 0.0) {
                     Link = FirstArcadeSpaceLink;
                     while (Link != nullptr) {
-                        if (Link->First == Space && Link->Last->ApproachDanger > 0.0L) {
+                        if (Link->First == Space && Link->Last->ApproachDanger > 0.0) {
                             break;
                         }
                         Link = Link->Next;
@@ -1084,7 +1297,7 @@ namespace ab_Space {
                     if (Link != nullptr) {
                         Link = FirstArcadeSpaceLink;
                         while (Link != nullptr) {
-                            if (Link->Last == Space && Link->First->ApproachDanger > 0.0L) {
+                            if (Link->Last == Space && Link->First->ApproachDanger > 0.0) {
                                 break;
                             }
                             Link = Link->Next;
@@ -1102,13 +1315,13 @@ namespace ab_Space {
 
     pas::WideString TabSpace::GetDangerText() {
         pas::WideString Result{};
-        if (Danger == 0.0L) {
+        if (Danger == 0.0) {
             return aConst::LocalizedColorText(u"FormAB.DangerMini"_wref.get());
-        } else if (Danger < 4.0E+1L) {
+        } else if (Danger < 4.0E+1) {
             return aConst::LocalizedColorText(u"FormAB.DangerSmall"_wref.get());
-        } else if (Danger < 7.0E+1L) {
+        } else if (Danger < 7.0E+1) {
             return aConst::LocalizedColorText(u"FormAB.DangerAverage"_wref.get());
-        } else if (Danger < 9.0E+1L) {
+        } else if (Danger < 9.0E+1) {
             return aConst::LocalizedColorText(u"FormAB.DangerBig"_wref.get());
         } else {
             return aConst::LocalizedColorText(u"FormAB.DangerHuge"_wref.get());

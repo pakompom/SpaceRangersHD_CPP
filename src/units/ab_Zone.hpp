@@ -78,7 +78,8 @@ namespace ab_Zone {
 
     PabZone ab_Zone_GetRoute(PabZone Source, PabZone Target);
 
-    std::uint8_t ab_Zone_IsHeadingInside(ab_Global::TSphericalBearingState Source, PabZone Zone, double& BearingDelta, double& AngularRadius);
+    std::uint8_t ab_Zone_IsHeadingInside(ab_Global::TSphericalBearingState Source, PabZone Zone, double& BearingDelta,
+        double& AngularRadius);
 
     PabZone ab_Zone_FindReachableRouteZone(PabZone Source);
 
