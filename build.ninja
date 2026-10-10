@@ -24,7 +24,7 @@ rule archive
   description = AR $out
 
 rule link
-  command = zig c++ -target x86-windows-gnu @$out.rsp -Wl,--subsystem,windows -loleaut32 -luser32 -lgdi32 -ld3d9 -o $out && python3 tools/large_address_aware.py $out
+  command = zig c++ -target x86-windows-gnu @$out.rsp -Wl,--subsystem,windows -loleaut32 -luser32 -lgdi32 -ld3d9 -o $out
   description = LINK $out
   rspfile = $out.rsp
   rspfile_content = $in
